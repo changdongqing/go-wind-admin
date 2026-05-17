@@ -1,7 +1,7 @@
 import { createI18n, Locale } from "vue-i18n";
 import { App } from "vue";
 
-import { LoadMessageFn, LocaleSetupOptions, SupportedLanguagesType, LANGUAGE_FILE_MAP } from "@/i18n/types";
+import { LoadMessageFn, LocaleSetupOptions, SupportedLanguagesType } from "@/i18n/types";
 import { loadLocalesMap, loadLocalesMapFromDir } from "@/i18n/utils";
 
 const i18n = createI18n({
@@ -27,7 +27,7 @@ function setI18nLanguage(locale: Locale) {
 }
 
 async function setupI18n(app: App, options: LocaleSetupOptions = {}) {
-  const { defaultLocale = "zh-CN" } = options;
+  const { defaultLocale = "zh-cn" } = options;
   // app可以自行扩展一些第三方库和组件库的国际化
   loadMessages = options.loadMessages || (async () => ({}));
   app.use(i18n);
@@ -42,9 +42,9 @@ async function setupI18n(app: App, options: LocaleSetupOptions = {}) {
 }
 
 async function loadLocaleMessages(lang: SupportedLanguagesType) {
-  // 将应用语言值映射到语言文件目录名
-  const langDir = LANGUAGE_FILE_MAP[lang] || lang;
-  
+  // 将应用语言值转换为语言文件目录名（zh-cn -> zh-CN, en-US -> en-US）
+  const langDir = lang === "zh-cn" ? "zh-CN" : lang;
+
   if (unref(i18n.global.locale) === lang) {
     return setI18nLanguage(lang);
   }

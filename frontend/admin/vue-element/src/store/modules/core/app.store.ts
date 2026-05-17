@@ -20,7 +20,7 @@ export const useAppStore = defineStore("app", () => {
 
   const locale = computed(() => {
     // 根据语言值返回对应的 Element Plus 语言包
-    return language?.value === "en" ? en : zhCn;
+    return language?.value === "en-US" ? en : zhCn;
   });
 
   function toggleSidebar() {

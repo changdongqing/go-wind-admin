@@ -28,8 +28,8 @@ defineProps({
 });
 
 const langOptions: Array<{ label: string; value: SupportedLanguagesType }> = [
-  { label: "中文", value: "zh-cn" },
-  { label: "English", value: "en" },
+  { label: "简体中文", value: "zh-cn" },
+  { label: "English", value: "en-US" },
 ];
 
 const appStore = useAppStore();
@@ -38,7 +38,7 @@ const { locale, t } = useI18n();
 /**
  * 处理语言切换
  *
- * @param lang  语言（zh-cn、en）
+ * @param lang  语言（zh-cn、en-US）
  */
 async function handleLanguageChange(lang: SupportedLanguagesType) {
   locale.value = lang;

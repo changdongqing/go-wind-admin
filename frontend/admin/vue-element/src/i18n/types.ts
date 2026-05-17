@@ -2,16 +2,7 @@
  * 支持的语言类型
  * 与应用使用的语言值保持一致
  */
-export type SupportedLanguagesType = "zh-cn" | "en";
-
-/**
- * 语言文件目录映射
- * 将应用语言值映射到实际的语言文件目录名
- */
-export const LANGUAGE_FILE_MAP: Record<SupportedLanguagesType, string> = {
-  "zh-cn": "zh-CN",
-  en: "en-US",
-};
+export type SupportedLanguagesType = "zh-cn" | "en-US";
 
 export type LoadMessageFn = (
   lang: SupportedLanguagesType
