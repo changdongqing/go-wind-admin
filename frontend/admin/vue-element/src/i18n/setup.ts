@@ -27,7 +27,7 @@ function setI18nLanguage(locale: Locale) {
 }
 
 async function setupI18n(app: App, options: LocaleSetupOptions = {}) {
-  const { defaultLocale = "zh-cn" } = options;
+  const { defaultLocale = "zh-CN" } = options;
   // app可以自行扩展一些第三方库和组件库的国际化
   loadMessages = options.loadMessages || (async () => ({}));
   app.use(i18n);
@@ -42,8 +42,8 @@ async function setupI18n(app: App, options: LocaleSetupOptions = {}) {
 }
 
 async function loadLocaleMessages(lang: SupportedLanguagesType) {
-  // 将应用语言值转换为语言文件目录名（zh-cn -> zh-CN, en-US -> en-US）
-  const langDir = lang === "zh-cn" ? "zh-CN" : lang;
+  // 将应用语言值转换为语言文件目录名（zh-CN -> zh-CN, en-US -> en-US）
+  const langDir = lang;
 
   if (unref(i18n.global.locale) === lang) {
     return setI18nLanguage(lang);

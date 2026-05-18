@@ -7,7 +7,7 @@ import { computed, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 
 import { useAccessStore } from "@/stores";
-import { preferencesManager, usePreferences } from "@/core/preferences";
+import { preferences, preferencesManager, usePreferences } from "@/core/preferences";
 
 export function useLayout() {
   const route = useRoute();
@@ -27,21 +27,25 @@ export function useLayout() {
 
   // 监听窗口变化，自动调整设备类型和侧边栏
   watchEffect(() => {
-    // 更新 preferences 中的 isMobile
-    if (isMobile.value) {
+    // 只在首次或值真正变化时才更新
+    const currentMobile = preferences.app.isMobile;
+    if (isMobile.value !== currentMobile) {
       preferencesManager.updatePreferences({
         app: { isMobile: isMobile.value },
       });
     }
 
     // 根据设备类型自动展开/收起侧边栏
-    if (isDesktop.value) {
+    const currentCollapsed = preferences.sidebar.collapsed;
+    if (isDesktop.value && currentCollapsed) {
+      // 桌面端且当前是收起状态，则展开
       preferencesManager.updatePreferences({
-        sidebar: { hidden: false },
+        sidebar: { collapsed: false },
       });
-    } else {
+    } else if (isMobile.value && !currentCollapsed) {
+      // 移动端且当前是展开状态，则收起
       preferencesManager.updatePreferences({
-        sidebar: { hidden: true },
+        sidebar: { collapsed: true },
       });
     }
   });

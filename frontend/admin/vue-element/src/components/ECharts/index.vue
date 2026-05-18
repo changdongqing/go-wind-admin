@@ -14,12 +14,18 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 // 引入 echarts 核心模块，核心模块提供了 echarts 使用必须要的接口。
 import * as echarts from "echarts/core";
-// 引入柱状、折线和饼图常用图表
-import { BarChart, LineChart, PieChart } from "echarts/charts";
+// 引入柱状、折线、饼图和雷达图
+import { BarChart, LineChart, PieChart, RadarChart } from "echarts/charts";
 // 引入标题，提示框，直角坐标系，数据集，内置数据转换器组件，
-import { GridComponent, TooltipComponent, LegendComponent } from "echarts/components";
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  RadarComponent,
+} from "echarts/components";
 // 引入 Canvas 渲染器，注意引入 CanvasRenderer 或者 SVGRenderer 是必须的一步
 import { CanvasRenderer } from "echarts/renderers";
 
@@ -31,27 +37,35 @@ echarts.use([
   BarChart,
   LineChart,
   PieChart,
+  RadarChart,
   GridComponent,
   TooltipComponent,
   LegendComponent,
+  RadarComponent,
 ]);
 
-const props = defineProps<{
-  options: echarts.EChartsCoreOption;
-  width?: string;
-  height?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    options: echarts.EChartsCoreOption;
+    width?: string;
+    height?: string;
+  }>(),
+  {
+    width: "100%",
+    height: "400px",
+  }
+);
 
 const chartRef = ref<HTMLDivElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;
 
 // 初始化图表
 const initChart = () => {
-  if (chartRef.value) {
-    chartInstance = echarts.init(chartRef.value);
-    if (props.options) {
-      chartInstance.setOption(props.options);
-    }
+  if (!chartRef.value) return;
+  
+  chartInstance = echarts.init(chartRef.value);
+  if (props.options) {
+    chartInstance.setOption(props.options);
   }
 };
 
