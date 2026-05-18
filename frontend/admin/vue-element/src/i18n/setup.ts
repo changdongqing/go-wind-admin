@@ -52,19 +52,8 @@ async function loadLocaleMessages(lang: SupportedLanguagesType) {
   const message = await localesMap[langDir]?.();
 
   if (message?.default) {
-    // 调试：打印加载的消息结构
-    console.log("[i18n] Loaded messages for", lang, ":", Object.keys(message.default));
-    console.log(
-      "[i18n] routes keys:",
-      message.default.routes ? Object.keys(message.default.routes) : "not found"
-    );
     // 合并所有 JSON 文件的翻译内容
     i18n.global.mergeLocaleMessage(lang, message.default);
-    // 验证合并后的结果
-    console.log(
-      "[i18n] After merge, te('routes.dashboard.title'):",
-      i18n.global.te("routes.dashboard.title")
-    );
   }
 
   const mergeMessage = await loadMessages(lang);

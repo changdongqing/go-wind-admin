@@ -58,20 +58,25 @@ const props = withDefaults(
 
 const chartRef = ref<HTMLDivElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;
+let isInitialized = false;
 
 // 初始化图表
 const initChart = () => {
   if (!chartRef.value) return;
-  
+
   chartInstance = echarts.init(chartRef.value);
   if (props.options) {
     chartInstance.setOption(props.options);
   }
+  isInitialized = true;
 };
 
 // 监听尺寸变化，自动调整
 useResizeObserver(chartRef, () => {
-  chartInstance?.resize();
+  // 只在图表初始化完成后才调用 resize
+  if (isInitialized && chartInstance) {
+    chartInstance.resize();
+  }
 });
 
 // 监听 options 变化，更新图表

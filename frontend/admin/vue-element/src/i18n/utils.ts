@@ -51,10 +51,21 @@ export function loadLocalesMapFromDir(
     localesMap[locale] = async () => {
       const messages: Record<string, any> = {};
       for (const [fileName, importFn] of Object.entries(files)) {
-        // 将文件路径中的 / 替换为 .，以便支持嵌套目录结构
-        // 例如：pages/dashboard -> pages.dashboard
+        // 将文件路径中的 / 替换为 .，并构建嵌套对象结构
+        // 例如：pages/dashboard -> { pages: { dashboard: content } }
         const normalizedFileName = fileName.replace(/\//g, ".");
-        messages[normalizedFileName] = ((await importFn()) as any)?.default;
+        const content = ((await importFn()) as any)?.default;
+
+        // 将扁平键转换为嵌套对象
+        const keys = normalizedFileName.split(".");
+        let target = messages;
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!target[keys[i]]) {
+            target[keys[i]] = {};
+          }
+          target = target[keys[i]];
+        }
+        target[keys[keys.length - 1]] = content;
       }
       return { default: messages };
     };
