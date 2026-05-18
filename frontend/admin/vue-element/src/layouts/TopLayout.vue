@@ -40,7 +40,7 @@ const { width } = useWindowSize();
 const accessStore = useAccessStore();
 
 const topMenuItems = computed(() => {
-  return accessStore.accessRoutes.filter((item) => !item.meta?.hidden);
+  return accessStore.accessRoutes.filter((item) => !item.meta?.hideInMenu);
 });
 
 const isLogoCollapsed = computed(() => width.value < 768);

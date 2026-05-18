@@ -133,14 +133,14 @@ const useMenuColors = computed(() => {
 
 // 顶部菜单项（处理单子菜单显示优化）
 const topMenuItems = computed(() => {
-  const routes = accessStore.accessRoutes.filter((item) => !item.meta?.hidden);
+  const routes = accessStore.accessRoutes.filter((item) => !item.meta?.hideInMenu);
 
   return routes.map((route) => {
-    // alwaysShow 或无子菜单，直接返回
-    if (route.meta?.alwaysShow || !route.children?.length) return route;
+    // 无子菜单，直接返回
+    if (!route.children?.length) return route;
 
     // 过滤可见子菜单
-    const visibleChildren = route.children.filter((child) => !child.meta?.hidden);
+    const visibleChildren = route.children.filter((child) => !child.meta?.hideInMenu);
 
     // 仅一个可见子菜单时，显示子菜单信息
     if (visibleChildren.length === 1) {

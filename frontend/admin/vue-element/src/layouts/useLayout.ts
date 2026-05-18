@@ -85,7 +85,7 @@ export function useLayout() {
     }
 
     // 过滤掉隐藏的菜单
-    return topMenu.children.filter((child) => !child.meta?.hidden);
+    return topMenu.children.filter((child) => !child.meta?.hideInMenu);
   });
 
   /** 顶部菜单激活路径（仅混合布局使用） */
