@@ -5,7 +5,13 @@ import { makeOrderBy, makeQueryString, makeUpdateMask } from "@/utils/query";
 import { type Paging, requestClientRequestHandler } from "@/transport/rest";
 import { useAppUserStore } from "@/stores";
 
-export const useLanguageStore = defineStore("language", () => {
+/**
+ * 系统语言数据 Store
+ *
+ * @description
+ * 管理系统中的语言数据（CRUD操作），用于字典管理等业务场景
+ */
+export const useLanguageDataStore = defineStore("language-data", () => {
   const service = createLanguageServiceClient(requestClientRequestHandler);
 
   const userStore = useAppUserStore();

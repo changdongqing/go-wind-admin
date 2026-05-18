@@ -1,14 +1,14 @@
-import { preferences } from '@vben/preferences';
+import { preferences } from "@vben/preferences";
 
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
 import {
   type dictservicev1_DictEntry as DictEntry,
   type dictservicev1_ListDictEntryResponse as ListDictEntryResponse,
   type dictservicev1_ListDictTypeResponse as ListDictTypeResponse,
   type dictservicev1_ListLanguageResponse as ListLanguageResponse,
-} from '@/api/generated/admin/service/v1';
-import { useDictStore, useLanguageStore } from '#/stores';
+} from "@/api/generated/admin/service/v1";
+import { useDictStore, useLanguageDataStore } from "@/stores";
 
 /**
  * 字典视图状态接口
@@ -25,7 +25,7 @@ interface DictViewState {
 /**
  * 字典视图状态
  */
-export const useDictViewStore = defineStore('dict-view', {
+export const useDictViewStore = defineStore("dict-view", {
   state: (): DictViewState => ({
     currentTypeId: null,
     loading: false,
@@ -41,12 +41,8 @@ export const useDictViewStore = defineStore('dict-view', {
      * @param pageSize
      * @param formValues
      */
-    async fetchLanguageList(
-      currentPage: number,
-      pageSize: number,
-      formValues: any,
-    ) {
-      const languageStore = useLanguageStore();
+    async fetchLanguageList(currentPage: number, pageSize: number, formValues: any) {
+      const languageStore = useLanguageDataStore();
       this.loading = true;
       try {
         this.languageList = await languageStore.listLanguage(
@@ -56,14 +52,14 @@ export const useDictViewStore = defineStore('dict-view', {
           },
           formValues,
           undefined,
-          ['sortOrder'],
+          ["sortOrder"]
         );
 
         await this.setCurrentTypeId(null);
 
         return this.languageList;
       } catch (error) {
-        console.error('获取语言列表失败:', error);
+        console.error("获取语言列表失败:", error);
         this.resetTypeList();
       } finally {
         this.loading = false;
@@ -75,11 +71,7 @@ export const useDictViewStore = defineStore('dict-view', {
     /**
      * 获取字典类型列表
      */
-    async fetchTypeList(
-      currentPage: number,
-      pageSize: number,
-      formValues: any,
-    ) {
+    async fetchTypeList(currentPage: number, pageSize: number, formValues: any) {
       const dictStore = useDictStore();
       this.loading = true;
       try {
@@ -88,14 +80,14 @@ export const useDictViewStore = defineStore('dict-view', {
             page: currentPage,
             pageSize,
           },
-          formValues,
+          formValues
         );
 
         await this.setCurrentTypeId(null);
 
         return this.typeList;
       } catch (error) {
-        console.error('获取字典类型列表失败:', error);
+        console.error("获取字典类型列表失败:", error);
         this.resetTypeList();
       } finally {
         this.loading = false;
@@ -115,7 +107,7 @@ export const useDictViewStore = defineStore('dict-view', {
       typeId: null | number,
       currentPage: number,
       pageSize: number,
-      formValues: any,
+      formValues: any
     ) {
       const dictStore = useDictStore();
       if (!typeId) {
@@ -133,7 +125,7 @@ export const useDictViewStore = defineStore('dict-view', {
           {
             ...formValues,
             type_id: typeId.toString(),
-          },
+          }
         );
       } catch (error) {
         console.error(`获取字典类型[${typeId}]的字典项列表失败:`, error);
@@ -166,7 +158,7 @@ export const useDictViewStore = defineStore('dict-view', {
 export function getEntryLabel(row: DictEntry) {
   const currentI18n = row.i18n?.[preferences.app.locale];
   if (currentI18n === undefined) {
-    return '';
+    return "";
   }
   return currentI18n.entryLabel;
 }

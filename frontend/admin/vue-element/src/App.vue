@@ -13,14 +13,15 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore, useSettingsStore } from "@/stores";
+import { useAppStore, useLanguageStore, useSettingsStore } from "@/stores";
 import { appConfig } from "@/settings";
 import { ComponentSize, ThemeMode } from "@/constants";
 
 const appStore = useAppStore();
+const languageStore = useLanguageStore();
 const settingsStore = useSettingsStore();
 
-const locale = computed(() => appStore.locale);
+const locale = computed(() => languageStore.getElementPlusLocale);
 const size = computed(() => appStore.size as ComponentSize);
 const showWatermark = computed(() => settingsStore.showWatermark);
 const watermarkContent = appConfig.name;

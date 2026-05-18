@@ -4,12 +4,12 @@
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item
-          v-for="item in langOptions"
-          :key="item.value"
-          :disabled="appStore.language === item.value"
-          :command="item.value"
+          v-for="item in languageStore.availableLanguages"
+          :key="item.code"
+          :disabled="languageStore.currentLanguage === item.code"
+          :command="item.code"
         >
-          {{ item.label }}
+          {{ item.name }}
         </el-dropdown-item>
       </el-dropdown-menu>
     </template>
@@ -17,8 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from "@/stores";
-import type { SupportedLanguagesType } from "@/i18n/types";
+import { useLanguageStore } from "@/stores";
 
 defineProps({
   size: {
@@ -27,12 +26,7 @@ defineProps({
   },
 });
 
-const langOptions: Array<{ label: string; value: SupportedLanguagesType }> = [
-  { label: "简体中文", value: "zh-cn" },
-  { label: "English", value: "en-US" },
-];
-
-const appStore = useAppStore();
+const languageStore = useLanguageStore();
 const { locale, t } = useI18n();
 
 /**
@@ -41,8 +35,8 @@ const { locale, t } = useI18n();
  * @param lang  语言（zh-cn、en-US）
  */
 async function handleLanguageChange(lang: SupportedLanguagesType) {
+  await languageStore.setLanguage(lang);
   locale.value = lang;
-  await appStore.changeLanguage(lang);
 
   ElMessage.success(t("common.langSelect.message.success"));
 }

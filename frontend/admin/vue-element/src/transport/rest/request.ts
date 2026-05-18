@@ -1,4 +1,4 @@
-import { useAuthStore, useAccessStore, useAppStore } from "@/stores";
+import { useAuthStore, useAccessStore, useLanguageStore } from "@/stores";
 import { defaultPreferences } from "@/settings";
 
 import type { HttpResponse, Request } from "./types";
@@ -42,7 +42,7 @@ function createRequestClient(baseURL: string) {
   client.addRequestInterceptor({
     fulfilled: async (config) => {
       const accessStore = useAccessStore();
-      const appStore = useAppStore();
+      const languageStore = useLanguageStore();
 
       // 修正accessToken类型，保证Authorization头格式正确
       const accessToken =
@@ -50,7 +50,7 @@ function createRequestClient(baseURL: string) {
           ? accessStore.accessToken
           : (accessStore.accessToken ?? null);
       config.headers.Authorization = formatToken(accessToken);
-      config.headers["Accept-Language"] = appStore.locale;
+      config.headers["Accept-Language"] = languageStore.currentLanguage;
       return config;
     },
   });

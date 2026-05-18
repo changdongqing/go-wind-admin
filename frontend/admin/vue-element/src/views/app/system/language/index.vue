@@ -14,12 +14,12 @@ import { $t } from '#/locales';
 import {
   enableBoolToColor,
   enableBoolToName,
-  useLanguageStore,
+  useLanguageDataStore,
 } from '#/stores';
 
 import LanguageDrawer from './language-drawer.vue';
 
-const languageStore = useLanguageStore();
+const languageStore = useLanguageDataStore();
 
 const formOptions: VbenFormProps = {
   // 默认展开

@@ -2,11 +2,10 @@
  * 应用配置
  */
 
-import { LayoutMode, ComponentSize, SidebarColor, ThemeMode } from "@/constants";
+import { LayoutMode, ComponentSize, SidebarColor } from "@/constants";
 
 const env = import.meta.env;
 const { pkg } = __APP_INFO__;
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 // ============================================
 // 应用配置
@@ -24,7 +23,6 @@ export const appConfig = {
 // 用户偏好默认值
 // ============================================
 export const defaultPreferences = {
-  theme: prefersDark ? ThemeMode.DARK : ThemeMode.LIGHT,
   themeColor: "#4080FF",
   sidebarColorScheme: SidebarColor.CLASSIC_BLUE,
   layout: LayoutMode.LEFT,
