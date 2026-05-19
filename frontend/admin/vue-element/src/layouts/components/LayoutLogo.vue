@@ -28,6 +28,7 @@ defineProps({
   width: 100%;
   height: $navbar-height;
   background-color: $sidebar-logo-background;
+  border-bottom: 1px solid var(--sidebar-logo-border-color);  // 分割线
 
   .title {
     flex-shrink: 0;

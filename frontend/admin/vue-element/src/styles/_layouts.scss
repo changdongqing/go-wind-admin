@@ -54,13 +54,13 @@
 .layout-mix .layout__sidebar--left .el-menu {
   .el-menu-item {
     &:hover {
-      background-color: var(--el-fill-color-light) !important;
+      background-color: var(--menu-hover) !important;
     }
   }
 
   .el-sub-menu__title {
     &:hover {
-      background-color: var(--el-fill-color-light) !important;
+      background-color: var(--menu-hover) !important;
     }
   }
 }

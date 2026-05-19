@@ -37,6 +37,8 @@ function toggleSideBar() {
   align-items: center;
   justify-content: space-between;
   height: $navbar-height;
+  background-color: var(--sidebar-logo-background);  // 与 Logo 区保持一致
+  border-bottom: 1px solid var(--sidebar-logo-border-color);  // 底部分割线
 
   &__actions {
     display: flex;
