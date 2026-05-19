@@ -229,7 +229,7 @@
     <el-dialog
       v-model="exportsModalVisible"
       :align-center="true"
-      :title="t('curd.export.title')"
+      :title="t('pages.curd.export.title')"
       width="600px"
       style="padding-right: 0"
       @close="handleCloseExportsModal"
@@ -243,31 +243,31 @@
           :model="exportsFormData"
           :rules="exportsFormRules"
         >
-          <el-form-item :label="t('curd.export.filename')" prop="filename">
+          <el-form-item :label="t('pages.curd.export.filename')" prop="filename">
             <el-input v-model="exportsFormData.filename" clearable />
           </el-form-item>
-          <el-form-item :label="t('curd.export.sheetname')" prop="sheetname">
+          <el-form-item :label="t('pages.curd.export.sheetname')" prop="sheetname">
             <el-input v-model="exportsFormData.sheetname" clearable />
           </el-form-item>
-          <el-form-item :label="t('curd.export.origin')" prop="origin">
+          <el-form-item :label="t('pages.curd.export.origin')" prop="origin">
             <el-select v-model="exportsFormData.origin">
               <el-option
-                :label="t('curd.export.originOptions.current')"
+                :label="t('pages.curd.export.originOptions.current')"
                 :value="ExportsOriginEnum.CURRENT"
               />
               <el-option
-                :label="t('curd.export.originOptions.selected')"
+                :label="t('pages.curd.export.originOptions.selected')"
                 :value="ExportsOriginEnum.SELECTED"
                 :disabled="selectionData.length <= 0"
               />
               <el-option
-                :label="t('curd.export.originOptions.remote')"
+                :label="t('pages.curd.export.originOptions.remote')"
                 :value="ExportsOriginEnum.REMOTE"
                 :disabled="contentConfig.exportsAction === undefined"
               />
             </el-select>
           </el-form-item>
-          <el-form-item :label="t('curd.export.fields')" prop="fields">
+          <el-form-item :label="t('pages.curd.export.fields')" prop="fields">
             <el-checkbox-group v-model="exportsFormData.fields">
               <template v-for="col in columns" :key="col.prop">
                 <el-checkbox v-if="col.prop" :value="col.prop" :label="col.label" />
@@ -290,7 +290,7 @@
     <el-dialog
       v-model="importModalVisible"
       :align-center="true"
-      :title="t('curd.import.title')"
+      :title="t('pages.curd.import.title')"
       width="600px"
       style="padding-right: 0"
       @close="handleCloseImportModal"
@@ -304,7 +304,7 @@
           :model="importFormData"
           :rules="importFormRules"
         >
-          <el-form-item :label="t('curd.import.file')" prop="files">
+          <el-form-item :label="t('pages.curd.import.file')" prop="files">
             <el-upload
               ref="uploadRef"
               v-model:file-list="importFormData.files"
@@ -410,7 +410,7 @@ const buttonConfig = reactive<Record<string, IObject>>({
     attrs: { icon: "refresh", type: "" },
     perm: "*:*:*",
   },
-  filter: { textKey: "curd.toolbar.filter", attrs: { icon: "operation", type: "" }, perm: "*:*:*" },
+  filter: { textKey: "pages.curd.toolbar.filter", attrs: { icon: "operation", type: "" }, perm: "*:*:*" },
   search: { textKey: "common.button.search", attrs: { icon: "search", type: "" }, perm: "search" },
   imports: {
     textKey: "common.button.batchImport",
