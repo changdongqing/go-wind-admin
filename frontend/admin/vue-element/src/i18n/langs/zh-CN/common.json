@@ -77,5 +77,11 @@
   },
   "text": {
     "do_you_want_delete": "确定要删除该{moduleName}吗？"
+  },
+  "navbar": {
+    "profile": "个人中心",
+    "logout": "退出登录",
+    "logoutConfirmTitle": "提示",
+    "logoutConfirmMessage": "确定注销并退出系统吗？"
   }
 }

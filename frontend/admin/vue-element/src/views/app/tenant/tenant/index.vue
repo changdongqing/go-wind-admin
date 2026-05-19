@@ -134,12 +134,13 @@ const contentConfig: IContentConfig = {
     stripe: false,
   },
   indexAction: async (query: any) => {
+    const { page, pageSize, ...queryParams } = query;
     const result = await tenantStore.listTenant(
       {
-        page: query.page || 1,
-        pageSize: query.pageSize || 10,
+        page: page || 1,
+        pageSize: pageSize || 10,
       },
-      query
+      queryParams
     );
     // 转换数据格式：将 items 转换为 list
     return {

@@ -44,10 +44,10 @@
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="handleProfileClick">
-              {{ t("navbar.profile") }}
+              {{ t("common.navbar.profile") }}
             </el-dropdown-item>
             <el-dropdown-item divided @click="logout">
-              {{ t("navbar.logout") }}
+              {{ t("common.navbar.logout") }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -125,12 +125,16 @@ const navbarActionsClass = computed(() => {
  * 退出登录
  */
 function logout() {
-  ElMessageBox.confirm("确定注销并退出系统吗？", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
-    lockScroll: false,
-  }).then(() => {
+  ElMessageBox.confirm(
+    t("common.navbar.logoutConfirmMessage"),
+    t("common.navbar.logoutConfirmTitle"),
+    {
+      confirmButtonText: t("common.button.confirm"),
+      cancelButtonText: t("common.button.cancel"),
+      type: "warning",
+      lockScroll: false,
+    }
+  ).then(() => {
     authStore.logout().then(() => {
       router.push(`/login?redirect=${route.fullPath}`);
     });

@@ -133,7 +133,7 @@ export const useAuthStore = defineStore("auth", () => {
 
         userInfo = fetchUserInfoResult;
         if (!userInfo) {
-          throw new Error(t("authentication.loginFailedDesc"));
+          throw new Error(t("core.authentication.loginFailedDesc"));
         }
 
         userStore.setUserInfo(userInfo);
@@ -149,8 +149,8 @@ export const useAuthStore = defineStore("auth", () => {
 
         if (userInfo?.realname) {
           ElNotification({
-            title: t("authentication.loginSuccess"),
-            message: `${t("authentication.loginSuccessDesc")}:${userInfo?.realname}`,
+            title: t("core.authentication.loginSuccess"),
+            message: `${t("core.authentication.loginSuccessDesc")}:${userInfo?.realname}`,
             type: "success",
             duration: 3000,
           });
@@ -162,14 +162,14 @@ export const useAuthStore = defineStore("auth", () => {
       // 处理登录错误
       if (error instanceof Error) {
         ElNotification({
-          title: t("authentication.loginFailed"),
+          title: t("core.authentication.loginFailed"),
           message: error.message,
           type: "error",
         });
       } else {
         ElNotification({
-          title: t("authentication.loginFailed"),
-          message: t("authentication.loginFailedDesc"),
+          title: t("core.authentication.loginFailed"),
+          message: t("core.authentication.loginFailedDesc"),
           type: "error",
         });
       }

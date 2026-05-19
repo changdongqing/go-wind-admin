@@ -2,13 +2,13 @@
   <el-drawer
     v-model="drawerVisible"
     size="380"
-    :title="t('settings.project')"
+    :title="t('pages.settings.project')"
     :before-close="handleCloseDrawer"
     class="settings-drawer"
   >
     <div class="settings-content">
       <section class="config-section">
-        <el-divider>{{ t("settings.theme") }}</el-divider>
+        <el-divider>{{ t("pages.settings.theme") }}</el-divider>
 
         <div class="flex-center">
           <el-switch
@@ -23,10 +23,10 @@
 
       <!-- 界面设置 -->
       <section class="config-section">
-        <el-divider>{{ t("settings.interface") }}</el-divider>
+        <el-divider>{{ t("pages.settings.interface") }}</el-divider>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.themeColor") }}</span>
+          <span class="text-xs">{{ t("pages.settings.themeColor") }}</span>
           <el-color-picker
             v-model="selectedThemeColor"
             :predefine="colorPresets"
@@ -35,7 +35,7 @@
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.showTagsView") }}</span>
+          <span class="text-xs">{{ t("pages.settings.showTagsView") }}</span>
           <el-switch
             v-model="preferences.tabbar.enable"
             @change="
@@ -46,7 +46,7 @@
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.showAppLogo") }}</span>
+          <span class="text-xs">{{ t("pages.settings.showAppLogo") }}</span>
           <el-switch
             v-model="preferences.logo.enable"
             @change="
@@ -57,12 +57,12 @@
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.showWatermark") }}</span>
+          <span class="text-xs">{{ t("pages.settings.showWatermark") }}</span>
           <el-switch v-model="preferences.app.watermark" />
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.pageSwitchingAnimation") }}</span>
+          <span class="text-xs">{{ t("pages.settings.pageSwitchingAnimation") }}</span>
           <el-select
             v-model="preferences.transition.name"
             style="width: 150px"
@@ -76,30 +76,30 @@
             <el-option
               v-for="item in pageSwitchingAnimationOptions"
               :key="item.value"
-              :label="t(`settings.${item.value}`)"
+              :label="t(`pages.settings.${item.value}`)"
               :value="item.value"
             />
           </el-select>
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">灰色模式</span>
+          <span class="text-xs">{{ t("pages.settings.grayMode") }}</span>
           <el-switch v-model="preferences.app.colorGrayMode" />
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">色弱模式</span>
+          <span class="text-xs">{{ t("pages.settings.colorWeakMode") }}</span>
           <el-switch v-model="preferences.app.colorWeakMode" />
         </div>
 
         <div v-if="!isDark" class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.sidebarColorScheme") }}</span>
+          <span class="text-xs">{{ t("pages.settings.sidebarColorScheme") }}</span>
           <el-radio-group v-model="sidebarColor" @change="changeSidebarColor">
             <el-radio :value="SidebarColor.CLASSIC_BLUE">
-              {{ t("settings.classicBlue") }}
+              {{ t("pages.settings.classicBlue") }}
             </el-radio>
             <el-radio :value="SidebarColor.MINIMAL_WHITE">
-              {{ t("settings.minimalWhite") }}
+              {{ t("pages.settings.minimalWhite") }}
             </el-radio>
           </el-radio-group>
         </div>
@@ -107,7 +107,7 @@
 
       <!-- 布局设置 -->
       <section class="config-section">
-        <el-divider>{{ t("settings.navigation") }}</el-divider>
+        <el-divider>{{ t("pages.settings.navigation") }}</el-divider>
 
         <!-- 整合的布局选择 -->
         <div class="layout-select">
@@ -153,10 +153,7 @@
     <!-- 操作按钮区域 - 固定到底部 -->
     <template #footer>
       <div class="action-buttons">
-        <el-tooltip
-          content="复制配置将生成当前设置的代码，覆盖到 `src/settings.store.ts` 下的 `defaultSettings` 变量"
-          placement="top"
-        >
+        <el-tooltip :content="t('settings.copyTooltip')" placement="top">
           <el-button
             type="primary"
             size="default"
@@ -164,10 +161,10 @@
             :loading="copyLoading"
             @click="handleCopySettings"
           >
-            {{ copyLoading ? "复制中..." : t("settings.copyConfig") }}
+            {{ copyLoading ? t("pages.settings.copying") : t("pages.settings.copyConfig") }}
           </el-button>
         </el-tooltip>
-        <el-tooltip content="重置将恢复所有设置为默认值" placement="top">
+        <el-tooltip :content="t('settings.resetTooltip')" placement="top">
           <el-button
             type="warning"
             size="default"
@@ -175,7 +172,7 @@
             :loading="resetLoading"
             @click="handleResetSettings"
           >
-            {{ resetLoading ? "重置中..." : t("settings.resetConfig") }}
+            {{ resetLoading ? t("pages.settings.resetting") : t("pages.settings.resetConfig") }}
           </el-button>
         </el-tooltip>
       </div>
@@ -193,10 +190,10 @@ const { t } = useI18n();
 
 // 页面切换动画选项
 const pageSwitchingAnimationOptions: Record<string, any> = {
-  none: { value: "none", label: "无动画" },
-  fade: { value: "fade", label: "淡入淡出" },
-  "fade-slide": { value: "fade-slide", label: "平滑切换" },
-  "fade-scale": { value: "fade-scale", label: "缩放切换" },
+  none: { value: "none", label: "none" },
+  fade: { value: "fade", label: "fade" },
+  "fade-slide": { value: "fade-slide", label: "ade-slide" },
+  "fade-scale": { value: "fade-scale", label: "fade-scale" },
 };
 
 // 按钮图标
@@ -215,9 +212,9 @@ interface LayoutOption {
 }
 
 const layoutOptions: LayoutOption[] = [
-  { value: "sidebar-nav", label: t("settings.leftLayout"), className: "left" },
-  { value: "header-nav", label: t("settings.topLayout"), className: "top" },
-  { value: "mixed-nav", label: t("settings.mixLayout"), className: "mix" },
+  { value: "sidebar-nav", label: t("pages.settings.leftLayout"), className: "left" },
+  { value: "header-nav", label: t("pages.settings.topLayout"), className: "top" },
+  { value: "mixed-nav", label: t("pages.settings.mixLayout"), className: "mix" },
 ];
 
 // 颜色预设（用于颜色选择器）
@@ -252,7 +249,7 @@ const selectedThemeColor = computed({
   get: () => THEME_COLOR,
   set: () => {
     // TODO: 后续迁移到 preferences 后实现
-    console.warn("主题颜色修改功能暂未实现");
+    console.warn(t("pages.settings.themeColorNotImplemented"));
   },
 });
 
@@ -279,7 +276,7 @@ const handleThemeChange = (value: string | number | boolean) => {
  */
 const changeSidebarColor = () => {
   // TODO: 后续迁移到 preferences 后实现
-  console.warn("侧边栏颜色修改功能暂未实现");
+  console.warn(t("pages.settings.sidebarColorNotImplemented"));
 };
 
 /**
@@ -310,11 +307,11 @@ const handleCopySettings = async () => {
 
     // 显示成功消息
     ElMessage.success({
-      message: t("settings.copySuccess"),
+      message: t("pages.settings.copySuccess"),
       duration: 3000,
     });
   } catch {
-    ElMessage.error("复制配置失败");
+    ElMessage.error(t("pages.settings.copyFailed"));
   } finally {
     copyLoading.value = false;
   }
@@ -333,9 +330,9 @@ const handleResetSettings = async () => {
     // 同步更新本地状态
     sidebarColor.value = SIDEBAR_COLOR_SCHEME;
 
-    ElMessage.success(t("settings.resetSuccess"));
+    ElMessage.success(t("pages.settings.resetSuccess"));
   } catch {
-    ElMessage.error("重置配置失败");
+    ElMessage.error(t("pages.settings.resetFailed"));
   } finally {
     resetLoading.value = false;
   }

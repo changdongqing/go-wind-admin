@@ -69,6 +69,12 @@
     "thinkOfPasswd": "Remember your password?",
     "login": "Login"
   },
+  "authentication": {
+    "loginSuccess": "Login Successful",
+    "loginSuccessDesc": "Welcome back",
+    "loginFailed": "Login Failed",
+    "loginFailedDesc": "Invalid username or password"
+  },
   "fallback": {
     "unauthorized": "Unauthorized",
     "unauthorizedDesc": "Sorry, your session has expired, please login again",
