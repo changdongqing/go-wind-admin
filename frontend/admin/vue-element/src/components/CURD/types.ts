@@ -107,8 +107,8 @@ export interface IContentConfig<TQuery = any, TItem = any> {
   toolbar?: Array<ToolbarLeft | IToolsButton>;
   // 表格工具栏右侧图标(默认:refresh,filter,imports,exports,search)
   defaultToolbar?: Array<ToolbarRight | IToolsButton>;
-  // table组件列属性(额外的属性templet,operat,slotName)
-  cols: Array<{
+  // table组件列属性(额外的属性template,action,slotName)
+  columns: Array<{
     type?: "default" | "selection" | "index" | "expand";
     label?: string;
     prop?: string;
@@ -119,7 +119,7 @@ export interface IContentConfig<TQuery = any, TItem = any> {
     // 列是否显示
     show?: boolean;
     // 模板
-    templet?:
+    template?:
       | "image"
       | "list"
       | "url"
@@ -148,7 +148,7 @@ export interface IContentConfig<TQuery = any, TItem = any> {
     // date模板相关参数
     dateFormat?: string;
     // tool模板相关参数
-    operat?: Array<ToolbarTable | IToolsButton>;
+    action?: Array<ToolbarTable | IToolsButton>;
     // filter值拼接符
     filterJoin?: string;
     [key: string]: any;

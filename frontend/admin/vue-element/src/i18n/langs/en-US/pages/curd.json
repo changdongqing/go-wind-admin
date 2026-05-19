@@ -10,6 +10,12 @@
     "expand": "Expand",
     "collapse": "Collapse"
   },
+  "tableSelect": {
+    "placeholder": "Please select",
+    "clear": "Clear",
+    "selectedCount": "{count} selected",
+    "pleaseSelectData": "Please select data"
+  },
   "export": {
     "title": "Export Data",
     "filename": "Filename",

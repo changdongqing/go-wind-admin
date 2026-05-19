@@ -25,7 +25,7 @@
               <el-button v-bind="btn.attrs"></el-button>
             </template>
             <el-scrollbar max-height="350px">
-              <template v-for="col in cols" :key="col.prop">
+              <template v-for="col in columns" :key="col.prop">
                 <el-checkbox v-if="col.prop" v-model="col.show" :label="col.label" />
               </template>
             </el-scrollbar>
@@ -51,11 +51,11 @@
       @selection-change="handleSelectionChange"
       @filter-change="handleFilterChange"
     >
-      <template v-for="col in cols" :key="col.prop">
+      <template v-for="col in columns" :key="col.prop">
         <el-table-column v-if="col.show" v-bind="col">
           <template #default="scope">
             <!-- 显示图片 -->
-            <template v-if="col.templet === 'image'">
+            <template v-if="col.template === 'image'">
               <template v-if="col.prop">
                 <template v-if="Array.isArray(scope.row[col.prop])">
                   <template v-for="(item, index) in scope.row[col.prop]" :key="item">
@@ -79,13 +79,13 @@
               </template>
             </template>
             <!-- 根据行的selectList属性返回对应列表 -->
-            <template v-else-if="col.templet === 'list'">
+            <template v-else-if="col.template === 'list'">
               <template v-if="col.prop">
                 {{ (col.selectList ?? {})[scope.row[col.prop]] }}
               </template>
             </template>
             <!-- 格式化显示链接 -->
-            <template v-else-if="col.templet === 'url'">
+            <template v-else-if="col.template === 'url'">
               <template v-if="col.prop">
                 <el-link type="primary" :href="scope.row[col.prop]" target="_blank">
                   {{ scope.row[col.prop] }}
@@ -93,7 +93,7 @@
               </template>
             </template>
             <!-- 生成开关组 -->
-            <template v-else-if="col.templet === 'switch'">
+            <template v-else-if="col.template === 'switch'">
               <template v-if="col.prop">
                 <!-- pageData.length>0: 解决el-switch组件会在表格初始化的时候触发一次change事件 -->
                 <el-switch
@@ -112,7 +112,7 @@
               </template>
             </template>
             <!-- 生成输入框组 -->
-            <template v-else-if="col.templet === 'input'">
+            <template v-else-if="col.template === 'input'">
               <template v-if="col.prop">
                 <el-input
                   v-model="scope.row[col.prop]"
@@ -123,17 +123,17 @@
               </template>
             </template>
             <!-- 格式化为价格 -->
-            <template v-else-if="col.templet === 'price'">
+            <template v-else-if="col.template === 'price'">
               <template v-if="col.prop">
                 {{ `${col.priceFormat ?? ""}${scope.row[col.prop]}` }}
               </template>
             </template>
             <!-- 格式化为百分比 -->
-            <template v-else-if="col.templet === 'percent'">
+            <template v-else-if="col.template === 'percent'">
               <template v-if="col.prop">{{ scope.row[col.prop] }}%</template>
             </template>
             <!-- 显示图标 -->
-            <template v-else-if="col.templet === 'icon'">
+            <template v-else-if="col.template === 'icon'">
               <template v-if="col.prop">
                 <template v-if="scope.row[col.prop].startsWith('el-icon-')">
                   <el-icon>
@@ -146,7 +146,7 @@
               </template>
             </template>
             <!-- 格式化时间 -->
-            <template v-else-if="col.templet === 'date'">
+            <template v-else-if="col.template === 'date'">
               <template v-if="col.prop">
                 {{
                   scope.row[col.prop]
@@ -157,7 +157,7 @@
               </template>
             </template>
             <!-- 列操作栏 -->
-            <template v-else-if="col.templet === 'tool'">
+            <template v-else-if="col.template === 'tool'">
               <template v-for="(btn, index) in tableToolbarBtn" :key="index">
                 <el-button
                   v-if="btn.render === undefined || btn.render(scope.row)"
@@ -177,7 +177,7 @@
               </template>
             </template>
             <!-- 自定义 -->
-            <template v-else-if="col.templet === 'custom'">
+            <template v-else-if="col.template === 'custom'">
               <slot :name="col.slotName ?? col.prop" :prop="col.prop" v-bind="scope" />
             </template>
           </template>
@@ -240,7 +240,7 @@
           </el-form-item>
           <el-form-item :label="t('curd.export.fields')" prop="fields">
             <el-checkbox-group v-model="exportsFormData.fields">
-              <template v-for="col in cols" :key="col.prop">
+              <template v-for="col in columns" :key="col.prop">
                 <el-checkbox v-if="col.prop" :value="col.prop" :label="col.label" />
               </template>
             </el-checkbox-group>
@@ -458,17 +458,17 @@ const toolbarRightBtn = computed(() => {
 
 // 表格操作工具栏
 const tableToolbar = computed(() => {
-  const cols = config.value.cols;
-  if (!cols || cols.length === 0) return ["edit", "delete"];
-  return cols[cols.length - 1].operat ?? ["edit", "delete"];
+  const columns = config.value.columns;
+  if (!columns || columns.length === 0) return ["edit", "delete"];
+  return columns[columns.length - 1].action ?? ["edit", "delete"];
 });
 const tableToolbarBtn = computed(() =>
   createToolbar(tableToolbar.value, { link: true, size: "small" })
 );
 
 // 表格相关
-const cols = ref(
-  props.contentConfig.cols.map((col) => {
+const columns = ref(
+  props.contentConfig.columns.map((col) => {
     if (col.initFn) {
       col.initFn(col);
     }
@@ -575,7 +575,7 @@ function handleDelete(id?: number | string) {
 
 // 导出表单
 const fields: string[] = [];
-cols.value.forEach((item) => {
+columns.value.forEach((item) => {
   if (item.prop !== undefined) {
     fields.push(item.prop);
   }
@@ -636,13 +636,13 @@ function handleExports() {
   const sheetname = exportsFormData.sheetname ? exportsFormData.sheetname : "sheet";
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(sheetname);
-  const columns: Partial<ExcelJS.Column>[] = [];
-  cols.value.forEach((col) => {
+  const excelColumns: Partial<ExcelJS.Column>[] = [];
+  columns.value.forEach((col) => {
     if (col.label && col.prop && exportsFormData.fields.includes(col.prop)) {
-      columns.push({ header: col.label, key: col.prop });
+      excelColumns.push({ header: col.label, key: col.prop });
     }
   });
-  worksheet.columns = columns;
+  worksheet.columns = excelColumns;
   if (exportsFormData.origin === ExportsOriginEnum.REMOTE) {
     if (props.contentConfig.exportsAction) {
       props.contentConfig.exportsAction(lastFormData).then((data) => {
@@ -883,7 +883,7 @@ let filterParams: IObject = {};
 function handleFilterChange(newFilters: any) {
   const filters: IObject = {};
   for (const key in newFilters) {
-    const col = cols.value.find((col) => {
+    const col = columns.value.find((col) => {
       return col.columnKey === key || col["column-key"] === key;
     });
     if (col && col.filterJoin !== undefined) {

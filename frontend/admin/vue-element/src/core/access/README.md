@@ -470,9 +470,9 @@ const pageContentConfig = {
     "delete",   // 自动组合为 sys:user:delete
     "export",   // 自动组合为 sys:user:export
   ],
-  cols: [
+  columns: [
     {
-      operat: [
+      action: [
         "edit",   // 自动组合为 sys:user:edit
         "delete", // 自动组合为 sys:user:delete
       ],

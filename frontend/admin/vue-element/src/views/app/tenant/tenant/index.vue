@@ -147,7 +147,7 @@ const contentConfig: IContentConfig = {
       total: result.total || 0,
     };
   },
-  cols: [
+  columns: [
     { type: "index", label: $t("common.table.seq"), width: 60 },
     { prop: "name", label: $t("pages.tenant.name"), minWidth: 120 },
     { prop: "code", label: $t("pages.tenant.code"), minWidth: 120 },
@@ -184,7 +184,7 @@ const contentConfig: IContentConfig = {
       label: $t("common.table.action"),
       fixed: "right",
       width: 150,
-      operat: [
+      action: [
         {
           name: "edit",
           text: $t("common.button.edit"),
