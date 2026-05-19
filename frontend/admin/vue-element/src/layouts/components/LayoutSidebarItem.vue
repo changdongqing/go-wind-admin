@@ -13,7 +13,7 @@
           :class="{ 'submenu-title-noDropdown': !isNest }"
         >
           <MenuIcon :icon="item.meta?.icon" />
-          <span v-if="item.meta?.title" class="ml-1">
+          <span v-if="item.meta?.title" class="menu-title">
             {{ translateRouteTitle(item.meta.title) }}
           </span>
         </el-menu-item>
@@ -25,7 +25,7 @@
       <template #title>
         <template v-if="item.meta">
           <MenuIcon :icon="item.meta.icon" />
-          <span v-if="item.meta.title" class="ml-1">
+          <span v-if="item.meta.title" class="menu-title">
             {{ translateRouteTitle(item.meta.title) }}
           </span>
         </template>
@@ -149,6 +149,11 @@ function resolvePath(routePath: string) {
     width: 18px;
     height: 18px;
     font-size: 18px;
+  }
+
+  // 图标与文字间距（8-10px）
+  .menu-title {
+    margin-left: 8px !important;
   }
 }
 

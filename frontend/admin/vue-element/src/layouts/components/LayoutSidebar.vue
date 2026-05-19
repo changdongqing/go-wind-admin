@@ -236,3 +236,62 @@ onMounted(() => {
   updateParentMenuStyles();
 });
 </script>
+
+<style lang="scss">
+// ============================================
+// 左侧菜单样式优化
+// ============================================
+
+.layout__sidebar {
+  .el-menu {
+    // 菜单项高度优化（企业后台黄金高度 44px）
+    .el-menu-item,
+    .el-sub-menu__title {
+      height: 44px !important;
+      line-height: 44px !important;
+      padding: 0 16px !important;  // 减少左右内边距
+      margin: 0 !important;
+    }
+
+    // 图标与文字间距收缩（8-10px）
+    .el-menu-item .el-icon,
+    .el-sub-menu__title .el-icon {
+      margin-right: 8px !important;
+      width: 18px !important;
+      height: 18px !important;
+    }
+
+    // 选中菜单项保持高度一致（只改背景色，不改高度）
+    .el-menu-item.is-active {
+      height: 44px !important;
+      line-height: 44px !important;
+    }
+
+    // 子菜单缩进
+    .el-sub-menu .el-menu-item {
+      padding-left: 48px !important;
+    }
+
+    // 暗黑模式配色优化
+    html.dark & {
+      // 普通菜单文字
+      .el-menu-item,
+      .el-sub-menu__title {
+        color: #c0c6d2 !important;
+      }
+
+      // 选中菜单：主色蓝 + 浅底色高亮
+      .el-menu-item.is-active {
+        background-color: rgba(64, 158, 255, 0.15) !important;
+        color: var(--el-color-primary) !important;
+      }
+
+      // 悬浮背景：浅灰低调过渡
+      .el-menu-item:hover,
+      .el-sub-menu__title:hover {
+        background-color: var(--menu-hover) !important;
+      }
+    }
+  }
+}
+</style>
