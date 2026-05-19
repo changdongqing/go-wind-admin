@@ -83,9 +83,9 @@ export const errorMessageResponseInterceptor = (
       const err: string = error?.toString?.() ?? "";
       let errMsg = "";
       if (err?.includes("Network Error")) {
-        errMsg = t("ui.fallback.http.networkError");
+        errMsg = t("common.fallback.http.networkError");
       } else if (error?.message?.includes?.("timeout")) {
-        errMsg = t("ui.fallback.http.requestTimeout");
+        errMsg = t("common.fallback.http.requestTimeout");
       }
       if (errMsg) {
         makeErrorMessage?.(errMsg, error);
@@ -97,27 +97,27 @@ export const errorMessageResponseInterceptor = (
       let errorMessage: string;
       switch (status) {
         case 400: {
-          errorMessage = t("ui.fallback.http.badRequest");
+          errorMessage = t("common.fallback.http.badRequest");
           break;
         }
         case 401: {
-          errorMessage = t("ui.fallback.http.unauthorized");
+          errorMessage = t("common.fallback.http.unauthorized");
           break;
         }
         case 403: {
-          errorMessage = t("ui.fallback.http.forbidden");
+          errorMessage = t("common.fallback.http.forbidden");
           break;
         }
         case 404: {
-          errorMessage = t("ui.fallback.http.notFound");
+          errorMessage = t("common.fallback.http.notFound");
           break;
         }
         case 408: {
-          errorMessage = t("ui.fallback.http.requestTimeout");
+          errorMessage = t("common.fallback.http.requestTimeout");
           break;
         }
         default: {
-          errorMessage = t("ui.fallback.http.internalServerError");
+          errorMessage = t("common.fallback.http.internalServerError");
         }
       }
       makeErrorMessage?.(errorMessage, error);

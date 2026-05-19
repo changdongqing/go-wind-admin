@@ -5,6 +5,17 @@
  */
 declare global {
   type TagView = import("@/types/ui").TagView;
+
+  type ClassType = Array<object | string> | object | string;
+
+  interface BasicOption {
+    label: string;
+    value: string;
+  }
+
+  type SelectOption = BasicOption;
+
+  type TabOption = BasicOption;
 }
 
 export {};

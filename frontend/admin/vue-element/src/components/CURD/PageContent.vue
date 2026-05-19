@@ -41,18 +41,35 @@
     </div>
 
     <!-- 列表 -->
-    <el-table
+    <vxe-table
       ref="tableRef"
       v-loading="loading"
       v-bind="contentConfig.table"
       :data="pageData"
-      :row-key="pk"
+      :row-config="{ keyField: pk, isHover: true, isCurrent: true }"
+      :scroll-y="{ enabled: true }"
       class="flex-1"
-      @selection-change="handleSelectionChange"
-      @filter-change="handleFilterChange"
+      @checkbox-change="handleSelectionChange"
+      @checkbox-all="handleSelectionChange"
     >
       <template v-for="col in columns" :key="col.prop">
-        <el-table-column v-if="col.show" v-bind="col">
+        <!-- 复选框列 -->
+        <vxe-column v-if="col.type === 'selection'" type="checkbox" width="50" align="center" />
+        <!-- 序号列 -->
+        <vxe-column v-else-if="col.type === 'index'" type="seq" width="60" align="center" />
+        <!-- 普通列 -->
+        <vxe-column
+          v-else-if="col.show"
+          :field="col.prop"
+          :title="col.label"
+          :width="col.width"
+          :min-width="col.minWidth"
+          :fixed="col.fixed"
+          :align="col.align || 'center'"
+          :header-align="col.headerAlign || 'center'"
+          :sortable="col.sortable"
+          :formatter="col.formatter"
+        >
           <template #default="scope">
             <!-- 显示图片 -->
             <template v-if="col.template === 'image'">
@@ -78,7 +95,7 @@
                 </template>
               </template>
             </template>
-            <!-- 根据行的selectList属性返回对应列表 -->
+            <!-- 根据行的selectList属性返回对应列表值 -->
             <template v-else-if="col.template === 'list'">
               <template v-if="col.prop">
                 {{ (col.selectList ?? {})[scope.row[col.prop]] }}
@@ -95,7 +112,6 @@
             <!-- 生成开关组 -->
             <template v-else-if="col.template === 'switch'">
               <template v-if="col.prop">
-                <!-- pageData.length>0: 解决el-switch组件会在表格初始化的时候触发一次change事件 -->
                 <el-switch
                   v-model="scope.row[col.prop]"
                   :active-value="col.activeValue ?? 1"
@@ -105,9 +121,7 @@
                   :inactive-text="col.inactiveText ?? ''"
                   :validate-event="false"
                   :disabled="!hasButtonPerm(col.prop)"
-                  @change="
-                    pageData.length > 0 && handleModify(col.prop, scope.row[col.prop], scope.row)
-                  "
+                  @change="handleModify(col.prop, scope.row[col.prop], scope.row)"
                 />
               </template>
             </template>
@@ -180,10 +194,16 @@
             <template v-else-if="col.template === 'custom'">
               <slot :name="col.slotName ?? col.prop" :prop="col.prop" v-bind="scope" />
             </template>
+            <!-- 默认显示字段值 -->
+            <template v-else>
+              <template v-if="col.prop">
+                {{ scope.row[col.prop] }}
+              </template>
+            </template>
           </template>
-        </el-table-column>
+        </vxe-column>
       </template>
-    </el-table>
+    </vxe-table>
 
     <!-- 分页 -->
     <div v-if="showPagination" class="mt-4">
@@ -337,10 +357,10 @@ import {
   type UploadInstance,
   type UploadRawFile,
   type UploadUserFile,
-  type TableInstance,
 } from "element-plus";
 import ExcelJS from "exceljs";
 import { reactive, ref, computed } from "vue";
+import type { VxeTableInstance } from "vxe-table";
 import type { IContentConfig, IObject, IOperateData } from "./types";
 import type { IToolsButton } from "./types";
 
@@ -515,15 +535,15 @@ const request = props.contentConfig.request ?? {
   limitName: "pageSize",
 };
 
-const tableRef = ref<TableInstance>();
+const tableRef = ref<VxeTableInstance>();
 
 // 行选中
 const selectionData = ref<IObject[]>([]);
 // 删除ID集合 用于批量删除
 const removeIds = ref<(number | string)[]>([]);
-function handleSelectionChange(selection: any[]) {
-  selectionData.value = selection;
-  removeIds.value = selection.map((item) => item[pk]);
+function handleSelectionChange({ records }: { records: IObject[] }) {
+  selectionData.value = records;
+  removeIds.value = records.map((item) => item[pk]);
 }
 
 // 获取行选中
@@ -556,7 +576,7 @@ function handleDelete(id?: number | string) {
             ElMessage.success(t("pages.curd.message.deleteSuccess"));
             removeIds.value = [];
             // 清空选中项
-            tableRef.value?.clearSelection();
+            tableRef.value?.clearCheckboxRow();
             handleRefresh(true);
           },
           () => {
@@ -983,6 +1003,50 @@ defineExpose({ fetchPageData, exportPageData, getFilterParams, getSelectionData,
   .el-button {
     margin-right: 0 !important;
     margin-left: 0 !important;
+  }
+}
+
+// vxe-table 样式优化
+:deep(.vxe-table) {
+  border-radius: 4px;
+  overflow: hidden;
+
+  // 表头样式
+  .vxe-table--header-wrapper {
+    background-color: var(--el-fill-color-light);
+
+    .vxe-cell {
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+    }
+  }
+
+  // 表格主体样式
+  .vxe-table--body-wrapper {
+    background-color: var(--el-bg-color);
+  }
+
+  // 表格行样式
+  .vxe-body--row {
+    background-color: var(--el-bg-color);
+
+    &.row--hover {
+      background-color: var(--el-fill-color-lighter);
+    }
+
+    &.row--current {
+      background-color: var(--el-fill-color);
+    }
+  }
+
+  // 表格单元格
+  .vxe-cell {
+    color: var(--el-text-color-regular);
+  }
+
+  // 表格边框
+  &.vxe-table--border-line--inner {
+    border-color: var(--el-border-color);
   }
 }
 </style>

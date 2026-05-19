@@ -12,8 +12,8 @@ export function configureVxeTable() {
     version: 0,
     table: {
       showHeader: true,
-      showOverflow: "tooltip",
-      showHeaderOverflow: "tooltip",
+      showOverflow: "title",
+      showHeaderOverflow: "title",
       autoResize: true,
       border: "inner",
       emptyText: "暂无数据",
@@ -27,6 +27,8 @@ export function configureVxeTable() {
       },
       align: "center",
       headerAlign: "center",
+      // 暗色主题边框配置
+      stripe: false,
     },
     pager: {
       perfect: false,

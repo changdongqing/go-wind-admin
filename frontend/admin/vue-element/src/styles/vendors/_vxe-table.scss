@@ -46,7 +46,7 @@
   /* table */
   --vxe-table-header-font-color: var(--el-text-color-regular);
   --vxe-table-footer-font-color: var(--el-text-color-regular);
-  --vxe-table-border-color: var(--el-border-color-lighter);
+  --vxe-table-border-color: var(--el-border-color);
   --vxe-table-header-background-color: var(--el-bg-color);
   --vxe-table-body-background-color: var(--el-bg-color);
   --vxe-table-footer-background-color: var(--el-bg-color);
@@ -133,5 +133,56 @@
         }
       }
     }
+  }
+}
+
+// ============================================
+// 暗色主题样式
+// ============================================
+
+html.dark {
+  // vxe-table 暗色主题变量
+  --vxe-table-border-color: #404040 !important;
+  --vxe-ui-table-border-color: #404040 !important;
+  --vxe-table-header-background-color: #2d2d2d !important;
+  --vxe-table-body-background-color: #1a1a1a !important;
+  --vxe-table-row-hover-background-color: #2a2a2a !important;
+  --vxe-table-row-current-background-color: #333333 !important;
+  --vxe-table-header-font-color: #e0e0e0 !important;
+  --vxe-table-body-font-color: #d0d0d0 !important;
+
+  // 强制覆盖 vxe-table 的所有边框
+  .vxe-table--basic,
+  .vxe-table--render-default {
+    // 所有包含边框的元素
+    *,
+    &::before,
+    &::after,
+    .vxe-body--column,
+    .vxe-header--column,
+    .vxe-footer--column,
+    .vxe-body--row td,
+    .vxe-header--row th,
+    .vxe-footer--row td,
+    .vxe-cell,
+    .vxe-table--border-line,
+    .vxe-table--header-border-line,
+    .vxe-table--body-border-line,
+    .vxe-table--footer-border-line,
+    .vxe-table--border-line--inner,
+    .vxe-table--border-line--outer,
+    .vxe-border,
+    .vxe-table--inner-border,
+    .vxe-table--inner-border--wrapper {
+      border-color: #404040 !important;
+    }
+  }
+
+  // 额外覆盖列和行的边框
+  .vxe-body--column.col--ellipsis,
+  .vxe-header--column.col--ellipsis,
+  .vxe-body--row.row--middle > td,
+  .vxe-header--row.row--middle > th {
+    border-color: #404040 !important;
   }
 }

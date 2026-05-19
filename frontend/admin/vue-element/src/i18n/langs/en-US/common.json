@@ -85,5 +85,16 @@
     "logout": "Logout",
     "logoutConfirmTitle": "Notice",
     "logoutConfirmMessage": "Are you sure you want to logout and exit the system?"
+  },
+  "fallback": {
+    "http": {
+      "networkError": "Network error, please try again later",
+      "requestTimeout": "Request timeout, please try again later",
+      "badRequest": "Bad request",
+      "unauthorized": "Unauthorized, please login again",
+      "forbidden": "Forbidden",
+      "notFound": "Resource not found",
+      "internalServerError": "Internal server error"
+    }
   }
 }
