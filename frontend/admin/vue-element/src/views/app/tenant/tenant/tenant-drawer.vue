@@ -9,17 +9,17 @@
     <ElForm :model="formData" label-width="120px">
       <!-- 基本信息 -->
       <ElFormItem :label="$t('pages.tenant.name')" required>
-        <ElInput v-model="formData.name" :placeholder="$t('ui.placeholder.input')" clearable />
+        <ElInput v-model="formData.name" :placeholder="$t('common.placeholder.input')" clearable />
       </ElFormItem>
 
       <ElFormItem :label="$t('pages.tenant.code')" required>
-        <ElInput v-model="formData.code" :placeholder="$t('ui.placeholder.input')" clearable />
+        <ElInput v-model="formData.code" :placeholder="$t('common.placeholder.input')" clearable />
       </ElFormItem>
 
       <ElFormItem :label="$t('pages.tenant.type')" required>
         <ElSelect
           v-model="formData.type"
-          :placeholder="$t('ui.placeholder.select')"
+          :placeholder="$t('common.placeholder.select')"
           filterable
           class="w-full"
         >
@@ -35,7 +35,7 @@
       <ElFormItem :label="$t('pages.tenant.auditStatus')" required>
         <ElSelect
           v-model="formData.auditStatus"
-          :placeholder="$t('ui.placeholder.select')"
+          :placeholder="$t('common.placeholder.select')"
           filterable
           class="w-full"
         >
@@ -48,10 +48,10 @@
         </ElSelect>
       </ElFormItem>
 
-      <ElFormItem :label="$t('ui.table.status')" required>
+      <ElFormItem :label="$t('common.table.status')" required>
         <ElSelect
           v-model="formData.status"
-          :placeholder="$t('ui.placeholder.select')"
+          :placeholder="$t('common.placeholder.select')"
           filterable
           class="w-full"
         >
@@ -64,12 +64,12 @@
         </ElSelect>
       </ElFormItem>
 
-      <ElFormItem :label="$t('ui.table.remark')">
+      <ElFormItem :label="$t('common.table.remark')">
         <ElInput
           v-model="formData.remark"
           type="textarea"
           :rows="3"
-          :placeholder="$t('ui.placeholder.input')"
+          :placeholder="$t('common.placeholder.input')"
         />
       </ElFormItem>
 
@@ -79,7 +79,7 @@
       <ElFormItem v-if="isCreate" :label="$t('pages.tenant.adminUserName')" required>
         <ElInput
           v-model="formData.user.username"
-          :placeholder="$t('ui.placeholder.input')"
+          :placeholder="$t('common.placeholder.input')"
           clearable
         />
       </ElFormItem>
@@ -89,7 +89,7 @@
           v-model="formData.password"
           type="password"
           show-password
-          :placeholder="$t('ui.placeholder.input')"
+          :placeholder="$t('common.placeholder.input')"
         />
       </ElFormItem>
 
@@ -98,14 +98,14 @@
           v-model="formData.passwordConfirm"
           type="password"
           show-password
-          :placeholder="$t('ui.placeholder.input')"
+          :placeholder="$t('common.placeholder.input')"
         />
       </ElFormItem>
 
       <ElFormItem v-if="isCreate" :label="$t('pages.tenant.adminMobile')" required>
         <ElInput
           v-model="formData.user.mobile"
-          :placeholder="$t('ui.placeholder.input')"
+          :placeholder="$t('common.placeholder.input')"
           clearable
         />
       </ElFormItem>
@@ -113,7 +113,7 @@
       <ElFormItem v-if="isCreate" :label="$t('pages.tenant.adminEmail')" required>
         <ElInput
           v-model="formData.user.email"
-          :placeholder="$t('ui.placeholder.input')"
+          :placeholder="$t('common.placeholder.input')"
           clearable
         />
       </ElFormItem>
@@ -121,9 +121,9 @@
 
     <template #footer>
       <div class="drawer-footer">
-        <ElButton @click="handleClose">{{ $t("common.cancel") }}</ElButton>
+        <ElButton @click="handleClose">{{ $t("common.button.cancel") }}</ElButton>
         <ElButton type="primary" :loading="loading" @click="handleSubmit">
-          {{ $t("common.confirm") }}
+          {{ $t("common.button.confirm") }}
         </ElButton>
       </div>
     </template>
@@ -181,8 +181,8 @@ const formData = ref({
 // 弹窗标题
 const title = computed(() =>
   isCreate.value
-    ? $t("ui.modal.create", { moduleName: $t("pages.tenant.moduleName") })
-    : $t("ui.modal.update", { moduleName: $t("pages.tenant.moduleName") })
+    ? $t("common.modal.create", { moduleName: $t("pages.tenant.moduleName") })
+    : $t("common.modal.update", { moduleName: $t("pages.tenant.moduleName") })
 );
 
 // 打开弹窗
@@ -248,7 +248,7 @@ const handleSubmit = async () => {
 
     // 验证必填字段
     if (!formData.value.name || !formData.value.code) {
-      ElMessage.error($t("ui.placeholder.input"));
+      ElMessage.error($t("common.placeholder.input"));
       return;
     }
 
@@ -305,13 +305,13 @@ async function createTenantWithAdminUser() {
     password: formData.value.password,
   });
 
-  ElMessage.success($t("ui.notification.create_success"));
+  ElMessage.success($t("common.notification.create_success"));
 }
 
 // 更新租户
 async function updateTenant() {
   if (!currentRow.value?.id) {
-    ElMessage.error($t("ui.notification.update_failed"));
+    ElMessage.error($t("common.notification.update_failed"));
     return;
   }
 
@@ -324,7 +324,7 @@ async function updateTenant() {
     remark: formData.value.remark,
   });
 
-  ElMessage.success($t("ui.notification.update_success"));
+  ElMessage.success($t("common.notification.update_success"));
 }
 
 // 暴露方法给父组件

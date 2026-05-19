@@ -75,6 +75,10 @@
   "title": {
     "confirm": "确认"
   },
+  "modal": {
+    "create": "创建{moduleName}",
+    "update": "编辑{moduleName}"
+  },
   "confirm": {
     "do_you_want_delete": "确定要删除该{moduleName}吗？"
   },

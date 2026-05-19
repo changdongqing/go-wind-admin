@@ -22,7 +22,7 @@
         <template v-for="(btn, index) in toolbarRightBtn" :key="index">
           <el-popover v-if="btn.name === 'filter'" placement="bottom" trigger="click">
             <template #reference>
-              <el-button v-bind="btn.attrs"></el-button>
+              <el-button v-access:code="btn.perm ?? '*:**'" v-bind="btn.attrs"></el-button>
             </template>
             <el-scrollbar max-height="350px">
               <template v-for="col in columns" :key="col.prop">
@@ -44,10 +44,15 @@
     <vxe-table
       ref="tableRef"
       v-loading="loading"
-      v-bind="contentConfig.table"
-      :data="pageData"
+      :border="contentConfig.table?.border"
+      :stripe="contentConfig.table?.stripe"
+      :size="contentConfig.table?.size as any"
+      :height="contentConfig.table?.height"
+      :max-height="contentConfig.table?.maxHeight"
+      :show-header="contentConfig.table?.showHeader"
       :row-config="{ keyField: pk, isHover: true, isCurrent: true }"
       :scroll-y="{ enabled: true }"
+      :data="pageData"
       class="flex-1"
       @checkbox-change="handleSelectionChange"
       @checkbox-all="handleSelectionChange"
@@ -182,7 +187,7 @@
                       name: btn.name,
                       row: scope.row,
                       column: scope.column,
-                      $index: scope.$index,
+                      $index: scope.rowIndex,
                     })
                   "
                 >
@@ -310,7 +315,7 @@
               :auto-upload="false"
               :on-exceed="handleFileExceed"
             >
-              <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+              <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
               <div class="el-upload__text">
                 <span>{{ t("pages.curd.import.dragText") }}</span>
                 <em>{{ t("pages.curd.import.clickText") }}</em>
@@ -362,13 +367,7 @@ import {
   type UploadRawFile,
   type UploadUserFile,
 } from "element-plus";
-import {
-  ArrowLeft,
-  ArrowRight,
-  DArrowLeft,
-  DArrowRight,
-  UploadFilled,
-} from "@element-plus/icons-vue";
+import { UploadFilled } from "@element-plus/icons-vue";
 import ExcelJS from "exceljs";
 import { reactive, ref, computed } from "vue";
 import type { VxeTableInstance } from "vxe-table";
@@ -529,7 +528,7 @@ const showPagination = props.contentConfig.pagination !== false;
 // 分页配置
 const defaultPagination = {
   background: true,
-  layout: "total, sizes, prev, pager, next, jumper",
+  layout: "total, sizes -> prev, pager, next",
   pageSize: 20,
   pageSizes: [10, 20, 30, 50],
   total: 0,
@@ -1120,91 +1119,19 @@ defineExpose({ fetchPageData, exportPageData, getFilterParams, getSelectionData,
   padding: 16px 0;
   background-color: var(--el-bg-color);
 
-  .pagination-left {
+  :deep(.el-pagination) {
     display: flex;
     align-items: center;
-    gap: 12px;
 
-    span {
-      font-size: 13px;
-      color: var(--el-text-color-regular);
-      white-space: nowrap;
+    // 左侧元素
+    .el-pagination__total,
+    .el-pagination__sizes {
+      margin-right: auto;
     }
 
-    .el-select {
-      width: 90px;
-
-      .el-input__wrapper {
-        padding: 0 12px;
-        height: 32px;
-      }
-    }
-  }
-
-  .pagination-right {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-
-    .el-button {
-      min-width: 32px;
-      padding: 0 8px;
-      height: 32px;
-      border-radius: 4px;
-      font-size: 13px;
-
-      &.is-disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-      }
-
-      &.ellipsis-btn {
-        cursor: default;
-        pointer-events: none;
-        border: none;
-        background: transparent;
-        color: var(--el-text-color-placeholder);
-        padding: 0 4px;
-        min-width: auto;
-
-        &:hover {
-          background: transparent;
-        }
-      }
-    }
-  }
-}
-
-// 暗黑模式下的分页样式优化
-html.dark {
-  .pagination-container {
-    background-color: var(--el-bg-color);
-
-    .pagination-right {
-      .el-button {
-        &:not(.is-primary):not(.is-disabled):not(.ellipsis-btn) {
-          background-color: var(--el-fill-color);
-          border-color: var(--el-border-color);
-          color: var(--el-text-color-regular);
-
-          &:hover {
-            background-color: var(--el-fill-color-dark);
-            border-color: var(--el-border-color-dark);
-            color: var(--el-color-primary);
-          }
-        }
-
-        &.is-primary {
-          background-color: var(--el-color-primary);
-          border-color: var(--el-color-primary);
-          color: #fff;
-
-          &:hover {
-            background-color: var(--el-color-primary-light-3);
-            border-color: var(--el-color-primary-light-3);
-          }
-        }
-      }
+    // 右侧元素
+    .el-pagination__jump {
+      margin-left: auto;
     }
   }
 }
