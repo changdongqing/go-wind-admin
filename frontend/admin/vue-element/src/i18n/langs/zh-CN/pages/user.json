@@ -1,0 +1,26 @@
+{
+  "moduleName": "用户管理",
+  "form": {
+    "username": "用户名",
+    "realname": "真实姓名",
+    "mobile": "手机号",
+    "status": "状态",
+    "role": "角色",
+    "position": "职位",
+    "orgUnit": "所属组织"
+  },
+  "table": {
+    "username": "用户名",
+    "realname": "真实姓名",
+    "nickname": "昵称",
+    "email": "邮箱",
+    "mobile": "手机号",
+    "password": "密码",
+    "gender": "性别",
+    "orgUnitId": "所属组织",
+    "positionId": "职位",
+    "roleId": "角色",
+    "status": "状态",
+    "lastLoginAt": "最后登录时间"
+  }
+}

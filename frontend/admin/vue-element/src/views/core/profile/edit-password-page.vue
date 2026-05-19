@@ -25,7 +25,7 @@ const [BaseForm, baseFormApi] = useVbenForm({
       label: t('pages.user.form.oldPassword'),
       componentProps: {
         passwordStrength: true,
-        placeholder: $t('ui.placeholder.input'),
+        placeholder: $t('common.placeholder.input'),
       },
       rules: 'required',
     },
@@ -35,7 +35,7 @@ const [BaseForm, baseFormApi] = useVbenForm({
       label: t('pages.user.form.newPassword'),
       componentProps: {
         passwordStrength: true,
-        placeholder: $t('ui.placeholder.input'),
+        placeholder: $t('common.placeholder.input'),
       },
       rules: 'required',
     },
@@ -44,7 +44,7 @@ const [BaseForm, baseFormApi] = useVbenForm({
       fieldName: 'confirmPassword',
       label: t('pages.user.form.confirmPassword'),
       componentProps: {
-        placeholder: $t('ui.placeholder.input'),
+        placeholder: $t('common.placeholder.input'),
       },
       rules: 'required',
     },
@@ -67,7 +67,7 @@ async function handleSubmit() {
 
   if (values.newPassword !== values.confirmPassword) {
     notification.error({
-      message: $t('ui.notification.password_mismatch'),
+      message: $t('common.notification.password_mismatch'),
     });
 
     setLoading(false);
@@ -81,11 +81,11 @@ async function handleSubmit() {
     );
 
     notification.success({
-      message: $t('ui.notification.update_success'),
+      message: $t('common.notification.update_success'),
     });
   } catch {
     notification.error({
-      message: $t('ui.notification.update_failed'),
+      message: $t('common.notification.update_failed'),
     });
   } finally {
     setLoading(false);

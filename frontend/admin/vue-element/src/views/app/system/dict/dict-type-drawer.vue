@@ -1,150 +1,191 @@
+<template>
+  <ElDrawer
+    v-model="visible"
+    :title="title"
+    size="600px"
+    :close-on-click-modal="false"
+    :append-to-body="true"
+    :destroy-on-close="true"
+    @close="handleClose"
+  >
+    <ElForm
+      ref="formRef"
+      :model="formData"
+      :rules="formRules"
+      label-width="120px"
+      class="drawer-form"
+    >
+      <ElFormItem :label="$t('pages.dict.typeName')" prop="typeName">
+        <ElInput
+          v-model="formData.typeName"
+          :placeholder="$t('common.placeholder.input')"
+          clearable
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.dict.typeCode')" prop="typeCode">
+        <ElInput
+          v-model="formData.typeCode"
+          :placeholder="$t('common.placeholder.input')"
+          clearable
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('common.table.sortOrder')" prop="sortOrder">
+        <ElInputNumber
+          v-model="formData.sortOrder"
+          :min="1"
+          :placeholder="$t('common.placeholder.input')"
+          style="width: 100%"
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('common.table.status')" prop="isEnabled">
+        <ElRadioGroup v-model="formData.isEnabled">
+          <ElRadioButton v-for="item in enableBoolList" :key="item.value" :value="item.value">
+            {{ item.label }}
+          </ElRadioButton>
+        </ElRadioGroup>
+      </ElFormItem>
+    </ElForm>
+
+    <template #footer>
+      <div class="drawer-footer">
+        <ElButton @click="handleClose">{{ $t("common.button.cancel") }}</ElButton>
+        <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
+          {{ $t("common.button.confirm") }}
+        </ElButton>
+      </div>
+    </template>
+  </ElDrawer>
+</template>
+
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 
-import { useVbenDrawer } from '@vben/common-ui';
-import { $t } from '@vben/locales';
+import { enableBoolList, useDictStore } from "@/stores";
+import { $t } from "@/i18n";
 
-import { notification } from 'ant-design-vue';
-
-import { useVbenForm, z } from '@/adapter/form';
-import { enableBoolList, useDictStore } from '@/stores';
+const emit = defineEmits<{
+  success: [];
+}>();
 
 const dictStore = useDictStore();
 
-const data = ref();
+const visible = ref(false);
+const submitLoading = ref(false);
+const isCreate = ref(true);
+const currentId = ref<number>();
+const formRef = ref();
 
-const getTitle = computed(() =>
-  data.value?.create
-    ? $t('ui.modal.create', { moduleName: t('pages.dict.dictType') })
-    : $t('ui.modal.update', { moduleName: t('pages.dict.dictType') }),
-);
-// const isCreate = computed(() => data.value?.create);
+// 表单数据
+const formData = reactive({
+  typeName: "",
+  typeCode: "",
+  sortOrder: 1,
+  isEnabled: true,
+});
 
-const [BaseForm, baseFormApi] = useVbenForm({
-  showDefaultActions: false,
-  // 所有表单项共用，可单独在表单内覆盖
-  commonConfig: {
-    // 所有表单项
-    componentProps: {
-      class: 'w-full',
-    },
-  },
-  schema: [
-    {
-      component: 'Input',
-      fieldName: 'typeName',
-      label: t('pages.dict.typeName'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-      rules: z.string().min(1, { message: $t('ui.formRules.required') }),
-    },
-    {
-      component: 'Input',
-      fieldName: 'typeCode',
-      label: t('pages.dict.typeCode'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-      rules: z.string().min(1, { message: $t('ui.formRules.required') }),
-    },
-    {
-      component: 'InputNumber',
-      fieldName: 'sortOrder',
-      defaultValue: 1,
-      label: $t('ui.table.sortOrder'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-    },
-    {
-      component: 'RadioGroup',
-      fieldName: 'isEnabled',
-      label: $t('ui.table.status'),
-      defaultValue: true,
-      rules: 'selectRequired',
-      componentProps: {
-        optionType: 'button',
-        buttonStyle: 'solid',
-        class: 'flex flex-wrap', // 如果选项过多，可以添加class来自动折叠
-        options: enableBoolList,
-      },
-    },
+// 表单验证规则
+const formRules = {
+  typeName: [{ required: true, message: $t("common.validation.required"), trigger: "blur" }],
+  typeCode: [{ required: true, message: $t("common.validation.required"), trigger: "blur" }],
+  sortOrder: [{ required: true, message: $t("common.validation.required"), trigger: "blur" }],
+  isEnabled: [
+    { required: true, message: $t("common.validation.selectRequired"), trigger: "change" },
   ],
-});
+};
 
-const [Drawer, drawerApi] = useVbenDrawer({
-  onCancel() {
-    drawerApi.close();
-  },
+// 标题
+const title = computed(() =>
+  isCreate.value
+    ? $t("common.modal.create", { moduleName: $t("pages.dict.dictType") })
+    : $t("common.modal.update", { moduleName: $t("pages.dict.dictType") })
+);
 
-  async onConfirm() {
-    console.log('onConfirm');
-
-    // 校验输入的数据
-    const validate = await baseFormApi.validate();
-    if (!validate.valid) {
-      return;
-    }
-
-    // 加载条设置为加载状态
-    setLoading(true);
-
-    // 获取表单数据
-    const values = await baseFormApi.getValues();
-
-    console.log(getTitle.value, Object.keys(values));
-
-    try {
-      await (data.value?.create
-        ? dictStore.createDictType(values)
-        : dictStore.updateDictType(data.value.row.id, values));
-
-      notification.success({
-        message: data.value?.create
-          ? $t('ui.notification.create_success')
-          : $t('ui.notification.update_success'),
-      });
-    } catch {
-      notification.error({
-        message: data.value?.create
-          ? $t('ui.notification.create_failed')
-          : $t('ui.notification.update_failed'),
-      });
-    } finally {
-      // 关闭窗口
-      drawerApi.close();
-      setLoading(false);
-    }
-  },
-
-  onOpenChange(isOpen: boolean) {
-    if (isOpen) {
-      // 获取传入的数据
-      data.value = drawerApi.getData<Record<string, any>>();
-
-      // 为表单赋值
-      if (data.value.row !== undefined) {
-        baseFormApi.setValues(data.value?.row);
-      }
-
-      setLoading(false);
-
-      console.log('onOpenChange', data.value, data.value?.create);
-    }
-  },
-});
-
-function setLoading(loading: boolean) {
-  drawerApi.setState({ confirmLoading: loading });
+// 重置表单
+function resetForm() {
+  Object.assign(formData, {
+    typeName: "",
+    typeCode: "",
+    sortOrder: 1,
+    isEnabled: true,
+  });
+  formRef.value?.clearValidate();
 }
+
+// 打开抽屉
+function open(data?: { create: boolean; row?: any }) {
+  visible.value = true;
+  isCreate.value = data?.create ?? true;
+  currentId.value = data?.row?.id;
+
+  // 重置表单
+  resetForm();
+
+  // 编辑时填充数据
+  if (data?.row && !isCreate.value) {
+    Object.assign(formData, {
+      typeName: data.row.typeName || "",
+      typeCode: data.row.typeCode || "",
+      sortOrder: data.row.sortOrder || 1,
+      isEnabled: data.row.isEnabled ?? true,
+    });
+  }
+}
+
+// 关闭抽屉
+function handleClose() {
+  visible.value = false;
+  resetForm();
+}
+
+// 提交表单
+async function handleSubmit() {
+  if (!formRef.value) return;
+
+  try {
+    await formRef.value.validate();
+    submitLoading.value = true;
+
+    if (isCreate.value) {
+      await dictStore.createDictType(formData);
+      ElMessage.success($t("common.notification.create_success"));
+    } else {
+      await dictStore.updateDictType(currentId.value!, formData);
+      ElMessage.success($t("common.notification.update_success"));
+    }
+
+    handleClose();
+    emit("success");
+  } catch (error) {
+    if (error !== false) {
+      ElMessage.error(
+        isCreate.value
+          ? $t("common.notification.create_failed")
+          : $t("common.notification.update_failed")
+      );
+    }
+  } finally {
+    submitLoading.value = false;
+  }
+}
+
+// 暴露方法
+defineExpose({
+  open,
+});
 </script>
 
-<template>
-  <Drawer :title="getTitle" class="w-full max-w-[800px]">
-    <BaseForm class="mx-0" />
-  </Drawer>
-</template>
+<style lang="scss" scoped>
+.drawer-form {
+  padding-right: 12px;
+}
+
+.drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+</style>

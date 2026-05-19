@@ -188,5 +188,20 @@
       "REVOKED": "已撤回",
       "DELETED": "已删除"
     }
+  },
+  "user": {
+    "status": {
+      "NORMAL": "正常",
+      "DISABLED": "禁用",
+      "PENDING": "待审核",
+      "LOCKED": "锁定",
+      "EXPIRED": "过期",
+      "CLOSED": "关闭"
+    }
+  },
+  "gender": {
+    "SECRET": "保密",
+    "MALE": "男",
+    "FEMALE": "女"
   }
 }

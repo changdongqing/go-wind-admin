@@ -1,257 +1,231 @@
+<template>
+  <div class="app-container h-full flex flex-1 flex-col">
+    <!-- 搜索 -->
+    <PageSearch
+      ref="searchRef"
+      :search-config="searchConfig"
+      @query-click="handleQueryClick"
+      @reset-click="handleResetClick"
+    />
+
+    <!-- 列表 -->
+    <PageContent
+      ref="contentRef"
+      :content-config="contentConfig"
+      @add-click="handleAddClick"
+      @operate-click="handleOperateClick"
+      @toolbar-click="handleToolbarClick"
+    >
+      <!-- 状态 -->
+      <template #status="{ row }">
+        <ElTag size="small" effect="dark" round :color="statusToColor(row.status)">
+          {{ statusToName(row.status) }}
+        </ElTag>
+      </template>
+    </PageContent>
+
+    <!-- 新增/编辑抽屉 -->
+    <PermissionDrawer ref="drawerRef" @success="handleSuccess" />
+  </div>
+</template>
+
 <script lang="ts" setup>
-import type { VxeGridProps } from "@/adapter/vxe-table";
+import { ElTag, ElMessage, ElMessageBox } from "element-plus";
 
-import { h, watch } from "vue";
-
-import { useVbenDrawer, type VbenFormProps } from "@vben/common-ui";
-import { LucideFilePenLine, LucideTrash2 } from "@vben/icons";
-import { isEqual } from "@/utils";
-
-import { notification } from "ant-design-vue";
-
-import { useVbenVxeGrid } from "@/adapter/vxe-table";
-import { type permissionservicev1_Permission as Permission } from "@/api/generated/admin/service/v1";
-import { $t } from "@/locales";
-import { statusList, statusToColor, statusToName, usePermissionListStore } from "@/stores";
-import { usePermissionViewStore } from "@/views/app/permission/permission/permission-view.state";
-
+import PageContent from "@/components/CURD/PageContent.vue";
+import PageSearch from "@/components/CURD/PageSearch.vue";
+import usePage from "@/components/CURD/usePage";
+import type { IOperateData, ISearchConfig, IContentConfig } from "@/components/CURD/types";
 import PermissionDrawer from "./permission-drawer.vue";
+
+import { statusList, statusToColor, statusToName, usePermissionListStore } from "@/stores";
+import { $t } from "@/i18n";
+import { usePermissionViewStore } from "@/views/app/permission/permission/permission-view.state";
 
 const permissionStore = usePermissionListStore();
 const permissionViewStore = usePermissionViewStore();
 
-const formOptions: VbenFormProps = {
-  // 默认展开
-  collapsed: false,
-  // 控制表单是否显示折叠按钮
-  showCollapseButton: false,
-  // 按下回车时是否提交表单
-  submitOnEnter: true,
-  schema: [
+// 使用 CURD hook
+const { searchRef, contentRef, handleQueryClick, handleResetClick } = usePage();
+
+// 抽屉引用
+const drawerRef = ref();
+
+// 搜索配置
+const searchConfig: ISearchConfig = {
+  grid: true,
+  formItems: [
     {
-      component: "Input",
-      fieldName: "name",
-      label: t("pages.permission.name"),
-      componentProps: {
-        placeholder: $t("ui.placeholder.input"),
-        allowClear: true,
+      type: "input",
+      label: $t("pages.permission.name"),
+      prop: "name",
+      attrs: {
+        placeholder: $t("common.placeholder.input"),
+        clearable: true,
       },
     },
     {
-      component: "Input",
-      fieldName: "code",
-      label: t("pages.permission.code"),
-      componentProps: {
-        placeholder: $t("ui.placeholder.input"),
-        allowClear: true,
+      type: "input",
+      label: $t("pages.permission.code"),
+      prop: "code",
+      attrs: {
+        placeholder: $t("common.placeholder.input"),
+        clearable: true,
       },
     },
     {
-      component: "Select",
-      fieldName: "status",
-      label: $t("ui.table.status"),
-      componentProps: {
-        options: statusList,
-        placeholder: $t("ui.placeholder.select"),
-        filterOption: (input: string, option: any) =>
-          option.label.toLowerCase().includes(input.toLowerCase()),
-        allowClear: true,
-        showSearch: true,
+      type: "select",
+      label: $t("common.table.status"),
+      prop: "status",
+      attrs: {
+        placeholder: $t("common.placeholder.select"),
+        clearable: true,
       },
+      options: statusList.value,
     },
   ],
 };
 
-const gridOptions: VxeGridProps<Permission> = {
-  toolbarConfig: {
-    custom: true,
-    export: true,
-    // import: true,
-    refresh: true,
-    zoom: true,
+// 表格配置
+const contentConfig: IContentConfig = {
+  permPrefix: "sys:permission",
+  toolbarRight: ["add"],
+  defaultToolbar: ["refresh", "filter"],
+  table: {
+    border: true,
+    stripe: true,
+    height: "auto",
   },
-
-  exportConfig: {},
-  pagerConfig: {
-    enabled: false,
+  indexAction: async (query: any) => {
+    const { page, pageSize, ...queryParams } = query;
+    const result = await permissionViewStore.fetchPermissionList(
+      permissionViewStore.currentGroupId,
+      page || 1,
+      pageSize || 10,
+      queryParams
+    );
+    return {
+      items: result.items || [],
+      total: result.total || 0,
+    };
   },
-  rowConfig: {
-    isHover: true,
-  },
-
-  stripe: true,
-  height: "auto",
-
-  proxyConfig: {
-    ajax: {
-      query: async ({ page }, formValues) => {
-        console.log("permission list query:", formValues, permissionViewStore.currentGroupId);
-
-        return await permissionViewStore.fetchPermissionList(
-          permissionViewStore.currentGroupId,
-          page.currentPage,
-          page.pageSize,
-          formValues
-        );
-      },
-    },
-  },
-
   columns: [
     {
-      title: t("pages.permission.name"),
-      field: "name",
-      fixed: "left",
+      prop: "name",
+      label: $t("pages.permission.name"),
+      minWidth: 120,
       align: "left",
     },
     {
-      title: t("pages.permission.code"),
-      field: "code",
-      fixed: "left",
+      prop: "code",
+      label: $t("pages.permission.code"),
+      minWidth: 120,
       align: "left",
     },
-    { title: t("pages.permission.groupName"), field: "groupName" },
     {
-      title: $t("ui.table.status"),
-      field: "status",
-      slots: { default: "status" },
+      prop: "groupName",
+      label: $t("pages.permission.groupName"),
+      minWidth: 120,
+    },
+    {
+      prop: "status",
+      label: $t("common.table.status"),
       width: 90,
+      slotName: "status",
     },
     {
-      title: $t("ui.table.action"),
-      field: "action",
+      prop: "action",
+      label: $t("common.table.action"),
       fixed: "right",
-      slots: { default: "action" },
-      width: 90,
+      width: 150,
+      template: "tool",
+      action: [
+        {
+          name: "edit",
+          text: $t("common.button.edit"),
+        },
+        {
+          name: "delete",
+          text: $t("common.button.delete"),
+          attrs: {
+            type: "danger",
+          },
+        },
+      ],
     },
   ],
 };
 
-const [Grid, gridApi] = useVbenVxeGrid({ gridOptions, formOptions });
+// 新增按钮点击
+function handleAddClick() {
+  drawerRef.value?.open({ create: true });
+}
 
-const [Drawer, drawerApi] = useVbenDrawer({
-  // 连接抽离的组件
-  connectedComponent: PermissionDrawer,
+// 操作按钮点击
+async function handleOperateClick(data: IOperateData) {
+  const { name, row } = data;
 
-  onOpenChange(isOpen: boolean) {
-    if (!isOpen) {
-      // 关闭时，重载表格数据
-      gridApi.reload();
+  if (name === "edit") {
+    drawerRef.value?.open({ create: false, row });
+  } else if (name === "delete") {
+    try {
+      await ElMessageBox.confirm(
+        $t("common.message.confirmDelete", { moduleName: $t("pages.permission.moduleName") }),
+        $t("common.title.warning"),
+        {
+          confirmButtonText: $t("common.button.confirm"),
+          cancelButtonText: $t("common.button.cancel"),
+          type: "warning",
+        }
+      );
+
+      await permissionStore.deletePermission(row.id);
+      ElMessage.success($t("common.notification.deleteSuccess"));
+      handleSuccess();
+    } catch (error) {
+      if (error !== "cancel") {
+        ElMessage.error($t("common.notification.deleteFailed"));
+      }
     }
-  },
-});
-
-function openDrawer(create: boolean, row?: any) {
-  drawerApi.setData({
-    create,
-    row,
-  });
-  drawerApi.open();
-}
-
-/* 创建 */
-function handleCreate() {
-  console.log("创建");
-
-  openDrawer(true);
-}
-
-/* 编辑 */
-function handleEdit(row: any) {
-  console.log("编辑", row);
-  openDrawer(false, row);
-}
-
-/* 删除 */
-async function handleDelete(row: any) {
-  console.log("删除", row);
-
-  try {
-    await permissionStore.deletePermission(row.id);
-
-    notification.success({
-      message: $t("ui.notification.delete_success"),
-    });
-
-    await gridApi.reload();
-  } catch {
-    notification.error({
-      message: $t("ui.notification.delete_failed"),
-    });
   }
 }
 
-/* 同步权限 */
-async function handleSyncPermissions() {
-  console.log("同步");
+// 工具栏按钮点击（同步权限）
+async function handleToolbarClick(name: string) {
+  if (name === "syncPermissions") {
+    try {
+      await ElMessageBox.confirm(
+        $t("common.message.confirmSyncPermissions", { moduleName: $t("pages.permission.moduleName") }),
+        $t("common.title.warning"),
+        {
+          confirmButtonText: $t("common.button.confirm"),
+          cancelButtonText: $t("common.button.cancel"),
+          type: "warning",
+        }
+      );
 
-  try {
-    await permissionStore.syncPermissions();
-    permissionViewStore.reloadGroupList();
-
-    notification.success({
-      message: $t("ui.notification.sync_success"),
-    });
-  } catch {
-    notification.error({
-      message: $t("ui.notification.sync_failed"),
-    });
-  }
-}
-
-watch(
-  () => permissionViewStore.needReloadPermissionList,
-  (newValues, oldValue) => {
-    if (isEqual(newValues, oldValue) || !newValues) {
-      return;
+      await permissionStore.syncPermissions();
+      permissionViewStore.reloadGroupList();
+      ElMessage.success($t("common.notification.syncSuccess"));
+    } catch (error) {
+      if (error !== "cancel") {
+        ElMessage.error($t("common.notification.syncFailed"));
+      }
     }
-    permissionViewStore.needReloadPermissionList = false;
-    gridApi.reload();
   }
-);
+}
+
+// 成功回调
+function handleSuccess() {
+  contentRef.value?.fetchPageData();
+}
 </script>
 
-<template>
-  <Grid :table-title="$t('menu.permission.permission')">
-    <template #toolbar-tools>
-      <a-button class="mr-2" type="primary" @click="handleCreate">
-        {{ t("pages.permission.button.create") }}
-      </a-button>
-      <a-popconfirm
-        :cancel-text="$t('ui.button.cancel')"
-        :ok-text="$t('ui.button.ok')"
-        :title="
-          $t('ui.text.do_you_want_sync_permissions', {
-            moduleName: t('pages.permission.moduleName'),
-          })
-        "
-        @confirm="() => handleSyncPermissions()"
-      >
-        <a-button type="primary" danger class="mr-2">
-          {{ t("pages.permission.button.syncPermissions") }}
-        </a-button>
-      </a-popconfirm>
-    </template>
-    <template #status="{ row }">
-      <a-tag :color="statusToColor(row.status)">
-        {{ statusToName(row.status) }}
-      </a-tag>
-    </template>
-    <template #action="{ row }">
-      <a-button type="link" :icon="h(LucideFilePenLine)" @click.stop="handleEdit(row)" />
-      <a-popconfirm
-        :cancel-text="$t('ui.button.cancel')"
-        :ok-text="$t('ui.button.ok')"
-        :title="
-          $t('ui.text.do_you_want_delete', {
-            moduleName: t('pages.permission.moduleName'),
-          })
-        "
-        @confirm="handleDelete(row)"
-      >
-        <a-button danger type="link" :icon="h(LucideTrash2)" />
-      </a-popconfirm>
-    </template>
-  </Grid>
-  <Drawer />
-</template>
+<style lang="scss" scoped>
+.app-container {
+  padding: 20px;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
+}
+</style>

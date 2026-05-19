@@ -1,418 +1,373 @@
+<template>
+  <div class="app-container h-full flex flex-1 flex-col">
+    <!-- 搜索 -->
+    <PageSearch
+      ref="searchRef"
+      :search-config="searchConfig"
+      @query-click="handleQueryClick"
+      @reset-click="handleResetClick"
+    />
+
+    <!-- 列表 -->
+    <PageContent
+      ref="contentRef"
+      :content-config="contentConfig"
+      @add-click="handleAddClick"
+      @operate-click="handleOperateClick"
+      @toolbar-click="handleToolbarClick"
+    >
+      <!-- 状态 -->
+      <template #status="{ row }">
+        <ElTag size="small" effect="dark" round :color="userStatusToColor(row.status)">
+          {{ userStatusToName(row.status) }}
+        </ElTag>
+      </template>
+      <!-- 角色 -->
+      <template #roleNames="{ row }">
+        <div>
+          <ElTag
+            v-for="role in row.roleNames"
+            :key="role"
+            class="mb-1 mr-1"
+            :style="{
+              backgroundColor: getRandomColor(role),
+              color: '#333',
+              border: 'none',
+            }"
+          >
+            {{ role }}
+          </ElTag>
+        </div>
+      </template>
+      <!-- 组织 -->
+      <template #orgUnitNames="{ row }">
+        <div>
+          <ElTag
+            v-for="orgUnit in row.orgUnitNames"
+            :key="orgUnit"
+            class="mb-1 mr-1"
+            :style="{
+              backgroundColor: getRandomColor(orgUnit),
+              color: '#333',
+              border: 'none',
+            }"
+          >
+            {{ orgUnit }}
+          </ElTag>
+        </div>
+      </template>
+      <!-- 职位 -->
+      <template #positionNames="{ row }">
+        <div>
+          <ElTag
+            v-for="position in row.positionNames"
+            :key="position"
+            class="mb-1 mr-1"
+            :style="{
+              backgroundColor: getRandomColor(position),
+              color: '#333',
+              border: 'none',
+            }"
+          >
+            {{ position }}
+          </ElTag>
+        </div>
+      </template>
+    </PageContent>
+
+    <!-- 新增/编辑抽屉 -->
+    <UserDrawer ref="drawerRef" @success="handleSuccess" />
+  </div>
+</template>
+
 <script lang="ts" setup>
-import type { VxeGridListeners, VxeGridProps } from '@/adapter/vxe-table';
+import { ElTag, ElMessage, ElMessageBox } from "element-plus";
+import { watch } from "vue";
 
-import { h, watch } from 'vue';
+import PageContent from "@/components/CURD/PageContent.vue";
+import PageSearch from "@/components/CURD/PageSearch.vue";
+import usePage from "@/components/CURD/usePage";
+import type { IOperateData, ISearchConfig, IContentConfig } from "@/components/CURD/types";
+import UserDrawer from "./user-drawer.vue";
 
-import { useVbenDrawer, type VbenFormProps } from '@vben/common-ui';
-import { LucideFilePenLine, LucideInfo, LucideTrash2 } from '@vben/icons';
-import { isEqual } from '@/utils';
-
-import { notification } from 'ant-design-vue';
-
-import { useVbenVxeGrid } from '@/adapter/vxe-table';
-import { type identityservicev1_User as User } from '@/api/generated/admin/service/v1';
-import { $t } from '@/locales';
-import { router } from '@/router';
 import {
-  genderToColor,
-  genderToName,
   usePositionStore,
   useRoleStore,
   userStatusList,
   userStatusToColor,
   userStatusToName,
   useUserListStore,
-} from '@/stores';
-import { getRandomColor } from '@/utils/color';
-import { useUserViewStore } from '@/views/app/opm/user/user-view.state';
-
-import UserDrawer from './user-drawer.vue';
+} from "@/stores";
+import { $t } from "@/i18n";
+import { router } from "@/router";
+import { getRandomColor } from "@/utils/color";
+import { useUserViewStore } from "@/views/app/opm/user/user-view.state";
 
 const userListStore = useUserListStore();
 const roleStore = useRoleStore();
 const positionStore = usePositionStore();
 const userViewStore = useUserViewStore();
 
-const formOptions: VbenFormProps = {
-  // 默认展开
+// 使用 CURD hook
+const { searchRef, contentRef, handleQueryClick, handleResetClick } = usePage();
+
+// 抽屉引用
+const drawerRef = ref();
+
+// 搜索配置
+const searchConfig: ISearchConfig = {
+  grid: true,
   collapsed: true,
-  // 控制表单是否显示折叠按钮
   showCollapseButton: true,
-  // 按下回车时是否提交表单
-  submitOnEnter: true,
-  schema: [
+  formItems: [
     {
-      component: 'Input',
-      fieldName: 'username',
-      label: t('pages.user.form.username'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
+      type: "input",
+      label: $t("pages.user.form.username"),
+      prop: "username",
+      attrs: {
+        placeholder: $t("common.placeholder.input"),
+        clearable: true,
       },
     },
     {
-      component: 'Input',
-      fieldName: 'realname',
-      label: t('pages.user.form.realname'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
+      type: "input",
+      label: $t("pages.user.form.realname"),
+      prop: "realname",
+      attrs: {
+        placeholder: $t("common.placeholder.input"),
+        clearable: true,
       },
     },
     {
-      component: 'Input',
-      fieldName: 'mobile',
-      label: t('pages.user.form.mobile'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
+      type: "input",
+      label: $t("pages.user.form.mobile"),
+      prop: "mobile",
+      attrs: {
+        placeholder: $t("common.placeholder.input"),
+        clearable: true,
       },
     },
     {
-      component: 'Select',
-      fieldName: 'status',
-      label: t('pages.user.form.status'),
-      componentProps: {
-        options: userStatusList,
-        placeholder: $t('ui.placeholder.select'),
-        filterOption: (input: string, option: any) =>
-          option.label.toLowerCase().includes(input.toLowerCase()),
-        allowClear: true,
-        showSearch: true,
+      type: "select",
+      label: $t("pages.user.form.status"),
+      prop: "status",
+      attrs: {
+        placeholder: $t("common.placeholder.select"),
+        clearable: true,
       },
+      options: userStatusList.value,
     },
     {
-      component: 'ApiSelect',
-      fieldName: 'roleId',
-      label: t('pages.user.form.role'),
-      componentProps: {
-        allowClear: true,
-        showSearch: true,
-        placeholder: $t('ui.placeholder.select'),
-        filterOption: (input: string, option: any) =>
-          option.label.toLowerCase().includes(input.toLowerCase()),
-        afterFetch: (data: { name: string; path: string }[]) => {
-          return data.map((item: any) => ({
-            label: item.name,
-            value: item.id,
-          }));
+      type: "tree-select",
+      label: $t("pages.user.form.role"),
+      prop: "roleId",
+      attrs: {
+        placeholder: $t("common.placeholder.select"),
+        clearable: true,
+        filterable: true,
+        nodeKey: "id",
+        props: {
+          label: "name",
+          value: "id",
+          children: "children",
         },
-        api: async () => {
+      },
+      initFn: async (item: any) => {
+        try {
           const result = await roleStore.listRole(undefined, {
-            status: 'ON',
-            type__not: 'TEMPLATE',
+            status: "ON",
+            type__not: "TEMPLATE",
             tenant_id: userViewStore.currentTenantId ?? 0,
           });
-          return result.items;
-        },
+          item.attrs.data = result.items || [];
+        } catch (error) {
+          console.error("Failed to load roles:", error);
+        }
       },
     },
     {
-      component: 'ApiSelect',
-      fieldName: 'positionId',
-      label: t('pages.user.form.position'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.select'),
-        allowClear: true,
-        showSearch: true,
-        alwaysLoad: true,
-        immediate: true,
-        filterOption: (input: string, option: any) =>
-          option.label.toLowerCase().includes(input.toLowerCase()),
-        afterFetch: (data: { name: string; path: string }[]) => {
-          return data.map((item: any) => ({
-            label: item.name,
-            value: item.id,
-          }));
+      type: "tree-select",
+      label: $t("pages.user.form.position"),
+      prop: "positionId",
+      attrs: {
+        placeholder: $t("common.placeholder.select"),
+        clearable: true,
+        filterable: true,
+        nodeKey: "id",
+        props: {
+          label: "name",
+          value: "id",
+          children: "children",
         },
-        api: async () => {
+      },
+      initFn: async (item: any) => {
+        try {
           const result = await positionStore.listPosition(undefined, {
-            status: 'ON',
+            status: "ON",
             org_unit_id: userViewStore.currentOrgUnitId,
             tenant_id: userViewStore.currentTenantId ?? 0,
           });
-          return result.items;
-        },
+          item.attrs.data = result.items || [];
+        } catch (error) {
+          console.error("Failed to load positions:", error);
+        }
       },
     },
   ],
 };
 
-const gridOptions: VxeGridProps<User> = {
-  height: 'auto',
-  stripe: true,
-  autoResize: true,
-  toolbarConfig: {
-    custom: true,
-    export: true,
-    import: false,
-    refresh: true,
-    zoom: true,
+// 表格配置
+const contentConfig: IContentConfig = {
+  permPrefix: "sys:user",
+  toolbarRight: ["add"],
+  defaultToolbar: ["refresh", "filter"],
+  table: {
+    border: true,
+    stripe: true,
+    height: "auto",
   },
-  exportConfig: {},
-  pagerConfig: {},
-  rowConfig: {
-    isHover: true,
-    resizable: true,
+  indexAction: async (query: any) => {
+    const { page, pageSize, ...queryParams } = query;
+    const result = await userViewStore.fetchUserList(page || 1, pageSize || 10, queryParams);
+    return {
+      items: result.items || [],
+      total: result.total || 0,
+    };
   },
-  resizableConfig: {},
-  tooltipConfig: {
-    showAll: true,
-    enterable: true,
-    contentMethod: ({ column, row }) => {
-      const { field } = column;
-      if (field === 'roleNames') {
-        return `${row[field]}`;
-      }
-      // 其余的单元格使用默认行为
-      return null;
-    },
-  },
-
-  proxyConfig: {
-    ajax: {
-      query: async ({ page }, formValues) => {
-        // console.log('query:', filters, form, formValues);
-        return userViewStore.fetchUserList(
-          page.currentPage,
-          page.pageSize,
-          formValues,
-        );
-      },
-    },
-  },
-
   columns: [
-    { title: $t('ui.table.seq'), type: 'seq', width: 50 },
-    { title: t('pages.user.table.username'), field: 'username', width: 120 },
-    { title: t('pages.user.table.realname'), field: 'realname', width: 100 },
-    { title: t('pages.user.table.nickname'), field: 'nickname', width: 100 },
-    { title: t('pages.user.table.email'), field: 'email', width: 160 },
-    { title: t('pages.user.table.mobile'), field: 'mobile', width: 130 },
+    { type: "index", label: $t("common.table.seq"), width: 60 },
+    { prop: "username", label: $t("pages.user.table.username"), width: 120 },
+    { prop: "realname", label: $t("pages.user.table.realname"), width: 100 },
+    { prop: "nickname", label: $t("pages.user.table.nickname"), width: 100 },
+    { prop: "email", label: $t("pages.user.table.email"), width: 160 },
+    { prop: "mobile", label: $t("pages.user.table.mobile"), width: 130 },
     {
-      title: t('pages.user.table.orgUnitId'),
-      field: 'orgUnitNames',
-      slots: { default: 'orgUnit' },
+      prop: "orgUnitNames",
+      label: $t("pages.user.table.orgUnitId"),
       width: 130,
+      slotName: "orgUnitNames",
     },
     {
-      title: t('pages.user.table.positionId'),
-      field: 'positionNames',
-      slots: { default: 'position' },
+      prop: "positionNames",
+      label: $t("pages.user.table.positionId"),
       width: 130,
+      slotName: "positionNames",
     },
     {
-      title: t('pages.user.table.roleId'),
-      field: 'roleNames',
-      slots: { default: 'role' },
+      prop: "roleNames",
+      label: $t("pages.user.table.roleId"),
       width: 100,
-      showOverflow: 'tooltip',
+      slotName: "roleNames",
+      showOverflow: "tooltip",
     },
     {
-      title: t('pages.user.table.status'),
-      field: 'status',
+      prop: "status",
+      label: $t("pages.user.table.status"),
       width: 95,
-      slots: { default: 'status' },
+      slotName: "status",
     },
     {
-      title: t('pages.user.table.lastLoginAt'),
-      field: 'lastLoginAt',
-      formatter: 'formatDateTime',
+      prop: "lastLoginAt",
+      label: $t("pages.user.table.lastLoginAt"),
       width: 160,
+      template: "date",
+      dateFormat: "YYYY-MM-DD HH:mm:ss",
     },
     {
-      title: $t('ui.table.createdAt'),
-      field: 'createdAt',
-      formatter: 'formatDateTime',
+      prop: "createdAt",
+      label: $t("common.table.createdAt"),
       width: 160,
+      template: "date",
+      dateFormat: "YYYY-MM-DD HH:mm:ss",
     },
-    { title: $t('ui.table.remark'), field: 'remark', width: 250 },
-
+    { prop: "remark", label: $t("common.table.remark"), width: 250 },
     {
-      title: $t('ui.table.action'),
-      field: 'action',
-      fixed: 'right',
-      slots: { default: 'action' },
-      width: 120,
+      prop: "action",
+      label: $t("common.table.action"),
+      fixed: "right",
+      width: 150,
+      template: "tool",
+      action: [
+        {
+          name: "detail",
+          text: $t("common.button.detail"),
+        },
+        {
+          name: "edit",
+          text: $t("common.button.edit"),
+        },
+        {
+          name: "delete",
+          text: $t("common.button.delete"),
+          attrs: {
+            type: "danger",
+          },
+        },
+      ],
     },
   ],
 };
 
-const gridEvents: VxeGridListeners<User> = {
-  cellDblclick: ({ row }) => {
-    // console.log(`cell-click: ${row.id}`);
-    handleDetail(row);
-  },
-};
+// 新增按钮点击
+function handleAddClick() {
+  drawerRef.value?.open({ create: true });
+}
 
-const [Grid, gridApi] = useVbenVxeGrid({
-  gridOptions,
-  formOptions,
-  gridEvents,
-});
+// 操作按钮点击
+async function handleOperateClick(data: IOperateData) {
+  const { name, row } = data;
 
-const [Drawer, drawerApi] = useVbenDrawer({
-  // 连接抽离的组件
-  connectedComponent: UserDrawer,
+  if (name === "detail") {
+    router.push(`/opm/users/detail/${row.id}`);
+  } else if (name === "edit") {
+    drawerRef.value?.open({ create: false, row });
+  } else if (name === "delete") {
+    try {
+      await ElMessageBox.confirm(
+        $t("common.message.confirmDelete", { moduleName: $t("pages.user.moduleName") }),
+        $t("common.title.warning"),
+        {
+          confirmButtonText: $t("common.button.confirm"),
+          cancelButtonText: $t("common.button.cancel"),
+          type: "warning",
+        }
+      );
 
-  onOpenChange(isOpen: boolean) {
-    if (!isOpen) {
-      // 关闭时，重载表格数据
-      gridApi.reload();
+      await userListStore.deleteUser(row.id);
+      ElMessage.success($t("common.notification.deleteSuccess"));
+      handleSuccess();
+    } catch (error) {
+      if (error !== "cancel") {
+        ElMessage.error($t("common.notification.deleteFailed"));
+      }
     }
-  },
-});
-
-/* 打开模态窗口 */
-function openDrawer(create: boolean, row?: any) {
-  drawerApi.setData({
-    create,
-    row,
-  });
-
-  drawerApi.open();
-}
-
-/* 创建 */
-function handleCreate() {
-  console.log('创建');
-  openDrawer(true);
-}
-
-/* 编辑 */
-function handleEdit(row: any) {
-  console.log('编辑', row);
-  openDrawer(false, row);
-}
-
-/* 删除 */
-async function handleDelete(row: any) {
-  console.log('删除', row);
-
-  try {
-    await userListStore.deleteUser(row.id);
-
-    notification.success({
-      message: $t('ui.notification.delete_success'),
-    });
-
-    await gridApi.reload();
-  } catch {
-    notification.error({
-      message: $t('ui.notification.delete_failed'),
-    });
   }
 }
 
-/* 详情 */
-function handleDetail(row: any) {
-  router.push(`/opm/users/detail/${row.id}`);
+// 工具栏按钮点击
+function handleToolbarClick(name: string) {
+  console.log("toolbar click:", name);
 }
 
+// 成功回调
+function handleSuccess() {
+  contentRef.value?.fetchPageData();
+}
+
+// 监听组织和租户变化，重新加载数据
 watch(
   () => [userViewStore.currentOrgUnitId, userViewStore.currentTenantId],
-  (newValues, oldValue) => {
-    if (isEqual(newValues, oldValue)) {
-      return;
-    }
-    console.log(newValues, oldValue);
-    gridApi.reload();
-  },
+  () => {
+    contentRef.value?.fetchPageData();
+  }
 );
 </script>
 
-<template>
-  <Grid :table-title="$t('menu.opm.user')">
-    <template #toolbar-tools>
-      <a-button type="primary" @click="handleCreate">
-        {{ t('pages.user.button.create') }}
-      </a-button>
-    </template>
-    <template #status="{ row }">
-      <a-tag :color="userStatusToColor(row.status)">
-        {{ userStatusToName(row.status) }}
-      </a-tag>
-    </template>
-    <template #gender="{ row }">
-      <a-tag :color="genderToColor(row.gender)">
-        {{ genderToName(row.gender) }}
-      </a-tag>
-    </template>
-    <template #role="{ row }">
-      <div>
-        <a-tag
-          v-for="role in row.roleNames"
-          :key="role"
-          class="mb-1 mr-1"
-          :style="{
-            backgroundColor: getRandomColor(role), // 随机背景色
-            color: '#333', // 深色文字（适配浅色背景）
-            border: 'none', // 可选：去掉边框更美观
-          }"
-        >
-          {{ role }}
-        </a-tag>
-      </div>
-    </template>
-    <template #orgUnit="{ row }">
-      <div>
-        <a-tag
-          v-for="orgUnit in row.orgUnitNames"
-          :key="orgUnit"
-          class="mb-1 mr-1"
-          :style="{
-            backgroundColor: getRandomColor(orgUnit), // 随机背景色
-            color: '#333', // 深色文字（适配浅色背景）
-            border: 'none', // 可选：去掉边框更美观
-          }"
-        >
-          {{ orgUnit }}
-        </a-tag>
-      </div>
-    </template>
-    <template #position="{ row }">
-      <div>
-        <a-tag
-          v-for="position in row.positionNames"
-          :key="position"
-          class="mb-1 mr-1"
-          :style="{
-            backgroundColor: getRandomColor(position), // 随机背景色
-            color: '#333', // 深色文字（适配浅色背景）
-            border: 'none', // 可选：去掉边框更美观
-          }"
-        >
-          {{ position }}
-        </a-tag>
-      </div>
-    </template>
-    <template #action="{ row }">
-      <a-button
-        type="link"
-        :icon="h(LucideInfo)"
-        @click.stop="handleDetail(row)"
-      />
-
-      <a-button
-        type="link"
-        :icon="h(LucideFilePenLine)"
-        @click.stop="handleEdit(row)"
-      />
-      <a-popconfirm
-        :cancel-text="$t('ui.button.cancel')"
-        :ok-text="$t('ui.button.ok')"
-        :title="
-          $t('ui.text.do_you_want_delete', {
-            moduleName: t('pages.user.moduleName'),
-          })
-        "
-        @confirm="handleDelete(row)"
-      >
-        <a-button danger type="link" :icon="h(LucideTrash2)" />
-      </a-popconfirm>
-    </template>
-  </Grid>
-  <Drawer />
-</template>
-
-<style scoped></style>
+<style lang="scss" scoped>
+.app-container {
+  padding: 20px;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
+}
+</style>

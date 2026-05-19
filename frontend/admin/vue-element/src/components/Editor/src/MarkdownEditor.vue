@@ -43,7 +43,7 @@ interface UseEditorConfigProps {
 const props = withDefaults(defineProps<UseEditorConfigProps>(), {
   disabled: false,
   height: "100%", // 默认撑满父容器
-  placeholder: $t("ui.editor.please_input_content"),
+  placeholder: $t("common.editor.please_input_content"),
   options: () => ({}),
   uploadImage: undefined,
 });

@@ -1,0 +1,26 @@
+{
+  "moduleName": "User Management",
+  "form": {
+    "username": "Username",
+    "realname": "Real Name",
+    "mobile": "Mobile",
+    "status": "Status",
+    "role": "Role",
+    "position": "Position",
+    "orgUnit": "Organization"
+  },
+  "table": {
+    "username": "Username",
+    "realname": "Real Name",
+    "nickname": "Nickname",
+    "email": "Email",
+    "mobile": "Mobile",
+    "password": "Password",
+    "gender": "Gender",
+    "orgUnitId": "Organization",
+    "positionId": "Position",
+    "roleId": "Role",
+    "status": "Status",
+    "lastLoginAt": "Last Login Time"
+  }
+}

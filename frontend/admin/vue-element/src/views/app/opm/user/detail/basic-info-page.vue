@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-import { Page } from '@vben/common-ui';
-import { $t } from '@vben/locales';
+import { ElDescriptions, ElDescriptionsItem, ElAvatar, ElTag } from 'element-plus';
 import { formatDateTime } from '@/utils';
-
-import { Avatar, Descriptions, DescriptionsItem } from 'ant-design-vue';
+import { $t } from '@/i18n';
 
 import { type identityservicev1_User as User } from '@/api/generated/admin/service/v1';
 import { genderToColor, genderToName, useUserListStore } from '@/stores';
@@ -43,116 +41,122 @@ reload();
 </script>
 
 <template>
-  <Page>
+  <div class="basic-info-page">
     <!-- 基本信息卡片 -->
     <div class="basic-info-container">
       <!-- 头像与状态 -->
       <div class="avatar-section">
-        <Avatar
+        <ElAvatar
+          :size="140"
           :src="data?.avatar ?? ''"
           class="avatar"
           :style="!data?.avatar ? { backgroundColor: getAvatarColor() } : {}"
         >
-          <!-- 头像加载失败/无头像时显示姓名首字母，添加占位样式 -->
+          <!-- 头像加载失败/无头像时显示姓名首字母 -->
           <span class="avatar-placeholder">
             {{ data?.username?.substring(0, 1) || '?' }}
           </span>
-        </Avatar>
+        </ElAvatar>
       </div>
 
       <!-- 详细信息列表 -->
-      <Descriptions class="info-list">
-        <DescriptionsItem :label="t('pages.user.detail.desc.username')">
+      <ElDescriptions class="info-list" :column="2" border>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.username')">
           {{ data?.username }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.realname')">
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.realname')">
           {{ data?.realname }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.nickname')">
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.nickname')">
           {{ data?.nickname }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.gender')">
-          <a-tag :color="genderToColor(data?.gender)">
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.gender')">
+          <ElTag :color="genderToColor(data?.gender)" effect="dark" round>
             {{ genderToName(data?.gender) }}
-          </a-tag>
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.roleNames')">
-          <a-tag
+          </ElTag>
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.roleNames')">
+          <ElTag
             v-for="role in data?.roleNames"
             :key="role"
-            class="mb-1 mr-1"
+            class="tag-item"
             :style="{
-              backgroundColor: getRandomColor(role), // 随机背景色
-              color: '#333', // 深色文字（适配浅色背景）
-              border: 'none', // 可选：去掉边框更美观
+              backgroundColor: getRandomColor(role),
+              color: '#333',
+              border: 'none',
             }"
           >
             {{ role }}
-          </a-tag>
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.mobile')">
+          </ElTag>
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.mobile')">
           {{ data?.mobile }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.email')">
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.email')">
           {{ data?.email }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.region')">
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.region')">
           {{ data?.region }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.address')">
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.address')">
           {{ data?.address }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.tenantName')">
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.tenantName')">
           {{ data?.tenantName }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.orgUnitName')">
-          <a-tag
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.orgUnitName')">
+          <ElTag
             v-for="orgUnit in data?.orgUnitNames"
             :key="orgUnit"
-            class="mb-1 mr-1"
+            class="tag-item"
             :style="{
-              backgroundColor: getRandomColor(orgUnit), // 随机背景色
-              color: '#333', // 深色文字（适配浅色背景）
-              border: 'none', // 可选：去掉边框更美观
+              backgroundColor: getRandomColor(orgUnit),
+              color: '#333',
+              border: 'none',
             }"
           >
             {{ orgUnit }}
-          </a-tag>
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.positionName')">
-          <a-tag
+          </ElTag>
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.positionName')">
+          <ElTag
             v-for="position in data?.positionNames"
             :key="position"
-            class="mb-1 mr-1"
+            class="tag-item"
             :style="{
-              backgroundColor: getRandomColor(position), // 随机背景色
-              color: '#333', // 深色文字（适配浅色背景）
-              border: 'none', // 可选：去掉边框更美观
+              backgroundColor: getRandomColor(position),
+              color: '#333',
+              border: 'none',
             }"
           >
             {{ position }}
-          </a-tag>
-        </DescriptionsItem>
-        <DescriptionsItem :label="$t('ui.table.createdAt')">
+          </ElTag>
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('common.table.createdAt')">
           {{ formatDateTime(data?.createdAt ?? '') }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.lastLoginAt')">
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.lastLoginAt')">
           {{ data?.lastLoginAt }}
-        </DescriptionsItem>
-        <DescriptionsItem :label="t('pages.user.detail.desc.lastLoginIp')">
+        </ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.user.detail.desc.lastLoginIp')">
           {{ data?.lastLoginIp }}
-        </DescriptionsItem>
-      </Descriptions>
+        </ElDescriptionsItem>
+      </ElDescriptions>
     </div>
-  </Page>
+  </div>
 </template>
 
 <style scoped>
+.basic-info-page {
+  width: 100%;
+  height: 100%;
+}
+
 .basic-info-container {
   display: flex;
-  gap: 32px; /* 头像与信息的间距 */
+  gap: 32px;
   padding: 24px;
-  flex-wrap: wrap; /* 小屏幕自动换行 */
+  flex-wrap: wrap;
 }
 
 .avatar-section {
@@ -163,18 +167,14 @@ reload();
 }
 
 .avatar {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%; /* 确保是正圆形（部分组件可能默认非圆形） */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* 防止头像或文字溢出圆形 */
+  overflow: hidden;
 }
 
-/* 首字母占位样式：占满容器并居中 */
+/* 首字母占位样式 */
 .avatar-placeholder {
-  /* 充满整个头像容器 */
   width: 100%;
   height: 100%;
   display: flex;
@@ -183,31 +183,17 @@ reload();
   font-size: 85px;
   font-weight: 700;
   color: #fff;
-  line-height: 1; /* 消除行高带来的垂直偏移 */
-  text-transform: uppercase; /* 统一转为大写，视觉更规整 */
-}
-
-.status-badge {
-  padding: 4px 12px;
-  font-size: 14px;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .info-list {
   flex: 1;
-  min-width: 400px; /* 确保小屏幕不挤压 */
+  min-width: 400px;
 }
 
-/* 描述项样式优化 */
-:deep(.ant-descriptions-item) {
-  padding: 12px 0;
-}
-
-:deep(.ant-descriptions-item-label) {
-  font-weight: 500;
-  width: 120px;
-}
-
-.mt-4 {
-  margin-top: 16px;
+.tag-item {
+  margin-bottom: 4px;
+  margin-right: 4px;
 }
 </style>

@@ -1,12 +1,12 @@
-import { preferences } from "@vben/preferences";
+import { preferences } from "@/core/preferences";
 
 import { defineStore } from "pinia";
 
-import {
-  type dictservicev1_DictEntry as DictEntry,
-  type dictservicev1_ListDictEntryResponse as ListDictEntryResponse,
-  type dictservicev1_ListDictTypeResponse as ListDictTypeResponse,
-  type dictservicev1_ListLanguageResponse as ListLanguageResponse,
+import type {
+  dictservicev1_DictEntry as DictEntry,
+  dictservicev1_ListDictEntryResponse as ListDictEntryResponse,
+  dictservicev1_ListDictTypeResponse as ListDictTypeResponse,
+  dictservicev1_ListLanguageResponse as ListLanguageResponse,
 } from "@/api/generated/admin/service/v1";
 import { useDictStore, useLanguageDataStore } from "@/stores";
 

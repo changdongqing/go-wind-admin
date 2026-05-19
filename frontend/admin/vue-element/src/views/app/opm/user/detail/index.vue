@@ -1,25 +1,21 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { ElMessage, ElMessageBox, ElButton, ElTabs, ElTabPane, ElCard } from "element-plus";
+import { ArrowLeft } from "@element-plus/icons-vue";
+import { $t } from "@/i18n";
 
-import { Page, useVbenModal } from '@vben/common-ui';
-import { LucideArrowLeft } from '@vben/icons';
-import { $t } from '@vben/locales';
+import { useUserListStore } from "@/stores";
+import { TabEnum } from "@/views/app/opm/user/detail/types";
 
-import { notification } from 'ant-design-vue';
-
-import { router } from '@/router';
-import { useUserListStore } from '@/stores';
-import { TabEnum } from '@/views/app/opm/user/detail/types';
-
-import ApiLogPage from './api-log-page.vue';
-import BasicInfoPage from './basic-info-page.vue';
-import EditPasswordModal from './components/edit-password-modal.vue';
-import InternalMessagePage from './internal-message-page.vue';
+import ApiLogPage from "./api-log-page.vue";
+import BasicInfoPage from "./basic-info-page.vue";
+import EditPasswordModal from "./components/edit-password-modal.vue";
+import InternalMessagePage from "./internal-message-page.vue";
 
 const activeTab = ref<TabEnum>(TabEnum.BASIC_INFO);
-
 const route = useRoute();
+const router = useRouter();
 
 const userId = computed(() => {
   const id = route.params.id ?? -1;
@@ -28,26 +24,21 @@ const userId = computed(() => {
 
 const userListStore = useUserListStore();
 
-const [Modal, modalApi] = useVbenModal({
-  // 连接抽离的组件
-  connectedComponent: EditPasswordModal,
-});
+// 弹窗控制
+const dialogVisible = ref(false);
+const dialogData = ref({ create: false, userId: undefined });
 
 /* 打开模态窗口 */
 function openModal(create: boolean, userId?: any) {
-  modalApi.setData({
-    create,
-    userId,
-  });
-
-  modalApi.open();
+  dialogData.value = { create, userId };
+  dialogVisible.value = true;
 }
 
 /**
  * 返回上一级页面
  */
 function goBack() {
-  router.push('/opm/users');
+  router.push("/opm/users");
 }
 
 /**
@@ -55,15 +46,22 @@ function goBack() {
  */
 async function handleBanAccount() {
   try {
-    await userListStore.updateUser(userId.value, { status: 'DISABLED' });
+    await ElMessageBox.confirm(
+      $t("common.text.do_you_want_disable", {
+        moduleName: $t("pages.user.moduleName"),
+      }),
+      $t("common.dialog.confirm"),
+      {
+        confirmButtonText: $t("common.button.ok"),
+        cancelButtonText: $t("common.button.cancel"),
+        type: "warning",
+      }
+    );
 
-    notification.success({
-      message: $t('ui.notification.update_status_success'),
-    });
+    await userListStore.updateUser(userId.value, { status: "DISABLED" });
+    ElMessage.success($t("common.notification.update_status_success"));
   } catch {
-    notification.error({
-      message: $t('ui.notification.update_status_failed'),
-    });
+    // 用户取消
   }
 }
 
@@ -73,78 +71,113 @@ async function handleBanAccount() {
 function handleEditPassword() {
   openModal(true, userId);
 }
+
+/**
+ * 密码修改成功
+ */
+function handlePasswordSuccess() {
+  dialogVisible.value = false;
+  ElMessage.success($t("common.notification.update_success"));
+}
 </script>
 
 <template>
-  <Page content-class="flex flex-col gap-4">
-    <template #title>
-      <div
-        style="
-          display: flex;
-          justify-content: flex-start;
-          align-items: center;
-          gap: 10px;
-        "
-      >
-        <a-button type="text" @click="goBack">
+  <div class="user-detail-page">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="header-left">
+        <ElButton type="text" @click="goBack">
           <template #icon>
-            <LucideArrowLeft class="text-align:center" />
+            <ArrowLeft />
           </template>
-        </a-button>
-        <span>{{ t('pages.user.detail.title', { userId }) }}</span>
+        </ElButton>
+        <span class="page-title">{{ $t("pages.user.detail.title", { userId }) }}</span>
       </div>
-    </template>
-    <template #extra>
-      <a-popconfirm
-        :cancel-text="$t('ui.button.cancel')"
-        :ok-text="$t('ui.button.ok')"
-        :title="
-          $t('ui.text.do_you_want_disable', {
-            moduleName: t('pages.user.moduleName'),
-          })
-        "
-        @confirm="handleBanAccount"
-      >
-        <a-button class="mr-2" danger type="primary">
-          {{ t('pages.user.button.banAccount') }}
-        </a-button>
-      </a-popconfirm>
-      <a-button class="mr-2" type="primary" @click="handleEditPassword">
-        {{ t('pages.user.button.editPassword') }}
-      </a-button>
-    </template>
-    <template #description>
-      <a-tabs
-        v-model:active-key="activeTab"
-        :tab-bar-style="{ marginBottom: 0 }"
-      >
-        <a-tab-pane
-          :key="TabEnum.BASIC_INFO"
-          :tab="t('pages.user.detail.tab.basicInfo')"
-        />
-        <a-tab-pane
-          :key="TabEnum.API_AUDIT_LOG"
-          :tab="t('pages.user.detail.tab.apiAuditLog')"
-        />
-        <a-tab-pane
-          :key="TabEnum.INTERNAL_MESSAGE"
-          :tab="t('pages.user.detail.tab.internalMessage')"
-        />
-      </a-tabs>
-    </template>
+      <div class="header-right">
+        <ElButton type="danger" @click="handleBanAccount">
+          {{ $t("pages.user.button.banAccount") }}
+        </ElButton>
+        <ElButton type="primary" @click="handleEditPassword">
+          {{ $t("pages.user.button.editPassword") }}
+        </ElButton>
+      </div>
+    </div>
 
-    <a-card v-show="activeTab === TabEnum.BASIC_INFO">
-      <BasicInfoPage :user-id="userId" />
-    </a-card>
-    <a-card v-show="activeTab === TabEnum.API_AUDIT_LOG">
-      <ApiLogPage :user-id="userId" />
-    </a-card>
-    <a-card v-show="activeTab === TabEnum.INTERNAL_MESSAGE">
-      <InternalMessagePage :user-id="userId" />
-    </a-card>
+    <!-- 标签页 -->
+    <div class="page-content">
+      <ElTabs v-model="activeTab" class="detail-tabs">
+        <ElTabPane :label="$t('pages.user.detail.tab.basicInfo')" :name="TabEnum.BASIC_INFO" />
+        <ElTabPane :label="$t('pages.user.detail.tab.apiAuditLog')" :name="TabEnum.API_AUDIT_LOG" />
+        <ElTabPane
+          :label="$t('pages.user.detail.tab.internalMessage')"
+          :name="TabEnum.INTERNAL_MESSAGE"
+        />
+      </ElTabs>
 
-    <Modal />
-  </Page>
+      <!-- 标签页内容 -->
+      <ElCard v-show="activeTab === TabEnum.BASIC_INFO" class="tab-content">
+        <BasicInfoPage :user-id="userId" />
+      </ElCard>
+      <ElCard v-show="activeTab === TabEnum.API_AUDIT_LOG" class="tab-content">
+        <ApiLogPage :user-id="userId" />
+      </ElCard>
+      <ElCard v-show="activeTab === TabEnum.INTERNAL_MESSAGE" class="tab-content">
+        <InternalMessagePage :user-id="userId" />
+      </ElCard>
+    </div>
+
+    <!-- 编辑密码弹窗 -->
+    <EditPasswordModal
+      v-model="dialogVisible"
+      :data="dialogData"
+      @success="handlePasswordSuccess"
+    />
+  </div>
 </template>
 
-<style></style>
+<style lang="scss" scoped>
+.user-detail-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--el-bg-color);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--el-border-color);
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .page-title {
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+
+  .header-right {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.page-content {
+  flex: 1;
+  padding: 16px 20px;
+  overflow: auto;
+
+  .detail-tabs {
+    margin-bottom: 16px;
+  }
+
+  .tab-content {
+    // 内容区样式
+  }
+}
+</style>

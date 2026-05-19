@@ -188,5 +188,20 @@
       "REVOKED": "Revoked",
       "DELETED": "Deleted"
     }
+  },
+  "user": {
+    "status": {
+      "NORMAL": "Normal",
+      "DISABLED": "Disabled",
+      "PENDING": "Pending",
+      "LOCKED": "Locked",
+      "EXPIRED": "Expired",
+      "CLOSED": "Closed"
+    }
+  },
+  "gender": {
+    "SECRET": "Secret",
+    "MALE": "Male",
+    "FEMALE": "Female"
   }
 }

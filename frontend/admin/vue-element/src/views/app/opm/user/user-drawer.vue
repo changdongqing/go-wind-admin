@@ -1,322 +1,387 @@
+<template>
+  <ElDrawer
+    v-model="visible"
+    :title="title"
+    size="600px"
+    :close-on-click-modal="false"
+    :append-to-body="true"
+    :destroy-on-close="true"
+    @close="handleClose"
+  >
+    <ElForm
+      ref="formRef"
+      :model="formData"
+      :rules="formRules"
+      label-width="120px"
+      class="drawer-form"
+    >
+      <!-- 基本信息 -->
+      <ElDivider content-position="left">{{ $t("common.section.basic") }}</ElDivider>
+
+      <ElFormItem :label="$t('pages.user.table.username')" prop="username">
+        <ElInput
+          v-model="formData.username"
+          :placeholder="$t('common.placeholder.input')"
+          :disabled="!isCreate"
+          clearable
+        />
+      </ElFormItem>
+
+      <ElFormItem v-if="isCreate" :label="$t('pages.user.table.password')" prop="password">
+        <ElInput
+          v-model="formData.password"
+          type="password"
+          :placeholder="$t('common.placeholder.input')"
+          show-password
+          clearable
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.user.form.role')" prop="roleIds">
+        <ElTreeSelect
+          v-model="formData.roleIds"
+          :data="roleTreeData"
+          node-key="id"
+          multiple
+          check-strictly
+          :render-after-expand="false"
+          filterable
+          clearable
+          :props="{ label: 'name', value: 'id', children: 'children' } as any"
+          :placeholder="$t('common.placeholder.select')"
+          style="width: 100%"
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.user.form.orgUnit')" prop="orgUnitIds">
+        <ElTreeSelect
+          v-model="formData.orgUnitIds"
+          :data="orgUnitTreeData"
+          node-key="id"
+          multiple
+          check-strictly
+          :render-after-expand="false"
+          default-expand-all
+          filterable
+          clearable
+          :props="{ label: 'name', value: 'id', children: 'children' } as any"
+          :placeholder="$t('common.placeholder.select')"
+          style="width: 100%"
+          @change="handleOrgUnitChange"
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.user.form.position')" prop="positionIds">
+        <ElTreeSelect
+          v-model="formData.positionIds"
+          :data="positionTreeData"
+          node-key="id"
+          multiple
+          check-strictly
+          :render-after-expand="false"
+          filterable
+          clearable
+          :props="{ label: 'name', value: 'id', children: 'children' } as any"
+          :placeholder="$t('common.placeholder.select')"
+          style="width: 100%"
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.user.table.gender')" prop="gender">
+        <ElSelect
+          v-model="formData.gender"
+          :placeholder="$t('common.placeholder.select')"
+          filterable
+          clearable
+          style="width: 100%"
+        >
+          <ElOption
+            v-for="item in genderList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </ElSelect>
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.user.table.nickname')" prop="nickname">
+        <ElInput
+          v-model="formData.nickname"
+          :placeholder="$t('common.placeholder.input')"
+          clearable
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.user.table.realname')" prop="realname">
+        <ElInput
+          v-model="formData.realname"
+          :placeholder="$t('common.placeholder.input')"
+          clearable
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.user.table.email')" prop="email">
+        <ElInput v-model="formData.email" :placeholder="$t('common.placeholder.input')" clearable />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.user.table.mobile')" prop="mobile">
+        <ElInput
+          v-model="formData.mobile"
+          :placeholder="$t('common.placeholder.input')"
+          clearable
+        />
+      </ElFormItem>
+
+      <!-- 其他信息 -->
+      <ElDivider content-position="left">{{ $t("common.section.other") }}</ElDivider>
+
+      <ElFormItem :label="$t('common.table.status')" prop="status">
+        <ElRadioGroup v-model="formData.status">
+          <ElRadioButton v-for="item in userStatusList" :key="item.value" :value="item.value">
+            {{ item.label }}
+          </ElRadioButton>
+        </ElRadioGroup>
+      </ElFormItem>
+
+      <ElFormItem :label="$t('common.table.remark')" prop="remark">
+        <ElInput
+          v-model="formData.remark"
+          type="textarea"
+          :rows="3"
+          :placeholder="$t('common.placeholder.input')"
+        />
+      </ElFormItem>
+    </ElForm>
+
+    <template #footer>
+      <div class="drawer-footer">
+        <ElButton @click="handleClose">{{ $t("common.button.cancel") }}</ElButton>
+        <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
+          {{ $t("common.button.confirm") }}
+        </ElButton>
+      </div>
+    </template>
+  </ElDrawer>
+</template>
+
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 
-import { useVbenDrawer } from '@vben/common-ui';
-import { $t } from '@vben/locales';
-
-import { notification } from 'ant-design-vue';
-
-import { useVbenForm, z } from '@/adapter/form';
-import {
-  type identityservicev1_OrgUnit as OrgUnit,
-  type identityservicev1_Position as Position,
-} from '@/api/generated/admin/service/v1';
 import {
   genderList,
-  useOrgUnitStore,
-  usePositionStore,
-  useRoleStore,
   userStatusList,
   useUserListStore,
-} from '@/stores';
-import { useUserViewStore } from '@/views/app/opm/user/user-view.state';
+  useRoleStore,
+  useOrgUnitStore,
+  usePositionStore,
+} from "@/stores";
+import { $t } from "@/i18n";
+
+const emit = defineEmits<{
+  success: [];
+}>();
 
 const userListStore = useUserListStore();
 const roleStore = useRoleStore();
 const orgUnitStore = useOrgUnitStore();
 const positionStore = usePositionStore();
-const userViewStore = useUserViewStore();
 
-const data = ref();
+const visible = ref(false);
+const submitLoading = ref(false);
+const isCreate = ref(true);
+const currentId = ref<number>();
+const formRef = ref();
 
-const orgUnitList = ref<OrgUnit[]>([]);
-const positionList = ref<Position[]>([]);
+// 表单数据
+const formData = reactive({
+  username: "",
+  password: "",
+  roleIds: [] as number[],
+  orgUnitIds: [] as number[],
+  positionIds: [] as number[],
+  gender: "SECRET",
+  nickname: "",
+  realname: "",
+  email: "",
+  mobile: "",
+  status: "NORMAL",
+  remark: "",
+});
 
-const getTitle = computed(() =>
-  data.value?.create
-    ? $t('ui.modal.create', { moduleName: t('pages.user.moduleName') })
-    : $t('ui.modal.update', { moduleName: t('pages.user.moduleName') }),
-);
-// const isCreate = computed(() => data.value?.create);
-
-const [BaseForm, baseFormApi] = useVbenForm({
-  showDefaultActions: false,
-  // 所有表单项共用，可单独在表单内覆盖
-  commonConfig: {
-    // 所有表单项
-    componentProps: {
-      class: 'w-full',
-    },
-  },
-  schema: [
-    {
-      component: 'Input',
-      fieldName: 'username',
-      label: t('pages.user.table.username'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-      rules: z.string().min(1, { message: $t('ui.formRules.required') }),
-      dependencies: {
-        disabled: () => !data.value?.create,
-        triggerFields: ['username'],
-      },
-    },
-    {
-      component: 'VbenInputPassword',
-      fieldName: 'password',
-      label: t('pages.user.table.password'),
-      componentProps: {
-        passwordStrength: true,
-        placeholder: $t('ui.placeholder.input'),
-      },
-      // rules: 'required',
-    },
-    {
-      component: 'ApiTreeSelect',
-      fieldName: 'roleIds',
-      label: t('pages.user.form.role'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.select'),
-        showSearch: true,
-        multiple: true,
-        treeDefaultExpandAll: false,
-        allowClear: true,
-        loadingSlot: 'suffixIcon',
-        childrenField: 'children',
-        labelField: 'name',
-        valueField: 'id',
-        treeNodeFilterProp: 'label',
-        api: async () => {
-          const result = await roleStore.listRole(undefined, {
-            // parent_id: 0,
-            status: 'ON',
-            tenant_id: userViewStore.currentTenantId ?? 0,
-            type__not: 'TEMPLATE',
-          });
-
-          return result.items;
-        },
-      },
-    },
-    {
-      component: 'ApiTreeSelect',
-      fieldName: 'orgUnitIds',
-      label: t('pages.user.form.orgUnit'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.select'),
-        numberToString: true,
-        showSearch: true,
-        multiple: true,
-        treeDefaultExpandAll: true,
-        allowClear: true,
-        childrenField: 'children',
-        labelField: 'name',
-        valueField: 'id',
-        treeNodeFilterProp: 'label',
-        api: async () => {
-          const result = await orgUnitStore.listOrgUnit(undefined, {
-            status: 'ON',
-            tenant_id: userViewStore.currentTenantId ?? 0,
-          });
-          orgUnitList.value = result.items ?? [];
-          return result.items;
-        },
-        onChange: async (orgUnitId: any) => {
-          console.log('org onChange:', orgUnitId);
-
-          if (!orgUnitId) {
-            await baseFormApi.setValues(
-              {
-                orgUnitId: undefined,
-                positionId: undefined,
-              },
-              false,
-            );
-          }
-        },
-      },
-    },
-    {
-      component: 'ApiTreeSelect',
-      fieldName: 'positionIds',
-      label: t('pages.user.form.position'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.select'),
-        showSearch: true,
-        allowClear: true,
-        multiple: true,
-        api: async () => {
-          const result = await positionStore.listPosition(undefined, {
-            status: 'ON',
-          });
-          positionList.value = result.items ?? [];
-          return result.items;
-        },
-        filterOption: (input: string, option: any) =>
-          option.label.toLowerCase().includes(input.toLowerCase()),
-        afterFetch: (data: { name: string; path: string }[]) => {
-          return data.map((item: Position) => ({
-            label: item.name,
-            value: item.id,
-          }));
-        },
-      },
-    },
-
-    {
-      component: 'Select',
-      fieldName: 'gender',
-      label: t('pages.user.table.gender'),
-      defaultValue: 'SECRET',
-      componentProps: {
-        filterOption: (input: string, option: any) =>
-          option.label.toLowerCase().includes(input.toLowerCase()),
-        allowClear: true,
-        showSearch: true,
-        options: genderList,
-        placeholder: $t('ui.placeholder.select'),
-      },
-    },
-
-    {
-      component: 'Input',
-      fieldName: 'nickname',
-      label: t('pages.user.table.nickname'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-      rules: 'required',
-    },
-    {
-      component: 'Input',
-      fieldName: 'realname',
-      label: t('pages.user.table.realname'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-    },
-    {
-      component: 'Input',
-      fieldName: 'email',
-      label: t('pages.user.table.email'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-      rules: 'required',
-    },
-    {
-      component: 'Input',
-      fieldName: 'mobile',
-      label: t('pages.user.table.mobile'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-    },
-
-    {
-      component: 'RadioGroup',
-      fieldName: 'status',
-      label: $t('ui.table.status'),
-      defaultValue: 'NORMAL',
-      rules: 'selectRequired',
-      componentProps: {
-        optionType: 'button',
-        buttonStyle: 'solid',
-        class: 'flex flex-wrap', // 如果选项过多，可以添加class来自动折叠
-        options: userStatusList,
-      },
-    },
-
-    {
-      component: 'Textarea',
-      fieldName: 'remark',
-      label: $t('ui.table.remark'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-    },
+// 表单验证规则
+const formRules = {
+  username: [{ required: true, message: $t("common.validation.required"), trigger: "blur" }],
+  password: [{ required: true, message: $t("common.validation.required"), trigger: "blur" }],
+  nickname: [{ required: true, message: $t("common.validation.required"), trigger: "blur" }],
+  email: [
+    { required: true, message: $t("common.validation.required"), trigger: "blur" },
+    { type: "email", message: $t("common.validation.email"), trigger: "blur" },
   ],
-});
+  gender: [{ required: true, message: $t("common.validation.selectRequired"), trigger: "change" }],
+  status: [{ required: true, message: $t("common.validation.selectRequired"), trigger: "change" }],
+};
 
-const [Drawer, drawerApi] = useVbenDrawer({
-  onCancel() {
-    drawerApi.close();
-  },
+// 标题
+const title = computed(() =>
+  isCreate.value
+    ? $t("common.modal.create", { moduleName: $t("pages.user.moduleName") })
+    : $t("common.modal.update", { moduleName: $t("pages.user.moduleName") })
+);
 
-  async onConfirm() {
-    console.log('onConfirm');
+// 树形数据
+const roleTreeData = ref<any[]>([]);
+const orgUnitTreeData = ref<any[]>([]);
+const positionTreeData = ref<any[]>([]);
 
-    // 校验输入的数据
-    const validate = await baseFormApi.validate();
-    if (!validate.valid) {
-      return;
-    }
-
-    // 加载条设置为加载状态
-    setLoading(true);
-
-    // 获取表单数据
-    const values = await baseFormApi.getValues();
-
-    console.log(getTitle.value, Object.keys(values));
-
-    try {
-      await (data.value?.create
-        ? userListStore.createUser(values)
-        : userListStore.updateUser(data.value.row.id, values));
-
-      notification.success({
-        message: data.value?.create
-          ? $t('ui.notification.create_success')
-          : $t('ui.notification.update_success'),
-      });
-    } catch {
-      notification.error({
-        message: data.value?.create
-          ? $t('ui.notification.create_failed')
-          : $t('ui.notification.update_failed'),
-      });
-    } finally {
-      // 关闭窗口
-      drawerApi.close();
-      setLoading(false);
-    }
-  },
-
-  onOpenChange(isOpen: boolean) {
-    if (isOpen) {
-      // 获取传入的数据
-      data.value = drawerApi.getData<Record<string, any>>();
-
-      // 为表单赋值
-      if (data.value.row !== undefined) {
-        if (data.value?.row?.orgUnitId !== undefined) {
-          data.value.row.orgUnitId = data.value?.row?.orgUnitId.toString();
-        }
-        baseFormApi.setValues(data.value?.row);
-      }
-
-      setLoading(false);
-
-      console.log('onOpenChange', data.value, data.value?.create);
-    }
-  },
-});
-
-function setLoading(loading: boolean) {
-  drawerApi.setState({ confirmLoading: loading });
+// 加载角色树
+async function loadRoleTree() {
+  try {
+    const result = await roleStore.listRole(undefined, {
+      status: "ON",
+      type__not: "TEMPLATE",
+    });
+    roleTreeData.value = result.items || [];
+  } catch (error) {
+    console.error("Failed to load role tree:", error);
+  }
 }
+
+// 加载组织树
+async function loadOrgUnitTree() {
+  try {
+    const result = await orgUnitStore.listOrgUnit(undefined, {
+      status: "ON",
+    });
+    orgUnitTreeData.value = result.items || [];
+  } catch (error) {
+    console.error("Failed to load org unit tree:", error);
+  }
+}
+
+// 加载职位树
+async function loadPositionTree() {
+  try {
+    const result = await positionStore.listPosition(undefined, {
+      status: "ON",
+    });
+    positionTreeData.value = result.items || [];
+  } catch (error) {
+    console.error("Failed to load position tree:", error);
+  }
+}
+
+// 组织单元变化
+function handleOrgUnitChange(value: any) {
+  if (!value || value.length === 0) {
+    formData.positionIds = [];
+  }
+}
+
+// 重置表单
+function resetForm() {
+  Object.assign(formData, {
+    username: "",
+    password: "",
+    roleIds: [],
+    orgUnitIds: [],
+    positionIds: [],
+    gender: "SECRET",
+    nickname: "",
+    realname: "",
+    email: "",
+    mobile: "",
+    status: "NORMAL",
+    remark: "",
+  });
+  formRef.value?.clearValidate();
+}
+
+// 打开抽屉
+async function open(data?: { create: boolean; row?: any }) {
+  visible.value = true;
+  isCreate.value = data?.create ?? true;
+  currentId.value = data?.row?.id;
+
+  // 重置表单
+  resetForm();
+
+  // 加载树形数据
+  await Promise.all([loadRoleTree(), loadOrgUnitTree(), loadPositionTree()]);
+
+  // 编辑时填充数据
+  if (data?.row && !isCreate.value) {
+    Object.assign(formData, {
+      username: data.row.username || "",
+      password: "",
+      roleIds: data.row.roleIds || [],
+      orgUnitIds: data.row.orgUnitIds || [],
+      positionIds: data.row.positionIds || [],
+      gender: data.row.gender || "SECRET",
+      nickname: data.row.nickname || "",
+      realname: data.row.realname || "",
+      email: data.row.email || "",
+      mobile: data.row.mobile || "",
+      status: data.row.status || "NORMAL",
+      remark: data.row.remark || "",
+    });
+  }
+}
+
+// 关闭抽屉
+function handleClose() {
+  visible.value = false;
+  resetForm();
+}
+
+// 提交表单
+async function handleSubmit() {
+  if (!formRef.value) return;
+
+  try {
+    await formRef.value.validate();
+    submitLoading.value = true;
+
+    const submitData = {
+      ...formData,
+      password: isCreate.value ? formData.password : undefined,
+    };
+
+    if (isCreate.value) {
+      await userListStore.createUser(submitData);
+      ElMessage.success($t("common.notification.create_success"));
+    } else {
+      await userListStore.updateUser(currentId.value!, submitData);
+      ElMessage.success($t("common.notification.update_success"));
+    }
+
+    handleClose();
+    emit("success");
+  } catch (error) {
+    if (error !== false) {
+      ElMessage.error(
+        isCreate.value ? $t("common.notification.create_failed") : $t("common.notification.update_failed")
+      );
+    }
+  } finally {
+    submitLoading.value = false;
+  }
+}
+
+// 暴露方法
+defineExpose({
+  open,
+});
 </script>
 
-<template>
-  <Drawer :title="getTitle">
-    <BaseForm />
-  </Drawer>
-</template>
+<style lang="scss" scoped>
+.drawer-form {
+  padding-right: 12px;
+}
+
+.drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+</style>

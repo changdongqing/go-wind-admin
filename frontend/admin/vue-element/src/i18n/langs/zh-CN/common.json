@@ -17,7 +17,9 @@
     "refresh": "刷新",
     "batchImport": "批量导入",
     "batchExport": "批量导出",
-    "download": "下载"
+    "download": "下载",
+    "ok": "确定",
+    "detail": "详情"
   },
   "status": {
     "enabled": "启用",
@@ -35,13 +37,18 @@
     "none": "无",
     "unknown": "未知",
     "total": "共",
-    "items": "条"
+    "items": "条",
+    "do_you_want_delete": "确定要删除该{moduleName}吗？",
+    "do_you_want_sync_permissions": "确定要同步{moduleName}权限吗？"
   },
   "placeholder": {
     "input": "请输入",
     "select": "请选择",
     "date": "请选择日期",
     "search": "请输入搜索内容"
+  },
+  "input-search": {
+    "placeholder": "请输入搜索内容"
   },
   "message": {
     "success": "操作成功",
@@ -79,7 +86,13 @@
     "deleteSuccess": "删除成功",
     "deleteFailed": "删除失败",
     "updateSuccess": "更新成功",
-    "updateFailed": "更新失败"
+    "updateFailed": "更新失败",
+    "save_success": "保存成功",
+    "save_failed": "保存失败",
+    "sync_success": "同步成功",
+    "sync_failed": "同步失败",
+    "syncSuccess": "同步成功",
+    "syncFailed": "同步失败"
   },
   "title": {
     "confirm": "确认",
@@ -94,7 +107,8 @@
     "do_you_want_sync": "确定要同步{moduleName}权限吗？"
   },
   "message": {
-    "confirmDelete": "确定要删除该{moduleName}吗？"
+    "confirmDelete": "确定要删除该{moduleName}吗？",
+    "confirmSyncPermissions": "确定要同步{moduleName}权限吗？"
   },
   "navbar": {
     "profile": "个人中心",
@@ -120,11 +134,13 @@
   },
   "section": {
     "basic": "基本信息",
-    "other": "其他信息"
+    "other": "其他信息",
+    "configuration": "关联配置"
   },
   "validation": {
     "required": "请输入",
-    "selectRequired": "请选择"
+    "selectRequired": "请选择",
+    "email": "请输入有效的邮箱地址"
   },
   "dateRange": {
     "today": "今天",
@@ -137,5 +153,11 @@
   "switch": {
     "active": "开启",
     "inactive": "关闭"
+  },
+  "tree": {
+    "expand_all": "展开全部",
+    "collapse_all": "折叠全部",
+    "select_all": "全选",
+    "unselect_all": "取消全选"
   }
 }

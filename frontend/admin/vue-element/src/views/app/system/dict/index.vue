@@ -1,29 +1,17 @@
-<script lang="ts" setup>
-import { reactive } from 'vue';
-
-import { ColPage } from '@vben/common-ui';
-
-import DictEntryList from '@/views/app/system/dict/dict-entry-list.vue';
-import DictTypeList from '@/views/app/system/dict/dict-type-list.vue';
-
-const props = reactive({
-  leftCollapsedWidth: 0,
-  leftCollapsible: false,
-  leftMaxWidth: 50,
-  leftMinWidth: 40,
-  leftWidth: 40,
-  rightWidth: 60,
-  resizable: true,
-  splitHandle: true,
-  splitLine: true,
-});
-</script>
-
 <template>
-  <ColPage auto-content-height v-bind="props">
-    <template #left>
+  <ElSplitter>
+    <ElSplitterPanel :size="40" :min-size="30" :max-size="50">
       <DictTypeList />
-    </template>
-    <DictEntryList />
-  </ColPage>
+    </ElSplitterPanel>
+    <ElSplitterPanel :size="60">
+      <DictEntryList />
+    </ElSplitterPanel>
+  </ElSplitter>
 </template>
+
+<script lang="ts" setup>
+import { ElSplitter, ElSplitterPanel } from "element-plus";
+
+import DictEntryList from "./dict-entry-list.vue";
+import DictTypeList from "./dict-type-list.vue";
+</script>

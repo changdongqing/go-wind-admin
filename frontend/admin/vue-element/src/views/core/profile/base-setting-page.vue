@@ -58,7 +58,7 @@ const [BaseForm, baseFormApi] = useVbenForm({
         allowClear: true,
         showSearch: true,
         options: genderList,
-        placeholder: $t('ui.placeholder.select'),
+        placeholder: $t('common.placeholder.select'),
       },
     },
     {
@@ -97,11 +97,11 @@ async function handleSubmit() {
     await userProfileStore.updateUser(values);
 
     notification.success({
-      message: $t('ui.notification.update_success'),
+      message: $t('common.notification.update_success'),
     });
   } catch {
     notification.error({
-      message: $t('ui.notification.update_failed'),
+      message: $t('common.notification.update_failed'),
     });
   } finally {
     setLoading(false);

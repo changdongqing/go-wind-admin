@@ -1,204 +1,182 @@
+<template>
+  <div class="app-container h-full flex flex-1 flex-col">
+    <!-- 搜索 -->
+    <PageSearch
+      ref="searchRef"
+      :search-config="searchConfig"
+      @query-click="handleQueryClick"
+      @reset-click="handleResetClick"
+    />
+
+    <!-- 列表 -->
+    <PageContent
+      ref="contentRef"
+      :content-config="contentConfig"
+      @add-click="handleAddClick"
+      @operate-click="handleOperateClick"
+      @toolbar-click="handleToolbarClick"
+    >
+      <!-- 启用状态 -->
+      <template #isEnabled="{ row }">
+        <ElTag size="small" effect="dark" round :color="enableBoolToColor(row.isEnabled)">
+          {{ enableBoolToName(row.isEnabled) }}
+        </ElTag>
+      </template>
+    </PageContent>
+
+    <!-- 新增/编辑抽屉 -->
+    <DictTypeDrawer ref="drawerRef" @success="handleSuccess" />
+  </div>
+</template>
+
 <script lang="ts" setup>
-import type { VxeGridListeners, VxeGridProps } from '@/adapter/vxe-table';
+import { ElTag, ElMessage, ElMessageBox } from "element-plus";
 
-import { h } from 'vue';
+import PageContent from "@/components/CURD/PageContent.vue";
+import PageSearch from "@/components/CURD/PageSearch.vue";
+import usePage from "@/components/CURD/usePage";
+import type { IOperateData, ISearchConfig, IContentConfig } from "@/components/CURD/types";
+import DictTypeDrawer from "./dict-type-drawer.vue";
 
-import { useVbenDrawer, type VbenFormProps } from '@vben/common-ui';
-import { LucideFilePenLine, LucideTrash2 } from '@vben/icons';
-
-import { notification } from 'ant-design-vue';
-
-import { useVbenVxeGrid } from '@/adapter/vxe-table';
-import { type dictservicev1_DictType as DictType } from '@/api/generated/admin/service/v1';
-import { $t } from '@/locales';
-import { enableBoolToColor, enableBoolToName, useDictStore } from '@/stores';
-import { useDictViewStore } from '@/views/app/system/dict/dict-view.state';
-
-import DictTypeDrawer from './dict-type-drawer.vue';
+import { enableBoolToColor, enableBoolToName, useDictStore } from "@/stores";
+import { $t } from "@/i18n";
+import { useDictViewStore } from "@/views/app/system/dict/dict-view.state";
 
 const dictStore = useDictStore();
 const dictViewStore = useDictViewStore();
 
-const formOptions: VbenFormProps = {
-  // 默认展开
-  collapsed: false,
-  // 控制表单是否显示折叠按钮
-  showCollapseButton: false,
-  // 按下回车时是否提交表单
-  submitOnEnter: true,
-  schema: [
+// 使用 CURD hook
+const { searchRef, contentRef, handleQueryClick, handleResetClick } = usePage();
+
+// 抽屉引用
+const drawerRef = ref();
+
+// 搜索配置
+const searchConfig: ISearchConfig = {
+  grid: true,
+  formItems: [
     {
-      component: 'Input',
-      fieldName: 'type_code',
-      label: t('pages.dict.typeCode'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
+      type: "input",
+      label: $t("pages.dict.typeCode"),
+      prop: "type_code",
+      attrs: {
+        placeholder: $t("common.placeholder.input"),
+        clearable: true,
       },
     },
   ],
 };
 
-const gridOptions: VxeGridProps<DictType> = {
-  height: 'auto',
-  stripe: true,
-  toolbarConfig: {
-    custom: false,
-    export: true,
-    import: true,
-    refresh: true,
-    zoom: false,
+// 表格配置
+const contentConfig: IContentConfig = {
+  permPrefix: "sys:dict_type",
+  toolbarRight: ["add"],
+  defaultToolbar: ["refresh", "filter"],
+  table: {
+    border: true,
+    stripe: true,
+    height: "auto",
   },
-  exportConfig: {},
-  pagerConfig: {},
-  rowConfig: {
-    isHover: true,
-    isCurrent: true,
+  indexAction: async (query: any) => {
+    const { page, pageSize, ...queryParams } = query;
+    const result = await dictViewStore.fetchTypeList(page || 1, pageSize || 10, queryParams);
+    return {
+      items: result.items || [],
+      total: result.total || 0,
+    };
   },
-
-  proxyConfig: {
-    ajax: {
-      query: async ({ page }, formValues) => {
-        // console.log('query:', filters, form, formValues);
-        return await dictViewStore.fetchTypeList(
-          page.currentPage,
-          page.pageSize,
-          formValues,
-        );
-      },
-    },
-  },
-
   columns: [
     {
-      title: t('pages.dict.typeName'),
-      field: 'typeName',
-      fixed: 'left',
-      align: 'left',
+      prop: "typeName",
+      label: $t("pages.dict.typeName"),
       minWidth: 150,
+      align: "left",
     },
     {
-      title: t('pages.dict.typeCode'),
-      field: 'typeCode',
-      align: 'left',
+      prop: "typeCode",
+      label: $t("pages.dict.typeCode"),
       minWidth: 150,
+      align: "left",
     },
     {
-      title: $t('ui.table.status'),
-      field: 'isEnabled',
-      slots: { default: 'isEnabled' },
-      minWidth: 95,
+      prop: "isEnabled",
+      label: $t("common.table.status"),
+      width: 95,
+      slotName: "isEnabled",
     },
     {
-      title: $t('ui.table.action'),
-      field: 'action',
-      fixed: 'right',
-      slots: { default: 'action' },
-      minWidth: 90,
+      prop: "action",
+      label: $t("common.table.action"),
+      fixed: "right",
+      width: 150,
+      template: "tool",
+      action: [
+        {
+          name: "edit",
+          text: $t("common.button.edit"),
+        },
+        {
+          name: "delete",
+          text: $t("common.button.delete"),
+          attrs: {
+            type: "danger",
+          },
+        },
+      ],
     },
   ],
 };
 
-const gridEvents: VxeGridListeners<DictType> = {
-  // cellDblclick: ({ row }) => {
-  //   // console.log(`cell-dbl-click: ${row.id}`);
-  //   dictViewStore.setCurrentMain(typeof row.id === 'number' ? row.id : 0);
-  // },
-  cellClick: ({ row }) => {
-    // console.log(`cell-click: ${row.id}`);
-    dictViewStore.setCurrentTypeId(typeof row.id === 'number' ? row.id : 0);
-  },
-};
+// 新增按钮点击
+function handleAddClick() {
+  drawerRef.value?.open({ create: true });
+}
 
-const [Grid, gridApi] = useVbenVxeGrid({
-  gridOptions,
-  formOptions,
-  gridEvents,
-});
+// 操作按钮点击
+async function handleOperateClick(data: IOperateData) {
+  const { name, row } = data;
 
-const [Drawer, drawerApi] = useVbenDrawer({
-  connectedComponent: DictTypeDrawer,
+  if (name === "edit") {
+    drawerRef.value?.open({ create: false, row });
+  } else if (name === "delete") {
+    try {
+      await ElMessageBox.confirm(
+        $t("common.message.confirmDelete", { moduleName: $t("pages.dict.moduleName") }),
+        $t("common.title.warning"),
+        {
+          confirmButtonText: $t("common.button.confirm"),
+          cancelButtonText: $t("common.button.cancel"),
+          type: "warning",
+        }
+      );
 
-  onOpenChange(isOpen: boolean) {
-    if (!isOpen) {
-      gridApi.reload();
+      await dictStore.deleteDictType([row.id]);
+      ElMessage.success($t("common.notification.deleteSuccess"));
+      handleSuccess();
+    } catch (error) {
+      if (error !== "cancel") {
+        ElMessage.error($t("common.notification.deleteFailed"));
+      }
     }
-  },
-});
-
-/* 打开模态窗口 */
-function openDrawer(create: boolean, row?: any) {
-  drawerApi.setData({
-    create,
-    row,
-  });
-
-  drawerApi.open();
-}
-
-/* 创建 */
-function handleCreate() {
-  console.log('创建');
-  openDrawer(true);
-}
-
-/* 编辑 */
-function handleEdit(row: any) {
-  console.log('编辑', row);
-  openDrawer(false, row);
-}
-
-/* 删除 */
-async function handleDelete(row: any) {
-  console.log('删除', row);
-
-  try {
-    await dictStore.deleteDictType([row.id]);
-
-    notification.success({
-      message: $t('ui.notification.delete_success'),
-    });
-
-    await gridApi.reload();
-  } catch {
-    notification.error({
-      message: $t('ui.notification.delete_failed'),
-    });
   }
+}
+
+// 工具栏按钮点击
+function handleToolbarClick(name: string) {
+  console.log("toolbar click:", name);
+}
+
+// 成功回调
+function handleSuccess() {
+  contentRef.value?.fetchPageData();
 }
 </script>
 
-<template>
-  <Grid :table-title="t('pages.dict.dictTypeList')">
-    <template #toolbar-tools>
-      <a-button type="primary" @click="handleCreate">
-        {{ t('pages.dict.button.create') }}
-      </a-button>
-    </template>
-    <template #isEnabled="{ row }">
-      <a-tag :color="enableBoolToColor(row.isEnabled)">
-        {{ enableBoolToName(row.isEnabled) }}
-      </a-tag>
-    </template>
-    <template #action="{ row }">
-      <a-button
-        type="link"
-        :icon="h(LucideFilePenLine)"
-        @click.stop="handleEdit(row)"
-      />
-      <a-popconfirm
-        :cancel-text="$t('ui.button.cancel')"
-        :ok-text="$t('ui.button.ok')"
-        :title="
-          $t('ui.text.do_you_want_delete', {
-            moduleName: t('pages.dict.moduleName'),
-          })
-        "
-        @confirm="handleDelete(row)"
-      >
-        <a-button danger type="link" :icon="h(LucideTrash2)" />
-      </a-popconfirm>
-    </template>
-  </Grid>
-  <Drawer />
-</template>
+<style lang="scss" scoped>
+.app-container {
+  padding: 20px;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
+}
+</style>

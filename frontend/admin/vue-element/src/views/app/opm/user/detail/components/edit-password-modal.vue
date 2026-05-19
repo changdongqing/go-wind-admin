@@ -29,7 +29,7 @@ const [BaseForm, baseFormApi] = useVbenForm({
       label: t('pages.user.form.newPassword'),
       componentProps: {
         passwordStrength: true,
-        placeholder: $t('ui.placeholder.input'),
+        placeholder: $t('common.placeholder.input'),
       },
       rules: 'required',
     },
@@ -38,7 +38,7 @@ const [BaseForm, baseFormApi] = useVbenForm({
       fieldName: 'confirm_password',
       label: t('pages.user.form.confirmPassword'),
       componentProps: {
-        placeholder: $t('ui.placeholder.input'),
+        placeholder: $t('common.placeholder.input'),
       },
       rules: 'required',
     },
@@ -84,13 +84,13 @@ const [Modal, modalApi] = useVbenModal({
       modalApi.close();
 
       notification.success({
-        message: $t('ui.notification.update_status_success'),
+        message: $t('common.notification.update_status_success'),
       });
     } catch {
       setLoading(false);
 
       notification.error({
-        message: $t('ui.notification.update_status_failed'),
+        message: $t('common.notification.update_status_failed'),
       });
     }
   },

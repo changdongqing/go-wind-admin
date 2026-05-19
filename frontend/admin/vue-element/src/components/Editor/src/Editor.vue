@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<EditorProps>(), {
   editorType: EditorType.MARKDOWN,
   height: "100%",
   disabled: false,
-  placeholder: $t("ui.editor.please_input_content"),
+  placeholder: $t("common.editor.please_input_content"),
 });
 
 const emit = defineEmits<EditorEmits>();

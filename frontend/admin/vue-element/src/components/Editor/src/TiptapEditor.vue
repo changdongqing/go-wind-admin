@@ -17,7 +17,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('heading', { level: 1 }) }"
-          :title="$t('ui.editor.h1')"
+          :title="$t('common.editor.h1')"
           @click="toolbarActions.toggleHeading(1)"
         >
           H1
@@ -26,7 +26,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('heading', { level: 2 }) }"
-          :title="$t('ui.editor.h2')"
+          :title="$t('common.editor.h2')"
           @click="toolbarActions.toggleHeading(2)"
         >
           H2
@@ -35,7 +35,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('heading', { level: 3 }) }"
-          :title="$t('ui.editor.h3')"
+          :title="$t('common.editor.h3')"
           @click="toolbarActions.toggleHeading(3)"
         >
           H3
@@ -44,7 +44,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('paragraph') }"
-          :title="$t('ui.editor.paragraph')"
+          :title="$t('common.editor.paragraph')"
           @click="toolbarActions.setParagraph"
         >
           P
@@ -58,7 +58,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('bold') }"
-          :title="$t('ui.editor.bold')"
+          :title="$t('common.editor.bold')"
           @click="toolbarActions.toggleBold"
         >
           <svg
@@ -85,7 +85,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('italic') }"
-          :title="$t('ui.editor.italic')"
+          :title="$t('common.editor.italic')"
           @click="toolbarActions.toggleItalic"
         >
           <svg
@@ -106,7 +106,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('strike') }"
-          :title="$t('ui.editor.strike')"
+          :title="$t('common.editor.strike')"
           @click="toolbarActions.toggleStrike"
         >
           <svg
@@ -127,7 +127,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('underline') }"
-          :title="$t('ui.editor.underline')"
+          :title="$t('common.editor.underline')"
           @click="toolbarActions.toggleUnderline"
         >
           <svg
@@ -148,7 +148,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('code') }"
-          :title="$t('ui.editor.code')"
+          :title="$t('common.editor.code')"
           @click="toolbarActions.toggleCode"
         >
           <svg
@@ -174,7 +174,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('subscript') }"
-          :title="$t('ui.editor.subscript')"
+          :title="$t('common.editor.subscript')"
           @click="toolbarActions.toggleSubscript"
         >
           <svg
@@ -191,7 +191,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('superscript') }"
-          :title="$t('ui.editor.superscript')"
+          :title="$t('common.editor.superscript')"
           @click="toolbarActions.toggleSuperscript"
         >
           <svg
@@ -208,14 +208,14 @@
           v-model="textColor"
           type="color"
           class="toolbar-color-picker"
-          :title="$t('ui.editor.textColor')"
+          :title="$t('common.editor.textColor')"
           @change="toolbarActions.setTextColor(textColor)"
         />
         <input
           v-model="highlightColor"
           type="color"
           class="toolbar-color-picker"
-          :title="$t('ui.editor.highlightColor')"
+          :title="$t('common.editor.highlightColor')"
           @change="toolbarActions.setHighlight(highlightColor)"
         />
       </div>
@@ -227,7 +227,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('bulletList') }"
-          :title="$t('ui.editor.bulletList')"
+          :title="$t('common.editor.bulletList')"
           @click="toolbarActions.toggleBulletList"
         >
           <svg
@@ -251,7 +251,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('orderedList') }"
-          :title="$t('ui.editor.orderedList')"
+          :title="$t('common.editor.orderedList')"
           @click="toolbarActions.toggleOrderedList"
         >
           <svg
@@ -275,7 +275,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('taskList') }"
-          :title="$t('ui.editor.taskList')"
+          :title="$t('common.editor.taskList')"
           @click="toolbarActions.toggleTaskList"
         >
           <svg
@@ -295,7 +295,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('blockquote') }"
-          :title="$t('ui.editor.blockquote')"
+          :title="$t('common.editor.blockquote')"
           @click="toolbarActions.toggleBlockquote"
         >
           <svg
@@ -316,7 +316,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('codeBlock') }"
-          :title="$t('ui.editor.insertCodeBlock')"
+          :title="$t('common.editor.insertCodeBlock')"
           @click="toolbarActions.insertCodeBlock"
         >
           <svg
@@ -345,7 +345,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.insertTable')"
+          :title="$t('common.editor.insertTable')"
           @click="toolbarActions.insertTable"
         >
           <svg
@@ -363,7 +363,7 @@
           v-if="isActive('table')"
           type="button"
           class="toolbar-btn text-red-500"
-          :title="$t('ui.editor.deleteTable')"
+          :title="$t('common.editor.deleteTable')"
           @click="toolbarActions.deleteTable"
         >
           <svg
@@ -383,7 +383,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.insertHorizontalRule')"
+          :title="$t('common.editor.insertHorizontalRule')"
           @click="toolbarActions.insertHorizontalRule"
         >
           <svg
@@ -404,7 +404,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('textAlign', { textAlign: 'left' }) }"
-          :title="$t('ui.editor.left')"
+          :title="$t('common.editor.left')"
           @click="toolbarActions.setAlign('left')"
         >
           <svg
@@ -425,7 +425,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('textAlign', { textAlign: 'center' }) }"
-          :title="$t('ui.editor.center')"
+          :title="$t('common.editor.center')"
           @click="toolbarActions.setAlign('center')"
         >
           <svg
@@ -446,7 +446,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('textAlign', { textAlign: 'right' }) }"
-          :title="$t('ui.editor.right')"
+          :title="$t('common.editor.right')"
           @click="toolbarActions.setAlign('right')"
         >
           <svg
@@ -467,7 +467,7 @@
           type="button"
           class="toolbar-btn"
           :class="{ active: isActive('textAlign', { textAlign: 'justify' }) }"
-          :title="$t('ui.editor.justify')"
+          :title="$t('common.editor.justify')"
           @click="toolbarActions.setAlign('justify')"
         >
           <svg
@@ -492,7 +492,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.addRowBefore')"
+          :title="$t('common.editor.addRowBefore')"
           @click="toolbarActions.addRowBefore"
         >
           R+
@@ -500,7 +500,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.addRowAfter')"
+          :title="$t('common.editor.addRowAfter')"
           @click="toolbarActions.addRowAfter"
         >
           +R
@@ -508,7 +508,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.deleteRow')"
+          :title="$t('common.editor.deleteRow')"
           @click="toolbarActions.deleteRow"
         >
           R-
@@ -516,7 +516,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.addColumnBefore')"
+          :title="$t('common.editor.addColumnBefore')"
           @click="toolbarActions.addColumnBefore"
         >
           C+
@@ -524,7 +524,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.addColumnAfter')"
+          :title="$t('common.editor.addColumnAfter')"
           @click="toolbarActions.addColumnAfter"
         >
           +C
@@ -532,7 +532,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.deleteColumn')"
+          :title="$t('common.editor.deleteColumn')"
           @click="toolbarActions.deleteColumn"
         >
           C-
@@ -540,7 +540,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.mergeCells')"
+          :title="$t('common.editor.mergeCells')"
           @click="toolbarActions.mergeCells"
         >
           M
@@ -548,7 +548,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.splitCell')"
+          :title="$t('common.editor.splitCell')"
           @click="toolbarActions.splitCell"
         >
           S
@@ -556,7 +556,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.toggleHeaderRow')"
+          :title="$t('common.editor.toggleHeaderRow')"
           @click="toolbarActions.toggleHeaderRow"
         >
           HR
@@ -564,7 +564,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.toggleHeaderColumn')"
+          :title="$t('common.editor.toggleHeaderColumn')"
           @click="toolbarActions.toggleHeaderColumn"
         >
           HC
@@ -572,7 +572,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.toggleHeaderCell')"
+          :title="$t('common.editor.toggleHeaderCell')"
           @click="toolbarActions.toggleHeaderCell"
         >
           H
@@ -586,7 +586,7 @@
           type="button"
           class="toolbar-btn"
           :disabled="!editor?.can().undo()"
-          :title="$t('ui.editor.undo')"
+          :title="$t('common.editor.undo')"
           @click="toolbarActions.undo"
         >
           <svg
@@ -607,7 +607,7 @@
           type="button"
           class="toolbar-btn"
           :disabled="!editor?.can().redo()"
-          :title="$t('ui.editor.redo')"
+          :title="$t('common.editor.redo')"
           @click="toolbarActions.redo"
         >
           <svg
@@ -627,7 +627,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.clearFormatting')"
+          :title="$t('common.editor.clearFormatting')"
           @click="toolbarActions.clearFormatting"
         >
           <svg
@@ -647,7 +647,7 @@
         <button
           type="button"
           class="toolbar-btn text-red-500"
-          :title="$t('ui.editor.clearContent')"
+          :title="$t('common.editor.clearContent')"
           @click="toolbarActions.clearContent"
         >
           <svg
@@ -675,8 +675,8 @@
           :class="{ active: isActive('link') }"
           :title="
             isActive('link')
-              ? $t('ui.editor.removeUrl')
-              : $t('ui.editor.insertUrl')
+              ? $t('common.editor.removeUrl')
+              : $t('common.editor.insertUrl')
           "
           @click="
             isActive('link')
@@ -701,7 +701,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.uploadImage')"
+          :title="$t('common.editor.uploadImage')"
           @click="toolbarActions.uploadImage"
         >
           <svg
@@ -721,7 +721,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.insertVideo')"
+          :title="$t('common.editor.insertVideo')"
           @click="toolbarActions.insertVideo"
         >
           <svg
@@ -741,7 +741,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.insertIframe')"
+          :title="$t('common.editor.insertIframe')"
           @click="toolbarActions.insertIframe"
         >
           <svg
@@ -762,7 +762,7 @@
         <button
           type="button"
           class="toolbar-btn"
-          :title="$t('ui.editor.importMarkdown')"
+          :title="$t('common.editor.importMarkdown')"
           @click="toolbarActions.importMarkdown"
         >
           MD
@@ -801,11 +801,11 @@
     >
       <div class="status-info">
         <span class="status-item">
-          {{ statusInfo.words }} {{ $t('ui.editor.words') }}
+          {{ statusInfo.words }} {{ $t('common.editor.words') }}
         </span>
         <span class="status-divider">|</span>
         <span class="status-item">
-          {{ statusInfo.chars }} {{ $t('ui.editor.chars') }}
+          {{ statusInfo.chars }} {{ $t('common.editor.chars') }}
         </span>
         <span class="status-divider">|</span>
         <span class="status-item">Ln {{ statusInfo.cursor }}</span>
@@ -824,14 +824,14 @@
     <!-- Link Input Dialog -->
     <ElDialog
       v-model="linkModalVisible"
-      :title="$t('ui.title.insert_url')"
+      :title="$t('common.title.insert_url')"
       width="400px"
       :close-on-click-modal="false"
       @close="handleLinkCancel"
     >
       <ElInput
         v-model="linkUrl"
-        :placeholder="$t('ui.placeholder.input_url')"
+        :placeholder="$t('common.placeholder.input_url')"
         clearable
         @keyup.enter="handleLinkOk"
       />
@@ -846,7 +846,7 @@
     <!-- Code Block Insert Dialog -->
     <ElDialog
       v-model="codeBlockModalVisible"
-      :title="$t('ui.editor.insertCodeBlock')"
+      :title="$t('common.editor.insertCodeBlock')"
       width="600px"
       :close-on-click-modal="false"
       @close="handleCodeBlockCancel"
@@ -854,11 +854,11 @@
       <div class="code-block-modal">
         <div class="modal-field">
           <label class="field-label">
-            {{ $t('ui.editor.codeLanguage') }}
+            {{ $t('common.editor.codeLanguage') }}
           </label>
           <ElSelect
             v-model="codeBlockLanguage"
-            :placeholder="$t('ui.editor.selectLanguage')"
+            :placeholder="$t('common.editor.selectLanguage')"
             filterable
             class="language-select"
           >
@@ -872,11 +872,11 @@
         </div>
         <div class="modal-field">
           <label class="field-label">
-            {{ $t('ui.editor.codeContent') }}
+            {{ $t('common.editor.codeContent') }}
           </label>
           <textarea
             v-model="codeBlockContent"
-            :placeholder="$t('ui.editor.codeContentPlaceholder')"
+            :placeholder="$t('common.editor.codeContentPlaceholder')"
             class="code-textarea"
             rows="10"
           ></textarea>
@@ -893,7 +893,7 @@
     <!-- Video Insert Dialog -->
     <ElDialog
       v-model="videoModalVisible"
-      :title="$t('ui.editor.insertVideo')"
+      :title="$t('common.editor.insertVideo')"
       width="500px"
       :close-on-click-modal="false"
       @close="handleVideoCancel"
@@ -901,18 +901,18 @@
       <div class="video-modal">
         <div class="modal-field">
           <label class="field-label">
-            {{ $t('ui.editor.videoUrl') }}
+            {{ $t('common.editor.videoUrl') }}
           </label>
           <ElInput
             v-model="videoUrl"
-            :placeholder="$t('ui.editor.videoUrlPlaceholder')"
+            :placeholder="$t('common.editor.videoUrlPlaceholder')"
             clearable
             @keyup.enter="handleVideoOk"
           />
         </div>
         <div class="modal-field">
           <label class="field-label">
-            {{ $t('ui.editor.videoWidth') }}
+            {{ $t('common.editor.videoWidth') }}
           </label>
           <ElSelect v-model="videoWidth" class="width-select">
             <ElOption value="100%" label="100%" />
@@ -934,7 +934,7 @@
     <!-- Iframe Insert Dialog -->
     <ElDialog
       v-model="iframeModalVisible"
-      :title="$t('ui.editor.insertIframe')"
+      :title="$t('common.editor.insertIframe')"
       width="500px"
       :close-on-click-modal="false"
       @close="handleIframeCancel"
@@ -942,18 +942,18 @@
       <div class="iframe-modal">
         <div class="modal-field">
           <label class="field-label">
-            {{ $t('ui.editor.iframeUrl') }}
+            {{ $t('common.editor.iframeUrl') }}
           </label>
           <ElInput
             v-model="iframeUrl"
-            :placeholder="$t('ui.editor.iframeUrlPlaceholder')"
+            :placeholder="$t('common.editor.iframeUrlPlaceholder')"
             clearable
             @keyup.enter="handleIframeOk"
           />
         </div>
         <div class="modal-field">
           <label class="field-label">
-            {{ $t('ui.editor.iframeWidth') }}
+            {{ $t('common.editor.iframeWidth') }}
           </label>
           <ElSelect v-model="iframeWidth" class="width-select">
             <ElOption value="100%" label="100%" />
@@ -965,7 +965,7 @@
         </div>
         <div class="modal-field">
           <label class="field-label">
-            {{ $t('ui.editor.iframeHeight') }}
+            {{ $t('common.editor.iframeHeight') }}
           </label>
           <ElSelect v-model="iframeHeight" class="height-select">
             <ElOption value="500px" label="500px" />
@@ -975,24 +975,24 @@
         </div>
         <div class="modal-field">
           <label class="field-label">
-            {{ $t('ui.editor.iframeTitle') }}
+            {{ $t('common.editor.iframeTitle') }}
           </label>
           <ElInput
             v-model="iframeTitle"
-            :placeholder="$t('ui.editor.iframeTitlePlaceholder')"
+            :placeholder="$t('common.editor.iframeTitlePlaceholder')"
             clearable
           />
         </div>
         <div class="modal-field">
           <label class="field-label">
-            {{ $t('ui.editor.allowFullscreen') }}
+            {{ $t('common.editor.allowFullscreen') }}
           </label>
           <div style="display: flex; gap: 12px; align-items: center">
             <ElSwitch v-model="iframeAllowFullscreen" />
             <span>{{
               iframeAllowFullscreen
-                ? $t('ui.editor.allowFullscreenEnabled')
-                : $t('ui.editor.allowFullscreenDisabled')
+                ? $t('common.editor.allowFullscreenEnabled')
+                : $t('common.editor.allowFullscreenDisabled')
             }}</span>
           </div>
         </div>
@@ -1057,7 +1057,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   height: 500,
   disabled: false,
-  placeholder: $t("ui.editor.please_input_content"),
+  placeholder: $t("common.editor.please_input_content"),
   config: () => ({}),
   showToolbar: true,
   showStatusBar: true,
@@ -1647,7 +1647,7 @@ const toolbarActions = {
   redo: () => editor.value?.chain().focus().redo().run(),
   clearContent: async () => {
     try {
-      await ElMessageBox.confirm($t("ui.editor.clear_content_confirm"), $t("ui.title.confirm"), {
+      await ElMessageBox.confirm($t("common.editor.clear_content_confirm"), $t("common.title.confirm"), {
         confirmButtonText: $t("common.confirm"),
         cancelButtonText: $t("common.cancel"),
         type: "warning",

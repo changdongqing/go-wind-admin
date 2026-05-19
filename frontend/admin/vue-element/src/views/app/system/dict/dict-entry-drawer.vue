@@ -1,339 +1,377 @@
+<template>
+  <ElDrawer
+    v-model="visible"
+    :title="title"
+    size="800px"
+    :close-on-click-modal="false"
+    :append-to-body="true"
+    :destroy-on-close="true"
+    @close="handleClose"
+  >
+    <ElForm
+      ref="formRef"
+      :model="formData"
+      :rules="formRules"
+      label-width="120px"
+      class="drawer-form"
+    >
+      <ElFormItem :label="$t('pages.dict.typeId')" prop="typeId">
+        <ElSelect
+          v-model="formData.typeId"
+          :placeholder="$t('common.placeholder.select')"
+          filterable
+          clearable
+          style="width: 100%"
+        >
+          <ElOption
+            v-for="item in dictTypeList"
+            :key="item.id"
+            :label="item.typeName"
+            :value="item.id"
+          />
+        </ElSelect>
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.dict.entryValue')" prop="entryValue">
+        <ElInput
+          v-model="formData.entryValue"
+          :placeholder="$t('common.placeholder.input')"
+          clearable
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('pages.dict.numericValue')" prop="numericValue">
+        <ElInputNumber
+          v-model="formData.numericValue"
+          :placeholder="$t('common.placeholder.input')"
+          style="width: 100%"
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('common.table.sortOrder')" prop="sortOrder">
+        <ElInputNumber
+          v-model="formData.sortOrder"
+          :min="1"
+          :placeholder="$t('common.placeholder.input')"
+          style="width: 100%"
+        />
+      </ElFormItem>
+
+      <ElFormItem :label="$t('common.table.status')" prop="isEnabled">
+        <ElRadioGroup v-model="formData.isEnabled">
+          <ElRadioButton v-for="item in enableBoolList" :key="item.value" :value="item.value">
+            {{ item.label }}
+          </ElRadioButton>
+        </ElRadioGroup>
+      </ElFormItem>
+    </ElForm>
+
+    <!-- 多语言配置表格 -->
+    <div class="i18n-section">
+      <ElDivider content-position="left">{{ $t("pages.dict.i18nConfig") }}</ElDivider>
+      <ElTable :data="i18nTableData" border stripe>
+        <ElTableColumn prop="languageCode" :label="$t('pages.dict.languageCode')" width="120" />
+        <ElTableColumn prop="languageName" :label="$t('pages.dict.languageName')" width="120" />
+        <ElTableColumn :label="$t('pages.dict.entryLabel')">
+          <template #default="{ row }">
+            <ElInput
+              v-if="row.editing"
+              v-model="row.entryLabel"
+              size="small"
+              @blur="handleSaveRow(row)"
+              @keyup.enter="handleSaveRow(row)"
+            />
+            <span v-else>{{ row.entryLabel }}</span>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn :label="$t('common.table.description')">
+          <template #default="{ row }">
+            <ElInput
+              v-if="row.editing"
+              v-model="row.description"
+              size="small"
+              @blur="handleSaveRow(row)"
+              @keyup.enter="handleSaveRow(row)"
+            />
+            <span v-else>{{ row.description }}</span>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn :label="$t('common.table.action')" width="140" fixed="right">
+          <template #default="{ row }">
+            <ElButton
+              v-if="!row.editing"
+              type="primary"
+              link
+              size="small"
+              @click="handleEditRow(row)"
+            >
+              {{ $t("common.button.edit") }}
+            </ElButton>
+            <template v-else>
+              <ElButton type="primary" link size="small" @click="handleSaveRow(row)">
+                {{ $t("common.button.save") }}
+              </ElButton>
+              <ElButton link size="small" @click="handleCancelRow(row)">
+                {{ $t("common.button.cancel") }}
+              </ElButton>
+            </template>
+          </template>
+        </ElTableColumn>
+      </ElTable>
+    </div>
+
+    <template #footer>
+      <div class="drawer-footer">
+        <ElButton @click="handleClose">{{ $t("common.button.cancel") }}</ElButton>
+        <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">
+          {{ $t("common.button.confirm") }}
+        </ElButton>
+      </div>
+    </template>
+  </ElDrawer>
+</template>
+
 <script lang="ts" setup>
-import type { VxeGridProps } from '@/adapter/vxe-table';
-import type {
-  dictservicev1_DictEntryI18n as DictEntryI18n,
-  dictservicev1_DictType as DictType,
-} from '@/api/generated/admin/service/v1';
+import { computed, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
 
-import { computed, ref } from 'vue';
+import type { dictservicev1_DictType as DictType } from "@/api/generated/admin/service/v1";
 
-import { useVbenDrawer } from '@vben/common-ui';
-import { $t } from '@vben/locales';
+import { enableBoolList, useDictStore } from "@/stores";
+import { $t } from "@/i18n";
+import { useDictViewStore } from "@/views/app/system/dict/dict-view.state";
 
-import { notification } from 'ant-design-vue';
-
-import { useVbenForm, z } from '@/adapter/form';
-import { useVbenVxeGrid } from '@/adapter/vxe-table';
-import { enableBoolList, useDictStore } from '@/stores';
-import { useDictViewStore } from '@/views/app/system/dict/dict-view.state';
+const emit = defineEmits<{
+  success: [];
+}>();
 
 const dictStore = useDictStore();
 const dictViewStore = useDictViewStore();
 
-const data = ref();
+const visible = ref(false);
+const submitLoading = ref(false);
+const isCreate = ref(true);
+const currentId = ref<number>();
+const formRef = ref();
 
-const getTitle = computed(() =>
-  data.value?.create
-    ? $t('ui.modal.create', { moduleName: t('pages.dict.dictEntry') })
-    : $t('ui.modal.update', { moduleName: t('pages.dict.dictEntry') }),
-);
-// const isCreate = computed(() => data.value?.create);
-
-const [BaseForm, baseFormApi] = useVbenForm({
-  showDefaultActions: false,
-  // 所有表单项共用，可单独在表单内覆盖
-  commonConfig: {
-    // 所有表单项
-    componentProps: {
-      class: 'w-full',
-    },
-  },
-  schema: [
-    {
-      component: 'ApiSelect',
-      fieldName: 'typeId',
-      label: t('pages.dict.typeId'),
-      rules: 'required',
-      defaultValue: dictViewStore.currentTypeId,
-      componentProps: {
-        placeholder: $t('ui.placeholder.select'),
-        showSearch: true,
-        allowClear: false,
-        filterOption: (input: string, option: any) =>
-          option.label.toLowerCase().includes(input.toLowerCase()),
-        afterFetch: (data: DictType[]) => {
-          return data.map((item: DictType) => ({
-            label: item.typeName,
-            value: item.id,
-          }));
-        },
-        api: async () => {
-          const result = await dictStore.listDictType(undefined, {
-            is_enabled: 'true',
-          });
-          return result.items;
-        },
-      },
-    },
-    {
-      component: 'Input',
-      fieldName: 'entryValue',
-      label: t('pages.dict.entryValue'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-      rules: z.string().min(1, { message: $t('ui.formRules.required') }),
-    },
-    {
-      component: 'InputNumber',
-      fieldName: 'numericValue',
-      label: t('pages.dict.numericValue'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-    },
-    {
-      component: 'InputNumber',
-      fieldName: 'sortOrder',
-      defaultValue: 1,
-      label: $t('ui.table.sortOrder'),
-      componentProps: {
-        placeholder: $t('ui.placeholder.input'),
-        allowClear: true,
-      },
-    },
-    {
-      component: 'RadioGroup',
-      fieldName: 'isEnabled',
-      label: $t('ui.table.status'),
-      defaultValue: true,
-      rules: 'selectRequired',
-      componentProps: {
-        optionType: 'button',
-        buttonStyle: 'solid',
-        class: 'flex flex-wrap', // 如果选项过多，可以添加class来自动折叠
-        options: enableBoolList,
-      },
-    },
-  ],
+// 表单数据
+const formData = reactive({
+  typeId: undefined as number | undefined,
+  entryValue: "",
+  numericValue: undefined as number | undefined,
+  sortOrder: 1,
+  isEnabled: true,
 });
 
-const gridOptions: VxeGridProps<DictEntryI18n> = {
-  height: 'auto',
-  stripe: true,
-  toolbarConfig: {
-    custom: false,
-    export: false,
-    import: false,
-    refresh: false,
-    zoom: false,
-  },
-  exportConfig: {},
-  pagerConfig: {},
-  rowConfig: {
-    isHover: true,
-    isCurrent: true,
-  },
-  editConfig: {
-    mode: 'row',
-    trigger: 'click',
-  },
+// 多语言表格数据
+const i18nTableData = ref<any[]>([]);
+const i18nDataMap = ref<Record<string, { entryLabel?: string; description?: string }>>({});
 
-  proxyConfig: {
-    ajax: {
-      query: async ({ page }, formValues) => {
-        const gridData = [];
-        const language = await dictViewStore.fetchLanguageList(
-          page.currentPage,
-          page.pageSize,
-          formValues,
-        );
+// 字典类型列表
+const dictTypeList = ref<DictType[]>([]);
 
-        const i18nMap = (data.value?.row?.i18n ?? {}) as Record<
-          string,
-          { description?: string; entryLabel?: string }
-        >;
-
-        for (const lang of language.items || []) {
-          const languageCode = lang.languageCode || '';
-          if (languageCode === '') {
-            continue;
-          }
-
-          gridData.push({
-            languageCode,
-            languageName: lang.nativeName,
-            entryLabel: i18nMap[languageCode]?.entryLabel ?? '',
-            description: i18nMap[languageCode]?.description ?? '',
-          });
-        }
-
-        return { items: gridData, total: gridData.length };
-      },
-    },
-  },
-
-  columns: [
-    {
-      title: t('pages.dict.languageCode'),
-      field: 'languageCode',
-      fixed: 'left',
-      width: 85,
-    },
-    {
-      title: t('pages.dict.languageName'),
-      field: 'languageName',
-      width: 85,
-    },
-    {
-      title: t('pages.dict.entryLabel'),
-      field: 'entryLabel',
-      editRender: { name: 'input' },
-    },
-    {
-      title: $t('ui.table.description'),
-      field: 'description',
-      editRender: { name: 'input' },
-    },
-    {
-      title: $t('ui.table.action'),
-      field: 'action',
-      fixed: 'right',
-      slots: { default: 'action' },
-      width: 140,
-    },
+// 表单验证规则
+const formRules = {
+  typeId: [{ required: true, message: $t("common.validation.selectRequired"), trigger: "change" }],
+  entryValue: [{ required: true, message: $t("common.validation.required"), trigger: "blur" }],
+  sortOrder: [{ required: true, message: $t("common.validation.required"), trigger: "blur" }],
+  isEnabled: [
+    { required: true, message: $t("common.validation.selectRequired"), trigger: "change" },
   ],
 };
 
-const [Grid, gridApi] = useVbenVxeGrid({ gridOptions });
+// 标题
+const title = computed(() =>
+  isCreate.value
+    ? $t("common.modal.create", { moduleName: $t("pages.dict.dictEntry") })
+    : $t("common.modal.update", { moduleName: $t("pages.dict.dictEntry") })
+);
 
-const [Drawer, drawerApi] = useVbenDrawer({
-  onCancel() {
-    drawerApi.close();
-  },
-
-  async onConfirm() {
-    console.log('onConfirm');
-
-    // 校验输入的数据
-    const validate = await baseFormApi.validate();
-    if (!validate.valid) {
-      return;
-    }
-
-    // 加载条设置为加载状态
-    setLoading(true);
-
-    // 获取表单数据
-    const values = await baseFormApi.getValues();
-
-    console.log(getTitle.value, Object.keys(values));
-
-    try {
-      await (data.value?.create
-        ? dictStore.createDictEntry(values)
-        : dictStore.updateDictEntry(data.value.row.id, values));
-
-      notification.success({
-        message: data.value?.create
-          ? $t('ui.notification.create_success')
-          : $t('ui.notification.update_success'),
-      });
-    } catch {
-      notification.error({
-        message: data.value?.create
-          ? $t('ui.notification.create_failed')
-          : $t('ui.notification.update_failed'),
-      });
-    } finally {
-      // 关闭窗口
-      drawerApi.close();
-      setLoading(false);
-    }
-  },
-
-  onOpenChange(isOpen: boolean) {
-    if (isOpen) {
-      // 获取传入的数据
-      data.value = drawerApi.getData<Record<string, any>>();
-
-      // 为表单赋值
-      if (data.value.row === undefined) {
-        baseFormApi.setValues({ typeId: dictViewStore.currentTypeId });
-      } else {
-        data.value.row.typeId = dictViewStore.currentTypeId;
-        baseFormApi.setValues(data.value?.row);
-      }
-
-      setLoading(false);
-
-      console.log('onOpenChange', data.value, data.value?.create);
-    }
-  },
-});
-
-function setLoading(loading: boolean) {
-  drawerApi.setState({ confirmLoading: loading });
+// 加载字典类型列表
+async function loadDictTypeList() {
+  try {
+    const result = await dictStore.listDictType(undefined, {
+      is_enabled: "true",
+    });
+    dictTypeList.value = result.items || [];
+  } catch (error) {
+    console.error("Failed to load dict type list:", error);
+  }
 }
 
-function hasEditStatus(row: DictEntryI18n) {
-  return gridApi.grid?.isEditByRow(row);
+// 加载语言列表
+async function loadLanguageList() {
+  try {
+    const language = await dictViewStore.fetchLanguageList(1, 100, {});
+    const items = language.items || [];
+
+    i18nTableData.value = items
+      .filter((lang: any) => lang.languageCode)
+      .map((lang: any) => ({
+        languageCode: lang.languageCode,
+        languageName: lang.nativeName,
+        entryLabel: i18nDataMap.value[lang.languageCode]?.entryLabel || "",
+        description: i18nDataMap.value[lang.languageCode]?.description || "",
+        editing: false,
+      }));
+  } catch (error) {
+    console.error("Failed to load language list:", error);
+  }
 }
 
-function editRowEvent(row: DictEntryI18n) {
-  gridApi.grid?.setEditRow(row);
+// 编辑行
+function handleEditRow(row: any) {
+  row._backup = { entryLabel: row.entryLabel, description: row.description };
+  row.editing = true;
 }
 
-async function saveRowEvent(row: DictEntryI18n) {
-  await gridApi.grid?.clearEdit();
+// 保存行
+async function handleSaveRow(row: any) {
+  row.editing = false;
 
-  if (row.languageCode !== undefined) {
-    data.value.row.i18n[row.languageCode] = {
-      languageCode: row.languageCode,
+  if (row.languageCode) {
+    i18nDataMap.value[row.languageCode] = {
       entryLabel: row.entryLabel,
       description: row.description,
     };
   }
 
-  gridApi.setLoading(true);
-
-  try {
-    const values = await baseFormApi.getValues();
-    await dictStore.updateDictEntry(data.value.row.id, {
-      ...values,
-      i18n: data.value.row.i18n,
-    });
-
-    notification.success({
-      message: $t('ui.notification.save_success'),
-    });
-  } catch {
-    notification.error({
-      message: $t('ui.notification.update_failed'),
-    });
-    return;
-  } finally {
-    gridApi.setLoading(false);
-    await gridApi.reload();
+  // 如果不是新建，立即保存
+  if (!isCreate.value && currentId.value) {
+    try {
+      submitLoading.value = true;
+      await dictStore.updateDictEntry(currentId.value, {
+        ...formData,
+        i18n: i18nDataMap.value,
+      });
+      ElMessage.success($t("common.notification.save_success"));
+    } catch (error) {
+      ElMessage.error($t("common.notification.update_failed"));
+      // 恢复原值
+      if (row._backup) {
+        row.entryLabel = row._backup.entryLabel;
+        row.description = row._backup.description;
+      }
+    } finally {
+      submitLoading.value = false;
+    }
   }
 }
 
-const cancelRowEvent = (_row: DictEntryI18n) => {
-  gridApi.grid?.clearEdit();
-};
+// 取消编辑
+function handleCancelRow(row: any) {
+  row.editing = false;
+  if (row._backup) {
+    row.entryLabel = row._backup.entryLabel;
+    row.description = row._backup.description;
+    delete row._backup;
+  }
+}
+
+// 重置表单
+function resetForm() {
+  Object.assign(formData, {
+    typeId: dictViewStore.currentTypeId,
+    entryValue: "",
+    numericValue: undefined,
+    sortOrder: 1,
+    isEnabled: true,
+  });
+  i18nTableData.value = [];
+  i18nDataMap.value = {};
+  formRef.value?.clearValidate();
+}
+
+// 打开抽屉
+async function open(data?: { create: boolean; row?: any }) {
+  visible.value = true;
+  isCreate.value = data?.create ?? true;
+  currentId.value = data?.row?.id;
+
+  // 重置表单
+  resetForm();
+
+  // 加载数据
+  await loadDictTypeList();
+
+  // 编辑时填充数据
+  if (data?.row && !isCreate.value) {
+    i18nDataMap.value = (data.row.i18n as Record<string, any>) || {};
+    Object.assign(formData, {
+      typeId: data.row.typeId || dictViewStore.currentTypeId,
+      entryValue: data.row.entryValue || "",
+      numericValue: data.row.numericValue,
+      sortOrder: data.row.sortOrder || 1,
+      isEnabled: data.row.isEnabled ?? true,
+    });
+  } else {
+    formData.typeId = dictViewStore.currentTypeId;
+  }
+
+  // 加载语言列表
+  await loadLanguageList();
+}
+
+// 关闭抽屉
+function handleClose() {
+  visible.value = false;
+  resetForm();
+}
+
+// 提交表单
+async function handleSubmit() {
+  if (!formRef.value) return;
+
+  try {
+    await formRef.value.validate();
+    submitLoading.value = true;
+
+    const submitData = {
+      ...formData,
+      i18n: i18nDataMap.value,
+    };
+
+    if (isCreate.value) {
+      await dictStore.createDictEntry(submitData);
+      ElMessage.success($t("common.notification.create_success"));
+    } else {
+      await dictStore.updateDictEntry(currentId.value!, submitData);
+      ElMessage.success($t("common.notification.update_success"));
+    }
+
+    handleClose();
+    emit("success");
+  } catch (error) {
+    if (error !== false) {
+      ElMessage.error(
+        isCreate.value
+          ? $t("common.notification.create_failed")
+          : $t("common.notification.update_failed")
+      );
+    }
+  } finally {
+    submitLoading.value = false;
+  }
+}
+
+// 暴露方法
+defineExpose({
+  open,
+});
 </script>
 
-<template>
-  <Drawer :title="getTitle" class="w-full max-w-[800px]">
-    <BaseForm class="mx-0" />
-    <Grid>
-      <template #action="{ row }">
-        <template v-if="hasEditStatus(row)">
-          <a-button type="link" @click="saveRowEvent(row)">
-            {{ $t('ui.button.save') }}
-          </a-button>
-          <a-button type="link" @click="cancelRowEvent(row)">
-            {{ $t('ui.button.cancel') }}
-          </a-button>
-        </template>
-        <template v-else>
-          <a-button type="link" @click="editRowEvent(row)">
-            {{ $t('ui.button.edit') }}
-          </a-button>
-        </template>
-      </template>
-    </Grid>
-  </Drawer>
-</template>
+<style lang="scss" scoped>
+.drawer-form {
+  padding-right: 12px;
+}
+
+.i18n-section {
+  margin-top: 16px;
+}
+
+.drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+</style>

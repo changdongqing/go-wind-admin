@@ -1,29 +1,17 @@
-<script lang="ts" setup>
-import { reactive } from 'vue';
-
-import { ColPage } from '@vben/common-ui';
-
-import OrgList from '@/views/app/opm/user/org-list.vue';
-import UserList from '@/views/app/opm/user/user-list.vue';
-
-const props = reactive({
-  leftCollapsedWidth: 0,
-  leftCollapsible: false,
-  leftMaxWidth: 25,
-  leftMinWidth: 75,
-  leftWidth: 25,
-  rightWidth: 75,
-  resizable: true,
-  splitHandle: true,
-  splitLine: true,
-});
-</script>
-
 <template>
-  <ColPage auto-content-height v-bind="props">
-    <template #left>
+  <ElSplitter>
+    <ElSplitterPanel :size="25" :min-size="20" :max-size="25">
       <OrgList />
-    </template>
-    <UserList />
-  </ColPage>
+    </ElSplitterPanel>
+    <ElSplitterPanel :size="75">
+      <UserList />
+    </ElSplitterPanel>
+  </ElSplitter>
 </template>
+
+<script lang="ts" setup>
+import { ElSplitter, ElSplitterPanel } from "element-plus";
+
+import OrgList from "./org-list.vue";
+import UserList from "./user-list.vue";
+</script>

@@ -35,7 +35,7 @@ const formOptions: VbenFormProps = {
       fieldName: 'path',
       label: t('pages.apiAuditLog.path'),
       componentProps: {
-        placeholder: $t('ui.placeholder.input'),
+        placeholder: $t('common.placeholder.input'),
         allowClear: true,
       },
     },
@@ -45,7 +45,7 @@ const formOptions: VbenFormProps = {
       label: t('pages.apiAuditLog.httpMethod'),
       componentProps: {
         options: methodList,
-        placeholder: $t('ui.placeholder.select'),
+        placeholder: $t('common.placeholder.select'),
         filterOption: (input: string, option: any) =>
           option.label.toLowerCase().includes(input.toLowerCase()),
         allowClear: true,
@@ -57,7 +57,7 @@ const formOptions: VbenFormProps = {
       fieldName: 'ipAddress',
       label: t('pages.apiAuditLog.ipAddress'),
       componentProps: {
-        placeholder: $t('ui.placeholder.input'),
+        placeholder: $t('common.placeholder.input'),
         allowClear: true,
       },
     },
@@ -67,7 +67,7 @@ const formOptions: VbenFormProps = {
       label: t('pages.apiAuditLog.success'),
       componentProps: {
         options: successStatusList,
-        placeholder: $t('ui.placeholder.select'),
+        placeholder: $t('common.placeholder.select'),
         filterOption: (input: string, option: any) =>
           option.label.toLowerCase().includes(input.toLowerCase()),
         allowClear: true,
@@ -83,33 +83,33 @@ const formOptions: VbenFormProps = {
         allowClear: true,
         presets: [
           {
-            label: $t('ui.dateRange.today'),
+            label: $t('common.dateRange.today'),
             value: [dayjs().startOf('day'), dayjs().endOf('day')],
           },
           {
-            label: $t('ui.dateRange.yesterday'),
+            label: $t('common.dateRange.yesterday'),
             value: [
               dayjs().subtract(1, 'day').startOf('day'),
               dayjs().subtract(1, 'day').endOf('day'),
             ],
           },
           {
-            label: $t('ui.dateRange.thisWeek'),
+            label: $t('common.dateRange.thisWeek'),
             value: [dayjs().startOf('week'), dayjs().endOf('week')],
           },
           {
-            label: $t('ui.dateRange.lastWeek'),
+            label: $t('common.dateRange.lastWeek'),
             value: [
               dayjs().subtract(1, 'week').startOf('week'),
               dayjs().subtract(1, 'week').endOf('week'),
             ],
           },
           {
-            label: $t('ui.dateRange.thisMonth'),
+            label: $t('common.dateRange.thisMonth'),
             value: [dayjs().startOf('month'), dayjs().endOf('month')],
           },
           {
-            label: $t('ui.dateRange.lastMonth'),
+            label: $t('common.dateRange.lastMonth'),
             value: [
               dayjs().subtract(1, 'month').startOf('month'),
               dayjs().subtract(1, 'month').endOf('month'),
