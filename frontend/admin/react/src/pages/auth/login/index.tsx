@@ -67,6 +67,7 @@ const Login: React.FC = () => {
         display: 'flex',
         minHeight: '100vh',
         background: '#0a0a0a',
+        overflow: 'hidden',
       }}
     >
       <Helmet>
@@ -90,6 +91,7 @@ const Login: React.FC = () => {
           background: 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 70%)',
           position: 'relative',
           overflow: 'hidden',
+          minWidth: 0,
         }}
       >
         {/* 背景渐变装饰 */}
@@ -142,17 +144,19 @@ const Login: React.FC = () => {
       {/* 右侧登录表单区 */}
       <div
         style={{
-          flex: 2,
+          width: '45%',
+          minWidth: '480px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
+          alignItems: 'center',
           padding: '64px 48px',
           background: '#141414',
           borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
           position: 'relative',
         }}
       >
-        <div style={{maxWidth: 360, margin: '0 auto', width: '100%'}}>
+        <div style={{width: '100%', maxWidth: '420px'}}>
           <h1
             style={{
               color: '#fff',
@@ -161,13 +165,14 @@ const Login: React.FC = () => {
               marginBottom: 8,
             }}
           >
-            欢迎回来 👋
+            欢迎回来 
           </h1>
           <p
             style={{
               color: 'rgba(255, 255, 255, 0.5)',
               fontSize: 14,
               marginBottom: 32,
+              paddingLeft: 2,
             }}
           >
             请输入您的帐户信息以开始管理您的系统
@@ -182,29 +187,18 @@ const Login: React.FC = () => {
               autoLogin: true,
             }}
             onFinish={handleSubmit}
-            submitter={{
-              searchConfig: {
-                submitText: '登录',
-              },
-              submitButtonProps: {
-                size: 'large',
-                style: {
-                  width: '100%',
-                  background: 'linear-gradient(135deg, #0066ff 0%, #0052cc 100%)',
-                  border: 'none',
-                  height: 40,
-                  fontSize: 15,
-                  fontWeight: 500,
-                },
-              },
-            }}
+            submitter={false}
           >
             <ProFormText
               name="username"
               fieldProps={{
                 size: 'large',
                 placeholder: '请输入用户名',
-                className: 'login-input',
+                className: 'login-input-field',
+                autoComplete: 'username',
+                style: {
+                  '--ant-color-text-placeholder': 'rgba(255, 255, 255, 0.4)',
+                } as any,
               }}
               rules={[
                 {
@@ -218,7 +212,11 @@ const Login: React.FC = () => {
               fieldProps={{
                 size: 'large',
                 placeholder: '密码',
-                className: 'login-input',
+                className: 'login-input-field',
+                autoComplete: 'current-password',
+                style: {
+                  '--ant-color-text-placeholder': 'rgba(255, 255, 255, 0.4)',
+                } as any,
               }}
               rules={[
                 {
@@ -232,6 +230,7 @@ const Login: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 marginBottom: 24,
+                marginTop: 8,
               }}
             >
               <ProFormCheckbox
@@ -246,12 +245,33 @@ const Login: React.FC = () => {
                 记住账号
               </ProFormCheckbox>
             </div>
+            <div style={{marginTop: 32}}>
+              <button
+                type="submit"
+                style={{
+                  width: '100%',
+                  height: 44,
+                  background: 'linear-gradient(135deg, #0066ff 0%, #0052cc 100%)',
+                  border: 'none',
+                  borderRadius: 6,
+                  color: '#fff',
+                  fontSize: 15,
+                  fontWeight: 500,
+                  cursor: loginLoading ? 'not-allowed' : 'pointer',
+                  opacity: loginLoading ? 0.7 : 1,
+                  transition: 'all 0.2s',
+                }}
+                disabled={loginLoading}
+              >
+                {loginLoading ? '登录中...' : '登 录'}
+              </button>
+            </div>
           </LoginForm>
           
           <div
             style={{
               textAlign: 'center',
-              marginTop: 16,
+              marginTop: 24,
             }}
           >
             <span style={{color: 'rgba(255, 255, 255, 0.5)', fontSize: 13}}>
@@ -274,11 +294,11 @@ const Login: React.FC = () => {
         <div
           style={{
             position: 'absolute',
-            bottom: 24,
+            bottom: 20,
             left: 0,
             right: 0,
             textAlign: 'center',
-            color: 'rgba(255, 255, 255, 0.3)',
+            color: 'rgba(255, 255, 255, 0.25)',
             fontSize: 12,
           }}
         >
@@ -288,3 +308,5 @@ const Login: React.FC = () => {
     </div>
   );
 };
+
+export default Login;

@@ -228,7 +228,7 @@ const formComponents = {
   align-items: center;
   justify-content: center;
   padding: 60px 40px;
-  background-color: #ffffff;
+  background-color: #141927;
   position: relative;
 
   html:not(.dark) & {
@@ -249,7 +249,7 @@ const formComponents = {
       .form-title {
         font-size: 22px;
         font-weight: 600;
-        color: #1a1d28;
+        color: #e5eaf3;
         margin: 0 0 8px 0;
 
         html:not(.dark) & {
@@ -265,7 +265,7 @@ const formComponents = {
 
       .form-subtitle {
         font-size: 13px;
-        color: #6b7280;
+        color: #6b7a8d;
         margin: 0;
 
         html:not(.dark) & {
@@ -277,7 +277,7 @@ const formComponents = {
     .form-section-title {
       font-size: 15px;
       font-weight: 600;
-      color: #1a1d28;
+      color: #e5eaf3;
       text-align: center;
       margin: 24px 0 20px 0;
 
@@ -298,7 +298,7 @@ const formComponents = {
 
       > .el-text {
         display: block;
-        color: #6b7280;
+        color: #6b7a8d;
 
         html:not(.dark) & {
           color: #6b7280;
@@ -358,15 +358,11 @@ const formComponents = {
     margin-bottom: 16px;
   }
 
+  // 暗色模式下的表单样式
   :deep(.el-input__wrapper) {
-    background-color: #ffffff !important;
-    border-color: #d9dce5 !important;
+    background-color: #1e2435 !important;
+    border: 1px solid #3a4560 !important;
     box-shadow: none !important;
-
-    html:not(.dark) & {
-      background-color: #ffffff !important;
-      border-color: #d9dce5 !important;
-    }
 
     &:hover {
       border-color: #409eff !important;
@@ -374,41 +370,98 @@ const formComponents = {
 
     &.is-focus {
       border-color: #409eff !important;
+      box-shadow: 0 0 0 1px #409eff inset !important;
     }
 
     .el-input__inner {
-      color: #1a1d28 !important;
-
-      html:not(.dark) & {
-        color: #1a1d28 !important;
-      }
+      color: #e5eaf3 !important;
 
       &::placeholder {
-        color: #9ca3af !important;
-
-        html:not(.dark) & {
-          color: #9ca3af !important;
-        }
+        color: #6b7a8d !important;
       }
     }
   }
 
-  :deep(.el-button--primary) {
-    background-color: #409eff !important;
-    border-color: #409eff !important;
+  // 输入框前缀图标颜色
+  :deep(.el-input__prefix) {
+    .el-icon {
+      color: #4a5568 !important;
+    }
+  }
 
-    &:hover {
-      background-color: #66b1ff !important;
-      border-color: #66b1ff !important;
+  // 输入框后缀图标颜色
+  :deep(.el-input__suffix) {
+    .el-icon {
+      color: #4a5568 !important;
     }
   }
 
   :deep(.el-checkbox__label) {
-    color: #9099a7 !important;
+    color: #a0aec0 !important;
+  }
+
+  :deep(.el-checkbox__inner) {
+    border-color: #3a4560 !important;
+    background-color: #1e2435 !important;
   }
 
   :deep(.el-link) {
     color: #409eff !important;
+  }
+}
+
+// 亮色模式下的表单样式
+html:not(.dark) {
+  .auth-panel__form {
+    :deep(.el-input__wrapper) {
+      background-color: #ffffff !important;
+      border: 1px solid #c0c4cc !important;
+      box-shadow: none !important;
+
+      &:hover {
+        border-color: #409eff !important;
+      }
+
+      &.is-focus {
+        border-color: #409eff !important;
+        box-shadow: 0 0 0 1px #409eff inset !important;
+      }
+
+      .el-input__inner {
+        color: #1a1d28 !important;
+
+        &::placeholder {
+          color: #a8abb2 !important;
+        }
+      }
+    }
+
+    // 输入框前缀图标颜色
+    :deep(.el-input__prefix) {
+      .el-icon {
+        color: #c0c4cc !important;
+      }
+    }
+
+    // 输入框后缀图标颜色
+    :deep(.el-input__suffix) {
+      .el-icon {
+        color: #c0c4cc !important;
+      }
+    }
+
+    :deep(.el-checkbox__label) {
+      color: #6b7280 !important;
+    }
+
+    :deep(.el-checkbox__inner) {
+      border-color: #c0c4cc !important;
+      background-color: #ffffff !important;
+    }
+
+    :deep(.el-link) {
+      color: #409eff !important;
+    }
   }
 }
 
@@ -421,7 +474,7 @@ const formComponents = {
   text-align: center;
 
   :deep(.el-text) {
-    color: #6b7280;
+    color: #6b7a8d;
 
     html:not(.dark) & {
       color: #9ca3af;

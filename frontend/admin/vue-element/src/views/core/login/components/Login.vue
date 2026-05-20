@@ -154,5 +154,10 @@ function toOtherForm(type: "register" | "resetPwd") {
   margin: 0 0 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;
+  color: #e5eaf3;
+
+  html:not(.dark) & {
+    color: #1a1d28;
+  }
 }
 </style>

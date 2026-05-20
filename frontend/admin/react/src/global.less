@@ -94,25 +94,81 @@ ol {
 }
 
 /* 登录页输入框样式 */
-.login-input {
-  input {
-    background: #1f1f1f !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #fff !important;
-    height: 40px !important;
-    
-    &:focus {
-      border-color: #0066ff !important;
-      box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1) !important;
-    }
-    
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.4) !important;
-    }
+.login-input-field {
+  background: #1f1f1f !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  height: 44px !important;
+  border-radius: 6px !important;
+  padding: 0 12px !important;
+  
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  &:focus {
+    border-color: #0066ff !important;
+    box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.15) !important;
+    outline: none !important;
+  }
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
   }
 }
 
 /* 移除横向滚动条 */
 html, body {
   overflow-x: hidden;
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* 登录页特殊样式 */
+:global {
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  .ant-form-item-explain-error {
+    color: #ff4d4f !important;
+    font-size: 12px !important;
+  }
+  
+  /* 修复可能的溢出问题 */
+  .ant-input-affix-wrapper {
+    background: #1f1f1f !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    &.ant-input-affix-wrapper-focused {
+      border-color: #0066ff !important;
+      box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.15) !important;
+    }
+    
+    input {
+      background: transparent !important;
+      color: #fff !important;
+      height: 42px !important;
+      
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.4) !important;
+      }
+    }
+    
+    .ant-input-suffix {
+      color: rgba(255, 255, 255, 0.4) !important;
+    }
+  }
+  
+  /* 确保所有 input placeholder 颜色 */
+  input::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+  }
 }
