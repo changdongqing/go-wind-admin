@@ -1,10 +1,11 @@
-import {LockOutlined, UserOutlined, GlobalOutlined, MoonOutlined, SunOutlined} from '@ant-design/icons';
+import {GlobalOutlined, MoonOutlined, SunOutlined} from '@ant-design/icons';
 import {LoginForm, ProFormCheckbox, ProFormText} from '@ant-design/pro-components';
 import {Helmet, useIntl, useModel} from '@umijs/max';
 import {App, Button, Tooltip} from 'antd';
 import React from 'react';
 
 import Settings from '../../../../config/defaultSettings';
+import SloganIcon from './icons/SloganIcon';
 
 const Login: React.FC = () => {
   const {message} = App.useApp();
@@ -119,7 +120,7 @@ const Login: React.FC = () => {
         <Tooltip title={currentLocale === 'zh-CN' ? '切换语言' : 'Switch Language'}>
           <Button
             type="text"
-            icon={<GlobalOutlined />}
+            icon={<GlobalOutlined/>}
             onClick={toggleLanguage}
             style={{
               color: isLightMode ? 'rgba(0, 0, 0, 0.65)' : '#fff',
@@ -134,7 +135,7 @@ const Login: React.FC = () => {
         <Tooltip title={themeMode === 'light' ? '切换暗黑模式' : '切换亮色模式'}>
           <Button
             type="text"
-            icon={themeMode === 'light' ? <MoonOutlined /> : <SunOutlined />}
+            icon={themeMode === 'light' ? <MoonOutlined/> : <SunOutlined/>}
             onClick={toggleTheme}
             style={{
               color: isLightMode ? 'rgba(0, 0, 0, 0.65)' : '#fff',
@@ -154,7 +155,7 @@ const Login: React.FC = () => {
           {Settings.title && ` - ${Settings.title}`}
         </title>
       </Helmet>
-      
+
       {/* 左侧品牌展示区 */}
       <div
         style={{
@@ -163,7 +164,7 @@ const Login: React.FC = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: isLightMode 
+          background: isLightMode
             ? 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.08) 0%, transparent 70%)'
             : 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 70%)',
           position: 'relative',
@@ -183,19 +184,19 @@ const Login: React.FC = () => {
             pointerEvents: 'none',
           }}
         />
-        
+
         {/* 品牌图标 */}
-        <img 
-          alt="logo" 
-          src="/logo.svg" 
+        <div
           style={{
             width: 280,
             height: 280,
             marginBottom: 32,
             filter: 'drop-shadow(0 0 40px rgba(59, 130, 246, 0.3))',
           }}
-        />
-        
+        >
+          <SloganIcon/>
+        </div>
+
         <h2
           style={{
             color: isLightMode ? '#1f1f1f' : '#fff',
@@ -217,7 +218,7 @@ const Login: React.FC = () => {
           开箱即用的企业级中后台管理系统
         </p>
       </div>
-      
+
       {/* 右侧登录表单区 */}
       <div
         style={{
@@ -229,7 +230,7 @@ const Login: React.FC = () => {
           alignItems: 'center',
           padding: '64px 48px',
           background: isLightMode ? '#ffffff' : '#141414',
-          borderLeft: isLightMode 
+          borderLeft: isLightMode
             ? '1px solid rgba(0, 0, 0, 0.08)'
             : '1px solid rgba(255, 255, 255, 0.08)',
           position: 'relative',
@@ -256,7 +257,7 @@ const Login: React.FC = () => {
           >
             请输入您的账户信息以登录系统
           </p>
-          
+
           <LoginForm
             loading={loginLoading}
             logo={false}
@@ -341,7 +342,7 @@ const Login: React.FC = () => {
               </button>
             </div>
           </LoginForm>
-          
+
           <div
             style={{
               textAlign: 'center',
@@ -363,7 +364,7 @@ const Login: React.FC = () => {
             </a>
           </div>
         </div>
-        
+
         {/* 底部版权信息 - 在右侧面板内 */}
         <div
           style={{
