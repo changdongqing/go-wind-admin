@@ -122,7 +122,7 @@ const Login: React.FC = () => {
             icon={<GlobalOutlined />}
             onClick={toggleLanguage}
             style={{
-              color: isLightMode ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.65)',
+              color: isLightMode ? 'rgba(0, 0, 0, 0.65)' : '#fff',
               background: isLightMode ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.08)',
               border: isLightMode ? '1px solid rgba(0, 0, 0, 0.12)' : '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: 6,
@@ -137,7 +137,7 @@ const Login: React.FC = () => {
             icon={themeMode === 'light' ? <MoonOutlined /> : <SunOutlined />}
             onClick={toggleTheme}
             style={{
-              color: isLightMode ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.65)',
+              color: isLightMode ? 'rgba(0, 0, 0, 0.65)' : '#fff',
               background: isLightMode ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.08)',
               border: isLightMode ? '1px solid rgba(0, 0, 0, 0.12)' : '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: 6,

@@ -207,16 +207,27 @@ const formComponents = {
 
   .brand-info {
     .brand-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: #1a1d28;
+      font-size: 18px;
+      font-weight: 500;
+      color: #a0aec0;
       margin: 0 0 8px 0;
+
+      html:not(.dark) & {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1a1d28;
+      }
     }
 
     .brand-desc {
-      font-size: 13px;
-      color: #6b7280;
+      font-size: 12px;
+      color: #6b7a8d;
       margin: 0;
+
+      html:not(.dark) & {
+        font-size: 13px;
+        color: #6b7280;
+      }
     }
   }
 }
@@ -362,24 +373,28 @@ const formComponents = {
 
   // 暗色模式下的表单样式
   :deep(.el-input__wrapper) {
-    background-color: #1e2435 !important;
-    border: 1px solid #3a4560 !important;
+    background-color: #1a2030 !important;
+    border: 1px solid #3d4f6f !important;
     box-shadow: none !important;
+    transition: all 0.2s ease;
 
     &:hover {
-      border-color: #409eff !important;
+      border-color: #5a7ca5 !important;
     }
 
     &.is-focus {
       border-color: #409eff !important;
-      box-shadow: 0 0 0 1px #409eff inset !important;
+      box-shadow:
+        0 0 0 1px #409eff inset,
+        0 0 12px rgba(64, 158, 255, 0.15) !important;
     }
 
     .el-input__inner {
       color: #e5eaf3 !important;
+      font-weight: 400;
 
       &::placeholder {
-        color: #6b7a8d !important;
+        color: #5a6a80 !important;
       }
     }
   }
@@ -387,28 +402,43 @@ const formComponents = {
   // 输入框前缀图标颜色
   :deep(.el-input__prefix) {
     .el-icon {
-      color: #4a5568 !important;
+      color: #5a6a80 !important;
     }
   }
 
   // 输入框后缀图标颜色
   :deep(.el-input__suffix) {
     .el-icon {
-      color: #4a5568 !important;
+      color: #5a6a80 !important;
     }
   }
 
   :deep(.el-checkbox__label) {
-    color: #a0aec0 !important;
+    color: #8b9dc3 !important;
+    font-weight: 400;
   }
 
   :deep(.el-checkbox__inner) {
-    border-color: #3a4560 !important;
-    background-color: #1e2435 !important;
+    border-color: #3d4f6f !important;
+    background-color: #1a2030 !important;
+  }
+
+  :deep(.el-checkbox.is-checked .el-checkbox__inner) {
+    background-color: #409eff !important;
+    border-color: #409eff !important;
   }
 
   :deep(.el-link) {
-    color: #409eff !important;
+    color: #5b8cff !important;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: rgba(91, 140, 255, 0.3);
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: #79a8ff !important;
+      text-decoration-color: #79a8ff;
+    }
   }
 }
 
@@ -476,7 +506,8 @@ html:not(.dark) {
   text-align: center;
 
   :deep(.el-text) {
-    color: #6b7a8d;
+    color: #5a6a80;
+    font-weight: 300;
 
     html:not(.dark) & {
       color: #9ca3af;

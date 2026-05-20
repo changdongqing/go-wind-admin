@@ -1,7 +1,7 @@
 <template>
   <el-dropdown trigger="click" @command="handleDarkChange">
     <el-icon :size="20">
-      <component :is="isDark ? Moon : Sunny" />
+      <component :is="isDark ? Sunny : Moon" />
     </el-icon>
     <template #dropdown>
       <el-dropdown-menu>

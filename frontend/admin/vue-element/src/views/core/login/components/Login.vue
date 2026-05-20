@@ -1,6 +1,7 @@
 <template>
   <div class="auth-panel-form">
-    <h3 class="auth-panel-form__title" text-center>{{ t("core.login.login") }}</h3>
+    <!-- 隐藏“登录”标题，使用主页面的“欢迎回来”作为主标题 -->
+    <h3 class="auth-panel-form__title" text-center style="display: none;">{{ t("core.login.login") }}</h3>
     <el-form
       ref="loginFormRef"
       :model="loginFormData"
@@ -154,7 +155,7 @@ function toOtherForm(type: "register" | "resetPwd") {
   margin: 0 0 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #e5eaf3;
+  color: #8b9dc3;
 
   html:not(.dark) & {
     color: #1a1d28;
