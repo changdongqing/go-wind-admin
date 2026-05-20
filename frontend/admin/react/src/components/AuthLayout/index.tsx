@@ -3,8 +3,10 @@ import {Helmet, useIntl, useModel} from '@umijs/max';
 import {Button, Tooltip} from 'antd';
 import React from 'react';
 
-import SloganIcon from "./icons/SloganIcon";
-import Settings from "../../../config/defaultSettings";
+import SloganIcon from './icons/SloganIcon';
+import Settings from '../../../config/defaultSettings';
+import './AuthLayout.style.less';
+import './AuthLayout.style.less';
 
 /**
  * 认证页面布局属性
@@ -74,38 +76,15 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   };
 
   return (
-    <div
-      className={`login-page-wrapper${isLightMode ? ' light-mode' : ''}`}
-      style={{
-        display: 'flex',
-        minHeight: '100vh',
-        background: isLightMode ? '#f5f7fa' : 'var(--login-page-bg, #0a0a0a)',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
+    <div className={`auth-layout-wrapper${isLightMode ? ' light-mode' : ''}`}>
       {/* 右上角工具栏 */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 20,
-          right: 20,
-          display: 'flex',
-          gap: 8,
-          zIndex: 10,
-        }}
-      >
+      <div className="auth-toolbar">
         <Tooltip title={currentLocale === 'zh-CN' ? '切换语言' : 'Switch Language'}>
           <Button
             type="text"
             icon={<GlobalOutlined/>}
             onClick={toggleLanguage}
-            style={{
-              color: isLightMode ? 'rgba(0, 0, 0, 0.65)' : '#fff',
-              background: isLightMode ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.08)',
-              border: isLightMode ? '1px solid rgba(0, 0, 0, 0.12)' : '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: 6,
-            }}
+            className={isLightMode ? 'auth-toolbar-btn-light' : 'auth-toolbar-btn-dark'}
           >
             {currentLocale === 'zh-CN' ? 'EN' : '中文'}
           </Button>
@@ -115,12 +94,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
             type="text"
             icon={themeMode === 'light' ? <MoonOutlined/> : <SunOutlined/>}
             onClick={toggleTheme}
-            style={{
-              color: isLightMode ? 'rgba(0, 0, 0, 0.65)' : '#fff',
-              background: isLightMode ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.08)',
-              border: isLightMode ? '1px solid rgba(0, 0, 0, 0.12)' : '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: 6,
-            }}
+            className={isLightMode ? 'auth-toolbar-btn-light' : 'auth-toolbar-btn-dark'}
           />
         </Tooltip>
       </div>
@@ -136,157 +110,37 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
       </Helmet>
 
       {/* 左侧品牌展示区 */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: isLightMode
-            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
-            : 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-          minWidth: 0,
-        }}
-      >
+      <div className="auth-brand-section">
         {/* 背景装饰 - 多层渐变 */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: isLightMode
-              ? 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)'
-              : 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, transparent 50%, rgba(0,0,0,0.3) 100%)',
-            pointerEvents: 'none',
-          }}
-        />
+        <div className="auth-brand-overlay" />
 
         {/* 装饰圆形 */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '10%',
-            right: '15%',
-            width: 300,
-            height: 300,
-            borderRadius: '50%',
-            background: isLightMode
-              ? 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
-
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '15%',
-            left: '10%',
-            width: 200,
-            height: 200,
-            borderRadius: '50%',
-            background: isLightMode
-              ? 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(147,51,234,0.1) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
+        <div className="auth-brand-circle circle-1" />
+        <div className="auth-brand-circle circle-2" />
 
         {/* 品牌图标 */}
-        <div
-          style={{
-            width: 300,
-            height: 300,
-            marginBottom: 36,
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          <SloganIcon/>
+        <div className="auth-brand-icon">
+          <SloganIcon />
         </div>
 
-        <h2
-          style={{
-            color: '#fff', /* WCAG AA: 在深色背景上对比度 12.6:1 */
-            fontSize: 26,
-            fontWeight: 700,
-            marginBottom: 14,
-            textAlign: 'center',
-            textShadow: '0 2px 20px rgba(0, 0, 0, 0.3)',
-            letterSpacing: '0.5px',
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
+        <h2 className="auth-brand-title">
           风行中后台管理系统
         </h2>
-        <p
-          style={{
-            color: 'rgba(255, 255, 255, 0.95)', /* WCAG AA: 对比度约 12:1 */
-            fontSize: 15,
-            textAlign: 'center',
-            textShadow: '0 1px 8px rgba(0, 0, 0, 0.2)',
-            lineHeight: 1.6,
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
+        <p className="auth-brand-description">
           开箱即用的企业级中后台管理系统
         </p>
       </div>
 
       {/* 右侧表单区 */}
-      <div
-        style={{
-          width: '48%',
-          minWidth: '500px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '64px 56px',
-          background: isLightMode ? '#ffffff' : '#0d1117',
-          borderLeft: isLightMode
-            ? 'none'
-            : '1px solid rgba(255, 255, 255, 0.06)',
-          boxShadow: isLightMode ? '-20px 0 60px rgba(102, 126, 234, 0.15)' : 'none',
-          position: 'relative',
-        }}
-      >
-        <div style={{width: '100%', maxWidth: '420px'}}>
+      <div className="auth-form-section">
+        <div className="auth-form-content">
           {/* 页面标题 */}
-          <h1
-            style={{
-              color: isLightMode ? '#1a1a2e' : '#fff', /* WCAG AA: 亮色模式 14.5:1, 暗黑模式 12.6:1 */
-              fontSize: 34,
-              fontWeight: 800,
-              marginBottom: 10,
-              letterSpacing: '-0.5px',
-              background: isLightMode
-                ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                : 'none',
-              WebkitBackgroundClip: isLightMode ? 'text' : 'unset',
-              WebkitTextFillColor: isLightMode ? 'transparent' : 'unset',
-            }}
-          >
+          <h1 className="auth-form-title">
             {title}
           </h1>
 
           {/* 页面描述 */}
-          <p
-            style={{
-              color: isLightMode ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.75)', /* WCAG AA: 对比度至少 4.5:1 */
-              fontSize: 15,
-              marginBottom: 44,
-              paddingLeft: 2,
-              lineHeight: 1.6,
-            }}
-          >
+          <p className="auth-form-description">
             {description}
           </p>
 
@@ -295,22 +149,13 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 
           {/* 底部链接 */}
           {footerLink && (
-            <div
-              style={{
-                textAlign: 'center',
-                marginTop: 16,
-              }}
-            >
-              <span style={{color: isLightMode ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.75)', fontSize: 13}}>
+            <div className="auth-footer-link">
+              <span className="auth-footer-text">
                 {footerLink.text}{' '}
               </span>
               <a
                 href={footerLink.href}
-                style={{
-                  color: '#0066ff', /* WCAG AA: 对比度 4.7:1，符合标准 */
-                  fontSize: 13,
-                  textDecoration: 'none',
-                }}
+                className="auth-footer-anchor"
               >
                 {footerLink.linkText}
               </a>
@@ -319,17 +164,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
         </div>
 
         {/* 底部版权信息 */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 20,
-            left: 0,
-            right: 0,
-            textAlign: 'center',
-            color: isLightMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.65)', /* WCAG AA: 对比度至少 4.5:1 */
-            fontSize: 12,
-          }}
-        >
+        <div className="auth-copyright">
           Copyright © {new Date().getFullYear()} GoWind
         </div>
       </div>
