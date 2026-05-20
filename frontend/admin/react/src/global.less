@@ -92,3 +92,27 @@ ol {
     }
   }
 }
+
+/* 登录页输入框样式 */
+.login-input {
+  input {
+    background: #1f1f1f !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    height: 40px !important;
+    
+    &:focus {
+      border-color: #0066ff !important;
+      box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1) !important;
+    }
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4) !important;
+    }
+  }
+}
+
+/* 移除横向滚动条 */
+html, body {
+  overflow-x: hidden;
+}

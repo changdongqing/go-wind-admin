@@ -11,6 +11,7 @@ import (
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "github.com/tx7do/go-crud/entgo"
+	"github.com/tx7do/go-crud/pagination"
 
 	"github.com/tx7do/go-utils/copierutil"
 	"github.com/tx7do/go-utils/mapper"
@@ -142,7 +143,7 @@ func (r *OrgUnitRepo) List(ctx context.Context, req *paginationV1.PagingRequest)
 	}
 
 	// 构建树形结构
-	dtos = BuildTree(
+	dtos = pagination.BuildTree(
 		dtos,
 		func(node *identityV1.OrgUnit) *uint32 { return node.Id },
 		func(node *identityV1.OrgUnit) *uint32 { return node.ParentId },
@@ -418,65 +419,4 @@ func (r *OrgUnitRepo) setTreePath(ctx context.Context, tx *ent.Tx, entity *ent.O
 		Exec(ctx)
 
 	return err
-}
-
-// BuildTree 构建树形结构的泛型方法
-// T: 节点类型，必须包含 Id、ParentId 和 Children 字段
-// getId: 获取节点ID的函数
-// getParentId: 获取父节点ID的函数
-// getChildren: 获取子节点切片的指针的函数
-// nodes: 扁平的节点列表
-// 返回：根节点列表（包含完整的子树）
-// 时间复杂度：O(n)，空间复杂度：O(n)
-//
-// 使用示例：
-//
-//	dtos = BuildTree(
-//	    dtos,
-//	    func(node *OrgUnit) *uint32 { return node.Id },
-//	    func(node *OrgUnit) *uint32 { return node.ParentId },
-//	    func(node *OrgUnit) *[]*OrgUnit { return &node.Children },
-//	)
-func BuildTree[T any](
-	nodes []*T,
-	getId func(node *T) *uint32,
-	getParentId func(node *T) *uint32,
-	getChildren func(node *T) *[]*T,
-) []*T {
-	if len(nodes) == 0 {
-		return []*T{}
-	}
-
-	// 构建映射表，用于快速查找
-	nodeMap := make(map[uint32]*T)
-	rootNodes := make([]*T, 0)
-
-	// 第一次遍历：建立 ID -> Node 的映射
-	for _, node := range nodes {
-		if id := getId(node); id != nil {
-			nodeMap[*id] = node
-		}
-	}
-
-	// 第二次遍历：构建树结构
-	for _, node := range nodeMap {
-		parentId := getParentId(node)
-		if parentId == nil || *parentId == 0 {
-			// 根节点
-			rootNodes = append(rootNodes, node)
-		} else {
-			// 子节点：查找父节点并添加
-			if parent, ok := nodeMap[*parentId]; ok {
-				children := getChildren(parent)
-				if *children == nil {
-					// 初始化子节点切片
-					*children = make([]*T, 0)
-				}
-				*children = append(*children, node)
-			}
-			// 如果找不到父节点，则该节点被跳过（孤儿节点）
-		}
-	}
-
-	return rootNodes
 }

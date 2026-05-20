@@ -6,16 +6,18 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/tx7do/kratos-bootstrap/bootstrap"
+
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "github.com/tx7do/go-crud/entgo"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	"github.com/tx7do/go-crud/pagination"
+
+	"github.com/tx7do/go-utils/copierutil"
+	"github.com/tx7do/go-utils/mapper"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/permissiongroup"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
-
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/go-utils/mapper"
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
@@ -116,7 +118,7 @@ func (r *PermissionGroupRepo) List(ctx context.Context, req *paginationV1.Paging
 
 	// 构建树形结构
 	if treeTravel {
-		dtos = BuildTree(
+		dtos = pagination.BuildTree(
 			dtos,
 			func(node *permissionV1.PermissionGroup) *uint32 { return node.Id },
 			func(node *permissionV1.PermissionGroup) *uint32 { return node.ParentId },

@@ -12,13 +12,14 @@ import (
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "github.com/tx7do/go-crud/entgo"
 	entgoUpdate "github.com/tx7do/go-crud/entgo/update"
+	"github.com/tx7do/go-crud/pagination"
+
+	"github.com/tx7do/go-utils/copierutil"
+	"github.com/tx7do/go-utils/mapper"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/menu"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
-
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/go-utils/mapper"
 
 	resourceV1 "go-wind-admin/api/gen/go/resource/service/v1"
 )
@@ -115,7 +116,7 @@ func (r *MenuRepo) List(ctx context.Context, req *paginationV1.PagingRequest, tr
 
 	// 构建树形结构
 	if treeTravel {
-		dtos = BuildTree(
+		dtos = pagination.BuildTree(
 			dtos,
 			func(node *resourceV1.Menu) *uint32 { return node.Id },
 			func(node *resourceV1.Menu) *uint32 { return node.ParentId },
