@@ -64,7 +64,7 @@
 
   /* 暗黑模式渐变 - 参考图配色 */
   .auth-layout-wrapper:not(.light-mode) & {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+    background: linear-gradient(135deg, #0a0a0a 0%, #121218 50%, #0a0a0a 100%);
   }
 
   /* 背景装饰层 */
@@ -148,7 +148,7 @@
 
     .auth-layout-wrapper:not(.light-mode) & {
       color: #fff !important; /* WCAG AA: 在深色背景上对比度 12.6:1 */
-      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+      text-shadow: none;
     }
   }
 
@@ -166,8 +166,8 @@
     }
 
     .auth-layout-wrapper:not(.light-mode) & {
-      color: rgba(255, 255, 255, 0.9) !important; /* WCAG AA: 对比度约 10:1 */
-      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+      color: rgba(255, 255, 255, 0.65) !important; /* WCAG AA: 对比度约 8:1 */
+      text-shadow: none;
     }
   }
 }
@@ -192,8 +192,8 @@
 
   /* 暗黑模式 - 参考图配色 */
   .auth-layout-wrapper:not(.light-mode) & {
-    background: #1f1f1f;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    background: #262626;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: none;
   }
 
@@ -218,7 +218,7 @@
     }
 
     .auth-layout-wrapper:not(.light-mode) & {
-      color: #fff; /* WCAG AA: 对比度 12.6:1 */
+      color: #fff !important; /* WCAG AA: 对比度 12.6:1 */
       background: none;
       -webkit-background-clip: unset;
       -webkit-text-fill-color: unset;
@@ -237,7 +237,7 @@
     }
 
     .auth-layout-wrapper:not(.light-mode) & {
-      color: rgba(255, 255, 255, 0.75); /* WCAG AA: 对比度至少 4.5:1 */
+      color: rgba(255, 255, 255, 0.65) !important; /* WCAG AA: 对比度约 8:1 */
     }
   }
 
@@ -259,9 +259,16 @@
     }
 
     .auth-footer-anchor {
-      color: #0066ff; /* WCAG AA: 对比度 4.7:1，符合标准 */
       font-size: 13px;
       text-decoration: none;
+
+      .auth-layout-wrapper.light-mode & {
+        color: #0066ff !important;
+      }
+
+      .auth-layout-wrapper:not(.light-mode) & {
+        color: #4096ff !important;
+      }
     }
   }
 
