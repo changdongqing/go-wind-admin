@@ -41,6 +41,34 @@
         background: var(--ant-color-primary);
       }
     }
+
+    .ant-input,
+    .ant-select {
+      background: var(--ant-color-fill);
+      border: 1px solid var(--ant-color-border);
+
+      &:hover {
+        border-color: var(--ant-color-primary);
+      }
+
+      &:focus,
+      &.ant-input-affix-wrapper-focused,
+      &.ant-select-focused .ant-select-selector {
+        border-color: var(--ant-color-primary);
+        box-shadow: 0 0 0 2px var(--ant-color-primary-bg);
+      }
+
+      &.ant-input-disabled,
+      &.ant-select-disabled {
+        background: var(--ant-color-fill-secondary);
+        cursor: not-allowed;
+      }
+
+      .ant-select-selector {
+        background: transparent;
+        border: none;
+      }
+    }
   }
 
   /* 布局网格 */
@@ -636,6 +664,51 @@
       font-size: 11px;  // 从12px压缩到11px
       font-weight: 400;
       color: var(--ant-text-color-secondary);
+    }
+  }
+
+  // 暗黑模式下Segmented按钮样式优化
+  html[data-theme='dark'] & {
+    .ant-segmented {
+      background: var(--ant-color-fill);  // 使用填充色替代纯黑
+      border: 1px solid var(--ant-color-border);
+
+      .ant-segmented-item {
+        color: var(--ant-text-color-secondary);  // 未选中文字颜色
+
+        &.ant-segmented-item-selected {
+          background: var(--ant-color-primary);  // 选中背景使用主题色
+          color: var(--ant-color-white);  // 选中文字白色
+        }
+
+        &:hover:not(.ant-segmented-item-selected) {
+          color: var(--ant-text-color);  // hover时文字更清晰
+          background: var(--ant-color-fill-secondary);
+        }
+      }
+    }
+
+    // 暗黑模式下Input和Select样式优化
+    .ant-input,
+    .ant-select {
+      background: var(--ant-color-fill);
+      border: 1px solid var(--ant-color-border);
+      color: var(--ant-text-color);
+
+      &:hover {
+        border-color: var(--ant-color-primary);
+      }
+
+      &.ant-input-disabled,
+      &.ant-select-disabled {
+        background: var(--ant-color-fill-secondary);
+        color: var(--ant-text-color-secondary);
+      }
+
+      .ant-select-selector {
+        background: transparent !important;
+        color: var(--ant-text-color) !important;
+      }
     }
   }
 }
