@@ -1,48 +1,42 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
-import {QueryClientProvider} from "@tanstack/react-query";
+import { QueryClientProvider } from '@tanstack/react-query';
 
 // Devtools 仅在开发环境导入，生产构建时自动 tree-shake
-const ReactQueryDevtools =
-    import.meta.env.DEV
-        ? await import('@tanstack/react-query-devtools').then(m => m.ReactQueryDevtools)
-        : () => null;
+const ReactQueryDevtools = import.meta.env.DEV
+  ? await import('@tanstack/react-query-devtools').then((m) => m.ReactQueryDevtools)
+  : () => null;
 
-import {ThemeProvider} from "@/core/preferences/components/ThemeProvider";
-import {RequestTokenSetup} from "@/core/transport/rest/request-token-setup";
+import { ThemeProvider } from '@/core/preferences/components/ThemeProvider';
+import { RequestTokenSetup } from '@/core/transport/rest/request-token-setup';
+import { bootstrap, queryClient } from './core';
 
 // 样式
 import 'uno.css';
 import 'nprogress/nprogress.css';
+
 import './styles/global.css';
-import '@/assets/css/scrollbar.less';
-import '@/assets/css/theme-color.less';
-import '@/assets/css/public.less';
-import '@/assets/fonts/font.less';
-// antd
-import '@/assets/css/antd.less';
+import './styles/pro-layout-overrides.css';
 
-import {bootstrap, queryClient} from "./core";
-
-import './index.css'
-import App from './App.tsx'
+import './index.css';
+import App from './App.tsx';
 
 // 执行全局初始化
 bootstrap().then(() => {
-    const root = ReactDOM.createRoot(document.getElementById('root')!)
+  const root = ReactDOM.createRoot(document.getElementById('root')!);
 
-    root.render(
-        <React.StrictMode>
-            <QueryClientProvider client={queryClient}>
-                <ThemeProvider>
-                    <RequestTokenSetup>
-                        <App/>
-                    </RequestTokenSetup>
-                </ThemeProvider>
+  root.render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <RequestTokenSetup>
+            <App />
+          </RequestTokenSetup>
+        </ThemeProvider>
 
-                <ReactQueryDevtools initialIsOpen={false}/>
-            </QueryClientProvider>
-        </React.StrictMode>
-    );
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </React.StrictMode>,
+  );
 });
