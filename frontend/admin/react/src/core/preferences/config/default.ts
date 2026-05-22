@@ -9,7 +9,7 @@ const defaultPreferences: Preferences = {
         colorWeakMode: false,
         compact: false,
         contentCompact: "wide",
-        defaultAvatar: "/default-avatar.webp",
+        defaultAvatar: "/default-avatar.png",
         dynamicTitle: true,
         enableCheckUpdates: false,
         enablePreferences: true,
