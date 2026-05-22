@@ -85,7 +85,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
             onClick={handleToggleLanguage}
             className={isLightMode ? 'auth-toolbar-btn-light' : 'auth-toolbar-btn-dark'}
           >
-            {locale === 'zh-CN' ? 'EN' : '中文'}
+            {locale === 'zh-CN' ? 'English' : '中文'}
           </Button>
         </Tooltip>
         <Tooltip title={theme.mode === 'light' ? t('auth:switchToDarkMode') : t('auth:switchToLightMode')}>

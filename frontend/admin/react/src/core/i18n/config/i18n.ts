@@ -10,10 +10,11 @@ const loadModule: ModuleLoader = async (lang: string, namespace: string) => {
     return loadModule(namespace);
 };
 
-export const initI18n = async (_initialLang: SupportedLocale) => {
+export const initI18n = async (initialLang: SupportedLocale) => {
     await i18n
         .use(initReactI18next)
         .init({
+            lng: initialLang, // 设置初始语言
             resources, // 核心命名空间预加载
             fallbackLng: 'zh-CN',
             supportedLngs: ['zh-CN', 'en-US'],

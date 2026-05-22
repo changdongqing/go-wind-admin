@@ -1,11 +1,15 @@
 import {initI18n} from "@/core/i18n";
+import {usePreferencesStore} from "@/core/preferences";
 
 /**
  * 应用启动初始化
  */
 export async function bootstrap() {
-    // 初始化 i18n（可传入初始语言）
-    const i18nInstance = await initI18n()
+    // 从 preferences 获取初始语言
+    const initialLocale = usePreferencesStore.getState().preferences.app.locale;
+    
+    // 初始化 i18n（传入初始语言）
+    const i18nInstance = await initI18n(initialLocale)
 
     // 调试：打印 i18n 资源
     console.log(' i18n 初始化完成')

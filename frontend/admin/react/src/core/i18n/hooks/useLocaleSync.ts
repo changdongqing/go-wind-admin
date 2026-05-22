@@ -1,4 +1,4 @@
-import {useEffect} from 'react';
+import {useCallback, useEffect, useRef} from 'react';
 
 import {useI18n} from './useI18n';
 import {usePreferencesStore} from "@/core/preferences";
@@ -6,30 +6,33 @@ import type {SupportedLocale} from "@/locales";
 
 export const useLocaleSync = () => {
     const {i18n} = useI18n();
-    const {locale, setPreferences} = usePreferencesStore((state) => ({
-        locale: state.preferences.app.locale,
-        setPreferences: state.setPreferences,
-    }));
+    // 使用稳定的选择器，避免每次渲染创建新对象
+    const locale = usePreferencesStore((state) => state.preferences.app.locale);
+    const setPreferences = usePreferencesStore((state) => state.setPreferences);
+    
+    // 标记是否已初始化
+    const initialized = useRef(false);
 
     // preferences 变更 → 切换 i18n 语言
     useEffect(() => {
         if (locale && i18n.language !== locale) {
             i18n.changeLanguage(locale);
         }
-    }, [locale, i18n]);
+    }, [locale, i18n.language]);
 
-    // i18n 初始化后，反向同步到 store
+    // i18n 初始化后，只在第一次反向同步到 store
     useEffect(() => {
-        if (i18n.isInitialized && !locale) {
+        if (i18n.isInitialized && !locale && !initialized.current) {
+            initialized.current = true;
             const detected = i18n.language as SupportedLocale;
             setPreferences({app: {locale: detected}});
         }
-    }, [i18n.isInitialized, i18n.language, locale, setPreferences]);
+    }, [i18n.isInitialized, locale, setPreferences]);
 
     // 便捷切换方法
-    const changeLocale = async (newLocale: SupportedLocale) => {
+    const changeLocale = useCallback((newLocale: SupportedLocale) => {
         setPreferences({app: {locale: newLocale}});
-    };
+    }, [setPreferences]);
 
     return {changeLocale};
 };
