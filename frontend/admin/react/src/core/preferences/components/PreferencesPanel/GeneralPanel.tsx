@@ -1,25 +1,27 @@
 import React from 'react';
 import { Select, Switch } from 'antd';
+import { useI18n } from '@/core/i18n';
 import { usePreferencesStore } from '../../store';
 import type { SupportedLanguagesType } from '../../types';
 import './GeneralPanel.style.less';
 
 /** 页面切换动画选项 */
 const TRANSITION_OPTIONS = [
-  { label: '淡入', value: 'fade', icon: '✨' },
-  { label: '淡入下滑', value: 'fade-down', icon: '️' },
-  { label: '淡入滑动', value: 'fade-slide', icon: '↔️' },
-  { label: '淡入上滑', value: 'fade-up', icon: '⬆️' },
+  { label: 'general.transitions.fade', value: 'fade', icon: '✨' },
+  { label: 'general.transitions.fadeDown', value: 'fade-down', icon: '️' },
+  { label: 'general.transitions.fadeSlide', value: 'fade-slide', icon: '↔️' },
+  { label: 'general.transitions.fadeUp', value: 'fade-up', icon: '⬆️' },
 ];
 
 /** 语言选项 */
 const LANGUAGE_OPTIONS = [
-  { label: '简体中文', value: 'zh-CN' },
-  { label: 'English', value: 'en-US' },
+  { label: 'general.languages.zhCN', value: 'zh-CN' },
+  { label: 'general.languages.enUS', value: 'en-US' },
 ];
 
 export const GeneralPanel: React.FC = () => {
   const { preferences, setPreferences } = usePreferencesStore();
+  const { t } = useI18n('preferences');
 
   const handleLanguageChange = (locale: SupportedLanguagesType) => {
     setPreferences({ app: { locale } });
@@ -28,20 +30,20 @@ export const GeneralPanel: React.FC = () => {
   return (
     <div className="general-panel">
       <section className="general-section">
-        <h3 className="section-title">通用</h3>
+        <h3 className="section-title">{t('general.general')}</h3>
 
         <div className="preference-item">
-          <span>语言</span>
+          <span>{t('general.language')}</span>
           <Select
             value={preferences.app.locale}
-            options={LANGUAGE_OPTIONS}
+            options={LANGUAGE_OPTIONS.map(opt => ({ ...opt, label: t(opt.label) }))}
             onChange={handleLanguageChange}
             style={{ width: 200 }}
           />
         </div>
 
         <div className="preference-item">
-          <span>动态标题</span>
+          <span>{t('general.dynamicTitle')}</span>
           <Switch
             checked={preferences.app.dynamicTitle}
             onChange={(checked) => setPreferences({ app: { dynamicTitle: checked } })}
@@ -49,7 +51,7 @@ export const GeneralPanel: React.FC = () => {
         </div>
 
         <div className="preference-item">
-          <span>水印</span>
+          <span>{t('general.watermark')}</span>
           <Switch
             checked={preferences.app.watermark}
             onChange={(checked) => setPreferences({ app: { watermark: checked } })}
@@ -57,7 +59,7 @@ export const GeneralPanel: React.FC = () => {
         </div>
 
         <div className="preference-item">
-          <span>定时检查更新</span>
+          <span>{t('general.checkUpdates')}</span>
           <Switch
             checked={preferences.app.enableCheckUpdates}
             onChange={(checked) => setPreferences({ app: { enableCheckUpdates: checked } })}
@@ -66,10 +68,10 @@ export const GeneralPanel: React.FC = () => {
       </section>
 
       <section className="general-section">
-        <h3 className="section-title">动画</h3>
+        <h3 className="section-title">{t('general.animation')}</h3>
 
         <div className="preference-item">
-          <span>页面切换进度条</span>
+          <span>{t('general.progressBar')}</span>
           <Switch
             checked={preferences.transition.progress}
             onChange={(checked) => setPreferences({ transition: { progress: checked } })}
@@ -77,7 +79,7 @@ export const GeneralPanel: React.FC = () => {
         </div>
 
         <div className="preference-item">
-          <span>页面切换 Loading</span>
+          <span>{t('general.loading')}</span>
           <Switch
             checked={preferences.transition.loading}
             onChange={(checked) => setPreferences({ transition: { loading: checked } })}
@@ -85,7 +87,7 @@ export const GeneralPanel: React.FC = () => {
         </div>
 
         <div className="preference-item">
-          <span>页面切换动画</span>
+          <span>{t('general.pageTransition')}</span>
           <Switch
             checked={preferences.transition.enable}
             onChange={(checked) => setPreferences({ transition: { enable: checked } })}
@@ -109,7 +111,7 @@ export const GeneralPanel: React.FC = () => {
                 <div className="transition-preview">
                   <div className={`animation-box ${option.value}`} />
                 </div>
-                <span className="transition-label">{option.label}</span>
+                <span className="transition-label">{t(option.label)}</span>
               </div>
             ))}
           </div>

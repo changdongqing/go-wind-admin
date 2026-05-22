@@ -3,17 +3,17 @@
 .general-panel {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
 }
 
 .general-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 
   .section-title {
-    margin: 0 0 16px;
-    font-size: 15px;
+    margin: 0 0 8px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--ant-text-color);
   }
@@ -23,7 +23,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
+    padding: 6px 0;
 
     &.disabled {
       opacity: 0.4;
@@ -50,28 +50,30 @@
     .transition-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      gap: 8px;
     }
 
     .transition-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-      padding: 12px 8px;
+      gap: 6px;
+      padding: 8px 6px;
       border: 1px solid var(--ant-border-color);
-      border-radius: 8px;
+      border-radius: 4px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       background: transparent;
 
       &:hover {
-        border-color: var(--ant-color-primary-hover);
-        background: var(--ant-color-fill-alter);
+        border-color: var(--ant-color-primary);
+        background: var(--ant-color-primary-bg);
+        transform: translateY(-1px);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
       }
 
       &.active {
-        border: 2px solid var(--ant-color-primary);
+        border: 1px solid var(--ant-color-primary);
         background: transparent;
 
         .transition-label {
@@ -87,22 +89,21 @@
       .transition-preview {
         width: 48px;
         height: 48px;
-        background: var(--ant-color-fill-quaternary);
-        border: 1px solid var(--ant-border-color-split);
-        border-radius: 6px;
+        background: var(--ant-color-fill-secondary);
+        border-radius: 4px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
         position: relative;
-        transition: all 0.2s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         .animation-box {
           width: 32px;
           height: 32px;
           border-radius: 4px;
           opacity: 1;
-          transition: all 0.2s;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
           /* 使用边框代替填充，增强对比度 */
           border: 3px solid var(--ant-color-primary);
@@ -131,7 +132,7 @@
       }
 
       .transition-label {
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 400;
         color: var(--ant-text-color-secondary);
       }

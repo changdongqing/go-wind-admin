@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Drawer, Segmented } from 'antd';
 import { ReloadOutlined, CloseOutlined, CopyOutlined, LogoutOutlined } from '@ant-design/icons';
+import { useI18n } from '@/core/i18n';
 
 import { usePreferencesStore } from '../../store';
 import { AppearancePanel } from './AppearancePanel';
@@ -17,10 +18,10 @@ interface PreferencesPanelProps {
 type TabType = 'appearance' | 'layout' | 'shortcut' | 'general';
 
 const TAB_OPTIONS = [
-  { label: '外观', value: 'appearance' },
-  { label: '布局', value: 'layout' },
-  { label: '快捷键', value: 'shortcut' },
-  { label: '通用', value: 'general' },
+  { label: 'appearance', value: 'appearance' },
+  { label: 'layout', value: 'layout' },
+  { label: 'shortcut', value: 'shortcut' },
+  { label: 'general', value: 'general' },
 ];
 
 const TAB_COMPONENTS = {
@@ -32,6 +33,7 @@ const TAB_COMPONENTS = {
 
 export const PreferencesPanel: React.FC<PreferencesPanelProps> = ({ open, onClose }) => {
   const { resetPreferences } = usePreferencesStore();
+  const { t } = useI18n('preferences');
   const [activeTab, setActiveTab] = useState<TabType>('appearance');
 
   const ActiveComponent = TAB_COMPONENTS[activeTab];
@@ -55,12 +57,12 @@ export const PreferencesPanel: React.FC<PreferencesPanelProps> = ({ open, onClos
       title={
         <div className="drawer-header">
           <div>
-            <h2 className="drawer-title">偏好设置</h2>
-            <p className="drawer-subtitle">自定义偏好设置 & 实时预览</p>
+            <h2 className="drawer-title">{t('title')}</h2>
+            <p className="drawer-subtitle">{t('subtitle')}</p>
           </div>
           <div className="drawer-actions">
-            <Button type="text" icon={<ReloadOutlined />} onClick={handleReset} title="重置" />
-            <Button type="text" icon={<CloseOutlined />} onClick={onClose} title="关闭" />
+            <Button type="text" icon={<ReloadOutlined />} onClick={handleReset} title={t('actions.reset')} />
+            <Button type="text" icon={<CloseOutlined />} onClick={onClose} title={t('actions.close')} />
           </div>
         </div>
       }
@@ -73,10 +75,10 @@ export const PreferencesPanel: React.FC<PreferencesPanelProps> = ({ open, onClos
       footer={
         <div className="drawer-footer">
           <Button type="primary" icon={<CopyOutlined />} onClick={handleCopy}>
-            复制偏好设置
+            {t('actions.copySettings')}
           </Button>
           <Button type="link" danger icon={<LogoutOutlined />} onClick={handleLogout}>
-            清空缓存 & 退出登录
+            {t('actions.clearCacheAndLogout')}
           </Button>
         </div>
       }
@@ -84,7 +86,7 @@ export const PreferencesPanel: React.FC<PreferencesPanelProps> = ({ open, onClos
       {/* Tab 切换 */}
       <div className="drawer-tabs">
         <Segmented
-          options={TAB_OPTIONS}
+          options={TAB_OPTIONS.map(opt => ({ ...opt, label: t(`tabs.${opt.label}`) }))}
           value={activeTab}
           onChange={(value) => setActiveTab(value as TabType)}
           block

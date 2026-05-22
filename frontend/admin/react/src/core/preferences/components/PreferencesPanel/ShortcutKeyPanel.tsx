@@ -1,18 +1,20 @@
 import React from 'react';
 import { Switch } from 'antd';
+import { useI18n } from '@/core/i18n';
 import { usePreferencesStore } from '../../store';
 import './ShortcutKeyPanel.style.less';
 
 export const ShortcutKeyPanel: React.FC = () => {
   const { preferences, setPreferences } = usePreferencesStore();
+  const { t } = useI18n('preferences');
 
   return (
     <div className="shortcut-panel">
       <section className="shortcut-section">
-        <h3 className="section-title">全局</h3>
+        <h3 className="section-title">{t('shortcut.global')}</h3>
 
         <div className="preference-item">
-          <span>快捷键</span>
+          <span>{t('shortcut.shortcutKeys')}</span>
           <Switch
             checked={preferences.shortcutKeys.enable}
             onChange={(checked) => setPreferences({ shortcutKeys: { enable: checked } })}
@@ -20,7 +22,7 @@ export const ShortcutKeyPanel: React.FC = () => {
         </div>
 
         <div className={`preference-item ${!preferences.shortcutKeys.enable ? 'disabled' : ''}`}>
-          <span>全局搜索</span>
+          <span>{t('shortcut.globalSearch')}</span>
           <div className="shortcut-key-row">
             <kbd className="kbd-badge">Ctrl</kbd>
             <kbd className="kbd-badge">K</kbd>
@@ -33,7 +35,7 @@ export const ShortcutKeyPanel: React.FC = () => {
         </div>
 
         <div className={`preference-item ${!preferences.shortcutKeys.enable ? 'disabled' : ''}`}>
-          <span>退出登录</span>
+          <span>{t('shortcut.logout')}</span>
           <div className="shortcut-key-row">
             <kbd className="kbd-badge">Alt</kbd>
             <kbd className="kbd-badge">Q</kbd>
@@ -46,7 +48,7 @@ export const ShortcutKeyPanel: React.FC = () => {
         </div>
 
         <div className={`preference-item ${!preferences.shortcutKeys.enable ? 'disabled' : ''}`}>
-          <span>锁定屏幕</span>
+          <span>{t('shortcut.lockScreen')}</span>
           <div className="shortcut-key-row">
             <kbd className="kbd-badge">Alt</kbd>
             <kbd className="kbd-badge">L</kbd>

@@ -25,7 +25,9 @@ export const loadModule = async (namespace: string) => {
     }
 
     try {
-        return await loader();
+        const module = await loader();
+        // 返回 default 导出（JSON 内容）
+        return module.default || module;
     } catch (error) {
         console.error(`[locales] Failed to load ${path}:`, error);
         return null;

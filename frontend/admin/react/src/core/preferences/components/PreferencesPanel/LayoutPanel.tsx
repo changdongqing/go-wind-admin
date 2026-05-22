@@ -1,6 +1,7 @@
 import React from 'react';
 import {Button, Input, InputNumber, Segmented, Select, Space, Switch} from 'antd';
 import {MinusOutlined, PlusOutlined, QuestionCircleOutlined} from '@ant-design/icons';
+import {useI18n} from '@/core/i18n';
 import {usePreferencesStore} from '../../store';
 import type {ContentCompactType, LayoutType} from '../../types';
 import './LayoutPanel.style.less';
@@ -8,27 +9,27 @@ import './LayoutPanel.style.less';
 /** 布局选项 */
 const LAYOUT_OPTIONS = [
   {
-    label: '垂直',
+    label: 'layout.modes.sidebarNav',
     value: 'sidebar-nav',
     icon: '📋',
   },
   {
-    label: '双列菜单',
+    label: 'layout.modes.sidebarMixedNav',
     value: 'sidebar-mixed-nav',
     icon: '📑',
   },
   {
-    label: '水平',
+    label: 'layout.modes.headerNav',
     value: 'header-nav',
     icon: '',
   },
   {
-    label: '混合菜单',
+    label: 'layout.modes.mixedNav',
     value: 'mixed-nav',
     icon: '📊',
   },
   {
-    label: '内容全屏',
+    label: 'layout.modes.fullContent',
     value: 'full-content',
     icon: '📱',
   },
@@ -36,12 +37,13 @@ const LAYOUT_OPTIONS = [
 
 /** 内容宽度选项 */
 const CONTENT_COMPACT_OPTIONS = [
-  { label: '流式', value: 'wide' },
-  { label: '定宽', value: 'compact' },
+  { label: 'layout.contentModes.wide', value: 'wide' },
+  { label: 'layout.contentModes.compact', value: 'compact' },
 ];
 
 export const LayoutPanel: React.FC = () => {
   const { preferences, setPreferences } = usePreferencesStore();
+  const { t } = useI18n('preferences');
 
   const handleLayoutChange = (layout: LayoutType) => {
     setPreferences({ app: { layout } });
@@ -156,7 +158,7 @@ export const LayoutPanel: React.FC = () => {
                 )}
               </div>
               <div className="layout-label">
-                <span>{option.label}</span>
+                <span>{t(option.label)}</span>
                 <QuestionCircleOutlined className="help-icon" />
               </div>
             </div>
@@ -177,7 +179,7 @@ export const LayoutPanel: React.FC = () => {
               <div className="content-preview">
                 <div className={`preview-bar ${option.value === 'compact' ? 'narrow' : 'wide'}`} />
               </div>
-              <span>{option.label}</span>
+              <span>{t(option.label)}</span>
             </div>
           ))}
         </div>
@@ -185,23 +187,23 @@ export const LayoutPanel: React.FC = () => {
 
       {/* 侧边栏设置 */}
       <section className="layout-section">
-        <h3 className="section-title">侧边栏</h3>
+        <h3 className="section-title">{t('layout.sidebar')}</h3>
         <div className="preference-item">
-          <span>显示侧边栏</span>
+          <span>{t('layout.showSidebar')}</span>
           <Switch
             checked={preferences.sidebar.enable}
             onChange={(checked) => setPreferences({ sidebar: { enable: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>折叠菜单</span>
+          <span>{t('layout.collapseMenu')}</span>
           <Switch
             checked={preferences.sidebar.collapsed}
             onChange={(checked) => setPreferences({ sidebar: { collapsed: checked } })}
           />
         </div>
         <div className={`preference-item ${preferences.sidebar.collapsed ? 'disabled' : ''}`}>
-          <span>折叠显示菜单名</span>
+          <span>{t('layout.collapseShowTitle')}</span>
           <Switch
             disabled={!preferences.sidebar.collapsed}
             checked={preferences.sidebar.collapsedShowTitle}
@@ -209,7 +211,7 @@ export const LayoutPanel: React.FC = () => {
           />
         </div>
         <div className="preference-item width-control">
-          <span>宽度</span>
+          <span>{t('layout.width')}</span>
           <Space size={4}>
             <Button
               size="small"
@@ -236,21 +238,21 @@ export const LayoutPanel: React.FC = () => {
 
       {/* 顶栏设置 */}
       <section className="layout-section">
-        <h3 className="section-title">顶栏</h3>
+        <h3 className="section-title">{t('layout.header')}</h3>
         <div className="preference-item">
-          <span>显示顶栏</span>
+          <span>{t('layout.showHeader')}</span>
           <Switch
             checked={preferences.header.enable}
             onChange={(checked) => setPreferences({ header: { enable: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>模式</span>
+          <span>{t('layout.mode')}</span>
           <Segmented
             options={[
-              { label: '固定', value: 'fixed' },
-              { label: '自动', value: 'auto' },
-              { label: '静态', value: 'static' },
+              { label: t('layout.headerModes.fixed'), value: 'fixed' },
+              { label: t('layout.headerModes.auto'), value: 'auto' },
+              { label: t('layout.headerModes.static'), value: 'static' },
             ]}
             value={preferences.header.mode}
             onChange={(value) => setPreferences({ header: { mode: value as any } })}
@@ -260,27 +262,27 @@ export const LayoutPanel: React.FC = () => {
 
       {/* 导航菜单 */}
       <section className="layout-section">
-        <h3 className="section-title">导航菜单</h3>
+        <h3 className="section-title">{t('layout.navigationMenu')}</h3>
         <div className="preference-item">
-          <span>导航菜单风格</span>
+          <span>{t('layout.menuStyle')}</span>
           <Segmented
             options={[
-              { label: '圆润', value: 'rounded' },
-              { label: '朴素', value: 'plain' },
+              { label: t('layout.menuStyles.rounded'), value: 'rounded' },
+              { label: t('layout.menuStyles.plain'), value: 'plain' },
             ]}
             value={preferences.navigation.styleType}
             onChange={(value) => setPreferences({ navigation: { styleType: value as any } })}
           />
         </div>
         <div className="preference-item">
-          <span>导航菜单分离</span>
+          <span>{t('layout.menuSplit')}</span>
           <Switch
             checked={preferences.navigation.split}
             onChange={(checked) => setPreferences({ navigation: { split: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>侧边导航菜单手风琴模式</span>
+          <span>{t('layout.accordionMode')}</span>
           <Switch
             checked={preferences.navigation.accordion}
             onChange={(checked) => setPreferences({ navigation: { accordion: checked } })}
@@ -290,41 +292,41 @@ export const LayoutPanel: React.FC = () => {
 
       {/* 面包屑导航 */}
       <section className="layout-section">
-        <h3 className="section-title">面包屑导航</h3>
+        <h3 className="section-title">{t('layout.breadcrumb')}</h3>
         <div className="preference-item">
-          <span>开启面包屑导航</span>
+          <span>{t('layout.enableBreadcrumb')}</span>
           <Switch
             checked={preferences.breadcrumb.enable}
             onChange={(checked) => setPreferences({ breadcrumb: { enable: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>仅有一个时隐藏</span>
+          <span>{t('layout.hideWhenOnlyOne')}</span>
           <Switch
             checked={preferences.breadcrumb.hideOnlyOne}
             onChange={(checked) => setPreferences({ breadcrumb: { hideOnlyOne: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>显示面包屑图标</span>
+          <span>{t('layout.showIcon')}</span>
           <Switch
             checked={preferences.breadcrumb.showIcon}
             onChange={(checked) => setPreferences({ breadcrumb: { showIcon: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>显示首页按钮</span>
+          <span>{t('layout.showHomeButton')}</span>
           <Switch
             checked={preferences.breadcrumb.showHome}
             onChange={(checked) => setPreferences({ breadcrumb: { showHome: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>面包屑风格</span>
+          <span>{t('layout.breadcrumbStyle')}</span>
           <Segmented
             options={[
-              { label: '常规', value: 'normal' },
-              { label: '背景', value: 'background' },
+              { label: t('layout.breadcrumbStyles.normal'), value: 'normal' },
+              { label: t('layout.breadcrumbStyles.background'), value: 'background' },
             ]}
             value={preferences.breadcrumb.styleType}
             onChange={(value) => setPreferences({ breadcrumb: { styleType: value as any } })}
@@ -334,56 +336,56 @@ export const LayoutPanel: React.FC = () => {
 
       {/* 标签栏 */}
       <section className="layout-section">
-        <h3 className="section-title">标签栏</h3>
+        <h3 className="section-title">{t('layout.tabbar')}</h3>
         <div className="preference-item">
-          <span>启用标签栏</span>
+          <span>{t('layout.enableTabbar')}</span>
           <Switch
             checked={preferences.tabbar.enable}
             onChange={(checked) => setPreferences({ tabbar: { enable: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>持久化标签页</span>
+          <span>{t('layout.persistTabs')}</span>
           <Switch
             checked={preferences.tabbar.persist}
             onChange={(checked) => setPreferences({ tabbar: { persist: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>启动拖拽排序</span>
+          <span>{t('layout.draggableSort')}</span>
           <Switch
             checked={preferences.tabbar.draggable}
             onChange={(checked) => setPreferences({ tabbar: { draggable: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>显示标签栏图标</span>
+          <span>{t('layout.showTabbarIcon')}</span>
           <Switch
             checked={preferences.tabbar.showIcon}
             onChange={(checked) => setPreferences({ tabbar: { showIcon: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>显示更多按钮</span>
+          <span>{t('layout.showMoreButton')}</span>
           <Switch
             checked={preferences.tabbar.showMore}
             onChange={(checked) => setPreferences({ tabbar: { showMore: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>显示最大化按钮</span>
+          <span>{t('layout.showMaximizeButton')}</span>
           <Switch
             checked={preferences.tabbar.showMaximize}
             onChange={(checked) => setPreferences({ tabbar: { showMaximize: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>标签页风格</span>
+          <span>{t('layout.tabbarStyle')}</span>
           <Segmented
             options={[
-              { label: '谷歌', value: 'chrome' },
-              { label: '卡片', value: 'card' },
-              { label: '极简', value: 'minimal' },
+              { label: t('layout.tabbarStyles.chrome'), value: 'chrome' },
+              { label: t('layout.tabbarStyles.card'), value: 'card' },
+              { label: t('layout.tabbarStyles.minimal'), value: 'minimal' },
             ]}
             value={preferences.tabbar.styleType}
             onChange={(value) => setPreferences({ tabbar: { styleType: value as any } })}
@@ -393,71 +395,71 @@ export const LayoutPanel: React.FC = () => {
 
       {/* 小部件 */}
       <section className="layout-section">
-        <h3 className="section-title">小部件</h3>
+        <h3 className="section-title">{t('layout.widgets')}</h3>
         <div className="preference-item">
-          <span>启用全局搜索</span>
+          <span>{t('layout.globalSearch')}</span>
           <Switch
             checked={preferences.widget.globalSearch}
             onChange={(checked) => setPreferences({ widget: { globalSearch: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>启用主题切换</span>
+          <span>{t('layout.themeToggle')}</span>
           <Switch
             checked={preferences.widget.themeToggle}
             onChange={(checked) => setPreferences({ widget: { themeToggle: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>启用语言切换</span>
+          <span>{t('layout.languageToggle')}</span>
           <Switch
             checked={preferences.widget.languageToggle}
             onChange={(checked) => setPreferences({ widget: { languageToggle: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>启用全屏</span>
+          <span>{t('layout.fullscreen')}</span>
           <Switch
             checked={preferences.widget.fullscreen}
             onChange={(checked) => setPreferences({ widget: { fullscreen: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>启用通知</span>
+          <span>{t('layout.notification')}</span>
           <Switch
             checked={preferences.widget.notification}
             onChange={(checked) => setPreferences({ widget: { notification: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>启用锁屏</span>
+          <span>{t('layout.lockScreen')}</span>
           <Switch
             checked={preferences.widget.lockScreen}
             onChange={(checked) => setPreferences({ widget: { lockScreen: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>启用侧边栏切换</span>
+          <span>{t('layout.sidebarToggle')}</span>
           <Switch
             checked={preferences.widget.sidebarToggle}
             onChange={(checked) => setPreferences({ widget: { sidebarToggle: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>启用刷新</span>
+          <span>{t('layout.refresh')}</span>
           <Switch
             checked={preferences.widget.refresh}
             onChange={(checked) => setPreferences({ widget: { refresh: checked } })}
           />
         </div>
         <div className="preference-item">
-          <span>偏好设置位置</span>
+          <span>{t('layout.preferencesPosition')}</span>
           <Select
             style={{width: 120}}
             options={[
-              { label: '自动', value: 'auto' },
-              { label: '固定', value: 'fixed' },
-              { label: '隐藏', value: 'hidden' },
+              { label: t('layout.positions.auto'), value: 'auto' },
+              { label: t('layout.positions.fixed'), value: 'fixed' },
+              { label: t('layout.positions.hidden'), value: 'hidden' },
             ]}
             value={preferences.app.preferencesButtonPosition}
             onChange={(value) => setPreferences({ app: { preferencesButtonPosition: value as any } })}
@@ -467,16 +469,16 @@ export const LayoutPanel: React.FC = () => {
 
       {/* 底栏 */}
       <section className="layout-section">
-        <h3 className="section-title">底栏</h3>
+        <h3 className="section-title">{t('layout.footer')}</h3>
         <div className="preference-item">
-          <span>显示底栏</span>
+          <span>{t('layout.showFooter')}</span>
           <Switch
             checked={preferences.footer.enable}
             onChange={(checked) => setPreferences({ footer: { enable: checked } })}
           />
         </div>
         <div className={`preference-item ${!preferences.footer.enable ? 'disabled' : ''}`}>
-          <span>固定在底部</span>
+          <span>{t('layout.fixedAtBottom')}</span>
           <Switch
             disabled={!preferences.footer.enable}
             checked={preferences.footer.fixed}
@@ -487,16 +489,16 @@ export const LayoutPanel: React.FC = () => {
 
       {/* 版权 */}
       <section className="layout-section">
-        <h3 className="section-title">版权</h3>
+        <h3 className="section-title">{t('layout.copyright')}</h3>
         <div className="preference-item">
-          <span>启用版权</span>
+          <span>{t('layout.enableCopyright')}</span>
           <Switch
             checked={preferences.copyright.enable}
             onChange={(checked) => setPreferences({ copyright: { enable: checked } })}
           />
         </div>
         <div className={`preference-item ${!preferences.copyright.enable ? 'disabled' : ''}`}>
-          <span>公司名</span>
+          <span>{t('layout.companyName')}</span>
           <Input
             style={{width: 200}}
             value={preferences.copyright.companyName}
@@ -505,7 +507,7 @@ export const LayoutPanel: React.FC = () => {
           />
         </div>
         <div className={`preference-item ${!preferences.copyright.enable ? 'disabled' : ''}`}>
-          <span>公司主页</span>
+          <span>{t('layout.companySite')}</span>
           <Input
             style={{width: 200}}
             value={preferences.copyright.companySiteLink}
@@ -514,7 +516,7 @@ export const LayoutPanel: React.FC = () => {
           />
         </div>
         <div className={`preference-item ${!preferences.copyright.enable ? 'disabled' : ''}`}>
-          <span>日期</span>
+          <span>{t('layout.date')}</span>
           <Input
             style={{width: 200}}
             value={preferences.copyright.date}
@@ -523,7 +525,7 @@ export const LayoutPanel: React.FC = () => {
           />
         </div>
         <div className={`preference-item ${!preferences.copyright.enable ? 'disabled' : ''}`}>
-          <span>ICP备案号</span>
+          <span>{t('layout.icpNumber')}</span>
           <Input
             style={{width: 200}}
             value={preferences.copyright.icp}
@@ -532,7 +534,7 @@ export const LayoutPanel: React.FC = () => {
           />
         </div>
         <div className={`preference-item ${!preferences.copyright.enable ? 'disabled' : ''}`}>
-          <span>ICP网站链接</span>
+          <span>{t('layout.icpLink')}</span>
           <Input
             style={{width: 200}}
             value={preferences.copyright.icpLink}
