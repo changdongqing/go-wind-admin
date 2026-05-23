@@ -80,6 +80,12 @@ export const useAuthStore = create<AuthState>()(
             password: encryptPassword(params.password || ''),
           });
 
+          console.log('🔐 Login response:', {
+            hasAccessToken: !!response.access_token,
+            hasRefreshToken: !!response.refresh_token,
+            expiresIn: response.expires_in,
+          });
+
           const now = Date.now();
 
           // 2. 保存 Token
@@ -93,6 +99,11 @@ export const useAuthStore = create<AuthState>()(
             accessTokenExpireAt: accessTokenPayload.expiresAt,
           });
 
+          console.log('💾 Access token saved:', {
+            value: accessTokenPayload.value ? '***' + accessTokenPayload.value.slice(-8) : 'empty',
+            expiresAt: accessTokenPayload.expiresAt ? new Date(accessTokenPayload.expiresAt).toISOString() : 'N/A',
+          });
+
           if (response.refresh_token) {
             const refreshTokenPayload: TokenPayload = {
               value: response.refresh_token,
@@ -102,11 +113,18 @@ export const useAuthStore = create<AuthState>()(
               refreshTokenValue: refreshTokenPayload.value,
               refreshTokenExpireAt: refreshTokenPayload.expiresAt,
             });
+
+            console.log('💾 Refresh token saved:', {
+              value: refreshTokenPayload.value ? '***' + refreshTokenPayload.value.slice(-8) : 'empty',
+              expiresAt: refreshTokenPayload.expiresAt ? new Date(refreshTokenPayload.expiresAt).toISOString() : 'N/A',
+            });
           }
 
           // 3. 获取用户信息（交给 React Query 处理缓存，这里只更新 Zustand）
+          console.log('👤 Fetching user info...');
           const userInfo = (await getMe()) as unknown as UserInfo;
           set({ userInfo });
+          console.log('✅ User info fetched:', userInfo);
 
           // 4. 执行成功回调或跳转
           if (onSuccess) {
@@ -144,7 +162,10 @@ export const useAuthStore = create<AuthState>()(
         try {
           await logout().catch(() => {}); // 忽略接口错误
         } finally {
-          // 清除状态
+          // 清除 localStorage 中的持久化数据
+          localStorage.removeItem('auth-storage');
+          
+          // 清除内存中的状态
           set({
             accessToken: null,
             refreshTokenValue: null,
@@ -152,6 +173,8 @@ export const useAuthStore = create<AuthState>()(
             refreshTokenExpireAt: null,
             userInfo: null,
             error: null,
+            loginLoading: false,
+            registerLoading: false,
           });
 
           // 跳转
@@ -222,14 +245,21 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage', // localStorage key
-      partialize: (state) => ({
-        // ✅ 只持久化 Token 相关字段
-        accessToken: state.accessToken,
-        refreshTokenValue: state.refreshTokenValue,
-        accessTokenExpireAt: state.accessTokenExpireAt,
-        refreshTokenExpireAt: state.refreshTokenExpireAt,
-        // ❌ userInfo/error 不持久化，避免脏数据
-      }),
+      partialize: (state) => {
+        const persisted = {
+          // ✅ 只持久化 Token 相关字段
+          accessToken: state.accessToken,
+          refreshTokenValue: state.refreshTokenValue,
+          accessTokenExpireAt: state.accessTokenExpireAt,
+          refreshTokenExpireAt: state.refreshTokenExpireAt,
+          // ❌ userInfo/error 不持久化，避免脏数据
+        };
+        console.log('💿 Persisting auth state to localStorage:', {
+          hasAccessToken: !!persisted.accessToken,
+          hasRefreshToken: !!persisted.refreshTokenValue,
+        });
+        return persisted;
+      },
     },
   ),
 );

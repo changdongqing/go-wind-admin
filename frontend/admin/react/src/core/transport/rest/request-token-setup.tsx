@@ -26,7 +26,11 @@ export function RequestTokenSetup({children}: { children: React.ReactNode }) {
     // 设置获取 Token 的回调函数
     setGetTokenCallback(() => {
       const token = useAuthStore.getState().accessToken;
-      console.log('Getting access token:', token ? '***' + token.slice(-8) : 'null');
+      console.log('🔑 Getting access token from store:', {
+        hasToken: !!token,
+        tokenPreview: token ? '***' + token.slice(-8) : 'null',
+        fullTokenLength: token?.length || 0,
+      });
       return token || null;
     });
 

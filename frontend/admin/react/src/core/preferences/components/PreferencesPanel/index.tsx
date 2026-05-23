@@ -4,6 +4,7 @@ import { ReloadOutlined, CloseOutlined, CopyOutlined, LogoutOutlined } from '@an
 import { useDynamicI18n } from '@/core/i18n';
 
 import { usePreferencesStore } from '../../store';
+import { useAuthStore } from '@/stores';
 import { AppearancePanel } from './AppearancePanel';
 import { LayoutPanel } from './LayoutPanel';
 import { ShortcutKeyPanel } from './ShortcutKeyPanel';
@@ -47,9 +48,12 @@ export const PreferencesPanel: React.FC<PreferencesPanelProps> = ({ open, onClos
     console.log('复制偏好设置');
   };
 
-  const handleLogout = () => {
-    // TODO: 实现退出登录功能
-    console.log('退出登录');
+  const handleLogout = async () => {
+    try {
+      await useAuthStore.getState().logout(true);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (
