@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import React from 'react';
 import { useMatches, useNavigate } from 'react-router-dom';
-import * as Icons from '@ant-design/icons';
+import { getIconFromName } from '@/layouts/MainLayout/utils/iconResolver';
 
 import { useI18n } from '@/core/i18n';
 import type { BreadcrumbItem } from '../types';
@@ -59,13 +59,10 @@ export const useBreadcrumb = ({
         const isLast = index === arr.length - 1;
         const title = match.handle?.title || route?.meta?.title || t('pageContainer.defaultTitle');
         
-        // 将图标字符串转换为 React 组件
+        // 将图标字符串转换为 React 组件（支持 Iconify 和 Ant Design）
         let icon: React.ReactNode = undefined;
         if (showIcon && match.handle?.icon) {
-          const IconComponent = (Icons as any)[match.handle.icon];
-          if (IconComponent) {
-            icon = React.createElement(IconComponent);
-          }
+          icon = getIconFromName(match.handle.icon);
         }
 
         return {
@@ -82,7 +79,7 @@ export const useBreadcrumb = ({
       items.unshift({
         path: '/',
         breadcrumbName: t('home'),
-        icon: showIcon ? React.createElement(Icons.HomeOutlined) : undefined, // 首页图标
+        icon: showIcon ? getIconFromName('lucide:home') : undefined, // 首页图标
         onClick: () => navigate('/'),
       });
     }

@@ -8,7 +8,7 @@ export const dashboardRoutes: AppRouteObject[] = [
     element: createLazyRoute(() => import('@/pages/app/dashboard')),
     meta: {
       title: '仪表盘',
-      icon: 'DashboardOutlined',
+      icon: 'lucide:layout-dashboard', // Iconify 格式
       order: 1,
       hideInMenu: false,
     },
