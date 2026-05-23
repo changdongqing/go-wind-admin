@@ -14,7 +14,7 @@ export const internalMessageRoutes: AppRouteObject[] = [
       icon: 'lucide:mail', // Iconify 格式
       order: 2003,
       keepAlive: true, // 保持组件状态
-      permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（取并集）
+      // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（取并集）（开发阶段暂时注释）
     },
     children: [
       {
@@ -25,7 +25,7 @@ export const internalMessageRoutes: AppRouteObject[] = [
           title: '消息列表',
           icon: 'lucide:message-circle-more', // Iconify 格式
           order: 1,
-          permission: 'sys:platform_admin', // 平台管理员或租户管理员权限
+          // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -36,7 +36,7 @@ export const internalMessageRoutes: AppRouteObject[] = [
           title: '消息分类',
           icon: 'lucide:calendar-check', // Iconify 格式
           order: 2,
-          permission: 'sys:platform_admin', // 仅平台管理员权限
+          // permission: 'sys:platform_admin', // 仅平台管理员权限（开发阶段暂时注释）
         },
       },
     ],

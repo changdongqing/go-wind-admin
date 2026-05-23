@@ -14,7 +14,7 @@ export const opmRoutes: AppRouteObject[] = [
       icon: 'lucide:users', // Iconify 格式
       order: 2001,
       keepAlive: true, // 保持组件状态
-      permission: 'sys:platform_admin', // 平台管理员或租户管理员权限
+      // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（开发阶段暂时注释）
     },
     children: [
       {
@@ -25,7 +25,7 @@ export const opmRoutes: AppRouteObject[] = [
           title: '组织架构',
           icon: 'lucide:layers', // Iconify 格式
           order: 1,
-          permission: 'sys:platform_admin', // 平台管理员或租户管理员权限
+          // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -36,7 +36,7 @@ export const opmRoutes: AppRouteObject[] = [
           title: '职位管理',
           icon: 'lucide:briefcase', // Iconify 格式
           order: 2,
-          permission: 'sys:platform_admin', // 平台管理员或租户管理员权限
+          // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -47,7 +47,7 @@ export const opmRoutes: AppRouteObject[] = [
           title: '用户管理',
           icon: 'lucide:user', // Iconify 格式
           order: 3,
-          permission: 'sys:platform_admin', // 平台管理员或租户管理员权限
+          // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -57,7 +57,7 @@ export const opmRoutes: AppRouteObject[] = [
         meta: {
           title: '用户详情',
           hideInMenu: true, // 隐藏在菜单中，仅通过编程导航访问
-          permission: 'sys:platform_admin', // 平台管理员或租户管理员权限
+          // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（开发阶段暂时注释）
         },
       },
     ],

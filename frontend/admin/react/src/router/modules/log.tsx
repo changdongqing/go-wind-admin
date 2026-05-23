@@ -14,7 +14,7 @@ export const logRoutes: AppRouteObject[] = [
       icon: 'lucide:logs', // Iconify 格式
       order: 2004,
       keepAlive: true, // 保持组件状态
-      permission: 'sys:platform_admin', // 平台管理员权限
+      // permission: 'sys:platform_admin', // 平台管理员权限（开发阶段暂时注释）
     },
     children: [
       {
@@ -24,7 +24,7 @@ export const logRoutes: AppRouteObject[] = [
         meta: {
           title: '登录审计日志',
           icon: 'lucide:user-lock', // Iconify 格式
-          permission: 'sys:platform_admin',
+          // permission: 'sys:platform_admin', // 平台管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -34,7 +34,7 @@ export const logRoutes: AppRouteObject[] = [
         meta: {
           title: 'API审计日志',
           icon: 'lucide:file-clock', // Iconify 格式
-          permission: 'sys:platform_admin',
+          // permission: 'sys:platform_admin', // 平台管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -44,7 +44,7 @@ export const logRoutes: AppRouteObject[] = [
         meta: {
           title: '操作审计日志',
           icon: 'lucide:shield-ellipsis', // Iconify 格式
-          permission: 'sys:platform_admin',
+          // permission: 'sys:platform_admin', // 平台管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -54,7 +54,7 @@ export const logRoutes: AppRouteObject[] = [
         meta: {
           title: '数据访问审计日志',
           icon: 'lucide:shield-check', // Iconify 格式
-          permission: 'sys:platform_admin',
+          // permission: 'sys:platform_admin', // 平台管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -64,7 +64,7 @@ export const logRoutes: AppRouteObject[] = [
         meta: {
           title: '权限审计日志',
           icon: 'lucide:shield-alert', // Iconify 格式
-          permission: 'sys:platform_admin',
+          // permission: 'sys:platform_admin', // 平台管理员权限（开发阶段暂时注释）
         },
       },
     ],

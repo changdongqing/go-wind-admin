@@ -14,7 +14,7 @@ export const systemRoutes: AppRouteObject[] = [
       icon: 'lucide:settings', // Iconify 格式
       order: 2005,
       keepAlive: true, // 保持组件状态
-      permission: 'sys:platform_admin', // 平台管理员或租户管理员权限
+      // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（开发阶段暂时注释）
     },
     children: [
       {
@@ -25,7 +25,7 @@ export const systemRoutes: AppRouteObject[] = [
           title: '菜单管理',
           icon: 'lucide:square-menu', // Iconify 格式
           order: 1,
-          permission: 'sys:platform_admin', // 仅平台管理员权限
+          // permission: 'sys:platform_admin', // 仅平台管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -36,7 +36,7 @@ export const systemRoutes: AppRouteObject[] = [
           title: 'API管理',
           icon: 'lucide:route', // Iconify 格式
           order: 2,
-          permission: 'sys:platform_admin', // 仅平台管理员权限
+          // permission: 'sys:platform_admin', // 仅平台管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -47,7 +47,7 @@ export const systemRoutes: AppRouteObject[] = [
           title: '字典管理',
           icon: 'lucide:library-big', // Iconify 格式
           order: 3,
-          permission: 'sys:platform_admin', // 仅平台管理员权限
+          // permission: 'sys:platform_admin', // 仅平台管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -58,7 +58,7 @@ export const systemRoutes: AppRouteObject[] = [
           title: '文件管理',
           icon: 'lucide:file-search', // Iconify 格式
           order: 4,
-          permission: 'sys:platform_admin', // 平台管理员或租户管理员权限
+          // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -69,7 +69,7 @@ export const systemRoutes: AppRouteObject[] = [
           title: '任务管理',
           icon: 'lucide:list-todo', // Iconify 格式
           order: 5,
-          permission: 'sys:platform_admin', // 平台管理员或租户管理员权限
+          // permission: 'sys:platform_admin', // 平台管理员或租户管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -80,7 +80,7 @@ export const systemRoutes: AppRouteObject[] = [
           title: '登录策略',
           icon: 'lucide:shield-x', // Iconify 格式
           order: 6,
-          permission: 'sys:platform_admin', // 仅平台管理员权限
+          // permission: 'sys:platform_admin', // 仅平台管理员权限（开发阶段暂时注释）
         },
       },
       {
@@ -91,7 +91,7 @@ export const systemRoutes: AppRouteObject[] = [
           title: '语言管理',
           icon: 'lucide:globe', // Iconify 格式
           order: 7,
-          permission: 'sys:platform_admin', // 仅平台管理员权限
+          // permission: 'sys:platform_admin', // 仅平台管理员权限（开发阶段暂时注释）
         },
       },
     ],
