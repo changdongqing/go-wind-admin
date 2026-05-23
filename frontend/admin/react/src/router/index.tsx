@@ -5,13 +5,7 @@ import { createAccessibleRouter } from '@/core/router/factory';
 import { staticRoutes } from './config/static';
 import { useAuthStore, useUserStore } from '@/stores';
 
-import BlankLayout from '@/layouts/BlankLayout';
-import UserLayout from '@/layouts/UserLayout';
-import RouteErrorFallback from '@/layouts/components/ErrorFallback/RouteErrorFallback.tsx';
-
-import Login from '@/pages/core/auth/login';
-import Register from '@/pages/core/auth/register';
-import { NotFound, Forbidden } from '@/pages/core/error';
+import { Forbidden } from '@/pages/core/error';
 
 export const AppRouter = () => {
   const [router, setRouter] = useState<any>(null);
@@ -29,49 +23,7 @@ export const AppRouter = () => {
       setLoading(true);
 
       try {
-        // 未登录：只允许访问登录页、注册页和 404，并强制重定向到登录页
-        if (!isAuthenticated) {
-          // 直接使用 UserLayout，支持左右分栏布局
-          const publicRoutes = [
-            {
-              path: '/auth',
-              element: <UserLayout requireAuth={false} />,
-              errorElement: <RouteErrorFallback />,
-              children: [
-                {
-                  path: 'login',
-                  element: <Login />,
-                },
-                {
-                  path: 'register',
-                  element: <Register />,
-                },
-              ],
-            },
-            {
-              path: '*',
-              element: <BlankLayout />,
-              children: [
-                {
-                  index: true,
-                  element: <NotFound />,
-                },
-              ],
-            },
-          ] as any;
-
-          const router = await createAccessibleRouter({
-            routes: publicRoutes,
-            permissions: [],
-            autoInjectRedirect: false,
-            autoSort: false,
-          });
-          setRouter(router);
-          setLoading(false);
-          return;
-        }
-
-        // 已登录：生成完整路由
+        // 生成完整路由（包含 AuthGuard 和 GuestGuard）
         const appRouter = await createAccessibleRouter({
           routes: staticRoutes,
           permissions,

@@ -6,7 +6,6 @@ import {
     ClockCircleOutlined
 } from '@ant-design/icons';
 import ReactECharts from 'echarts-for-react';
-import PageContainer from '@/components/common/PageContainer';
 import {usePreferences} from '@/core/preferences';
 
 const Dashboard = () => {
@@ -117,7 +116,7 @@ const Dashboard = () => {
     };
 
     return (
-        <PageContainer>
+        <div>
             {/* 统计卡片 */}
             <Row gutter={[16, 16]}>
                 {statsData.map((stat, index) => (
@@ -155,7 +154,7 @@ const Dashboard = () => {
             <Card style={{marginTop: 16}}>
                 <ReactECharts option={trendOption} style={{height: 300}}/>
             </Card>
-        </PageContainer>
+        </div>
     );
 };
 

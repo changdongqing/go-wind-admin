@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type AppRouteObject, AuthGuard } from '@/core/router';
+import { type AppRouteObject, AuthGuard, GuestGuard } from '@/core/router';
 
 import MainLayout from '@/layouts/MainLayout';
 import UserLayout from '@/layouts/UserLayout';
@@ -44,13 +44,21 @@ export const staticRoutes: AppRouteObject[] = [
       {
         name: 'login',
         path: 'login',
-        element: <Login />,
+        element: (
+          <GuestGuard>
+            <Login />
+          </GuestGuard>
+        ),
         meta: { title: '登录', ignoreAccess: true },
       },
       {
         name: 'register',
         path: 'register',
-        element: <Register />,
+        element: (
+          <GuestGuard>
+            <Register />
+          </GuestGuard>
+        ),
         meta: { title: '注册', ignoreAccess: true },
       },
     ],
@@ -66,9 +74,12 @@ export const staticRoutes: AppRouteObject[] = [
       </AuthGuard>
     ),
     errorElement: <RouteErrorFallback />,
-    meta: { title: '应用', requiresAuth: true, hideInMenu: true },
-    // 根路径重定向到默认页
-    index: true,
+    meta: {
+      title: '概览',
+      icon: 'DashboardOutlined',
+      requiresAuth: true,
+      hideInMenu: false,
+    },
     redirect: '/dashboard',
     children: [
       {
@@ -78,22 +89,10 @@ export const staticRoutes: AppRouteObject[] = [
         element: createLazyRoute(() => import('@/pages/app/dashboard')),
         meta: {
           title: '仪表盘',
-          permission: 'dashboard:view',
           icon: 'DashboardOutlined',
           order: 1,
+          ignoreAccess: true, // 临时移除权限要求，用于调试
         },
-      },
-      // 示例：系统管理模块（可扩展）
-      {
-        name: 'system',
-        path: 'system',
-        meta: {
-          title: '系统管理',
-          icon: 'SettingOutlined',
-          order: 10,
-          permission: 'system:view',
-        },
-        children: [],
       },
     ],
   },
@@ -101,7 +100,7 @@ export const staticRoutes: AppRouteObject[] = [
   // ========== 错误页面（用 BlankLayout 包裹） ==========
   {
     name: 'error',
-    path: '/',
+    path: '/error',
     element: <BlankLayout />,
     errorElement: <RouteErrorFallback />,
     meta: { title: '错误', hideInMenu: true, hideInTab: true },
@@ -119,15 +118,7 @@ export const staticRoutes: AppRouteObject[] = [
   {
     name: 'not-found',
     path: '*',
-    element: <BlankLayout />,
-    children: [
-      {
-        name: 'not-found-index',
-        path: '',
-        index: true,
-        element: <NotFound />,
-        meta: { title: '404', ignoreAccess: true },
-      },
-    ],
+    element: <NotFound />,
+    meta: { title: '404', ignoreAccess: true, hideInMenu: true, hideInTab: true },
   },
 ];
