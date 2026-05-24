@@ -4,7 +4,8 @@ import { persist } from 'zustand/middleware';
 export interface TabItem {
   key: string;
   path: string;
-  title: string;
+  title: string;          // 翻译后的标题（用于显示）
+  titleKey?: string;      // 原始的 i18n key（用于切换语言时重新翻译）
   icon?: string;
   closable: boolean;
   pinned?: boolean;
@@ -43,6 +44,9 @@ interface TabsState {
   
   // 更新标签页顺序（拖拽后）
   reorderTabs: (fromIndex: number, toIndex: number) => void;
+  
+  // 更新所有标签页的标题（用于切换语言时）
+  updateAllTitles: (translateFn: (key: string) => string) => void;
 }
 
 export const useTabsStore = create<TabsState>()(
@@ -160,6 +164,22 @@ export const useTabsStore = create<TabsState>()(
           newTabs.splice(toIndex, 0, removed);
           return { tabs: newTabs };
         });
+      },
+      
+      updateAllTitles: (translateFn) => {
+        set((state) => ({
+          tabs: state.tabs.map((tab) => {
+            // 如果有 titleKey，使用它来翻译
+            if (tab.titleKey) {
+              return {
+                ...tab,
+                title: translateFn(tab.titleKey),
+              };
+            }
+            // 否则保持原样
+            return tab;
+          }),
+        }));
       },
     }),
     {

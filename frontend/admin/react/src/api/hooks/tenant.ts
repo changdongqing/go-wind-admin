@@ -1,4 +1,9 @@
-import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery,
+  type UseMutationOptions,
+  type UseQueryOptions,
+} from '@tanstack/react-query';
 import {
   type identityservicev1_CreateTenantRequest,
   type identityservicev1_DeleteTenantRequest,
@@ -20,10 +25,12 @@ import {
 // 获取租户列表
 // ==============================
 export function useListTenants(
-  options?: UseMutationOptions<identityservicev1_ListTenantResponse, Error, PaginationQuery>,
+  query: PaginationQuery,
+  options?: UseQueryOptions<identityservicev1_ListTenantResponse, Error>,
 ) {
-  return useMutation({
-    mutationFn: (query) => listTenants(query),
+  return useQuery({
+    queryKey: ['tenants', query],
+    queryFn: () => listTenants(query),
     ...options,
   });
 }

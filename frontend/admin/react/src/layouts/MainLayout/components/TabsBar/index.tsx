@@ -20,6 +20,7 @@ import { useI18n } from '@/core/i18n';
 import { usePageRefreshStore } from '@/stores/pageRefresh';
 import { getIconFromName } from '../../utils/iconResolver';
 import './tabsbar.css';
+import { useTranslation } from 'react-i18next';
 
 interface TabItem {
   key: string;
@@ -70,6 +71,31 @@ export const Index = () => {
   }, [preferences.theme.mode]);
 
   const { t } = useI18n('common');
+  const { t: tRoutes, i18n } = useTranslation('menu');
+
+  // 翻译标题的工具函数
+  const translateTitle = useCallback(
+    (title: string): string => {
+      // 如果 title 是 i18n key (以 'menu:' 或 'routes:' 开头)，进行翻译
+      if (title.startsWith('menu:')) {
+        const keyName = title.substring(5);
+        return tRoutes(keyName, { defaultValue: title });
+      } else if (title.startsWith('routes:')) {
+        const keyName = title.substring(7);
+        return tRoutes(keyName, { defaultValue: title });
+      } else if (title.startsWith('menu.')) {
+        const keyName = title.substring(5);
+        return tRoutes(keyName, { defaultValue: title });
+      } else if (title.startsWith('routes.')) {
+        const keyName = title.substring(7);
+        return tRoutes(keyName, { defaultValue: title });
+      } else {
+        // 否则直接翻译
+        return tRoutes(title, { defaultValue: title });
+      }
+    },
+    [tRoutes],
+  );
 
   // 页面刷新
   const triggerPageRefresh = usePageRefreshStore((state) => state.triggerRefresh);
@@ -141,26 +167,30 @@ export const Index = () => {
   // 当前标签
   const currentTab = useMemo(() => {
     const lastMatch = matches.at(-1) as any;
-    const title = lastMatch?.handle?.title || lastMatch?.data?.title || '未知页面';
-      
+    const rawTitle = lastMatch?.handle?.title || lastMatch?.data?.title || '未知页面';
+
+    // 翻译标题
+    const title = translateTitle(rawTitle);
+
     // 从 handle 中获取图标字符串（已经通过 transformMetaToHandle 转换）
     const icon = lastMatch?.handle?.icon || lastMatch?.data?.icon;
-      
+
     // 获取 hideInTab 配置
     const hideInTab = lastMatch?.handle?.hideInTab || lastMatch?.data?.hideInTab || false;
-      
-    console.log('TabsBar - currentTab:', { title, icon, hideInTab, handle: lastMatch?.handle });
-      
+
+    console.log('TabsBar - currentTab:', { rawTitle, title, icon, hideInTab, handle: lastMatch?.handle });
+
     return {
       key: location.pathname,
       path: location.pathname,
       title,
+      titleKey: rawTitle, // 保存原始的 i18n key
       icon, // 保持为字符串，后续通过 getIconFromName 转换
       closable: location.pathname !== '/',
       hideInTab, // 传递 hideInTab 配置
     };
-  }, [location.pathname, matches]);
-  
+  }, [location.pathname, matches, translateTitle]);
+
   // 自动添加当前标签（检查 hideInTab）
   useEffect(() => {
     // 如果路由配置了 hideInTab，则不添加到标签页
@@ -170,6 +200,12 @@ export const Index = () => {
     }
     addTab(currentTab);
   }, [currentTab, addTab]);
+
+  // 当语言切换时，更新所有 tab 的标题
+  useEffect(() => {
+    const { updateAllTitles } = useTabsStore.getState();
+    updateAllTitles(translateTitle);
+  }, [i18n.language, translateTitle]);
 
   // 根据 persist 配置决定是否清除持久化数据
   useEffect(() => {
@@ -200,7 +236,7 @@ export const Index = () => {
       ),
       closable: tab.closable,
     }));
-  }, [tabs, tabbarConfig.showIcon]);
+  }, [tabs, tabbarConfig.showIcon, i18n.language, translateTitle]);
 
   // 处理标签切换
   const handleTabChange = useCallback(
