@@ -39,5 +39,5 @@ export async function deleteTenant(request: identityservicev1_DeleteTenantReques
 }
 
 export async function createTenantWithAdminUser(request: identityservicev1_CreateTenantWithAdminUserRequest) {
-  return getTenantService().CreateWithAdminUser(request);
+  return getTenantService().CreateTenantWithAdminUser(request);
 }

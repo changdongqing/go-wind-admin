@@ -2,9 +2,10 @@ import { useRef, useState } from 'react';
 import type { ProFormInstance } from '@ant-design/pro-components';
 import { DrawerForm, ProFormText, ProFormSelect } from '@ant-design/pro-components';
 import { App } from 'antd';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import type { resourceservicev1_Api as Api } from '@/api/generated/admin/service/v1';
-import { createApi, updateApi } from '@/api/service/api';
+import { useCreateApi, useUpdateApi } from '@/api/hooks/api';
 
 /**
  * HTTP 方法列表
@@ -31,6 +32,7 @@ interface ApiDrawerProps {
  * API 编辑/创建抽屉组件
  */
 const ApiDrawer: React.FC<ApiDrawerProps> = ({ open, mode, data, onClose, onSuccess }) => {
+  const { t } = useTranslation('api');
   const formRef = useRef<ProFormInstance>(null);
   const queryClient = useQueryClient();
   const { message } = App.useApp();
@@ -38,30 +40,28 @@ const ApiDrawer: React.FC<ApiDrawerProps> = ({ open, mode, data, onClose, onSucc
   const [confirmLoading, setConfirmLoading] = useState(false);
 
   // 创建 API
-  const createMutation = useMutation({
-    mutationFn: (req: { data: Api }) => createApi(req),
+  const createMutation = useCreateApi({
     onSuccess: () => {
-      message.success('创建成功');
+      message.success(t('createSuccess'));
       onSuccess();
       onClose();
       queryClient.invalidateQueries({ queryKey: ['listApis'] });
     },
     onError: (error: Error) => {
-      message.error(error.message || '创建失败');
+      message.error(error.message || t('createFailed'));
     },
   });
 
   // 更新 API
-  const updateMutation = useMutation({
-    mutationFn: (req: { id: number; data: Api }) => updateApi(req),
+  const updateMutation = useUpdateApi({
     onSuccess: () => {
-      message.success('更新成功');
+      message.success(t('updateSuccess'));
       onSuccess();
       onClose();
       queryClient.invalidateQueries({ queryKey: ['listApis'] });
     },
     onError: (error: Error) => {
-      message.error(error.message || '更新失败');
+      message.error(error.message || t('updateFailed'));
     },
   });
 
@@ -73,7 +73,7 @@ const ApiDrawer: React.FC<ApiDrawerProps> = ({ open, mode, data, onClose, onSucc
       if (mode === 'create') {
         await createMutation.mutateAsync({ data: values });
       } else if (data?.id) {
-        await updateMutation.mutateAsync({ id: data.id, data: values });
+        await updateMutation.mutateAsync({ id: data.id, values });
       }
     } finally {
       setConfirmLoading(false);
@@ -84,7 +84,7 @@ const ApiDrawer: React.FC<ApiDrawerProps> = ({ open, mode, data, onClose, onSucc
     <DrawerForm<Api>
       formRef={formRef}
       open={open}
-      title={mode === 'create' ? '新建 API' : '编辑 API'}
+      title={mode === 'create' ? t('create') : t('edit')}
       width={600}
       initialValues={mode === 'edit' ? data : undefined}
       onFinish={handleSubmit}
@@ -107,52 +107,41 @@ const ApiDrawer: React.FC<ApiDrawerProps> = ({ open, mode, data, onClose, onSucc
     >
       <ProFormText
         name="description"
-        label="API描述"
-        placeholder="请输入API描述"
-        rules={[
-          { required: false },
-          { max: 200, message: '最多 200 个字符' },
-        ]}
+        label={t('description')}
+        placeholder={t('descriptionPlaceholder')}
+        rules={[{ required: false }, { max: 200, message: t('maxChars', { max: 200 }) }]}
       />
 
       <ProFormText
         name="module"
-        label="模块"
-        placeholder="请输入模块名称"
-        rules={[
-          { required: false },
-          { max: 100, message: '最多 100 个字符' },
-        ]}
+        label={t('module')}
+        placeholder={t('modulePlaceholder')}
+        rules={[{ required: false }, { max: 100, message: t('maxChars', { max: 100 }) }]}
       />
 
       <ProFormText
         name="moduleDescription"
-        label="模块描述"
-        placeholder="请输入模块描述"
-        rules={[
-          { required: false },
-          { max: 200, message: '最多 200 个字符' },
-        ]}
+        label={t('moduleDescription')}
+        placeholder={t('moduleDescriptionPlaceholder')}
+        rules={[{ required: false }, { max: 200, message: t('maxChars', { max: 200 }) }]}
       />
 
       <ProFormText
         name="path"
-        label="API路径"
-        placeholder="例如：/api/v1/users"
+        label={t('path')}
+        placeholder={t('pathPlaceholder')}
         rules={[
-          { required: true, message: '请输入API路径' },
-          { max: 500, message: '最多 500 个字符' },
+          { required: true, message: t('requiredPath') },
+          { max: 500, message: t('maxChars', { max: 500 }) },
         ]}
       />
 
       <ProFormSelect
         name="method"
-        label="请求方法"
-        placeholder="请选择请求方法"
+        label={t('method')}
+        placeholder={t('methodPlaceholder')}
         options={methodList}
-        rules={[
-          { required: true, message: '请选择请求方法' },
-        ]}
+        rules={[{ required: true, message: t('requiredMethod') }]}
         fieldProps={{
           showSearch: true,
           filterOption: (input, option) =>

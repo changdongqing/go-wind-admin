@@ -3,7 +3,8 @@ import type { ProColumns, ActionType } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
 import { Tag, Button, Popconfirm, App } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import type {
   identityservicev1_Tenant,
   identityservicev1_Tenant_Type,
@@ -12,7 +13,7 @@ import type {
 } from '@/api/generated/admin/service/v1';
 import { PaginationQuery } from '@/core';
 import { TABLE } from '@/config/constants';
-import { listTenants, deleteTenant } from '@/api/service/tenant';
+import { fetchListTenants, useDeleteTenant } from '@/api/hooks/tenant';
 import { useProTableScrollY } from '@/hooks/useProTableScrollY';
 import ContentContainer from '@/layouts/components/PageContainer/ContentContainer';
 import TenantDrawer from './components/TenantDrawer';
@@ -21,6 +22,7 @@ import TenantDrawer from './components/TenantDrawer';
  * 租户列表页面
  */
 const TenantList = () => {
+  const { t } = useTranslation('tenant');
   const actionRef = useRef<ActionType>(null);
   const queryClient = useQueryClient();
 
@@ -34,25 +36,22 @@ const TenantList = () => {
   const [drawerMode, setDrawerMode] = useState<'create' | 'edit'>('create');
   const [selectedTenant, setSelectedTenant] = useState<identityservicev1_Tenant | undefined>();
 
-  // 删除操作（单独用 useMutation）
-  const deleteMutation = useMutation({
-    mutationFn: (req: { id: number }) => deleteTenant(req),
+  // 删除操作
+  const deleteMutation = useDeleteTenant({
     onSuccess: () => {
-      message.success('删除成功');
-      // ProTable 会自动刷新
+      message.success(t('deleteSuccess'));
       actionRef.current?.reload();
-      // 清除 React Query 缓存
       queryClient.invalidateQueries({ queryKey: ['listTenants'] });
     },
     onError: (error: Error) => {
-      message.error(error.message || '删除失败');
+      message.error(error.message || t('deleteFailed'));
     },
   });
 
   // 列配置（ProColumns 提供更丰富的 valueType）
   const columns: ProColumns<identityservicev1_Tenant>[] = [
     {
-      title: '序号',
+      title: t('serial'),
       dataIndex: 'id',
       width: 80,
       hideInSearch: true,
@@ -65,95 +64,95 @@ const TenantList = () => {
       },
     },
     {
-      title: '租户名称',
+      title: t('name'),
       dataIndex: 'name',
       width: 150,
       formItemProps: {
-        rules: [{ max: 50, message: '最多 50 个字符' }],
+        rules: [{ max: 50, message: t('maxChars', { max: 50 }) }],
       },
     },
     {
-      title: '租户编码',
+      title: t('code'),
       dataIndex: 'code',
       width: 150,
     },
     {
-      title: '管理员用户名',
+      title: t('adminUsername'),
       dataIndex: 'adminUsername',
       width: 150,
       hideInSearch: true,
     },
     {
-      title: '租户类型',
+      title: t('tenantType'),
       dataIndex: 'tenantType',
       width: 100,
       valueType: 'select',
       valueEnum: {
-        TRIAL: { text: '试用', status: 'Default' },
-        PAID: { text: '付费', status: 'Success' },
-        INTERNAL: { text: '内部', status: 'Processing' },
-        PARTNER: { text: '合作伙伴', status: 'Warning' },
-        CUSTOM: { text: '自定义', status: 'Default' },
+        TRIAL: { text: t('type.TRIAL'), status: 'Default' },
+        PAID: { text: t('type.PAID'), status: 'Success' },
+        INTERNAL: { text: t('type.INTERNAL'), status: 'Processing' },
+        PARTNER: { text: t('type.PARTNER'), status: 'Warning' },
+        CUSTOM: { text: t('type.CUSTOM'), status: 'Default' },
       },
       render: (_, record) => {
         const typeMap: Record<string, { text: string; color: string }> = {
-          TRIAL: { text: '试用', color: 'default' },
-          PAID: { text: '付费', color: 'success' },
-          INTERNAL: { text: '内部', color: 'processing' },
-          PARTNER: { text: '合作伙伴', color: 'warning' },
-          CUSTOM: { text: '自定义', color: 'default' },
+          TRIAL: { text: t('type.TRIAL'), color: 'default' },
+          PAID: { text: t('type.PAID'), color: 'success' },
+          INTERNAL: { text: t('type.INTERNAL'), color: 'processing' },
+          PARTNER: { text: t('type.PARTNER'), color: 'warning' },
+          CUSTOM: { text: t('type.CUSTOM'), color: 'default' },
         };
         const type = record.type as identityservicev1_Tenant_Type;
-        const config = typeMap[type] || { text: '未知', color: 'default' };
+        const config = typeMap[type] || { text: t('typeUnknown'), color: 'default' };
         return <Tag color={config.color}>{config.text}</Tag>;
       },
     },
     {
-      title: '审核状态',
+      title: t('auditStatus'),
       dataIndex: 'auditStatus',
       width: 100,
       valueType: 'select',
       valueEnum: {
-        PENDING: { text: '待审核', status: 'Warning' },
-        APPROVED: { text: '已通过', status: 'Success' },
-        REJECTED: { text: '已拒绝', status: 'Error' },
+        PENDING: { text: t('audit.PENDING'), status: 'Warning' },
+        APPROVED: { text: t('audit.APPROVED'), status: 'Success' },
+        REJECTED: { text: t('audit.REJECTED'), status: 'Error' },
       },
       render: (_, record) => {
         const statusMap: Record<string, { text: string; color: string }> = {
-          PENDING: { text: '待审核', color: 'warning' },
-          APPROVED: { text: '已通过', color: 'success' },
-          REJECTED: { text: '已拒绝', color: 'error' },
+          PENDING: { text: t('audit.PENDING'), color: 'warning' },
+          APPROVED: { text: t('audit.APPROVED'), color: 'success' },
+          REJECTED: { text: t('audit.REJECTED'), color: 'error' },
         };
         const status = record.auditStatus as identityservicev1_Tenant_AuditStatus;
-        const config = statusMap[status] || { text: '未知', color: 'default' };
+        const config = statusMap[status] || { text: t('auditUnknown'), color: 'default' };
         return <Tag color={config.color}>{config.text}</Tag>;
       },
     },
     {
-      title: '状态',
+      title: t('status'),
       dataIndex: 'status',
       width: 100,
       valueType: 'select',
       valueEnum: {
-        ON: { text: '启用', status: 'Success' },
-        OFF: { text: '禁用', status: 'Error' },
-        EXPIRED: { text: '已过期', status: 'Warning' },
-        FREEZE: { text: '已冻结', status: 'Default' },
+        ON: { text: t('tenantStatus.ON'), status: 'Success' },
+        OFF: { text: t('tenantStatus.OFF'), status: 'Error' },
+        EXPIRED: { text: t('tenantStatus.EXPIRED'), status: 'Warning' },
+        FREEZE: { text: t('tenantStatus.FREEZE'), status: 'Default' },
       },
       render: (_, record) => {
         const statusMap: Record<string, { text: string; color: string }> = {
-          ON: { text: '启用', color: 'success' },
-          OFF: { text: '禁用', color: 'error' },
-          EXPIRED: { text: '已过期', color: 'warning' },
-          FREEZE: { text: '已冻结', color: 'default' },
+          ON: { text: t('tenantStatus.ON'), color: 'success' },
+          OFF: { text: t('tenantStatus.OFF'), color: 'error' },
+          EXPIRED: { text: t('tenantStatus.EXPIRED'), color: 'warning' },
+          FREEZE: { text: t('tenantStatus.FREEZE'), color: 'default' },
         };
         const status = record.status as identityservicev1_Tenant_Status;
-        const config = statusMap[status] || { text: '未知', color: 'default' };
+        const config = statusMap[status] || { text: t('statusUnknown'), color: 'default' };
         return <Tag color={config.color}>{config.text}</Tag>;
       },
     },
     {
-      title: '创建时间',
+      title: t('createdAt'),
       dataIndex: 'createdAt',
       width: 180,
       valueType: 'dateTime',
@@ -161,13 +160,13 @@ const TenantList = () => {
       sorter: true,
     },
     {
-      title: '备注',
+      title: t('remark'),
       dataIndex: 'remark',
       hideInSearch: true,
       ellipsis: true,
     },
     {
-      title: '操作',
+      title: t('action'),
       valueType: 'option',
       width: 120,
       fixed: 'right',
@@ -184,8 +183,8 @@ const TenantList = () => {
         </a>,
         <Popconfirm
           key="delete"
-          title="确认删除"
-          description={`确定要删除租户 "${record.name}" 吗？`}
+          title={t('deleteConfirmTitle')}
+          description={t('deleteConfirmDesc', { name: record.name })}
           onConfirm={() => record.id && deleteMutation.mutate({ id: record.id })}
           okText="确定"
           cancelText="取消"
@@ -225,7 +224,7 @@ const TenantList = () => {
                 });
 
                 // 调用 API
-                const response = await listTenants(query);
+                const response = await fetchListTenants(query);
 
                 // ProTable 要求返回格式：{ data, total, success }
                 return {
@@ -234,7 +233,7 @@ const TenantList = () => {
                   success: true,
                 };
               } catch (error: any) {
-                message.error(error.message || '获取数据失败');
+                message.error(error.message || t('fetchFailed'));
                 return {
                   data: [],
                   total: 0,
@@ -264,7 +263,7 @@ const TenantList = () => {
                   setDrawerOpen(true);
                 }}
               >
-                新建租户
+                {t('create')}
               </Button>,
             ]}
             options={{

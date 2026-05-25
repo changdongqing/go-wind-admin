@@ -10,10 +10,9 @@ import {
   type resourceservicev1_DeleteApiRequest,
   type resourceservicev1_GetApiRequest,
   type resourceservicev1_ListApiResponse,
-  type resourceservicev1_UpdateApiRequest,
 } from '@/api/generated/admin/service/v1';
-import { type PaginationQuery } from '@/core';
-import { listApis, getApi, createApi, updateApi, deleteApi } from '@/api/service/api';
+import { makeUpdateMask, type PaginationQuery, queryClient } from '@/core';
+import { listApis, getApi, createApi, updateApi, deleteApi, syncApis } from '@/api/service/api';
 
 // ==============================
 // API 管理
@@ -27,6 +26,14 @@ export function useListApis(
     queryKey: ['listApis', query],
     queryFn: () => listApis(query),
     ...options,
+  });
+}
+
+export async function fetchListApis(params: PaginationQuery) {
+  return queryClient.fetchQuery({
+    queryKey: ['listApis', params],
+    queryFn: () => listApis(params),
+    retry: 0,
   });
 }
 
@@ -51,10 +58,17 @@ export function useCreateApi(
 }
 
 export function useUpdateApi(
-  options?: UseMutationOptions<{}, Error, resourceservicev1_UpdateApiRequest>,
+  options?: UseMutationOptions<{}, Error, { id: number; values: Record<string, any> }>,
 ) {
   return useMutation({
-    mutationFn: (data) => updateApi(data),
+    mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
+      updateApi({
+        id,
+        data: {
+          ...values,
+        },
+        updateMask: makeUpdateMask(Object.keys(values ?? [])),
+      }),
     ...options,
   });
 }
@@ -64,6 +78,13 @@ export function useDeleteApi(
 ) {
   return useMutation({
     mutationFn: (data) => deleteApi(data),
+    ...options,
+  });
+}
+
+export function useSyncApisApi(options?: UseMutationOptions<{}, Error>) {
+  return useMutation({
+    mutationFn: () => syncApis(),
     ...options,
   });
 }

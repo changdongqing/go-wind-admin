@@ -3,11 +3,12 @@ import type { ProColumns, ActionType } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
 import { Button, Popconfirm, App } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, SyncOutlined } from '@ant-design/icons';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import type { resourceservicev1_Api as Api } from '@/api/generated/admin/service/v1';
 import { PaginationQuery } from '@/core';
 import { TABLE } from '@/config/constants';
-import { listApis, deleteApi } from '@/api/service/api';
+import { fetchListApis, useSyncApisApi, useDeleteApi } from '@/api/hooks/api';
 import { useProTableScrollY } from '@/hooks/useProTableScrollY';
 import ContentContainer from '@/layouts/components/PageContainer/ContentContainer';
 import ApiDrawer from './components/ApiDrawer';
@@ -29,6 +30,7 @@ const methodList = [
  * API管理页面
  */
 const ApiManagement = () => {
+  const { t } = useTranslation('api');
   const actionRef = useRef<ActionType>(null);
   const queryClient = useQueryClient();
 
@@ -43,34 +45,26 @@ const ApiManagement = () => {
   const [selectedApi, setSelectedApi] = useState<Api | undefined>();
 
   // 删除操作
-  const deleteMutation = useMutation({
-    mutationFn: (req: { id: number }) => deleteApi(req),
+  const deleteMutation = useDeleteApi({
     onSuccess: () => {
-      message.success('删除成功');
+      message.success(t('deleteSuccess'));
       actionRef.current?.reload();
       queryClient.invalidateQueries({ queryKey: ['listApis'] });
     },
     onError: (error: Error) => {
-      message.error(error.message || '删除失败');
+      message.error(error.message || t('deleteFailed'));
     },
   });
 
   // 同步操作
-  const syncMutation = useMutation({
-    mutationFn: async () => {
-      // TODO: 调用同步 API 接口
-      // return await syncApis();
-      // 临时模拟同步操作
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return {};
-    },
+  const syncMutation = useSyncApisApi({
     onSuccess: () => {
-      message.success('同步成功');
+      message.success(t('syncSuccess'));
       actionRef.current?.reload();
       queryClient.invalidateQueries({ queryKey: ['listApis'] });
     },
     onError: (error: Error) => {
-      message.error(error.message || '同步失败');
+      message.error(error.message || t('syncFailed'));
     },
   });
 
@@ -82,7 +76,7 @@ const ApiManagement = () => {
   // 列配置
   const columns: ProColumns<Api>[] = [
     {
-      title: '序号',
+      title: t('serial'),
       dataIndex: 'id',
       width: 80,
       hideInSearch: true,
@@ -94,20 +88,20 @@ const ApiManagement = () => {
       },
     },
     {
-      title: 'API描述',
+      title: t('description'),
       dataIndex: 'description',
       width: 200,
       formItemProps: {
-        rules: [{ max: 200, message: '最多 200 个字符' }],
+        rules: [{ max: 200, message: t('maxChars', { max: 200 }) }],
       },
     },
     {
-      title: 'API路径',
+      title: t('path'),
       dataIndex: 'path',
       width: 250,
     },
     {
-      title: '请求方法',
+      title: t('method'),
       dataIndex: 'method',
       width: 100,
       valueType: 'select',
@@ -128,19 +122,19 @@ const ApiManagement = () => {
       },
     },
     {
-      title: '模块',
+      title: t('module'),
       dataIndex: 'module',
       width: 150,
     },
     {
-      title: '模块描述',
+      title: t('moduleDescription'),
       dataIndex: 'moduleDescription',
       width: 200,
       hideInSearch: true,
       ellipsis: true,
     },
     {
-      title: '创建时间',
+      title: t('createdAt'),
       dataIndex: 'createdAt',
       width: 180,
       valueType: 'dateTime',
@@ -148,7 +142,7 @@ const ApiManagement = () => {
       sorter: true,
     },
     {
-      title: '操作',
+      title: t('action'),
       valueType: 'option',
       width: 120,
       fixed: 'right',
@@ -165,8 +159,8 @@ const ApiManagement = () => {
         </a>,
         <Popconfirm
           key="delete"
-          title="确认删除"
-          description={`确定要删除 API "${record.path}" 吗？`}
+          title={t('deleteConfirmTitle')}
+          description={t('deleteConfirmDesc', { path: record.path })}
           onConfirm={() => record.id && deleteMutation.mutate({ id: record.id })}
           okText="确定"
           cancelText="取消"
@@ -206,7 +200,7 @@ const ApiManagement = () => {
                 });
 
                 // 调用 API
-                const response = await listApis(query);
+                const response = await fetchListApis(query);
 
                 // ProTable 要求返回格式：{ data, total, success }
                 return {
@@ -215,7 +209,7 @@ const ApiManagement = () => {
                   success: true,
                 };
               } catch (error: any) {
-                message.error(error.message || '获取数据失败');
+                message.error(error.message || t('fetchFailed'));
                 return {
                   data: [],
                   total: 0,
@@ -245,18 +239,18 @@ const ApiManagement = () => {
                   setDrawerOpen(true);
                 }}
               >
-                新建 API
+                {t('create')}
               </Button>,
               <Popconfirm
                 key="sync"
-                title="确认同步"
-                description="确定要同步 API 吗？这将从后端重新扫描并同步所有 API 接口。"
+                title={t('syncConfirmTitle')}
+                description={t('syncConfirmDesc')}
                 onConfirm={handleSync}
                 okText="确定"
                 cancelText="取消"
               >
                 <Button type="primary" danger icon={<SyncOutlined />}>
-                  同步 API
+                  {t('sync')}
                 </Button>
               </Popconfirm>,
             ]}

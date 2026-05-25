@@ -6,20 +6,22 @@ import {
 } from '@tanstack/react-query';
 import {
   type identityservicev1_CreateTenantRequest,
+  type identityservicev1_CreateTenantWithAdminUserRequest,
   type identityservicev1_DeleteTenantRequest,
   type identityservicev1_GetTenantRequest,
   type identityservicev1_ListTenantResponse,
   type identityservicev1_Tenant,
-  type identityservicev1_UpdateTenantRequest,
 } from '@/api/generated/admin/service/v1';
-import { type PaginationQuery } from '@/core/transport/rest';
+import { makeUpdateMask, type PaginationQuery } from '@/core/transport/rest';
 import {
   listTenants,
   getTenant,
   createTenant,
   updateTenant,
   deleteTenant,
+  createTenantWithAdminUser,
 } from '@/api/service/tenant';
+import { queryClient } from '@/core';
 
 // ==============================
 // 获取租户列表
@@ -32,6 +34,14 @@ export function useListTenants(
     queryKey: ['listTenants', query],
     queryFn: () => listTenants(query),
     ...options,
+  });
+}
+
+export async function fetchListTenants(params: PaginationQuery) {
+  return queryClient.fetchQuery({
+    queryKey: ['listTenants', params],
+    queryFn: () => listTenants(params),
+    retry: 0,
   });
 }
 
@@ -65,10 +75,17 @@ export function useCreateTenant(
 // 更新租户
 // ==============================
 export function useUpdateTenant(
-  options?: UseMutationOptions<{}, Error, identityservicev1_UpdateTenantRequest>,
+  options?: UseMutationOptions<{}, Error, { id: number; values: Record<string, any> }>,
 ) {
   return useMutation({
-    mutationFn: (data) => updateTenant(data),
+    mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
+      updateTenant({
+        id,
+        data: {
+          ...values,
+        },
+        updateMask: makeUpdateMask(Object.keys(values ?? [])),
+      }),
     ...options,
   });
 }
@@ -84,3 +101,14 @@ export function useDeleteTenant(
     ...options,
   });
 }
+
+
+export function useCreateTenantWithAdminUser(
+  options?: UseMutationOptions<{}, Error, identityservicev1_CreateTenantWithAdminUserRequest>,
+) {
+  return useMutation({
+    mutationFn: (req) => createTenantWithAdminUser(req),
+    ...options,
+  });
+}
+

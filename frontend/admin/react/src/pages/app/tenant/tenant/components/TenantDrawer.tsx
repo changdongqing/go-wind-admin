@@ -3,7 +3,8 @@ import { DrawerForm, ProFormText, ProFormSelect, ProFormTextArea } from '@ant-de
 import type { ProFormInstance } from '@ant-design/pro-components';
 import { Button, message, Divider } from 'antd';
 import { useQueryClient } from '@tanstack/react-query';
-import { createTenantWithAdminUser, updateTenant } from '@/api/service/tenant';
+import { useTranslation } from 'react-i18next';
+import { useUpdateTenant, useCreateTenantWithAdminUser } from '@/api/hooks/tenant';
 import type {
   identityservicev1_Tenant,
   identityservicev1_Tenant_Type,
@@ -29,8 +30,12 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { t } = useTranslation('tenant');
   const queryClient = useQueryClient();
   const formRef = useRef<ProFormInstance>(null);
+
+  const updateMutation = useUpdateTenant();
+  const createMutation = useCreateTenantWithAdminUser();
 
   // 当 Drawer 打开时，设置表单初始值
   useEffect(() => {
@@ -61,12 +66,12 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
       if (mode === 'create') {
         // 检查密码和确认密码是否一致
         if (values.password !== values.passwordConfirm) {
-          message.error('两次输入的密码不一致');
+          message.error(t('passwordMismatch'));
           return false;
         }
 
         // 创建租户及管理员用户
-        await createTenantWithAdminUser({
+        await createMutation.mutateAsync({
           tenant: {
             name: values.name,
             code: values.code,
@@ -89,16 +94,16 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
           },
           password: values.password,
         });
-        message.success('创建成功');
+        message.success(t('createSuccess'));
       } else {
         // 更新租户
         if (!data?.id) {
-          message.error('租户 ID 不存在');
+          message.error(t('tenantIdMissing'));
           return false;
         }
-        await updateTenant({
+        await updateMutation.mutateAsync({
           id: data.id,
-          data: {
+          values: {
             name: values.name,
             code: values.code,
             type: values.tenantType as identityservicev1_Tenant_Type,
@@ -106,11 +111,8 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
             status: values.status as identityservicev1_Tenant_Status,
             remark: values.remark,
           },
-          updateMask: {
-            paths: ['name', 'code', 'type', 'auditStatus', 'status', 'remark'],
-          },
         });
-        message.success('更新成功');
+        message.success(t('updateSuccess'));
       }
 
       // 刷新列表
@@ -122,7 +124,7 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
       return true;
     } catch (error: any) {
-      message.error(error.message || (mode === 'create' ? '创建失败' : '更新失败'));
+      message.error(error.message || (mode === 'create' ? t('createFailed') : t('updateFailed')));
       return false;
     }
   };
@@ -130,7 +132,7 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
   return (
     <DrawerForm
       formRef={formRef}
-      title={mode === 'create' ? '新建租户' : '编辑租户'}
+      title={mode === 'create' ? t('create') : t('edit')}
       open={open}
       onOpenChange={(visible) => {
         if (!visible) {
@@ -148,7 +150,7 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
       submitter={{
         render: (_, dom) => [
           <Button key="reset" onClick={() => formRef.current?.resetFields()}>
-            重置
+            {t('reset')}
           </Button>,
           ...dom,
         ],
@@ -156,11 +158,11 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
     >
       <ProFormText
         name="name"
-        label="租户名称"
-        placeholder="请输入租户名称"
+        label={t('name')}
+        placeholder={t('namePlaceholder')}
         rules={[
-          { required: true, message: '请输入租户名称' },
-          { max: 50, message: '最多 50 个字符' },
+          { required: true, message: t('requiredName') },
+          { max: 50, message: t('maxChars', { max: 50 }) },
         ]}
         fieldProps={{
           allowClear: true,
@@ -169,11 +171,11 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
       <ProFormText
         name="code"
-        label="租户编码"
-        placeholder="请输入租户编码"
+        label={t('code')}
+        placeholder={t('codePlaceholder')}
         rules={[
-          { required: true, message: '请输入租户编码' },
-          { max: 50, message: '最多 50 个字符' },
+          { required: true, message: t('requiredCode') },
+          { max: 50, message: t('maxChars', { max: 50 }) },
         ]}
         fieldProps={{
           allowClear: true,
@@ -182,15 +184,15 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
       <ProFormSelect
         name="tenantType"
-        label="租户类型"
-        placeholder="请选择租户类型"
-        rules={[{ required: true, message: '请选择租户类型' }]}
+        label={t('tenantType')}
+        placeholder={t('tenantTypePlaceholder')}
+        rules={[{ required: true, message: t('requiredType') }]}
         options={[
-          { label: '试用', value: 'TRIAL' },
-          { label: '付费', value: 'PAID' },
-          { label: '内部', value: 'INTERNAL' },
-          { label: '合作伙伴', value: 'PARTNER' },
-          { label: '自定义', value: 'CUSTOM' },
+          { label: t('type.TRIAL'), value: 'TRIAL' },
+          { label: t('type.PAID'), value: 'PAID' },
+          { label: t('type.INTERNAL'), value: 'INTERNAL' },
+          { label: t('type.PARTNER'), value: 'PARTNER' },
+          { label: t('type.CUSTOM'), value: 'CUSTOM' },
         ]}
         fieldProps={{
           showSearch: true,
@@ -202,13 +204,13 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
       <ProFormSelect
         name="auditStatus"
-        label="审核状态"
-        placeholder="请选择审核状态"
-        rules={[{ required: true, message: '请选择审核状态' }]}
+        label={t('auditStatus')}
+        placeholder={t('auditStatusPlaceholder')}
+        rules={[{ required: true, message: t('requiredAuditStatus') }]}
         options={[
-          { label: '待审核', value: 'PENDING' },
-          { label: '已通过', value: 'APPROVED' },
-          { label: '已拒绝', value: 'REJECTED' },
+          { label: t('audit.PENDING'), value: 'PENDING' },
+          { label: t('audit.APPROVED'), value: 'APPROVED' },
+          { label: t('audit.REJECTED'), value: 'REJECTED' },
         ]}
         fieldProps={{
           showSearch: true,
@@ -220,14 +222,14 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
       <ProFormSelect
         name="status"
-        label="状态"
-        placeholder="请选择状态"
-        rules={[{ required: true, message: '请选择状态' }]}
+        label={t('status')}
+        placeholder={t('statusPlaceholder')}
+        rules={[{ required: true, message: t('requiredStatus') }]}
         options={[
-          { label: '启用', value: 'ON' },
-          { label: '禁用', value: 'OFF' },
-          { label: '已过期', value: 'EXPIRED' },
-          { label: '已冻结', value: 'FREEZE' },
+          { label: t('tenantStatus.ON'), value: 'ON' },
+          { label: t('tenantStatus.OFF'), value: 'OFF' },
+          { label: t('tenantStatus.EXPIRED'), value: 'EXPIRED' },
+          { label: t('tenantStatus.FREEZE'), value: 'FREEZE' },
         ]}
         fieldProps={{
           showSearch: true,
@@ -239,8 +241,8 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
       <ProFormTextArea
         name="remark"
-        label="备注"
-        placeholder="请输入备注"
+        label={t('remark')}
+        placeholder={t('remarkPlaceholder')}
         fieldProps={{
           rows: 4,
           allowClear: true,
@@ -252,15 +254,15 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
       {/* 创建模式下显示管理员账号配置 */}
       {mode === 'create' && (
         <>
-          <Divider style={{ margin: '24px 0 16px' }}>管理员账号配置</Divider>
+          <Divider style={{ margin: '24px 0 16px' }}>{t('adminSection')}</Divider>
 
           <ProFormText
             name="username"
-            label="管理员用户名"
-            placeholder="请输入管理员用户名"
+            label={t('adminUsernameLabel')}
+            placeholder={t('adminUsernamePlaceholder')}
             rules={[
-              { required: true, message: '请输入管理员用户名' },
-              { max: 50, message: '最多 50 个字符' },
+              { required: true, message: t('requiredAdminUsername') },
+              { max: 50, message: t('maxChars', { max: 50 }) },
             ]}
             fieldProps={{
               allowClear: true,
@@ -269,11 +271,11 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
           <ProFormText.Password
             name="password"
-            label="初始密码"
-            placeholder="请输入初始密码"
+            label={t('password')}
+            placeholder={t('passwordPlaceholder')}
             rules={[
-              { required: true, message: '请输入初始密码' },
-              { min: 6, message: '密码至少 6 个字符' },
+              { required: true, message: t('requiredPassword') },
+              { min: 6, message: t('passwordMin', { min: 6 }) },
             ]}
             fieldProps={{
               allowClear: true,
@@ -282,16 +284,16 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
           <ProFormText.Password
             name="passwordConfirm"
-            label="确认密码"
-            placeholder="请再次输入密码"
+            label={t('passwordConfirm')}
+            placeholder={t('passwordConfirmPlaceholder')}
             rules={[
-              { required: true, message: '请再次输入密码' },
-              { min: 6, message: '密码至少 6 个字符' },
+              { required: true, message: t('requiredPasswordConfirm') },
+              { min: 6, message: t('passwordMin', { min: 6 }) },
               {
                 validator: async (_, value) => {
                   const password = formRef.current?.getFieldValue('password');
                   if (value && password !== value) {
-                    return Promise.reject(new Error('两次输入的密码不一致'));
+                    return Promise.reject(new Error(t('passwordMismatch')));
                   }
                   return Promise.resolve();
                 },
@@ -304,11 +306,11 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
           <ProFormText
             name="mobile"
-            label="手机号"
-            placeholder="请输入手机号"
+            label={t('mobile')}
+            placeholder={t('mobilePlaceholder')}
             rules={[
-              { required: true, message: '请输入手机号' },
-              { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号' },
+              { required: true, message: t('requiredMobile') },
+              { pattern: /^1[3-9]\d{9}$/, message: t('mobileInvalid') },
             ]}
             fieldProps={{
               allowClear: true,
@@ -317,11 +319,11 @@ const TenantDrawer: React.FC<TenantDrawerProps> = ({
 
           <ProFormText
             name="email"
-            label="电子邮箱"
-            placeholder="请输入电子邮箱"
+            label={t('email')}
+            placeholder={t('emailPlaceholder')}
             rules={[
-              { required: true, message: '请输入电子邮箱' },
-              { type: 'email', message: '请输入正确的邮箱地址' },
+              { required: true, message: t('requiredEmail') },
+              { type: 'email', message: t('emailInvalid') },
             ]}
             fieldProps={{
               allowClear: true,

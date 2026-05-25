@@ -36,3 +36,7 @@ export async function updateApi(request: resourceservicev1_UpdateApiRequest) {
 export async function deleteApi(request: resourceservicev1_DeleteApiRequest) {
   return getApiService().Delete(request);
 }
+
+export async function syncApis() {
+  return getApiService().SyncApis({});
+}
