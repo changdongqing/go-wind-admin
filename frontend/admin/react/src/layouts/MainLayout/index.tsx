@@ -288,6 +288,7 @@ export const MainLayout = ({ routes: dynamicRoutes }: MainLayoutProps) => {
               flex: 1,
               overflow: 'auto',
               backgroundColor: isDark ? '#000000' : '#f5f5f5',
+              padding: '8px',
             }}
           >
             <PageContainer

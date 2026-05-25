@@ -49,6 +49,30 @@ const ApiManagement = () => {
     },
   });
 
+  // 同步操作
+  const syncMutation = useMutation({
+    mutationFn: async () => {
+      // TODO: 调用同步 API 接口
+      // return await syncApis();
+      // 临时模拟同步操作
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return {};
+    },
+    onSuccess: () => {
+      message.success('同步成功');
+      actionRef.current?.reload();
+      queryClient.invalidateQueries({ queryKey: ['listApis'] });
+    },
+    onError: (error: Error) => {
+      message.error(error.message || '同步失败');
+    },
+  });
+
+  // 处理同步
+  const handleSync = async () => {
+    await syncMutation.mutateAsync();
+  };
+
   // 列配置
   const columns: ProColumns<Api>[] = [
     {
@@ -198,6 +222,7 @@ const ApiManagement = () => {
         showSizeChanger: true,
         showQuickJumper: true,
         showTotal: (total) => `共 ${total} 条`,
+        position: ['bottomRight'],
       }}
       toolBarRender={() => [
         <Button
@@ -212,6 +237,22 @@ const ApiManagement = () => {
         >
           新建 API
         </Button>,
+        <Popconfirm
+          key="sync"
+          title="确认同步"
+          description="确定要同步 API 吗？这将从后端重新扫描并同步所有 API 接口。"
+          onConfirm={handleSync}
+          okText="确定"
+          cancelText="取消"
+        >
+          <Button
+            type="primary"
+            danger
+            icon={<SyncOutlined />}
+          >
+            同步 API
+          </Button>
+        </Popconfirm>,
       ]}
       options={{
         density: true,
@@ -221,7 +262,6 @@ const ApiManagement = () => {
       }}
       size="middle"
       bordered
-      scroll={{ x: 1200 }}
     />
 
     {/* API 编辑/创建 Drawer */}

@@ -3,10 +3,13 @@ import { useLocation } from 'react-router-dom';
 import { PageContainer as ProPageContainer } from '@ant-design/pro-components';
 import { Skeleton, Alert, Button, Space } from 'antd';
 import { ReloadOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons';
+
 import { useUserStore } from '@/stores/user';
-import { useI18n } from '@/core/i18n';
 import { usePageRefreshStore } from '@/stores/pageRefresh';
+
+import { useI18n } from '@/core/i18n';
 import { usePreferencesStore } from '@/core/preferences/store';
+
 import { useBreadcrumb } from './hooks/useBreadcrumb';
 import { usePageTitle } from './hooks/usePageTitle';
 import { checkPagePermission } from './utils/permission';
@@ -44,7 +47,7 @@ export const PageContainer = ({
   ...restProps
 }: PageContainerProps) => {
   const location = useLocation();
-  
+
   // 用户权限（从 userInfo 中获取 permissions）
   const { userInfo } = useUserStore();
   const userPermissions = userInfo?.permissions || [];
@@ -73,7 +76,7 @@ export const PageContainer = ({
     if (onRefresh) {
       setRefreshCallback(pageKey, onRefresh);
     }
-    
+
     return () => {
       removeRefreshCallback(pageKey);
     };
@@ -82,7 +85,7 @@ export const PageContainer = ({
   // 处理刷新（用于 PageContainer 内部的刷新按钮）
   const handleRefresh = useCallback(async () => {
     if (!onRefresh) return;
-    
+
     setRefreshing(true);
     try {
       await onRefresh();
@@ -90,11 +93,6 @@ export const PageContainer = ({
       setRefreshing(false);
     }
   }, [onRefresh]);
-
-  // 切换全屏
-  const toggleFullscreen = useCallback(() => {
-    setIsFullscreen(prev => !prev);
-  }, []);
 
   // 计算面包屑
   const breadcrumb = useBreadcrumb({
@@ -117,6 +115,50 @@ export const PageContainer = ({
     return checkPagePermission(permission, userPermissions);
   }, [permission, userPermissions]);
 
+  // 切换全屏
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen((prev) => !prev);
+  }, []);
+
+  // 全屏时隐藏面包屑和标题
+  const effectiveBreadcrumb = isFullscreen ? false : breadcrumb;
+  const effectiveHeader = isFullscreen ? false : header;
+
+  // 渲染面包屑项
+  const renderBreadcrumbItems = useCallback((items: any[], styleType: string) => {
+    return items.map((item) => ({
+      title: (
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            ...(styleType === 'background'
+              ? {
+                  padding: '4px 8px',
+                  borderRadius: 4,
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                }
+              : {}),
+          }}
+        >
+          {item.icon}
+          <span>{item.breadcrumbName}</span>
+        </span>
+      ),
+      onClick: item.onClick,
+    }));
+  }, []);
+
+  // 面包屑配置
+  const breadcrumbConfig = useMemo(() => {
+    if (effectiveBreadcrumb === false) return undefined;
+    return {
+      items: renderBreadcrumbItems(effectiveBreadcrumb, breadcrumbStyleType),
+    };
+  }, [effectiveBreadcrumb, breadcrumbStyleType, renderBreadcrumbItems]);
+
   // 操作按钮
   const actionButtons = useMemo(() => {
     const buttons = [];
@@ -129,7 +171,7 @@ export const PageContainer = ({
           icon={<ReloadOutlined spin={refreshing} />}
           onClick={handleRefresh}
           loading={refreshing}
-        />
+        />,
       );
     }
 
@@ -140,7 +182,7 @@ export const PageContainer = ({
           type="text"
           icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
           onClick={toggleFullscreen}
-        />
+        />,
       );
     }
 
@@ -161,9 +203,6 @@ export const PageContainer = ({
       }
     : undefined;
 
-  // 全屏时隐藏面包屑和标题
-  const effectiveBreadcrumb = isFullscreen ? false : breadcrumb;
-  const effectiveHeader = isFullscreen ? false : header;
   const renderForbidden = useMemo(() => {
     if (forbiddenFallback) return forbiddenFallback;
 
@@ -206,31 +245,7 @@ export const PageContainer = ({
         ghost={ghost}
         header={effectiveHeader === false ? undefined : (effectiveHeader as any)}
         title={effectiveHeader === false ? undefined : pageTitle}
-        breadcrumb={
-          effectiveBreadcrumb === false
-            ? undefined
-            : {
-                items: effectiveBreadcrumb.map((item) => ({
-                  title: (
-                    <span style={{ 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
-                      gap: 4,
-                      ...(breadcrumbStyleType === 'background' ? {
-                        padding: '4px 8px',
-                        borderRadius: 4,
-                        backgroundColor: '#ffffff',
-                        border: '1px solid #e5e7eb',
-                      } : {}),
-                    }}>
-                      {item.icon}
-                      <span>{item.breadcrumbName}</span>
-                    </span>
-                  ),
-                  onClick: item.onClick,
-                })),
-              }
-        }
+        breadcrumb={breadcrumbConfig}
         extra={actionButtons ? <Space>{actionButtons}</Space> : extra}
         style={fullscreenStyles}
         {...restProps}
@@ -247,31 +262,7 @@ export const PageContainer = ({
         ghost={ghost}
         header={effectiveHeader === false ? undefined : (effectiveHeader as any)}
         title={effectiveHeader === false ? undefined : pageTitle}
-        breadcrumb={
-          effectiveBreadcrumb === false
-            ? undefined
-            : {
-                items: effectiveBreadcrumb.map((item) => ({
-                  title: (
-                    <span style={{ 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
-                      gap: 4,
-                      ...(breadcrumbStyleType === 'background' ? {
-                        padding: '4px 8px',
-                        borderRadius: 4,
-                        backgroundColor: '#ffffff',
-                        border: '1px solid #e5e7eb',
-                      } : {}),
-                    }}>
-                      {item.icon}
-                      <span>{item.breadcrumbName}</span>
-                    </span>
-                  ),
-                  onClick: item.onClick,
-                })),
-              }
-        }
+        breadcrumb={breadcrumbConfig}
         extra={actionButtons ? <Space>{actionButtons}</Space> : extra}
         style={fullscreenStyles}
         {...restProps}
@@ -287,37 +278,12 @@ export const PageContainer = ({
       ghost={ghost}
       header={effectiveHeader === false ? undefined : (effectiveHeader as any)}
       title={effectiveHeader === false ? undefined : pageTitle}
-      breadcrumb={
-        effectiveBreadcrumb === false
-          ? undefined
-          : {
-              // 使用 items 而不是 routes（Ant Design v6）
-              items: effectiveBreadcrumb.map((item) => ({
-                title: (
-                  <span style={{ 
-                    display: 'inline-flex', 
-                    alignItems: 'center', 
-                    gap: 4,
-                    ...(breadcrumbStyleType === 'background' ? {
-                      padding: '4px 8px',
-                      borderRadius: 4,
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #e5e7eb',
-                    } : {}),
-                  }}>
-                    {item.icon}
-                    <span>{item.breadcrumbName}</span>
-                  </span>
-                ),
-                onClick: item.onClick,
-              })),
-            }
-      }
+      breadcrumb={breadcrumbConfig}
       extra={actionButtons ? <Space>{actionButtons}</Space> : extra}
       footer={footer}
       style={{
         ...fullscreenStyles,
-        height: '100%',
+        minHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -326,13 +292,15 @@ export const PageContainer = ({
       {/* 内容区域增强 */}
       <div
         className={`
-          ${isFullscreen ? '' : contentPadding ? 'p-1' : ''}
+          page-container-content
+          ${isFullscreen ? '' : contentPadding ? 'px-4 md:px-6 py-3 md:py-4' : ''}
           ${contentClassName || ''}
         `.trim()}
         style={{
-          height: '100%',
+          flex: 1, // 让内容区域占据剩余空间
           display: 'flex',
           flexDirection: 'column',
+          minHeight: 0, // 防止 flex 子项溢出
         }}
         data-page-key={pageKey}
         data-keep-alive={keepAlive || undefined}
