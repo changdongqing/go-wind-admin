@@ -286,9 +286,11 @@ export const MainLayout = ({ routes: dynamicRoutes }: MainLayoutProps) => {
           <div
             style={{
               flex: 1,
-              overflow: 'auto',
+              overflow: 'hidden', // 禁止外层滚动，让内容区域自己管理滚动
               backgroundColor: isDark ? '#000000' : '#f5f5f5',
-              padding: '8px',
+              // padding: '8px', // 移除 padding，让内容占满整个区域
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
             <PageContainer
@@ -303,6 +305,10 @@ export const MainLayout = ({ routes: dynamicRoutes }: MainLayoutProps) => {
               header={false}
               contentPadding={false}
               style={{
+                flex: 1, // 让 PageContainer 占满父容器
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: 0, // 防止 flex 子项溢出
                 padding: '0',
                 background: 'transparent',
               }}

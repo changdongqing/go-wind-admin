@@ -13,7 +13,6 @@ import type {
 import { PaginationQuery } from '@/core';
 import { TABLE } from '@/config/constants';
 import { listTenants, deleteTenant } from '@/api/service/tenant';
-import { useTableScrollHeight } from '@/hooks/useTableScrollHeight';
 import TenantDrawer from './components/TenantDrawer';
 
 /**
@@ -24,9 +23,6 @@ const TenantList = () => {
   const queryClient = useQueryClient();
 
   const { message } = App.useApp();
-
-  // 动态计算表格内容区域高度（搜索栏固定，表格数据区滚动）
-  const tableScrollY = useTableScrollHeight();
 
   // Drawer 状态管理
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -199,6 +195,7 @@ const TenantList = () => {
 
   return (
     <>
+      {/* 直接返回 ProTable，不需要外层 div */}
       <ProTable<identityservicev1_Tenant>
         actionRef={actionRef}
         columns={columns}
@@ -252,7 +249,6 @@ const TenantList = () => {
           defaultPageSize: TABLE.DEFAULT_PAGE_SIZE,
           showSizeChanger: true,
           showQuickJumper: true,
-          // showTotal: (total) => `共 ${total} 条`,
           position: ['bottomRight'],
         }}
         // 工具栏配置
@@ -279,9 +275,13 @@ const TenantList = () => {
         }}
         size="middle"
         bordered
+        style={{
+          height: '100%', // 让表格占据父容器全部空间
+          minHeight: 0, // 防止 flex 溢出
+        }}
         scroll={{
-          y: tableScrollY, // 动态计算表格高度
-          x: 1300, // 如果列太宽，启用横向滚动
+          y: '100%', // 启用纵向滚动（表头固定）
+          x: 1300,
         }}
       />
 

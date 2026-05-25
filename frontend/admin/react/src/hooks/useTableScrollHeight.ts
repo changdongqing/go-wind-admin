@@ -45,11 +45,12 @@ export function useTableScrollHeight(options: {
   } = options;
 
   // 计算外部排除高度（如果没有手动指定）
+  // 注意：MainLayout 已移除 padding，PageContainer 也设置了 contentPadding={false}
+  // 并且 API 管理页面没有面包屑，所以只扣除 HEADER 和 TABS
   const calculatedExcludeHeight = excludeHeight ?? (
-    LAYOUT_HEIGHTS.HEADER +
-    LAYOUT_HEIGHTS.TABS +
-    LAYOUT_HEIGHTS.BREADCRUMB +
-    LAYOUT_HEIGHTS.CONTENT_PADDING
+    LAYOUT_HEIGHTS.HEADER +  // 顶栏
+    LAYOUT_HEIGHTS.TABS       // 标签栏
+    // 不再扣除 BREADCRUMB 和 CONTENT_PADDING
   );
 
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);

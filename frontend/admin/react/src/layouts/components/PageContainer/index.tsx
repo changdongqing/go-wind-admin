@@ -14,6 +14,7 @@ import { useBreadcrumb } from './hooks/useBreadcrumb';
 import { usePageTitle } from './hooks/usePageTitle';
 import { checkPagePermission } from './utils/permission';
 import type { PageContainerProps } from './types';
+import './PageContainer.style.css'; // 引入样式文件
 
 /**
  * 企业级页面容器组件
@@ -283,7 +284,7 @@ export const PageContainer = ({
       footer={footer}
       style={{
         ...fullscreenStyles,
-        minHeight: '100%',
+        minHeight: '100vh', // 占满整个视口
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -297,10 +298,12 @@ export const PageContainer = ({
           ${contentClassName || ''}
         `.trim()}
         style={{
-          flex: 1, // 让内容区域占据剩余空间
+          flex: 1, // 占据剩余空间
           display: 'flex',
           flexDirection: 'column',
-          minHeight: 0, // 防止 flex 子项溢出
+          minHeight: 0, // 关键：防止 flex 子项溢出
+          padding: contentPadding ? '16px' : '0',
+          boxSizing: 'border-box',
         }}
         data-page-key={pageKey}
         data-keep-alive={keepAlive || undefined}
