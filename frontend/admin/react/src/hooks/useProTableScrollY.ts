@@ -1,27 +1,26 @@
-import { useState, useEffect, useRef, type RefObject } from 'react';
+import { useState, useEffect, type RefObject } from 'react';
 
 /**
- * 动态计算 ProTable 的 scroll.y，使表格撑满容器，分页器置底。
+ * 动态计算 ProTable scroll.y，使表格体 + 分页器恰好填满容器剩余空间。
  *
- * 核心原理：
- *   1. 初始值必须是像素值（不能用 'auto'），否则 antd 不会创建 .ant-table-body
- *   2. 用 getBoundingClientRect 测量 .ant-table-body 上方占用的空间（自动含所有 margin）
- *   3. 直接测量分页器的 offsetHeight + margin
- *   4. scroll.y = 容器高度 - 上方空间 - 下方空间 - 安全边距
+ * 测量策略（不穿透 antd 内部 DOM）：
+ *   1. 容器高度 = container.clientHeight
+ *   2. 逐个测量各组件的 offsetHeight + marginTop + marginBottom
+ *   3. scroll.y = 容器高度 - 所有组件高度之和 - 安全边距
  *
- * @param containerRef - .page-container-content 容器 div 的 ref（无 padding/border）
- * @param options.buffer - 安全边距（像素），默认 8
+ * @param containerRef - .page-container-content 容器 div 的 ref
+ * @param options.buffer - 安全边距（像素），默认 4
  * @param options.minHeight - scroll.y 最小值，默认 100
  */
 export function useProTableScrollY(
   containerRef: RefObject<HTMLElement | null>,
   options: { buffer?: number; minHeight?: number } = {},
 ): string {
-  const { buffer = 8, minHeight = 100 } = options;
+  const { buffer = 4, minHeight = 100 } = options;
 
-  // 关键：初始值必须是像素值，触发 antd 创建 .ant-table-body
+  // 初始值必须是像素值，触发 antd 创建 .ant-table-body
   const [scrollY, setScrollY] = useState<string>(() => {
-    const estimate = window.innerHeight - 350;
+    const estimate = window.innerHeight - 380;
     return `${Math.max(estimate, minHeight)}px`;
   });
 
@@ -29,57 +28,66 @@ export function useProTableScrollY(
     const container = containerRef.current;
     if (!container) return;
 
+    let frameId = 0;
+
     const measure = () => {
       const containerHeight = container.clientHeight;
       if (containerHeight <= 0) return;
 
-      // 查找 .ant-table-body（scroll.y 为像素值时 antd 会创建此元素）
-      const tableBody = container.querySelector('.ant-table-body');
-      if (!tableBody) return;
+      // 逐个测量各组件高度（含 margin）
+      let usedHeight = 0;
 
-      const containerRect = container.getBoundingClientRect();
-      const bodyRect = tableBody.getBoundingClientRect();
+      const addElement = (selector: string) => {
+        const el = container.querySelector(selector) as HTMLElement | null;
+        if (!el) return;
+        const style = getComputedStyle(el);
+        usedHeight +=
+          el.offsetHeight +
+          (parseFloat(style.marginTop) || 0) +
+          (parseFloat(style.marginBottom) || 0);
+      };
 
-      // 上方空间：从容器顶部到表体顶部（搜索表单 + 工具栏 + 表头 + 所有间距）
-      const aboveSpace = bodyRect.top - containerRect.top;
+      // 搜索表单
+      addElement('.ant-pro-table-search');
+      // 工具栏
+      addElement('.ant-pro-table-list-toolbar');
+      // 表头
+      addElement('.ant-table-thead');
+      // 分页器
+      addElement('.ant-pagination');
 
-      // 下方空间：分页器高度 + margin
-      const pagination = container.querySelector('.ant-pagination');
-      let belowSpace = 0;
-      if (pagination) {
-        const pagStyle = getComputedStyle(pagination);
-        const marginTop = parseFloat(pagStyle.marginTop) || 0;
-        const marginBottom = parseFloat(pagStyle.marginBottom) || 0;
-        belowSpace = pagination.offsetHeight + marginTop + marginBottom;
-      } else {
-        // 分页器可能还没渲染，用默认估算
-        belowSpace = 56;
-      }
+      const result = Math.max(containerHeight - usedHeight - buffer, minHeight);
+      const newValue = `${result}px`;
 
-      const available = containerHeight - aboveSpace - belowSpace - buffer;
-      const result = Math.max(available, minHeight);
-      setScrollY(`${result}px`);
+      // 避免 setState 循环：只在值变化时更新
+      setScrollY((prev) => {
+        if (prev === newValue) return prev;
+        return newValue;
+      });
     };
 
-    // 多次重试测量，确保 ProTable 异步渲染完成
+    // 防抖：用 raf 合并快速变化
+    const scheduleMeasure = () => {
+      cancelAnimationFrame(frameId);
+      frameId = requestAnimationFrame(measure);
+    };
+
+    // 多次重试，确保 ProTable 异步渲染完成
     const timers = [
       setTimeout(measure, 50),
       setTimeout(measure, 200),
       setTimeout(measure, 500),
-      setTimeout(measure, 1200),
+      setTimeout(measure, 1500),
     ];
 
-    const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(measure);
-    });
+    const resizeObserver = new ResizeObserver(scheduleMeasure);
     resizeObserver.observe(container);
 
-    const mutationObserver = new MutationObserver(() => {
-      requestAnimationFrame(measure);
-    });
+    const mutationObserver = new MutationObserver(scheduleMeasure);
     mutationObserver.observe(container, { childList: true, subtree: true });
 
     return () => {
+      cancelAnimationFrame(frameId);
       timers.forEach(clearTimeout);
       resizeObserver.disconnect();
       mutationObserver.disconnect();

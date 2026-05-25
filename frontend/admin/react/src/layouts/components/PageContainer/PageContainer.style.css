@@ -9,93 +9,29 @@
 }
 
 /* ========================================
- * ProTable 在 ContentContainer 中自适应高度
+ * ProTable 在 ContentContainer 中撑满高度
  *
  * 使用方式：ContentContainer > .page-container-content > ProTable
  *
- * 原理：scroll.y='100%' 触发 antd 表头/表体分离，
- * CSS flex 负责整条高度链的自适应，无需 JS 测量。
- *
- * 布局链：
- *   ContentContainer (flex:1, overflow:hidden)
- *     > .page-container-content (flex:1)
- *       > .ant-pro-table (flex:1)
- *         > div:not(.search) (flex:1)
- *           > .ant-table-wrapper (flex:1)
- *             > .ant-table (flex:1)
- *               > .ant-table-container (flex:1)
- *                 > .ant-table-header (flex-shrink:0)
- *                 > .ant-table-body (flex:1, overflow:auto)
- *           > .ant-pagination (flex-shrink:0)
+ * 策略：
+ *   CSS 只负责外层 flex 骨架，不穿透 antd 内部 DOM。
+ *   scroll.y 由 useProTableScrollY 精确计算像素值，
+ *   确保表格体 + 分页器恰好填满容器剩余空间。
  * ======================================== */
 
-/* 中间容器：占满 ContentContainer 的内容区 */
+/* 中间容器：占满 ContentContainer 内容区 */
 .page-container-content {
   flex: 1;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
 }
 
 /* ProTable 根元素：占满中间容器 */
 .page-container-content > .ant-pro-table {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
+  height: 100%;
 }
 
-/* 搜索表单保持自适应高度，绝不被拉伸 */
+/* 搜索表单保持自适应高度 */
 .page-container-content > .ant-pro-table > .ant-pro-table-search {
   flex: none;
-}
-
-/* ProTable 内部内容区 div（排除搜索表单） */
-.page-container-content > .ant-pro-table > div:not(.ant-pro-table-search) {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 工具栏保持自适应高度 */
-.page-container-content .ant-pro-table-list-toolbar-container {
-  flex-shrink: 0;
-}
-
-/* .ant-table-wrapper 占满剩余空间 */
-.page-container-content .ant-table-wrapper {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* .ant-table 占满 .ant-table-wrapper */
-.page-container-content .ant-table-wrapper > .ant-table {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* .ant-table-container 占满 */
-.page-container-content .ant-table-wrapper > .ant-table > .ant-table-container {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* .ant-table-body 自动滚动，占满剩余空间 */
-.page-container-content .ant-table-wrapper .ant-table-body {
-  flex: 1;
-  min-height: 0;
-  overflow: auto !important;
-}
-
-/* 分页器保持自适应高度 */
-.page-container-content .ant-pagination {
-  flex-shrink: 0;
 }
