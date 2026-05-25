@@ -63,7 +63,32 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     };
   }, [effectiveMode, appPrefs.compact, themePrefs]);
 
-  // 4. 应用 CSS 滤镜（色弱 / 灰色模式）
+  // 4. 同步根背景色和文本颜色（解决暗黑模式白色闪烁）
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+
+    const bgLayout = effectiveMode === 'dark' ? '#000000' : '#f5f5f5';
+    root.style.backgroundColor = bgLayout;
+    body.style.backgroundColor = bgLayout;
+
+    const colorText = effectiveMode === 'dark'
+      ? 'rgba(255, 255, 255, 0.85)'
+      : 'rgba(0, 0, 0, 0.85)';
+    root.style.color = colorText;
+
+    // 标记主题模式，供 CSS 选择器使用
+    root.setAttribute('data-theme', effectiveMode);
+
+    return () => {
+      root.style.backgroundColor = '';
+      body.style.backgroundColor = '';
+      root.style.color = '';
+      root.removeAttribute('data-theme');
+    };
+  }, [effectiveMode]);
+
+  // 5. 应用 CSS 滤镜（色弱 / 灰色模式）
   useEffect(() => {
     const root = document.documentElement;
     if (appPrefs.colorWeakMode) {
@@ -75,11 +100,18 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     }
   }, [appPrefs.colorWeakMode, appPrefs.colorGrayMode]);
 
-  // 5. 国际化配置
+  // 6. 国际化配置
   const locale = localeMap[appPrefs.locale] ?? zhCN;
 
-  // 6. 水印内容
+  // 7. 水印内容
   const watermarkText = appPrefs.watermark ? `${appPrefs.name} ${appPrefs.version}` : '';
+
+  // 8. 水印颜色（跟随主题）
+  const watermarkColor = useMemo(() => {
+    return effectiveMode === 'dark'
+      ? 'rgba(255, 255, 255, 0.1)'
+      : 'rgba(0, 0, 0, 0.15)';
+  }, [effectiveMode]);
 
   return (
     <ConfigProvider
@@ -90,7 +122,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
       {watermarkText ? (
         <Watermark
           content={watermarkText}
-          font={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.15)' }}
+          font={{ fontSize: 14, color: watermarkColor }}
           gap={[120, 120]}
           offset={[60, 60]}
           rotate={-22}
