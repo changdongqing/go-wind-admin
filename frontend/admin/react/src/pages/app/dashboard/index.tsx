@@ -6,6 +6,7 @@ import {
   ClockCircleOutlined,
 } from '@ant-design/icons';
 import { useDynamicI18n } from '@/core/i18n';
+import ContentContainer from '@/layouts/components/PageContainer/ContentContainer';
 import {
   StatsCard,
   TrendChart,
@@ -50,7 +51,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div style={{ margin: 0 }}>
+    <ContentContainer heightMode="auto" scrollable padding="16px">
       {/* 统计卡片 */}
       <Row gutter={[16, 16]}>
         {statsData.map((stat, index) => (
@@ -81,7 +82,7 @@ const Dashboard = () => {
           <SourcePieChart />
         </Col>
       </Row>
-    </div>
+    </ContentContainer>
   );
 };
 
