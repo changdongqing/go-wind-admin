@@ -278,6 +278,7 @@ async function handleBatchDelete() {
     confirmButtonText: t("common.button.confirm"),
     cancelButtonText: t("common.button.cancel"),
     type: "warning",
+    lockScroll: false,
   });
   await props.config.table.deleteAction?.(ids);
   ElMessage.success(t("pages.curd.message.deleteSuccess"));
@@ -290,6 +291,7 @@ async function handleDelete(row: T) {
     confirmButtonText: t("common.button.confirm"),
     cancelButtonText: t("common.button.cancel"),
     type: "warning",
+    lockScroll: false,
   });
   await props.config.table.deleteAction?.(id);
   ElMessage.success(t("pages.curd.message.deleteSuccess"));
