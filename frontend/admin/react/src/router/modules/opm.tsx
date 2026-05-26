@@ -40,9 +40,9 @@ export const opmRoutes: AppRouteObject[] = [
         },
       },
       {
-        name: 'users',
+        name: 'user-list',
         path: 'users', // 相对路径，最终为 /opm/users
-        element: createLazyRoute(() => import('@/pages/app/opm/user')),
+        element: createLazyRoute(() => import('@/pages/app/opm/user/list')),
         meta: {
           title: 'routes:users',
           icon: 'lucide:user', // Iconify 格式

@@ -2,20 +2,16 @@ import { useRef, useState, useEffect } from 'react';
 import type { ProColumns, ActionType } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
 import { Button, Popconfirm, Tag, App } from 'antd';
-import {
-  EditOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-  InfoCircleOutlined,
-} from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 import { PaginationQuery } from '@/core';
 import { TABLE } from '@/config/constants';
 import { useProTableScrollY } from '@/hooks/useProTableScrollY';
 import { fetchListUsers, useDeleteUser } from '@/api/hooks/user';
-import { getUserStatusMap, getUserStatusOptions } from './constants';
+import { getUserStatusMap, getUserStatusOptions } from '../constants';
 import UserDrawer from './UserDrawer';
 
 interface UserListProps {
@@ -34,6 +30,7 @@ const UserList: React.FC<UserListProps> = ({ tenantId, orgUnitId }) => {
   const queryClient = useQueryClient();
   const { message } = App.useApp();
 
+  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'create' | 'edit'>('create');
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -93,7 +90,9 @@ const UserList: React.FC<UserListProps> = ({ tenantId, orgUnitId }) => {
       render: (_, record) => (
         <span>
           {(record.orgUnitNames || []).map((name: string, idx: number) => (
-            <Tag key={idx} style={{ marginBottom: 2 }}>{name}</Tag>
+            <Tag key={idx} style={{ marginBottom: 2 }}>
+              {name}
+            </Tag>
           ))}
         </span>
       ),
@@ -106,7 +105,9 @@ const UserList: React.FC<UserListProps> = ({ tenantId, orgUnitId }) => {
       render: (_, record) => (
         <span>
           {(record.positionNames || []).map((name: string, idx: number) => (
-            <Tag key={idx} color="blue" style={{ marginBottom: 2 }}>{name}</Tag>
+            <Tag key={idx} color="blue" style={{ marginBottom: 2 }}>
+              {name}
+            </Tag>
           ))}
         </span>
       ),
@@ -119,7 +120,9 @@ const UserList: React.FC<UserListProps> = ({ tenantId, orgUnitId }) => {
       render: (_, record) => (
         <span>
           {(record.roleNames || []).map((name: string, idx: number) => (
-            <Tag key={idx} color="purple" style={{ marginBottom: 2 }}>{name}</Tag>
+            <Tag key={idx} color="purple" style={{ marginBottom: 2 }}>
+              {name}
+            </Tag>
           ))}
         </span>
       ),
@@ -174,6 +177,7 @@ const UserList: React.FC<UserListProps> = ({ tenantId, orgUnitId }) => {
         <a
           key="detail"
           title={t('detail')}
+          onClick={() => navigate(`/opm/users/detail/${record.id}`)}
         >
           <InfoCircleOutlined />
         </a>,
@@ -195,7 +199,9 @@ const UserList: React.FC<UserListProps> = ({ tenantId, orgUnitId }) => {
           okText={t('common:button.ok')}
           cancelText={t('common:button.cancel')}
         >
-          <a style={{ color: '#ff4d4f' }}><DeleteOutlined /></a>
+          <a style={{ color: '#ff4d4f' }}>
+            <DeleteOutlined />
+          </a>
         </Popconfirm>,
       ],
     },
@@ -203,7 +209,11 @@ const UserList: React.FC<UserListProps> = ({ tenantId, orgUnitId }) => {
 
   return (
     <>
-      <div ref={containerRef} className="page-container-content" style={{ padding: '0 8px', height: '100%' }}>
+      <div
+        ref={containerRef}
+        className="page-container-content"
+        style={{ padding: '0 8px', height: '100%' }}
+      >
         <ProTable<any>
           actionRef={actionRef}
           columns={columns}

@@ -1,6 +1,6 @@
 {
   "pageTitle": "User Detail",
-  "title": "User #{userId}",
+  "title": "User Detail",
   "tab": {
     "basicInfo": "Basic Info",
     "apiAuditLog": "API Audit Log",

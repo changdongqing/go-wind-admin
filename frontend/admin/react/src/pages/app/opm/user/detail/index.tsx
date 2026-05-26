@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Card, Button, Tabs, Popconfirm, App } from 'antd';
+import { Button, Tabs, Popconfirm, App, theme } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -46,81 +46,80 @@ const UserDetail = () => {
     }
   };
 
+  const { token } = theme.useToken();
+
   const goBack = () => {
     navigate('/opm/users');
   };
 
   return (
     <ContentContainer heightMode="fixed" padding="16px" bottomMargin={0}>
-      {/* 顶部操作栏 */}
+      {/* 内容卡片 */}
       <div
         style={{
+          flex: 1,
+          minHeight: 0,
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 12,
+          flexDirection: 'column',
+          borderRadius: token.borderRadiusLG,
+          border: `1px solid ${token.colorBorderSecondary}`,
+          backgroundColor: token.colorBgContainer,
+          overflow: 'hidden',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Button type="text" icon={<ArrowLeftOutlined />} onClick={goBack} />
-          <span style={{ fontSize: 16, fontWeight: 600 }}>
-            {t('title', { userId: userId ?? '-' })}
-          </span>
+        {/* 顶部操作栏 */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '12px 20px',
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Button type="text" icon={<ArrowLeftOutlined />} onClick={goBack} />
+            <span style={{ fontSize: 16, fontWeight: 600, color: token.colorTextHeading }}>
+              {t('title')}
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Popconfirm
+              title={t('banConfirmTitle')}
+              description={t('banConfirmDesc')}
+              onConfirm={handleBanAccount}
+              okText={t('common:button.ok')}
+              cancelText={t('common:button.cancel')}
+            >
+              <Button danger>{t('button.banAccount')}</Button>
+            </Popconfirm>
+            <Button type="primary" onClick={() => setPasswordModalOpen(true)}>
+              {t('button.editPassword')}
+            </Button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Popconfirm
-            title={t('banConfirmTitle')}
-            description={t('banConfirmDesc')}
-            onConfirm={handleBanAccount}
-            okText={t('common:button.ok')}
-            cancelText={t('common:button.cancel')}
-          >
-            <Button danger>{t('button.banAccount')}</Button>
-          </Popconfirm>
-          <Button type="primary" onClick={() => setPasswordModalOpen(true)}>
-            {t('button.editPassword')}
-          </Button>
+
+        {/* Tabs 导航 */}
+        <div style={{ padding: '0 20px', borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            style={{ marginBottom: 0 }}
+            items={[
+              { key: TabEnum.BASIC_INFO, label: t('tab.basicInfo') },
+              { key: TabEnum.API_AUDIT_LOG, label: t('tab.apiAuditLog') },
+              { key: TabEnum.INTERNAL_MESSAGE, label: t('tab.internalMessage') },
+            ]}
+          />
+        </div>
+
+        {/* Tab 内容区 */}
+        <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+          {activeTab === TabEnum.BASIC_INFO && <BasicInfoPage userId={userId} />}
+          {activeTab === TabEnum.API_AUDIT_LOG && <ApiLogPage userId={userId} />}
+          {activeTab === TabEnum.INTERNAL_MESSAGE && <InternalMessagePage userId={userId} />}
         </div>
       </div>
-
-      {/* Tabs */}
-      <Tabs
-        activeKey={activeTab}
-        onChange={setActiveTab}
-        style={{ marginBottom: 0 }}
-        items={[
-          {
-            key: TabEnum.BASIC_INFO,
-            label: t('tab.basicInfo'),
-          },
-          {
-            key: TabEnum.API_AUDIT_LOG,
-            label: t('tab.apiAuditLog'),
-          },
-          {
-            key: TabEnum.INTERNAL_MESSAGE,
-            label: t('tab.internalMessage'),
-          },
-        ]}
-      />
-
-      {/* Tab 内容 */}
-      <Card
-        style={{ flex: 1, minHeight: 0, overflow: 'auto' }}
-        styles={{
-          body: {
-            padding: activeTab === TabEnum.BASIC_INFO ? 0 : 16,
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: 0,
-          },
-        }}
-      >
-        {activeTab === TabEnum.BASIC_INFO && <BasicInfoPage userId={userId} />}
-        {activeTab === TabEnum.API_AUDIT_LOG && <ApiLogPage userId={userId} />}
-        {activeTab === TabEnum.INTERNAL_MESSAGE && <InternalMessagePage userId={userId} />}
-      </Card>
 
       {/* 修改密码弹窗 */}
       <EditPasswordModal

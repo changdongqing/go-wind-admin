@@ -1,11 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import type { ProFormInstance } from '@ant-design/pro-components';
-import {
-  DrawerForm,
-  ProFormText,
-  ProFormRadio,
-  ProFormTextArea,
-} from '@ant-design/pro-components';
+import { DrawerForm, ProFormText, ProFormRadio, ProFormTextArea } from '@ant-design/pro-components';
 import { App, TreeSelect, Select, Form } from 'antd';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +10,7 @@ import { useCreateUser, useUpdateUser } from '@/api/hooks/user';
 import { fetchListRoles } from '@/api/hooks/role';
 import { fetchListOrgUnits } from '@/api/hooks/org-unit';
 import { fetchListPositions } from '@/api/hooks/position';
-import { getUserStatusOptions, getGenderOptions } from './constants';
+import { getUserStatusOptions, getGenderOptions } from '../constants';
 import { buildOrgTreeSelectData } from './tree-utils';
 
 interface UserDrawerProps {
@@ -54,7 +49,11 @@ const UserDrawer: React.FC<UserDrawerProps> = ({
   useEffect(() => {
     if (open) {
       // 角色
-      fetchListRoles(new PaginationQuery({ formValues: { status: 'ON', type__not: 'TEMPLATE', tenant_id: tenantId ?? 0 } }))
+      fetchListRoles(
+        new PaginationQuery({
+          formValues: { status: 'ON', type__not: 'TEMPLATE', tenant_id: tenantId ?? 0 },
+        }),
+      )
         .then((res) => {
           const tree = buildRoleTreeSelect(res?.items || []);
           setRoleTreeData(tree);
@@ -62,7 +61,9 @@ const UserDrawer: React.FC<UserDrawerProps> = ({
         .catch(() => setRoleTreeData([]));
 
       // 组织
-      fetchListOrgUnits(new PaginationQuery({ formValues: { status: 'ON', tenant_id: tenantId ?? 0 } }))
+      fetchListOrgUnits(
+        new PaginationQuery({ formValues: { status: 'ON', tenant_id: tenantId ?? 0 } }),
+      )
         .then((res) => {
           const tree = buildOrgTreeSelectData(res?.items || []);
           setOrgUnitTreeData(tree);
@@ -205,10 +206,7 @@ const UserDrawer: React.FC<UserDrawerProps> = ({
       />
 
       {/* 角色 - TreeSelect 多选 */}
-      <Form.Item
-        name="roleIds"
-        label={t('roleIds')}
-      >
+      <Form.Item name="roleIds" label={t('roleIds')}>
         <TreeSelect
           treeData={roleTreeData}
           placeholder={t('roleIdsPlaceholder')}
@@ -221,10 +219,7 @@ const UserDrawer: React.FC<UserDrawerProps> = ({
       </Form.Item>
 
       {/* 组织 - TreeSelect 多选 */}
-      <Form.Item
-        name="orgUnitIds"
-        label={t('orgUnitIds')}
-      >
+      <Form.Item name="orgUnitIds" label={t('orgUnitIds')}>
         <TreeSelect
           treeData={orgUnitTreeData}
           placeholder={t('orgUnitIdsPlaceholder')}
@@ -237,10 +232,7 @@ const UserDrawer: React.FC<UserDrawerProps> = ({
       </Form.Item>
 
       {/* 职位 - Select 多选 */}
-      <Form.Item
-        name="positionIds"
-        label={t('positionIds')}
-      >
+      <Form.Item name="positionIds" label={t('positionIds')}>
         <Select
           mode="multiple"
           options={positionOptions}

@@ -1,6 +1,6 @@
 {
   "pageTitle": "用户详情",
-  "title": "用户 #{userId}",
+  "title": "用户详情",
   "tab": {
     "basicInfo": "基本信息",
     "apiAuditLog": "API审计日志",
