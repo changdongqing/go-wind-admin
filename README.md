@@ -14,7 +14,11 @@
 
 ## 演示地址
 
-> 前端地址：<https://demo.admin.gowind.cloud>
+> 演示地址入口：<https://demo.admin.gowind.cloud>
+> 
+> Vue3 Vben 演示地址：<https://vben.admin.gowind.cloud>  
+> Vue3 Element Plus 演示地址：<https://ele.admin.gowind.cloud>  
+> React 演示地址：<https://react.admin.gowind.cloud>
 >
 > 后端Swagger地址：<https://api.demo.admin.gowind.cloud/docs/>
 >
@@ -24,70 +28,87 @@
 
 秉持高效、稳定、可扩展的技术选型理念，系统核心技术栈如下：
 
-- 后端基于 [Golang](https://go.dev/) + [go-kratos](https://go-kratos.dev/) + [wire](https://github.com/google/wire) + [ent](https://entgo.io/docs/getting-started/)
-- 前端基于 [Vue](https://vuejs.org/) + [TypeScript](https://www.typescriptlang.org/) + [Ant Design Vue](https://antdv.com/) + [Vben Admin](https://doc.vben.pro/)
+- **后端**：`Golang`、`go-kratos`、`Wire`、`Ent ORM` / `Gorm`、`MySQL`、`Redis`、`Docker`
+- **公共基础能力**：`JWT 鉴权`、`Casbin` /`OPA` / `Zanzibar` 权限控制、`SSE 消息推送`、`Swagger 接口文档`
+- **Vue Vben 版**：`Vue3` + `TypeScript` + `Vite` + `Ant Design Vue` + `Vben Admin`
+- **Vue Element 版**：`Vue3` + `TypeScript` + `Vite` + `Element Plus`（轻量纯净版）
+- **React 版**：`React19` + `TypeScript` + `Vite` + `React Router` + `Zustand` + `Ant Design V6` + `@ant-design/pro-components`（**无 UMI 框架**）
 
 ## 风行·快速上手指南
 
-### 后端
+### 环境脚本选型
 
-一键安装`golang`和`docker`等前置依赖：
+- Linux / macOS 开发环境：`scripts/env/install_unix_dev.sh`
+- Linux / macOS 生产环境：`scripts/env/install_unix_prod.sh`
+- Windows 开发环境：`scripts/env/install_windows_dev.ps1`
 
-```bash
-# Ubuntu
-./backend/script/prepare_ubuntu.sh
+### Docker 两种部署模式
 
-# Centos
-./backend/script/prepare_centos.sh
+- **full_deploy 完整模式**：同步启动中间件+后端应用，适用于一键演示、生产部署；
+- **libs_only 依赖模式（推荐）**：仅启动中间件，应用本地IDE运行调试，适配日常开发。
 
-# Rocky
-./backend/script/prepare_rocky.sh
+### 后端启动命令
 
-# Windows
-./backend/script/env/install_windows_dev.ps1
+#### Linux / macOS
 
-# MacOS
-./backend/script/prepare_macos.sh
+```shell
+# 赋予脚本执行权限
+chmod +x scripts/**/*.sh
+
+# 开发环境（推荐）
+./scripts/env/install_unix_dev.sh
+./scripts/docker/libs_only.sh
+gow run admin
+
+# 生产环境
+./scripts/env/install_unix_prod.sh
+./scripts/docker/full_deploy.sh
+
+# PM2 进程托管（生产进阶）
+./scripts/deploy/pm2_service.sh
 ```
 
-一键安装三方组件和`go-wind-admin`服务：
+#### Windows（PowerShell 管理员）
 
-```bash
-./backend/script/docker_compose_install.sh
+```powershell
+# 放行脚本策略（首次仅需执行一次）
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# 初始化环境
+.\scripts\env\install_windows_dev.ps1
+
+# 本地开发
+.\scripts\docker\libs_only.ps1
+gow run admin
+
+# 一键完整部署
+.\scripts\docker\full_deploy.ps1
 ```
 
-### 前端
+### 前端启动说明
 
-#### 1. 安装 Node.js（npm 随 Node.js 自带）：
+前端统一存放于 `frontend/admin` 目录，依赖安装命令统一，启动命令差异化配置：
 
-访问Node.js官方下载页：<https://nodejs.org/>，下载对应系统（Windows/macOS/Linux）的LTS稳定版本并安装。
+- React：目录 `frontend/admin/react`，启动命令 `pnpm dev`，本地端口：`7000`
+- Vue Element：目录 `frontend/admin/vue-element`，启动命令 `pnpm dev`，本地端口：`3000`
+- Vue Vben：目录 `frontend/admin/vue-vben`，启动命令 `pnpm dev:antd`，本地端口：`5666`
 
-安装完成后，打开终端/命令提示符，输入以下命令验证安装成功：
-
-```bash
-node -v  # 输出Node.js版本号即成功
-npm -v   # 输出npm版本号即成功
-```
-
-#### 2. 安装 pnpm：
-
-```bash
-npm install -g pnpm
-```
-
-#### 3. 启动前端服务：
-
-进入 frontend 目录，执行以下命令，完成前端依赖安装、编译并启动开发模式：
-
-```bash
+```shell
+# 安装依赖
 pnpm install
+
+# React版本
+cd frontend/admin/react
 pnpm dev
+
+# Vue3 Element版本
+cd frontend/admin/vue-element
+pnpm dev
+
+# Vue3 Vben版本
+cd frontend/admin/vue-vben
+pnpm dev:antd
 ```
-
-### 访问测试
-
-- 前端地址：<http://localhost:5666>， 登录账号：`admin`，密码：`admin`
-- 后端文档地址：<http://localhost:7788/docs/openapi.yaml>
 
 ## 风行·核心功能列表
 
