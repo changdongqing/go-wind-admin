@@ -74,3 +74,18 @@ svg {
   // 故需设置一个往下的偏移比例，来纠正视觉上的未对齐效果
   vertical-align: -0.15em;
 }
+
+// ============================================
+// 修复 Element Plus lock-scroll 布局偏移
+// ============================================
+// Element Plus 打开 Dialog/Drawer 时会：
+//   1. 给 body 添加 .el-popup-parent--hidden（overflow: hidden）
+//   2. 通过 JS 设置 body.style.width = calc(100% - scrollBarWidth)
+// 本项目的滚动容器是 .app-main/.layout__main，body 上无滚动条，
+// scrollBarWidth 的补偿计算对 body 无意义，反而导致整个布局被收窄。
+// 解决：当 body 被 lock 时，强制恢复原始宽度。
+
+body.el-popup-parent--hidden {
+  width: auto !important;
+  overflow: visible !important;
+}
