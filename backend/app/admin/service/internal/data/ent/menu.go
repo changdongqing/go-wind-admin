@@ -5,7 +5,7 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
-	resourcepb "go-wind-admin/api/gen/go/resource/service/v1"
+	resourcepb "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent/menu"
 	"strings"
 	"time"

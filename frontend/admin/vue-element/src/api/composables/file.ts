@@ -5,7 +5,6 @@ import {
   type UseQueryOptions,
 } from "@tanstack/vue-query";
 import type {
-  storageservicev1_CreateFileRequest,
   storageservicev1_DeleteFileRequest,
   storageservicev1_File,
   storageservicev1_GetFileRequest,

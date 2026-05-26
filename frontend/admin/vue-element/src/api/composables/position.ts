@@ -5,7 +5,6 @@ import {
   type UseQueryOptions,
 } from "@tanstack/vue-query";
 import type {
-  identityservicev1_CreatePositionRequest,
   identityservicev1_DeletePositionRequest,
   identityservicev1_GetPositionRequest,
   identityservicev1_ListPositionResponse,

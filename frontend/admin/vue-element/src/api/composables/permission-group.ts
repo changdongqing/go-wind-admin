@@ -5,7 +5,6 @@ import {
   type UseQueryOptions,
 } from "@tanstack/vue-query";
 import type {
-  permissionservicev1_CreatePermissionGroupRequest,
   permissionservicev1_DeletePermissionGroupRequest,
   permissionservicev1_GetPermissionGroupRequest,
   permissionservicev1_ListPermissionGroupResponse,
@@ -56,7 +55,7 @@ export function useGetPermissionGroup(
 }
 
 export function useCreatePermissionGroup(
-  options?: UseMutationOptions<{}, Error, Record<string, any>>,
+  options?: UseMutationOptions<{}, Error, Record<string, any>>
 ) {
   return useMutation({
     mutationFn: (values) =>

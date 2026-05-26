@@ -51,7 +51,7 @@ managed:
       value: go-wind-admin/api/gen/go/identity/service/v1;identitypb
     - file_option: go_package
       path: resource/service/v1
-      value: go-wind-admin/api/gen/go/resource/service/v1;resourcepb
+      value: go-wind-admin/api/gen/go/permission/service/v1;resourcepb
 
 plugins:
   # generate go code

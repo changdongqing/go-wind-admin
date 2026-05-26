@@ -4,7 +4,7 @@ import { DrawerForm, ProFormText, ProFormSelect } from '@ant-design/pro-componen
 import { App } from 'antd';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import type { resourceservicev1_Api as Api } from '@/api/generated/admin/service/v1';
+import type { permissionservicev1_Api as Api } from '@/api/generated/admin/service/v1';
 import { useCreateApi, useUpdateApi } from '@/api/hooks/api';
 
 import { METHOD_LIST } from '@/config/constants';

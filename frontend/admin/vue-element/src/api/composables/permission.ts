@@ -8,7 +8,6 @@ import type {
   permissionservicev1_Permission,
   permissionservicev1_ListPermissionResponse,
   permissionservicev1_GetPermissionRequest,
-  permissionservicev1_CreatePermissionRequest,
   permissionservicev1_DeletePermissionRequest,
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";

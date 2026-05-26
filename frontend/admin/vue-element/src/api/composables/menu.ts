@@ -1,9 +1,8 @@
 import type {
-  resourceservicev1_CreateMenuRequest,
-  resourceservicev1_DeleteMenuRequest,
-  resourceservicev1_GetMenuRequest,
-  resourceservicev1_ListMenuResponse,
-  resourceservicev1_Menu,
+  permissionservicev1_DeleteMenuRequest,
+  permissionservicev1_GetMenuRequest,
+  permissionservicev1_ListMenuResponse,
+  permissionservicev1_Menu,
 } from "@/api/generated/admin/service/v1";
 import {
   useMutation,
@@ -21,7 +20,7 @@ import { queryClient } from "@/plugins/vue-query";
 
 export function useListMenus(
   query: PaginationQuery,
-  options?: UseQueryOptions<resourceservicev1_ListMenuResponse, Error>
+  options?: UseQueryOptions<permissionservicev1_ListMenuResponse, Error>
 ) {
   return useQuery({
     queryKey: ["listMenus", query],
@@ -39,8 +38,8 @@ export async function fetchListMenus(params: PaginationQuery) {
 }
 
 export function useGetMenu(
-  req: resourceservicev1_GetMenuRequest,
-  options?: UseQueryOptions<resourceservicev1_Menu, Error>
+  req: permissionservicev1_GetMenuRequest,
+  options?: UseQueryOptions<permissionservicev1_Menu, Error>
 ) {
   return useQuery({
     queryKey: ["getMenu", req],
@@ -52,7 +51,7 @@ export function useGetMenu(
 export function useCreateMenu(options?: UseMutationOptions<{}, Error, Record<string, any>>) {
   return useMutation({
     mutationFn: (values) =>
-      createMenu({ data: { ...values } as resourceservicev1_Menu }),
+      createMenu({ data: { ...values } as permissionservicev1_Menu }),
     ...options,
   });
 }
@@ -72,7 +71,7 @@ export function useUpdateMenu(
 }
 
 export function useDeleteMenu(
-  options?: UseMutationOptions<{}, Error, resourceservicev1_DeleteMenuRequest>
+  options?: UseMutationOptions<{}, Error, permissionservicev1_DeleteMenuRequest>
 ) {
   return useMutation({
     mutationFn: (data) => deleteMenu(data),

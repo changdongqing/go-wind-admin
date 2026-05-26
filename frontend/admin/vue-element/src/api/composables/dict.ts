@@ -9,9 +9,7 @@ import type {
   dictservicev1_ListDictTypeResponse,
   dictservicev1_ListDictEntryResponse,
   dictservicev1_DeleteDictTypeRequest,
-  dictservicev1_CreateDictEntryRequest,
   dictservicev1_DeleteDictEntryRequest,
-  dictservicev1_CreateDictTypeRequest,
   dictservicev1_GetDictTypeRequest,
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
@@ -63,11 +61,10 @@ export function useGetDictType(
 }
 
 export function useCreateDictType(
-  options?: UseMutationOptions<dictservicev1_DictType, Error, Record<string, any>>,
+  options?: UseMutationOptions<dictservicev1_DictType, Error, Record<string, any>>
 ) {
   return useMutation({
-    mutationFn: (values) =>
-      createDictType({ data: { ...values } as any }),
+    mutationFn: (values) => createDictType({ data: { ...values } as any }),
     ...options,
   });
 }

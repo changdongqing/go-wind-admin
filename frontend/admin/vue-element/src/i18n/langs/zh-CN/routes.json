@@ -12,8 +12,10 @@
   },
   "permission": {
     "moduleName": "权限管理",
-    "permission": "权限管理",
-    "role": "角色管理"
+    "code": "权限点管理",
+    "role": "角色管理",
+    "menu": "菜单管理",
+    "api": "API管理"
   },
   "internalMessage": {
     "moduleName": "站内消息",
@@ -30,8 +32,7 @@
   },
   "system": {
     "moduleName": "系统管理",
-    "menu": "菜单管理",
-    "api": "API管理",
+
     "dict": "字典管理",
     "file": "文件管理",
     "task": "任务管理",

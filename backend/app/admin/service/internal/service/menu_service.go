@@ -12,7 +12,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
-	resourceV1 "go-wind-admin/api/gen/go/resource/service/v1"
+	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
 	"go-wind-admin/pkg/constants"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
@@ -45,7 +45,7 @@ func (s *MenuService) init() {
 	}
 }
 
-func (s *MenuService) List(ctx context.Context, req *paginationV1.PagingRequest) (*resourceV1.ListMenuResponse, error) {
+func (s *MenuService) List(ctx context.Context, req *paginationV1.PagingRequest) (*permissionV1.ListMenuResponse, error) {
 	ret, err := s.menuRepo.List(ctx, req, false)
 	if err != nil {
 
@@ -55,7 +55,7 @@ func (s *MenuService) List(ctx context.Context, req *paginationV1.PagingRequest)
 	return ret, nil
 }
 
-func (s *MenuService) Get(ctx context.Context, req *resourceV1.GetMenuRequest) (*resourceV1.Menu, error) {
+func (s *MenuService) Get(ctx context.Context, req *permissionV1.GetMenuRequest) (*permissionV1.Menu, error) {
 	ret, err := s.menuRepo.Get(ctx, req)
 	if err != nil {
 
@@ -65,7 +65,7 @@ func (s *MenuService) Get(ctx context.Context, req *resourceV1.GetMenuRequest) (
 	return ret, nil
 }
 
-func (s *MenuService) Create(ctx context.Context, req *resourceV1.CreateMenuRequest) (*emptypb.Empty, error) {
+func (s *MenuService) Create(ctx context.Context, req *permissionV1.CreateMenuRequest) (*emptypb.Empty, error) {
 	if req.Data == nil {
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
 	}
@@ -86,7 +86,7 @@ func (s *MenuService) Create(ctx context.Context, req *resourceV1.CreateMenuRequ
 	return &emptypb.Empty{}, nil
 }
 
-func (s *MenuService) Update(ctx context.Context, req *resourceV1.UpdateMenuRequest) (*emptypb.Empty, error) {
+func (s *MenuService) Update(ctx context.Context, req *permissionV1.UpdateMenuRequest) (*emptypb.Empty, error) {
 	if req.Data == nil {
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
 	}
@@ -111,7 +111,7 @@ func (s *MenuService) Update(ctx context.Context, req *resourceV1.UpdateMenuRequ
 	return &emptypb.Empty{}, nil
 }
 
-func (s *MenuService) Delete(ctx context.Context, req *resourceV1.DeleteMenuRequest) (*emptypb.Empty, error) {
+func (s *MenuService) Delete(ctx context.Context, req *permissionV1.DeleteMenuRequest) (*emptypb.Empty, error) {
 	// 获取操作人信息
 	operator, err := auth.FromContext(ctx)
 	if err != nil {
@@ -129,7 +129,7 @@ func (s *MenuService) Delete(ctx context.Context, req *resourceV1.DeleteMenuRequ
 
 func (s *MenuService) createDefaultMenus(ctx context.Context) error {
 	for _, m := range constants.DefaultMenus {
-		if err := s.menuRepo.Create(ctx, &resourceV1.CreateMenuRequest{Data: m}); err != nil {
+		if err := s.menuRepo.Create(ctx, &permissionV1.CreateMenuRequest{Data: m}); err != nil {
 			s.log.Errorf("create default menu err: %v", err)
 			return err
 		}

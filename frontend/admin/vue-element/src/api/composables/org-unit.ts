@@ -4,12 +4,11 @@ import {
   useQuery,
   type UseQueryOptions,
 } from "@tanstack/vue-query";
-import {
-  type identityservicev1_CreateOrgUnitRequest,
-  type identityservicev1_DeleteOrgUnitRequest,
-  type identityservicev1_GetOrgUnitRequest,
-  type identityservicev1_ListOrgUnitResponse,
-  type identityservicev1_OrgUnit,
+import type {
+  identityservicev1_DeleteOrgUnitRequest,
+  identityservicev1_GetOrgUnitRequest,
+  identityservicev1_ListOrgUnitResponse,
+  identityservicev1_OrgUnit,
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
 import {
@@ -55,9 +54,7 @@ export function useGetOrgUnit(
   });
 }
 
-export function useCreateOrgUnit(
-  options?: UseMutationOptions<{}, Error, Record<string, any>>
-) {
+export function useCreateOrgUnit(options?: UseMutationOptions<{}, Error, Record<string, any>>) {
   return useMutation({
     mutationFn: (values) => createOrgUnit({ data: { ...values } as identityservicev1_OrgUnit }),
     ...options,

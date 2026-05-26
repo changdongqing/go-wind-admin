@@ -5,7 +5,6 @@ import {
   type UseQueryOptions,
 } from "@tanstack/vue-query";
 import type {
-  dictservicev1_CreateLanguageRequest,
   dictservicev1_DeleteLanguageRequest,
   dictservicev1_GetLanguageRequest,
   dictservicev1_Language,

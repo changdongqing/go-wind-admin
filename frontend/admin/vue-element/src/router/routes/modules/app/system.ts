@@ -16,30 +16,6 @@ const system: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: "menus",
-        name: "MenuManagement",
-        meta: {
-          order: 1,
-          icon: "lucide:square-menu",
-          title: "routes.system.menu",
-          authority: ["sys:platform_admin"],
-        },
-        component: () => import("@/views/app/system/menu/index.vue"),
-      },
-
-      {
-        path: "apis",
-        name: "APIManagement",
-        meta: {
-          order: 2,
-          icon: "lucide:route",
-          title: "routes.system.api",
-          authority: ["sys:platform_admin"],
-        },
-        component: () => import("@/views/app/system/api/index.vue"),
-      },
-
-      {
         path: "dict",
         name: "DictManagement",
         meta: {

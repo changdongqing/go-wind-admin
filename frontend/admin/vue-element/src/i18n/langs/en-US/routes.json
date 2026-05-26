@@ -12,8 +12,10 @@
   },
   "permission": {
     "moduleName": "Permission Management",
-    "permission": "Permission Point Management",
-    "role": "Role Management"
+    "code": "Permission Point Management",
+    "role": "Role Management",
+    "menu": "Menu Management",
+    "api": "API Management"
   },
   "internalMessage": {
     "moduleName": "Internal Message Management",
@@ -30,8 +32,6 @@
   },
   "system": {
     "moduleName": "System Management",
-    "menu": "Menu Management",
-    "api": "API Management",
     "dict": "Dictionary Management",
     "file": "File Management",
     "task": "Task Management",

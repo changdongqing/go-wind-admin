@@ -5,7 +5,6 @@ import {
   type UseQueryOptions,
 } from "@tanstack/vue-query";
 import type {
-  permissionservicev1_CreateRoleRequest,
   permissionservicev1_DeleteRoleRequest,
   permissionservicev1_GetRoleRequest,
   permissionservicev1_ListRoleResponse,

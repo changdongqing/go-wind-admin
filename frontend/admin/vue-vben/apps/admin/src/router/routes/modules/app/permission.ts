@@ -30,6 +30,30 @@ const permission: RouteRecordRaw[] = [
       },
 
       {
+        path: 'menus',
+        name: 'MenuManagement',
+        meta: {
+          order: 1,
+          icon: 'lucide:square-menu',
+          title: $t('menu.permission.menu'),
+          authority: ['sys:platform_admin'],
+        },
+        component: () => import('#/views/app/permission/menu/index.vue'),
+      },
+
+      {
+        path: 'apis',
+        name: 'APIManagement',
+        meta: {
+          order: 2,
+          icon: 'lucide:route',
+          title: $t('menu.permission.api'),
+          authority: ['sys:platform_admin'],
+        },
+        component: () => import('#/views/app/permission/api/index.vue'),
+      },
+
+      {
         path: 'roles',
         name: 'RoleManagement',
         meta: {

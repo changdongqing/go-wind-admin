@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import type { resourceservicev1_Menu as Menu } from '@/api/generated/admin/service/v1';
+import type { permissionservicev1_Menu as Menu } from '@/api/generated/admin/service/v1';
 import { PaginationQuery } from '@/core';
 import { fetchListMenus, useDeleteMenu } from '@/api/hooks/menu';
 import { useProTableScrollY } from '@/hooks/useProTableScrollY';

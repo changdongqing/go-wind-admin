@@ -74,7 +74,9 @@ export function useGetInternalMessage(
   });
 }
 
-export async function fetchGetInternalMessage(params: internal_messageservicev1_GetInternalMessageRequest) {
+export async function fetchGetInternalMessage(
+  params: internal_messageservicev1_GetInternalMessageRequest
+) {
   return queryClient.fetchQuery({
     queryKey: ["getInternalMessage", params],
     queryFn: () => getInternalMessage(params),

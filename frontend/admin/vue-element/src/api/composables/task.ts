@@ -5,7 +5,6 @@ import {
   type UseQueryOptions,
 } from "@tanstack/vue-query";
 import type {
-  taskservicev1_CreateTaskRequest,
   taskservicev1_DeleteTaskRequest,
   taskservicev1_GetTaskRequest,
   taskservicev1_ListTaskResponse,

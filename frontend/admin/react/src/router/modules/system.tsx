@@ -18,28 +18,6 @@ export const systemRoutes: AppRouteObject[] = [
     },
     children: [
       {
-        name: 'menus',
-        path: 'menus', // 相对路径，最终为 /system/menus
-        element: createLazyRoute(() => import('@/pages/app/system/menu')),
-        meta: {
-          title: 'routes:menus',
-          icon: 'lucide:square-menu', // Iconify 格式
-          order: 1,
-          // permission: 'sys:platform_admin', // 仅平台管理员权限（开发阶段暂时注释）
-        },
-      },
-      {
-        name: 'apis',
-        path: 'apis', // 相对路径，最终为 /system/apis
-        element: createLazyRoute(() => import('@/pages/app/system/api')),
-        meta: {
-          title: 'routes:apis',
-          icon: 'lucide:route', // Iconify 格式
-          order: 2,
-          // permission: 'sys:platform_admin', // 仅平台管理员权限（开发阶段暂时注释）
-        },
-      },
-      {
         name: 'dict',
         path: 'dict', // 相对路径，最终为 /system/dict
         element: createLazyRoute(() => import('@/pages/app/system/dict')),

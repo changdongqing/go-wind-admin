@@ -5,11 +5,11 @@ import {
   type UseQueryOptions,
 } from '@tanstack/react-query';
 import {
-  type resourceservicev1_Api,
-  type resourceservicev1_CreateApiRequest,
-  type resourceservicev1_DeleteApiRequest,
-  type resourceservicev1_GetApiRequest,
-  type resourceservicev1_ListApiResponse,
+  type permissionservicev1_Api,
+  type permissionservicev1_CreateApiRequest,
+  type permissionservicev1_DeleteApiRequest,
+  type permissionservicev1_GetApiRequest,
+  type permissionservicev1_ListApiResponse,
 } from '@/api/generated/admin/service/v1';
 import { makeUpdateMask, type PaginationQuery, queryClient } from '@/core';
 import { listApis, getApi, createApi, updateApi, deleteApi, syncApis } from '@/api/service/api';
@@ -20,7 +20,7 @@ import { listApis, getApi, createApi, updateApi, deleteApi, syncApis } from '@/a
 
 export function useListApis(
   query: PaginationQuery,
-  options?: UseQueryOptions<resourceservicev1_ListApiResponse, Error>,
+  options?: UseQueryOptions<permissionservicev1_ListApiResponse, Error>,
 ) {
   return useQuery({
     queryKey: ['listApis', query],
@@ -38,8 +38,8 @@ export async function fetchListApis(params: PaginationQuery) {
 }
 
 export function useGetApi(
-  req: resourceservicev1_GetApiRequest,
-  options?: UseQueryOptions<resourceservicev1_Api, Error>,
+  req: permissionservicev1_GetApiRequest,
+  options?: UseQueryOptions<permissionservicev1_Api, Error>,
 ) {
   return useQuery({
     queryKey: ['getApi', req],
@@ -49,7 +49,7 @@ export function useGetApi(
 }
 
 export function useCreateApi(
-  options?: UseMutationOptions<{}, Error, resourceservicev1_CreateApiRequest>,
+  options?: UseMutationOptions<{}, Error, permissionservicev1_CreateApiRequest>,
 ) {
   return useMutation({
     mutationFn: (data) => createApi(data),
@@ -74,7 +74,7 @@ export function useUpdateApi(
 }
 
 export function useDeleteApi(
-  options?: UseMutationOptions<{}, Error, resourceservicev1_DeleteApiRequest>,
+  options?: UseMutationOptions<{}, Error, permissionservicev1_DeleteApiRequest>,
 ) {
   return useMutation({
     mutationFn: (data) => deleteApi(data),

@@ -5,11 +5,10 @@ import {
   type UseQueryOptions,
 } from "@tanstack/vue-query";
 import type {
-  resourceservicev1_Api,
-  resourceservicev1_CreateApiRequest,
-  resourceservicev1_DeleteApiRequest,
-  resourceservicev1_GetApiRequest,
-  resourceservicev1_ListApiResponse,
+  permissionservicev1_Api,
+  permissionservicev1_DeleteApiRequest,
+  permissionservicev1_GetApiRequest,
+  permissionservicev1_ListApiResponse,
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
 import { listApis, getApi, createApi, updateApi, deleteApi, syncApis } from "@/api/service/api";
@@ -21,7 +20,7 @@ import { queryClient } from "@/plugins/vue-query";
 
 export function useListApis(
   query: PaginationQuery,
-  options?: UseQueryOptions<resourceservicev1_ListApiResponse, Error>
+  options?: UseQueryOptions<permissionservicev1_ListApiResponse, Error>
 ) {
   return useQuery({
     queryKey: ["listApis", query],
@@ -39,8 +38,8 @@ export async function fetchListApis(params: PaginationQuery) {
 }
 
 export function useGetApi(
-  req: resourceservicev1_GetApiRequest,
-  options?: UseQueryOptions<resourceservicev1_Api, Error>
+  req: permissionservicev1_GetApiRequest,
+  options?: UseQueryOptions<permissionservicev1_Api, Error>
 ) {
   return useQuery({
     queryKey: ["getApi", req],
@@ -51,7 +50,7 @@ export function useGetApi(
 
 export function useCreateApi(options?: UseMutationOptions<{}, Error, Record<string, any>>) {
   return useMutation({
-    mutationFn: (values) => createApi({ data: { ...values } as resourceservicev1_Api }),
+    mutationFn: (values) => createApi({ data: { ...values } as permissionservicev1_Api }),
     ...options,
   });
 }
@@ -73,7 +72,7 @@ export function useUpdateApi(
 }
 
 export function useDeleteApi(
-  options?: UseMutationOptions<{}, Error, resourceservicev1_DeleteApiRequest>
+  options?: UseMutationOptions<{}, Error, permissionservicev1_DeleteApiRequest>
 ) {
   return useMutation({
     mutationFn: (data) => deleteApi(data),

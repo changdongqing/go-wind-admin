@@ -55,15 +55,10 @@ export function useGetLoginPolicy(
 }
 
 export function useCreateLoginPolicy(
-  options?: UseMutationOptions<
-    authenticationservicev1_LoginPolicy,
-    Error,
-    Record<string, any>
-  >,
+  options?: UseMutationOptions<authenticationservicev1_LoginPolicy, Error, Record<string, any>>
 ) {
   return useMutation({
-    mutationFn: (values) =>
-      createLoginPolicy({ ...values } as authenticationservicev1_LoginPolicy),
+    mutationFn: (values) => createLoginPolicy({ ...values } as authenticationservicev1_LoginPolicy),
     ...options,
   });
 }

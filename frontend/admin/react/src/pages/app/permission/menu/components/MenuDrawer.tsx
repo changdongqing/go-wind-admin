@@ -13,7 +13,7 @@ import {
 import { Divider, App } from 'antd';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import type { resourceservicev1_Menu as Menu } from '@/api/generated/admin/service/v1';
+import type { permissionservicev1_Menu as Menu } from '@/api/generated/admin/service/v1';
 import { useCreateMenu, useUpdateMenu, fetchListMenus } from '@/api/hooks/menu';
 import { PaginationQuery } from '@/core';
 import {

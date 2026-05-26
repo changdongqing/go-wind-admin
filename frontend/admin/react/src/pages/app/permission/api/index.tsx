@@ -5,7 +5,7 @@ import { Button, Popconfirm, App } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, SyncOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import type { resourceservicev1_Api as Api } from '@/api/generated/admin/service/v1';
+import type { permissionservicev1_Api as Api } from '@/api/generated/admin/service/v1';
 import { PaginationQuery } from '@/core';
 import { TABLE, METHOD_LIST } from '@/config/constants';
 import { fetchListApis, useSyncApisApi, useDeleteApi } from '@/api/hooks/api';

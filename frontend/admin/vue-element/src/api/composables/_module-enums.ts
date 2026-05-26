@@ -10,7 +10,10 @@ const t = i18n.global.t;
 // ==============================
 // 菜单 (menu)
 // ==============================
-import type { resourceservicev1_Menu as Menu, resourceservicev1_Menu_Type as Menu_Type } from "@/api/generated/admin/service/v1";
+import type {
+  permissionservicev1_Menu as Menu,
+  permissionservicev1_Menu_Type as Menu_Type,
+} from "@/api/generated/admin/service/v1";
 
 export const menuTypeList = computed(() => [
   { value: "CATALOG", label: t("enum.menu.type.CATALOG") },
@@ -28,12 +31,18 @@ export function menuTypeToName(menuType: any): string {
 
 export function menuTypeToColor(menuType: Menu_Type) {
   switch (menuType) {
-    case "BUTTON": return "#F56C6C";
-    case "CATALOG": return "#27AE60";
-    case "EMBEDDED": return "#4096FF";
-    case "LINK": return "#9B59B6";
-    case "MENU": return "#165DFF";
-    default: return "#86909C";
+    case "BUTTON":
+      return "#F56C6C";
+    case "CATALOG":
+      return "#27AE60";
+    case "EMBEDDED":
+      return "#4096FF";
+    case "LINK":
+      return "#9B59B6";
+    case "MENU":
+      return "#165DFF";
+    default:
+      return "#86909C";
   }
 }
 
@@ -83,7 +92,10 @@ export function buildMenuTree(menus: Menu[]): Menu[] {
 // ==============================
 // 用户 (user)
 // ==============================
-import type { identityservicev1_User_Gender as User_Gender, identityservicev1_User_Status as User_Status } from "@/api/generated/admin/service/v1";
+import type {
+  identityservicev1_User_Gender as User_Gender,
+  identityservicev1_User_Status as User_Status,
+} from "@/api/generated/admin/service/v1";
 
 export const userStatusList = computed(() => [
   { value: "NORMAL", label: t("enum.user.status.NORMAL") },
@@ -129,17 +141,25 @@ export function genderToName(gender?: User_Gender) {
 
 export function genderToColor(gender?: User_Gender) {
   switch (gender) {
-    case "FEMALE": return "#F77272";
-    case "MALE": return "#4096FF";
-    case "SECRET": return "#86909C";
-    default: return "#C9CDD4";
+    case "FEMALE":
+      return "#F77272";
+    case "MALE":
+      return "#4096FF";
+    case "SECRET":
+      return "#86909C";
+    default:
+      return "#C9CDD4";
   }
 }
 
 // ==============================
 // 组织单位 (org-unit)
 // ==============================
-import type { identityservicev1_OrgUnit as OrgUnit, identityservicev1_OrgUnit_Status as OrgUnit_Status, identityservicev1_OrgUnit_Type as OrgUnit_Type } from "@/api/generated/admin/service/v1";
+import type {
+  identityservicev1_OrgUnit as OrgUnit,
+  identityservicev1_OrgUnit_Status as OrgUnit_Status,
+  identityservicev1_OrgUnit_Type as OrgUnit_Type,
+} from "@/api/generated/admin/service/v1";
 
 export const orgUnitStatusList = computed(() => [
   { value: "ON", label: t("enum.status.ON") },
@@ -154,24 +174,43 @@ export function orgUnitStatusToName(status: OrgUnit_Status) {
 
 export function orgUnitStatusToColor(status: OrgUnit_Status) {
   switch (status) {
-    case "OFF": return "#8C8C8C";
-    case "ON": return "#52C41A";
-    default: return "#C9CDD4";
+    case "OFF":
+      return "#8C8C8C";
+    case "ON":
+      return "#52C41A";
+    default:
+      return "#C9CDD4";
   }
 }
 
 export const orgUnitTypeList = computed(() => {
   const typeOrder: OrgUnit_Type[] = [
-    "COMPANY", "DIVISION", "DEPARTMENT", "TEAM", "PROJECT",
-    "COMMITTEE", "REGION", "SUBSIDIARY", "BRANCH", "OTHER",
+    "COMPANY",
+    "DIVISION",
+    "DEPARTMENT",
+    "TEAM",
+    "PROJECT",
+    "COMMITTEE",
+    "REGION",
+    "SUBSIDIARY",
+    "BRANCH",
+    "OTHER",
   ];
   return typeOrder.map((type) => ({ value: type, label: t(`enum.orgUnit.type.${type}`) }));
 });
 
 export const orgUnitTypeListForQuery = computed(() => {
   const queryAllowTypes: OrgUnit_Type[] = [
-    "BRANCH", "COMMITTEE", "COMPANY", "DEPARTMENT", "DIVISION",
-    "OTHER", "PROJECT", "REGION", "SUBSIDIARY", "TEAM",
+    "BRANCH",
+    "COMMITTEE",
+    "COMPANY",
+    "DEPARTMENT",
+    "DIVISION",
+    "OTHER",
+    "PROJECT",
+    "REGION",
+    "SUBSIDIARY",
+    "TEAM",
   ];
   const allowTypeSet = new Set(queryAllowTypes);
   return orgUnitTypeList.value.filter((item) => allowTypeSet.has(item.value));
@@ -184,10 +223,17 @@ export function orgUnitTypeToName(orgUnitType: OrgUnit_Type) {
 }
 
 const ORG_UNIT_COLOR_MAP: Record<string, string> = {
-  BRANCH: "#4096FF", COMMITTEE: "#00B42A", COMPANY: "#165DFF",
-  DEPARTMENT: "#722ED1", DIVISION: "#FF7D00", OTHER: "#86909C",
-  PROJECT: "#F53F3F", REGION: "#14C9C9", SUBSIDIARY: "#6B778C",
-  TEAM: "#FFC53D", DEFAULT: "#C9CDD4",
+  BRANCH: "#4096FF",
+  COMMITTEE: "#00B42A",
+  COMPANY: "#165DFF",
+  DEPARTMENT: "#722ED1",
+  DIVISION: "#FF7D00",
+  OTHER: "#86909C",
+  PROJECT: "#F53F3F",
+  REGION: "#14C9C9",
+  SUBSIDIARY: "#6B778C",
+  TEAM: "#FFC53D",
+  DEFAULT: "#C9CDD4",
 };
 
 export function orgUnitTypeToColor(orgUnitType: OrgUnit_Type) {
@@ -209,7 +255,10 @@ export const findOrgUnit = (list: OrgUnit[], id: number): null | OrgUnit | undef
 // ==============================
 // 职位 (position)
 // ==============================
-import type { identityservicev1_Position_Status as Position_Status, identityservicev1_Position_Type as Position_Type } from "@/api/generated/admin/service/v1";
+import type {
+  identityservicev1_Position_Status as Position_Status,
+  identityservicev1_Position_Type as Position_Type,
+} from "@/api/generated/admin/service/v1";
 
 export const membershipPositionStatusList = computed(() => [
   { value: "PROBATION", label: t("enum.membershipPosition.status.PROBATION") },
@@ -227,12 +276,20 @@ export function membershipPositionStatusToName(status: any) {
 }
 
 const MEMBERSHIP_POSITION_STATUS_COLOR_MAP: Record<string, string> = {
-  PROBATION: "#4096FF", ACTIVE: "#00B42A", LEAVE: "#FF9A2E",
-  RESIGNED: "#F56C6C", TERMINATED: "#F53F3F", EXPIRED: "#909399", DEFAULT: "#C9CDD4",
+  PROBATION: "#4096FF",
+  ACTIVE: "#00B42A",
+  LEAVE: "#FF9A2E",
+  RESIGNED: "#F56C6C",
+  TERMINATED: "#F53F3F",
+  EXPIRED: "#909399",
+  DEFAULT: "#C9CDD4",
 };
 
 export function membershipPositionStatusToColor(status: Position_Status) {
-  return MEMBERSHIP_POSITION_STATUS_COLOR_MAP[status as string] || MEMBERSHIP_POSITION_STATUS_COLOR_MAP.DEFAULT;
+  return (
+    MEMBERSHIP_POSITION_STATUS_COLOR_MAP[status as string] ||
+    MEMBERSHIP_POSITION_STATUS_COLOR_MAP.DEFAULT
+  );
 }
 
 export const positionTypeList = computed(() => [
@@ -252,16 +309,29 @@ export function positionTypeToName(status: Position_Status) {
 
 const POSITION_TYPE_COLOR_THEME: Record<string, Record<string, string>> = {
   light: {
-    REGULAR: "#165DFF", LEADER: "#722ED1", MANAGER: "#FF7D00",
-    INTERN: "#52C41A", CONTRACT: "#14C9C9", OTHER: "#86909C", DEFAULT: "#C9CDD4",
+    REGULAR: "#165DFF",
+    LEADER: "#722ED1",
+    MANAGER: "#FF7D00",
+    INTERN: "#52C41A",
+    CONTRACT: "#14C9C9",
+    OTHER: "#86909C",
+    DEFAULT: "#C9CDD4",
   },
   dark: {
-    REGULAR: "#2F77FF", LEADER: "#8542E7", MANAGER: "#FF9529",
-    INTERN: "#67E037", CONTRACT: "#20E0E0", OTHER: "#9BA3AD", DEFAULT: "#DCE0E6",
+    REGULAR: "#2F77FF",
+    LEADER: "#8542E7",
+    MANAGER: "#FF9529",
+    INTERN: "#67E037",
+    CONTRACT: "#20E0E0",
+    OTHER: "#9BA3AD",
+    DEFAULT: "#DCE0E6",
   },
 };
 
-export function positionTypeToColor(positionType: Position_Type, theme: "dark" | "light" = "light"): string {
+export function positionTypeToColor(
+  positionType: Position_Type,
+  theme: "dark" | "light" = "light"
+): string {
   const colorMap = POSITION_TYPE_COLOR_THEME[theme];
   return colorMap[positionType as string] || colorMap.DEFAULT;
 }
@@ -269,7 +339,11 @@ export function positionTypeToColor(positionType: Position_Type, theme: "dark" |
 // ==============================
 // 租户 (tenant)
 // ==============================
-import type { identityservicev1_Tenant_AuditStatus as Tenant_AuditStatus, identityservicev1_Tenant_Status as Tenant_Status, identityservicev1_Tenant_Type as Tenant_Type } from "@/api/generated/admin/service/v1";
+import type {
+  identityservicev1_Tenant_AuditStatus as Tenant_AuditStatus,
+  identityservicev1_Tenant_Status as Tenant_Status,
+  identityservicev1_Tenant_Type as Tenant_Type,
+} from "@/api/generated/admin/service/v1";
 
 export const tenantTypeList = computed(() => [
   { value: "TRIAL", label: t("enum.tenant.type.TRIAL") },
@@ -287,12 +361,18 @@ export function tenantTypeToName(tenantType: Tenant_Type) {
 
 export function tenantTypeToColor(tenantType: Tenant_Type) {
   switch (tenantType) {
-    case "CUSTOM": return "#0050B3";
-    case "INTERNAL": return "#1890FF";
-    case "PAID": return "#52C41A";
-    case "PARTNER": return "#722ED1";
-    case "TRIAL": return "#FF7D00";
-    default: return "#8C8C8C";
+    case "CUSTOM":
+      return "#0050B3";
+    case "INTERNAL":
+      return "#1890FF";
+    case "PAID":
+      return "#52C41A";
+    case "PARTNER":
+      return "#722ED1";
+    case "TRIAL":
+      return "#FF7D00";
+    default:
+      return "#8C8C8C";
   }
 }
 
@@ -311,11 +391,16 @@ export function tenantStatusToName(tenantStatus: Tenant_Status) {
 
 export function tenantStatusToColor(tenantStatus: Tenant_Status) {
   switch (tenantStatus) {
-    case "EXPIRED": return "#F5222D";
-    case "FREEZE": return "#FAAD14";
-    case "OFF": return "#8C8C8C";
-    case "ON": return "#52C41A";
-    default: return "#8C8C8C";
+    case "EXPIRED":
+      return "#F5222D";
+    case "FREEZE":
+      return "#FAAD14";
+    case "OFF":
+      return "#8C8C8C";
+    case "ON":
+      return "#52C41A";
+    default:
+      return "#8C8C8C";
   }
 }
 
@@ -333,10 +418,14 @@ export function tenantAuditStatusToName(tenantAuditStatus: Tenant_AuditStatus) {
 
 export function tenantAuditStatusToColor(tenantAuditStatus: Tenant_AuditStatus) {
   switch (tenantAuditStatus) {
-    case "APPROVED": return "#52C41A";
-    case "PENDING": return "#1890FF";
-    case "REJECTED": return "#F5222D";
-    default: return "#8C8C8C";
+    case "APPROVED":
+      return "#52C41A";
+    case "PENDING":
+      return "#1890FF";
+    case "REJECTED":
+      return "#F5222D";
+    default:
+      return "#8C8C8C";
   }
 }
 
@@ -379,12 +468,19 @@ export function internalMessageStatusLabel(value: InternalMessage_Status): strin
 }
 
 const INTERNAL_MESSAGE_STATUS_COLOR_MAP: Record<string, string> = {
-  ARCHIVED: "#86909C", DELETED: "#C9CDD4", DRAFT: "#9CA3AF",
-  PUBLISHED: "#00B42A", REVOKED: "#F53F3F", SCHEDULED: "#165DFF", DEFAULT: "#E5E7EB",
+  ARCHIVED: "#86909C",
+  DELETED: "#C9CDD4",
+  DRAFT: "#9CA3AF",
+  PUBLISHED: "#00B42A",
+  REVOKED: "#F53F3F",
+  SCHEDULED: "#165DFF",
+  DEFAULT: "#E5E7EB",
 };
 
 export function internalMessageStatusColor(status: InternalMessage_Status): string {
-  return INTERNAL_MESSAGE_STATUS_COLOR_MAP[status as string] || INTERNAL_MESSAGE_STATUS_COLOR_MAP.DEFAULT;
+  return (
+    INTERNAL_MESSAGE_STATUS_COLOR_MAP[status as string] || INTERNAL_MESSAGE_STATUS_COLOR_MAP.DEFAULT
+  );
 }
 
 export function internalMessageTypeLabel(value: InternalMessage_Type): string {
@@ -394,14 +490,19 @@ export function internalMessageTypeLabel(value: InternalMessage_Type): string {
 }
 
 const INTERNAL_MESSAGE_TYPE_COLOR_MAP: Record<string, string> = {
-  GROUP: "#00B42A", NOTIFICATION: "#165DFF", PRIVATE: "#722ED1", DEFAULT: "#C9CDD4",
+  GROUP: "#00B42A",
+  NOTIFICATION: "#165DFF",
+  PRIVATE: "#722ED1",
+  DEFAULT: "#C9CDD4",
 };
 
 export function internalMessageTypeColor(type: InternalMessage_Type): string {
   return INTERNAL_MESSAGE_TYPE_COLOR_MAP[type as string] || INTERNAL_MESSAGE_TYPE_COLOR_MAP.DEFAULT;
 }
 
-export function internalMessageRecipientStatusLabel(value: InternalMessageRecipient_Status): string {
+export function internalMessageRecipientStatusLabel(
+  value: InternalMessageRecipient_Status
+): string {
   const values = internalMessageRecipientStatusList.value;
   const matchedItem = values.find((item) => item.value === value);
   return matchedItem ? matchedItem.label : "";
@@ -409,12 +510,20 @@ export function internalMessageRecipientStatusLabel(value: InternalMessageRecipi
 
 const INTERNAL_MESSAGE_RECIPIENT_COLOR_THEME: Record<string, Record<string, string>> = {
   light: {
-    DELETED: "#C9CDD4", READ: "#86909C", RECEIVED: "#165DFF",
-    REVOKED: "#F53F3F", SENT: "#4096FF", DEFAULT: "#E5E7EB",
+    DELETED: "#C9CDD4",
+    READ: "#86909C",
+    RECEIVED: "#165DFF",
+    REVOKED: "#F53F3F",
+    SENT: "#4096FF",
+    DEFAULT: "#E5E7EB",
   },
   dark: {
-    DELETED: "#6E7681", READ: "#4E5969", RECEIVED: "#2F77FF",
-    REVOKED: "#F87171", SENT: "#69B1FF", DEFAULT: "#4B5563",
+    DELETED: "#6E7681",
+    READ: "#4E5969",
+    RECEIVED: "#2F77FF",
+    REVOKED: "#F87171",
+    SENT: "#69B1FF",
+    DEFAULT: "#4B5563",
   },
 };
 
@@ -445,17 +554,24 @@ export function taskTypeToName(taskType: Task_Type) {
 
 export function taskTypeToColor(taskType: Task_Type) {
   switch (taskType) {
-    case "DELAY": return "blue";
-    case "PERIODIC": return "orange";
-    case "WAIT_RESULT": return "purple";
-    default: return "gray";
+    case "DELAY":
+      return "blue";
+    case "PERIODIC":
+      return "orange";
+    case "WAIT_RESULT":
+      return "purple";
+    default:
+      return "gray";
   }
 }
 
 // ==============================
 // 登录策略 (login-policy)
 // ==============================
-import type { authenticationservicev1_LoginPolicy_Method as LoginPolicy_Method, authenticationservicev1_LoginPolicy_Type as LoginPolicy_Type } from "@/api/generated/admin/service/v1";
+import type {
+  authenticationservicev1_LoginPolicy_Method as LoginPolicy_Method,
+  authenticationservicev1_LoginPolicy_Type as LoginPolicy_Type,
+} from "@/api/generated/admin/service/v1";
 
 export const loginPolicyTypeList = computed(() => [
   { value: "BLACKLIST", label: t("enum.loginPolicy.type.BLACKLIST") },
@@ -471,12 +587,18 @@ export const loginPolicyMethodList = computed(() => [
 ]);
 
 const LOGIN_POLICY_METHOD_COLOR_MAP: Record<string, string> = {
-  IP: "#4096FF", MAC: "#909399", REGION: "#FF9A2E",
-  TIME: "#F56C6C", DEVICE: "#86909C", DEFAULT: "#86909C",
+  IP: "#4096FF",
+  MAC: "#909399",
+  REGION: "#FF9A2E",
+  TIME: "#F56C6C",
+  DEVICE: "#86909C",
+  DEFAULT: "#86909C",
 };
 
 export function loginPolicyMethodToColor(methodName: LoginPolicy_Method) {
-  return LOGIN_POLICY_METHOD_COLOR_MAP[methodName as string] || LOGIN_POLICY_METHOD_COLOR_MAP.DEFAULT;
+  return (
+    LOGIN_POLICY_METHOD_COLOR_MAP[methodName as string] || LOGIN_POLICY_METHOD_COLOR_MAP.DEFAULT
+  );
 }
 
 export function loginPolicyTypeToName(typeName: LoginPolicy_Type) {
@@ -487,9 +609,12 @@ export function loginPolicyTypeToName(typeName: LoginPolicy_Type) {
 
 export function loginPolicyTypeToColor(typeName: LoginPolicy_Type) {
   switch (typeName) {
-    case "BLACKLIST": return "red";
-    case "WHITELIST": return "green";
-    default: return "gray";
+    case "BLACKLIST":
+      return "red";
+    case "WHITELIST":
+      return "green";
+    default:
+      return "gray";
   }
 }
 
@@ -509,24 +634,35 @@ import type {
 } from "@/api/generated/admin/service/v1";
 
 const COLORS = {
-  neutral: "#86909C", success: "#1F7A34", warning: "#FA8C16",
-  danger: "#D32F2F", info: "#1890FF",
+  neutral: "#86909C",
+  success: "#1F7A34",
+  warning: "#FA8C16",
+  danger: "#D32F2F",
+  info: "#1890FF",
 };
 
 const LOGIN_AUDIT_LOG_STATUS_COLOR_MAP: Record<string, string> = {
-  STATUS_UNSPECIFIED: COLORS.neutral, SUCCESS: COLORS.success,
-  FAILED: COLORS.danger, PARTIAL: COLORS.warning, LOCKED: COLORS.warning,
+  STATUS_UNSPECIFIED: COLORS.neutral,
+  SUCCESS: COLORS.success,
+  FAILED: COLORS.danger,
+  PARTIAL: COLORS.warning,
+  LOCKED: COLORS.warning,
 };
 
 const LOGIN_AUDIT_LOG_ACTION_TYPE_COLOR_MAP: Record<string, string> = {
-  ACTION_TYPE_UNSPECIFIED: COLORS.neutral, LOGIN: COLORS.success,
-  LOGOUT: COLORS.info, SESSION_EXPIRED: COLORS.warning,
-  KICKED_OUT: COLORS.warning, PASSWORD_RESET: COLORS.warning,
+  ACTION_TYPE_UNSPECIFIED: COLORS.neutral,
+  LOGIN: COLORS.success,
+  LOGOUT: COLORS.info,
+  SESSION_EXPIRED: COLORS.warning,
+  KICKED_OUT: COLORS.warning,
+  PASSWORD_RESET: COLORS.warning,
 };
 
 const LOGIN_AUDIT_LOG_RISK_LEVEL_COLOR_MAP: Record<string, string> = {
-  RISK_LEVEL_UNSPECIFIED: COLORS.neutral, LOW: COLORS.success,
-  MEDIUM: COLORS.warning, HIGH: COLORS.danger,
+  RISK_LEVEL_UNSPECIFIED: COLORS.neutral,
+  LOW: COLORS.success,
+  MEDIUM: COLORS.warning,
+  HIGH: COLORS.danger,
 };
 
 export function getLoginAuditLogStatusColor(status: LoginAuditLog_Status): string {
@@ -543,10 +679,14 @@ export function getLoginAuditLogRiskLevelColor(riskLevel: LoginAuditLog_RiskLeve
 
 export function loginAuditLogStatusToName(status: LoginAuditLog_Status) {
   switch (status) {
-    case "FAILED": return t("enum.loginAuditLog.status.FAILED");
-    case "PARTIAL": return t("enum.loginAuditLog.status.PARTIAL");
-    case "SUCCESS": return t("enum.loginAuditLog.status.SUCCESS");
-    default: return "";
+    case "FAILED":
+      return t("enum.loginAuditLog.status.FAILED");
+    case "PARTIAL":
+      return t("enum.loginAuditLog.status.PARTIAL");
+    case "SUCCESS":
+      return t("enum.loginAuditLog.status.SUCCESS");
+    default:
+      return "";
   }
 }
 
@@ -558,10 +698,14 @@ export const loginAuditLogStatusList = computed(() => [
 
 export function loginAuditLogActionTypeToName(status: LoginAuditLog_ActionType) {
   switch (status) {
-    case "LOGIN": return t("enum.loginAuditLog.actionType.LOGIN");
-    case "LOGOUT": return t("enum.loginAuditLog.actionType.LOGOUT");
-    case "SESSION_EXPIRED": return t("enum.loginAuditLog.actionType.SESSION_EXPIRED");
-    default: return "";
+    case "LOGIN":
+      return t("enum.loginAuditLog.actionType.LOGIN");
+    case "LOGOUT":
+      return t("enum.loginAuditLog.actionType.LOGOUT");
+    case "SESSION_EXPIRED":
+      return t("enum.loginAuditLog.actionType.SESSION_EXPIRED");
+    default:
+      return "";
   }
 }
 
@@ -573,10 +717,14 @@ export const loginAuditLogActionTypeList = computed(() => [
 
 export function loginAuditLogRiskLevelToName(status: LoginAuditLog_RiskLevel) {
   switch (status) {
-    case "HIGH": return t("enum.loginAuditLog.riskLevel.HIGH");
-    case "LOW": return t("enum.loginAuditLog.riskLevel.LOW");
-    case "MEDIUM": return t("enum.loginAuditLog.riskLevel.MEDIUM");
-    default: return "";
+    case "HIGH":
+      return t("enum.loginAuditLog.riskLevel.HIGH");
+    case "LOW":
+      return t("enum.loginAuditLog.riskLevel.LOW");
+    case "MEDIUM":
+      return t("enum.loginAuditLog.riskLevel.MEDIUM");
+    default:
+      return "";
   }
 }
 
@@ -604,13 +752,23 @@ export const operationAuditLogActionList = computed(() => [
 ]);
 
 const OPERATION_AUDIT_LOG_ACTION_COLOR_MAP: Record<string, string> = {
-  CREATE: "#1677FF", UPDATE: "#597EF7", DELETE: "#FF4D4F", READ: "#6B7280",
-  ASSIGN: "#722ED1", UNASSIGN: "#A855F7", EXPORT: "#00B42A", IMPORT: "#36CFC9",
-  OTHER: "#86909C", DEFAULT: "#86909C",
+  CREATE: "#1677FF",
+  UPDATE: "#597EF7",
+  DELETE: "#FF4D4F",
+  READ: "#6B7280",
+  ASSIGN: "#722ED1",
+  UNASSIGN: "#A855F7",
+  EXPORT: "#00B42A",
+  IMPORT: "#36CFC9",
+  OTHER: "#86909C",
+  DEFAULT: "#86909C",
 };
 
 export function operationAuditLogActionToColor(action: OperationActionType) {
-  return OPERATION_AUDIT_LOG_ACTION_COLOR_MAP[action as string] || OPERATION_AUDIT_LOG_ACTION_COLOR_MAP.DEFAULT;
+  return (
+    OPERATION_AUDIT_LOG_ACTION_COLOR_MAP[action as string] ||
+    OPERATION_AUDIT_LOG_ACTION_COLOR_MAP.DEFAULT
+  );
 }
 
 export function operationAuditLogActionToName(action: OperationActionType) {
@@ -642,14 +800,28 @@ export const permissionAuditLogActionList = computed(() => [
 ]);
 
 const PERMISSION_AUDIT_LOG_ACTION_COLOR_MAP: Record<string, string> = {
-  GRANT: "#1677FF", REVOKE: "#FF4D4F", UPDATE: "#597EF7", RESET: "#6B7280",
-  CREATE: "#722ED1", DELETE: "#FF4D4F", ASSIGN: "#00B42A", UNASSIGN: "#FF7875",
-  BULK_GRANT: "#36CFC9", BULK_REVOKE: "#FFC0C2", EXPIRE: "#FF4D4F",
-  RESUME: "#00B42A", ROLLBACK: "#597EF7", OTHER: "#86909C", DEFAULT: "#86909C",
+  GRANT: "#1677FF",
+  REVOKE: "#FF4D4F",
+  UPDATE: "#597EF7",
+  RESET: "#6B7280",
+  CREATE: "#722ED1",
+  DELETE: "#FF4D4F",
+  ASSIGN: "#00B42A",
+  UNASSIGN: "#FF7875",
+  BULK_GRANT: "#36CFC9",
+  BULK_REVOKE: "#FFC0C2",
+  EXPIRE: "#FF4D4F",
+  RESUME: "#00B42A",
+  ROLLBACK: "#597EF7",
+  OTHER: "#86909C",
+  DEFAULT: "#86909C",
 };
 
 export function permissionAuditLogActionToColor(action: PermissionAuditActionType) {
-  return PERMISSION_AUDIT_LOG_ACTION_COLOR_MAP[action as string] || PERMISSION_AUDIT_LOG_ACTION_COLOR_MAP.DEFAULT;
+  return (
+    PERMISSION_AUDIT_LOG_ACTION_COLOR_MAP[action as string] ||
+    PERMISSION_AUDIT_LOG_ACTION_COLOR_MAP.DEFAULT
+  );
 }
 
 export function permissionAuditLogActionToName(action: PermissionAuditActionType) {
@@ -682,15 +854,29 @@ export const dataAccessAuditLogAccessTypeList = computed(() => [
 ]);
 
 const DATA_ACCESS_AUDIT_LOG_ACCESS_TYPE_COLOR_MAP: Record<string, string> = {
-  SELECT: "#1677FF", INSERT: "#597EF7", UPDATE: "#597EF7", DELETE: "#FF4D4F",
-  VIEW: "#6B7280", BULK_READ: "#6B7280", EXPORT: "#00B42A", IMPORT: "#36CFC9",
-  DDL_CREATE: "#722ED1", DDL_ALTER: "#A855F7", DDL_DROP: "#FF4D4F",
-  METADATA_READ: "#86909C", SCAN: "#86909C", ADMIN_OPERATION: "#722ED1",
-  OTHER: "#86909C", DEFAULT: "#86909C",
+  SELECT: "#1677FF",
+  INSERT: "#597EF7",
+  UPDATE: "#597EF7",
+  DELETE: "#FF4D4F",
+  VIEW: "#6B7280",
+  BULK_READ: "#6B7280",
+  EXPORT: "#00B42A",
+  IMPORT: "#36CFC9",
+  DDL_CREATE: "#722ED1",
+  DDL_ALTER: "#A855F7",
+  DDL_DROP: "#FF4D4F",
+  METADATA_READ: "#86909C",
+  SCAN: "#86909C",
+  ADMIN_OPERATION: "#722ED1",
+  OTHER: "#86909C",
+  DEFAULT: "#86909C",
 };
 
 export function dataAccessAuditLogAccessTypeToColor(accessType: AccessType) {
-  return DATA_ACCESS_AUDIT_LOG_ACCESS_TYPE_COLOR_MAP[accessType as string] || DATA_ACCESS_AUDIT_LOG_ACCESS_TYPE_COLOR_MAP.DEFAULT;
+  return (
+    DATA_ACCESS_AUDIT_LOG_ACCESS_TYPE_COLOR_MAP[accessType as string] ||
+    DATA_ACCESS_AUDIT_LOG_ACCESS_TYPE_COLOR_MAP.DEFAULT
+  );
 }
 
 export function dataAccessAuditLogAccessTypeToName(accessType: AccessType) {
@@ -724,9 +910,17 @@ export function ossProviderLabel(value: OSSProvider): string {
 }
 
 const OSS_PROVIDER_COLOR_MAP: Record<string, string> = {
-  LOCAL: "#36D399", MINIO: "#2563EB", QINIU: "#722ED1", ALIYUN: "#FF6A00",
-  TENCENT: "#12B7F5", BAIDU: "#4080FF", HUAWEI: "#E64340", AWS: "#FF9900",
-  AZURE: "#0078D4", GOOGLE: "#4285F4", DEFAULT: "#C9CDD4",
+  LOCAL: "#36D399",
+  MINIO: "#2563EB",
+  QINIU: "#722ED1",
+  ALIYUN: "#FF6A00",
+  TENCENT: "#12B7F5",
+  BAIDU: "#4080FF",
+  HUAWEI: "#E64340",
+  AWS: "#FF9900",
+  AZURE: "#0078D4",
+  GOOGLE: "#4285F4",
+  DEFAULT: "#C9CDD4",
 };
 
 export function ossProviderColor(type: OSSProvider): string {
@@ -736,7 +930,10 @@ export function ossProviderColor(type: OSSProvider): string {
 // ==============================
 // 权限 (permission)
 // ==============================
-import type { permissionservicev1_Permission as Permission, permissionservicev1_PermissionGroup as PermissionGroup } from "@/api/generated/admin/service/v1";
+import type {
+  permissionservicev1_Permission as Permission,
+  permissionservicev1_PermissionGroup as PermissionGroup,
+} from "@/api/generated/admin/service/v1";
 
 export const roleDataScopeList = computed(() => [
   { label: t("enum.role.dataScope.ALL"), value: "ALL" },
@@ -747,8 +944,12 @@ export const roleDataScopeList = computed(() => [
 ]);
 
 const DATA_SCOPE_COLOR_MAP: Record<string, string> = {
-  ALL: "#F53F3F", UNIT_AND_CHILD: "#165DFF", UNIT_ONLY: "#FF7D00",
-  SELECTED_UNITS: "#722ED1", SELF: "#86909C", DEFAULT: "#C9CDD4",
+  ALL: "#F53F3F",
+  UNIT_AND_CHILD: "#165DFF",
+  UNIT_ONLY: "#FF7D00",
+  SELECTED_UNITS: "#722ED1",
+  SELF: "#86909C",
+  DEFAULT: "#C9CDD4",
 };
 
 export function dataScopeToColor(dataScope: any): string {
@@ -808,17 +1009,29 @@ export function buildPermissionTree(
     if (!targetKey || !groupNodes.has(targetKey)) targetKey = defaultKey;
     const childNode: PermissionTreeDataNode = {
       key: perm.id ?? `perm-${idx}`,
-      title: typeof (perm as any).name === "string" ? `${(perm as any).name} (${(perm as any).code})` : "",
+      title:
+        typeof (perm as any).name === "string"
+          ? `${(perm as any).name} (${(perm as any).code})`
+          : "",
       permission: perm,
     };
     const parent = groupNodes.get(targetKey);
-    if (parent) { parent.children = parent.children ?? []; parent.children.push(childNode); }
+    if (parent) {
+      parent.children = parent.children ?? [];
+      parent.children.push(childNode);
+    }
   });
 
   const result: PermissionTreeDataNode[] = permissionGroups.map((g, idx) => {
     const idPart = g.id ?? `idx-${idx}`;
     const key = `group-${idPart}`;
-    return groupNodes.get(key) ?? { key, title: typeof (g as any).name === "string" ? (g as any).name : "", children: [] };
+    return (
+      groupNodes.get(key) ?? {
+        key,
+        title: typeof (g as any).name === "string" ? (g as any).name : "",
+        children: [],
+      }
+    );
   });
   const defaultNode = groupNodes.get(defaultKey);
   if (defaultNode && (defaultNode.children?.length ?? 0) > 0) result.push(defaultNode);
