@@ -23,10 +23,13 @@
         @button-click="handleToolbarClick"
         @refresh="handleRefresh"
         @search="toggleSearch"
+        @filter="handleFilter"
         @export="handleExport"
         @import="handleImport"
       >
         <template #left><slot name="toolbar-left" /></template>
+        <template #before-tools><slot name="toolbar-before-tools" /></template>
+        <template #filter><slot name="toolbar-filter" /></template>
         <template #right><slot name="toolbar-right" /></template>
       </ProToolbar>
 
@@ -87,7 +90,11 @@ import { useTableState } from "../composables/useTableState";
 import { useModalState } from "../composables/useModalState";
 
 import type { ToolbarButton } from "../ProToolbar/types";
-import type { ProPageConfig, ToolsButton, ToolbarRight } from "./types";
+import type {
+  ProPageConfig,
+  ToolsButton,
+  ToolbarRight,
+} from "./types";
 
 const props = defineProps<{ config: ProPageConfig<T, Q> }>();
 const emit = defineEmits<{
@@ -180,16 +187,8 @@ const rightButtons = computed(() => toToolbarButtons(props.config.table.toolbarR
 const defaultToolbarButtons = computed(() => {
   const dt = props.config.table.defaultToolbar;
   if (!dt?.length)
-    return ["refresh", "filter", "search"] as (
-      | "refresh"
-      | "filter"
-      | "search"
-      | "imports"
-      | "exports"
-    )[];
-  return dt
-    .filter((item): item is ToolbarRight => typeof item === "string")
-    .map((item) => item as "refresh" | "filter" | "search" | "exports" | "imports");
+    return ["refresh", "filter", "search"] as Array<ToolbarRight | ToolsButton>;
+  return dt;
 });
 
 // === 搜索处理 ===
@@ -211,6 +210,12 @@ function toggleSearch() {
   searchVisible.value = !searchVisible.value;
 }
 
+// === 筛选处理 ===
+function handleFilter() {
+  // filter 按钮由 ProToolbar 内部的 ElPopover 处理显示/隐藏
+  // 此处预留扩展点，外部可监听 operate 事件
+}
+
 // === 工具栏事件 ===
 function handleToolbarClick(name: string) {
   switch (name) {
@@ -226,6 +231,15 @@ function handleToolbarClick(name: string) {
       break;
     case "import":
       handleImport();
+      break;
+    case "refresh":
+      handleRefresh();
+      break;
+    case "search":
+      toggleSearch();
+      break;
+    case "filter":
+      handleFilter();
       break;
     default:
       emit("toolbar", name);

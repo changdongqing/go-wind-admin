@@ -122,9 +122,14 @@ export class ProPageApi {
     }
   }
 
-  /** 批量更新状态（减少中间渲染） */
-  batchState(cb: () => void) {
+  /** 批量更新状态 */
+  batchStore(cb: () => void) {
     cb();
+  }
+
+  /** 获取当前状态快照 */
+  getState(): ProPageState {
+    return this.state;
   }
 
   /** 获取 Store 状态的响应式引用 */

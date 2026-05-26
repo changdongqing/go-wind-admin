@@ -29,11 +29,11 @@ export interface ProToolbarProps {
   // 左侧按钮
   leftButtons?: ToolbarButton[];
 
-  // 右侧按钮
+  // 右侧按钮（在内置图标按钮之前）
   rightButtons?: ToolbarButton[];
 
-  // 默认工具栏（右侧图标按钮）
-  defaultToolbar?: ("refresh" | "filter" | "search" | "exports" | "imports")[];
+  // 默认工具栏（右侧图标按钮 + 自定义按钮）
+  defaultToolbar?: Array<ToolbarRightType | ToolbarCustomButton>;
 
   // 权限前缀
   permPrefix?: string;
@@ -43,6 +43,22 @@ export interface ProToolbarProps {
 
   // 自定义 class
   class?: string;
+}
+
+/** 内置工具栏按钮类型 */
+export type ToolbarRightType = "refresh" | "filter" | "search" | "exports" | "imports";
+
+/** 自定义工具栏按钮（插入到内置图标按钮区域） */
+export interface ToolbarCustomButton {
+  name: string;
+  text?: string;
+  icon?: string;
+  perm?: string | string[];
+  attrs?: Partial<ButtonProps> & { style?: any };
+  hidden?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
+  visible?: (data?: any) => boolean;
 }
 
 export interface ProToolbarEmits {

@@ -19,7 +19,7 @@
       </div>
 
       <!-- 右侧按钮 -->
-      <div class="toolbar-right flex gap-y-2.5 gap-x-2 md:gap-x-3 flex-wrap">
+      <div class="toolbar-right flex items-center gap-y-2.5 gap-x-2 md:gap-x-3 flex-wrap">
         <template v-for="btn in rightButtons" :key="'right-' + btn.name">
           <ElButton
             v-if="shouldShow(btn)"
@@ -33,15 +33,25 @@
           </ElButton>
         </template>
 
-        <!-- 默认工具栏 -->
-        <template v-for="tool in defaultToolbar" :key="tool">
+        <!-- 工具栏图标按钮区前插槽 -->
+        <slot name="before-tools" />
+
+        <!-- 默认工具栏图标按钮 -->
+        <template v-for="(tool, idx) in defaultToolbar" :key="'tool-' + idx">
+          <!-- 刷新 -->
           <ElButton
             v-if="tool === 'refresh'"
             circle
             :icon="Refresh"
             @click="handleDefaultTool('refresh')"
           />
-          <ElPopover v-if="tool === 'filter'" placement="bottom" trigger="click" :width="200">
+          <!-- 筛选 -->
+          <ElPopover
+            v-else-if="tool === 'filter'"
+            placement="bottom"
+            trigger="click"
+            :width="200"
+          >
             <template #reference>
               <ElButton circle :icon="Operation" />
             </template>
@@ -49,25 +59,41 @@
               <slot name="filter" />
             </ElScrollbar>
           </ElPopover>
+          <!-- 搜索 -->
           <ElButton
-            v-if="tool === 'search'"
+            v-else-if="tool === 'search'"
             circle
             :icon="Search"
             @click="handleDefaultTool('search')"
           />
+          <!-- 导出 -->
           <ElButton
-            v-if="tool === 'exports'"
+            v-else-if="tool === 'exports'"
             circle
             :icon="Download"
             @click="handleDefaultTool('export')"
           />
+          <!-- 导入 -->
           <ElButton
-            v-if="tool === 'imports'"
+            v-else-if="tool === 'imports'"
             circle
             :icon="Upload"
             @click="handleDefaultTool('import')"
           />
+          <!-- 自定义工具栏按钮 -->
+          <ElButton
+            v-else-if="typeof tool === 'object' && shouldShow(tool)"
+            v-bind="tool.attrs"
+            :disabled="tool.disabled"
+            :loading="tool.loading"
+            circle
+            @click="handleCustomToolClick(tool)"
+          >
+            <ElIcon v-if="tool.icon"><component :is="tool.icon" /></ElIcon>
+            <template v-if="tool.text">{{ tool.text }}</template>
+          </ElButton>
         </template>
+
         <slot name="right" />
       </div>
     </div>
@@ -77,14 +103,20 @@
 <script setup lang="ts">
 import { ElButton, ElIcon, ElPopover, ElScrollbar } from "element-plus";
 import { Refresh, Operation, Search, Download, Upload } from "@element-plus/icons-vue";
-import type { ProToolbarProps, ProToolbarEmits, ToolbarButton } from "./types";
-import { useAccess } from "@/core/access"; // 假设你有权限 Hook
+import type {
+  ProToolbarProps,
+  ProToolbarEmits,
+  ToolbarButton,
+  ToolbarCustomButton,
+  ToolbarRightType,
+} from "./types";
+import { useAccess } from "@/core/access";
 
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<ProToolbarProps>(), {
   visible: true,
-  defaultToolbar: () => ["refresh", "filter", "search"],
+  defaultToolbar: () => ["refresh", "filter", "search"] as ToolbarRightType[],
   leftButtons: () => [],
   rightButtons: () => [],
 });
@@ -94,14 +126,16 @@ const emit = defineEmits<ProToolbarEmits>();
 const { hasAccessByCodes } = useAccess();
 
 // 检查按钮是否应该显示
-function shouldShow(btn: ToolbarButton): boolean {
+function shouldShow(btn: ToolbarButton | ToolbarCustomButton): boolean {
   if (btn.hidden) return false;
   if (btn.visible && !btn.visible()) return false;
 
   // 权限检查
   if (btn.perm) {
     const perms = Array.isArray(btn.perm) ? btn.perm : [btn.perm];
-    const fullPerms = perms.map((p) => (p.includes(":") ? p : `${props.permPrefix ?? ""}:${p}`));
+    const fullPerms = perms.map((p) =>
+      p.includes(":") ? p : `${props.permPrefix ?? ""}:${p}`,
+    );
     if (!hasAccessByCodes(fullPerms)) return false;
   }
 
@@ -155,10 +189,17 @@ function handleDefaultTool(tool: string) {
   }
 }
 
+// 处理自定义工具栏按钮点击
+function handleCustomToolClick(btn: ToolbarCustomButton) {
+  emit("button-click", btn.name, btn);
+}
+
 // 暴露方法
 defineExpose({
   trigger: (name: string) => {
-    const btn = [...props.leftButtons, ...props.rightButtons].find((b) => b.name === name);
+    const btn = [...props.leftButtons, ...props.rightButtons].find(
+      (b) => b.name === name,
+    );
     if (btn) handleButtonClick(btn);
   },
 });

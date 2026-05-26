@@ -26,22 +26,39 @@ function getDefaultModalState(): ProModalState {
 
 export class ProModalApi {
   private state!: ProModalState;
+  private onBeforeCloseCallback?: () => boolean | void;
   private onCloseCallback?: () => void;
   private onConfirmCallback?: () => Promise<void>;
+  private onOpenChangeCallback?: (isOpen: boolean) => void;
+  private onOpenedCallback?: () => void;
+  private onClosedCallback?: () => void;
 
   public store: Store<ProModalState>;
 
   constructor(options?: {
+    onBeforeClose?: () => boolean | void;
     onConfirm?: () => Promise<void>;
     onClose?: () => void;
+    onOpenChange?: (isOpen: boolean) => void;
+    onOpened?: () => void;
+    onClosed?: () => void;
   }) {
+    this.onBeforeCloseCallback = options?.onBeforeClose;
     this.onConfirmCallback = options?.onConfirm;
     this.onCloseCallback = options?.onClose;
+    this.onOpenChangeCallback = options?.onOpenChange;
+    this.onOpenedCallback = options?.onOpened;
+    this.onClosedCallback = options?.onClosed;
 
     this.store = new Store<ProModalState>(getDefaultModalState());
 
     this.store.subscribe(() => {
+      const prevIsOpen = this.state?.isOpen;
       this.state = this.store.state;
+      // isOpen 变化时触发 onOpenChange
+      if (this.state.isOpen !== prevIsOpen) {
+        this.onOpenChangeCallback?.(this.state.isOpen);
+      }
     });
 
     this.state = this.store.state;
@@ -61,9 +78,12 @@ export class ProModalApi {
     }
   }
 
-  /** 关闭弹窗 */
+  /** 关闭弹窗（支持 onBeforeClose 阻止关闭） */
   close() {
-    this.store.setState((prev) => ({ ...prev, isOpen: false }));
+    const allowClose = this.onBeforeCloseCallback?.() ?? true;
+    if (allowClose) {
+      this.store.setState((prev) => ({ ...prev, isOpen: false }));
+    }
   }
 
   /** 获取共享数据 */
@@ -113,8 +133,30 @@ export class ProModalApi {
 
   /** 取消/关闭操作 */
   onCancel() {
-    this.onCloseCallback?.();
-    this.close();
+    if (this.onCloseCallback) {
+      this.onCloseCallback();
+    } else {
+      this.close();
+    }
+  }
+
+  /** 弹窗打开动画完毕后的回调 */
+  onOpened() {
+    if (this.state.isOpen) {
+      this.onOpenedCallback?.();
+    }
+  }
+
+  /** 弹窗关闭动画完毕后的回调 */
+  onClosed() {
+    if (!this.state.isOpen) {
+      this.onClosedCallback?.();
+    }
+  }
+
+  /** 批量更新状态 */
+  batchStore(cb: () => void) {
+    cb();
   }
 
   /** 获取 Store 状态的响应式引用 */
@@ -137,12 +179,18 @@ const PRO_MODAL_INJECT_KEY = Symbol("PRO_MODAL_INJECT");
 export interface UseProModalOptions {
   /** 连接的外部组件（弹窗内容组件） */
   connectedComponent?: Component;
+  /** 关闭前回调，返回 false 可阻止关闭 */
+  onBeforeClose?: () => boolean | void;
   /** 确认回调 */
   onConfirm?: () => Promise<void>;
   /** 关闭回调 */
   onClose?: () => void;
   /** 弹窗打开变化回调 */
   onOpenChange?: (isOpen: boolean) => void;
+  /** 弹窗打开动画完毕回调 */
+  onOpened?: () => void;
+  /** 弹窗关闭动画完毕回调 */
+  onClosed?: () => void;
 }
 
 /**
@@ -205,8 +253,12 @@ export function useProModal(options: UseProModalOptions = {}) {
 
   // === 非 connectedComponent 模式：直接创建 Api ===
   const api = new ProModalApi({
+    onBeforeClose: options.onBeforeClose,
     onConfirm: options.onConfirm,
     onClose: options.onClose,
+    onOpenChange: options.onOpenChange,
+    onOpened: options.onOpened,
+    onClosed: options.onClosed,
   });
 
   return [null as null, api] as const;
@@ -227,8 +279,12 @@ export function injectProModalApi(): ProModalApi {
 
   // 创建内部 ModalApi
   const api = new ProModalApi({
+    onBeforeClose: injectData.options?.onBeforeClose,
     onConfirm: injectData.options?.onConfirm,
     onClose: injectData.options?.onClose,
+    onOpenChange: injectData.options?.onOpenChange,
+    onOpened: injectData.options?.onOpened,
+    onClosed: injectData.options?.onClosed,
   });
 
   // 连接到外部 extendedApi
