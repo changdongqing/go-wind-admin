@@ -52,6 +52,15 @@ export function useProTableScrollY(
         const availableHeight = Math.max(containerHeight - aboveSpace - belowSpace - buffer, 100);
         tableBody.style.maxHeight = `${availableHeight}px`;
         tableBody.style.minHeight = `${availableHeight}px`;
+
+        // 根据内容是否溢出动态切换 overflow-y
+        // antd 默认设置 overflow-y: scroll，在 Windows 上会始终显示滚动条轨道
+        // 内容不超出时用 hidden 隐藏滚动条，超出时用 auto 按需显示
+        if (tableBody.scrollHeight <= tableBody.clientHeight) {
+          tableBody.style.overflowY = 'hidden';
+        } else {
+          tableBody.style.overflowY = 'auto';
+        }
       });
     };
 
