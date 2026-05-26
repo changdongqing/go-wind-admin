@@ -6,6 +6,7 @@ import { configureVxeTable } from "@/plugins/vxe-table";
 import VXETable from "vxe-table";
 
 import { InstallCodeMirror } from "codemirror-editor-vue3";
+import { VueQueryPlugin } from "@tanstack/vue-query";
 
 export function registerGlobComp(app: App) {
   // 第三方插件

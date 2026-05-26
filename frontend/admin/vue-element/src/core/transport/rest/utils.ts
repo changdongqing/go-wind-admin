@@ -1,3 +1,14 @@
+import { QueryClient } from "@tanstack/vue-query";
+
+/** 全局 QueryClient 实例，供 hooks 外部（Store、路由守卫等）调用 */
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 0,
+    },
+  },
+});
+
 /**
  * 移除对象中的 null 和 undefined 值
  * @param obj
@@ -65,4 +76,15 @@ export function defaultIdGenerator(): string {
   }
   // 降级方案
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+/**
+ * 创建更新字段掩码
+ * @param keys
+ */
+export function makeUpdateMask(keys: string[]): string {
+  if (keys === undefined || keys.length === 0) {
+    return "";
+  }
+  return keys.join(",");
 }

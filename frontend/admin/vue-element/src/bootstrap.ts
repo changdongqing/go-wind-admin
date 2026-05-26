@@ -16,6 +16,7 @@ import { registerGlobComp } from "@/registerGlobComp";
 import { initPreferences } from "@/core/preferences";
 
 import App from "./App.vue";
+import { setupVueQuery } from "@/plugins/vue-query";
 
 async function bootstrap(namespace: string) {
   const app = createApp(App);
@@ -34,6 +35,8 @@ async function bootstrap(namespace: string) {
 
   // 注册全局组件
   registerGlobComp(app);
+
+  setupVueQuery(app);
 
   // 注册自定义指令
   setupDirective(app);
