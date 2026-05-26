@@ -46,3 +46,22 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+/* 表格操作列图标按钮加大点击区域和间距 */
+.ant-table-cell .ant-space-horizontal {
+    gap: 12px !important;
+}
+
+.ant-table-cell .ant-space-item a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.ant-table-cell .ant-space-item a:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+}

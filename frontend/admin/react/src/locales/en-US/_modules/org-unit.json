@@ -50,9 +50,15 @@
     "OFF": "Inactive"
   },
   "typeMap": {
-    "GROUP": "Group",
     "COMPANY": "Company",
+    "DIVISION": "Division",
     "DEPARTMENT": "Department",
-    "TEAM": "Team"
+    "TEAM": "Team",
+    "PROJECT": "Project",
+    "COMMITTEE": "Committee",
+    "REGION": "Region",
+    "SUBSIDIARY": "Subsidiary",
+    "BRANCH": "Branch",
+    "OTHER": "Other"
   }
 }

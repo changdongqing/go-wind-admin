@@ -29,8 +29,14 @@
   "requiredFileName": "Please enter file name",
   "providerMap": {
     "MINIO": "MinIO",
-    "ALIYUN_OSS": "Alibaba OSS",
-    "TENCENT_COS": "Tencent COS",
-    "AWS_S3": "AWS S3"
+    "ALIYUN": "Alibaba Cloud",
+    "TENCENT": "Tencent Cloud",
+    "AWS": "AWS",
+    "AZURE": "Azure",
+    "BAIDU": "Baidu Cloud",
+    "QINIU": "Qiniu Cloud",
+    "GOOGLE": "Google Cloud",
+    "HUAWEI": "Huawei Cloud",
+    "LOCAL": "Local Storage"
   }
 }

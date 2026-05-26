@@ -10,18 +10,30 @@ type TFn = (key: string, options?: Record<string, any>) => string;
 /** 提供商颜色映射 */
 export const PROVIDER_COLORS: Record<string, string> = {
   MINIO: 'blue',
-  ALIYUN_OSS: 'orange',
-  TENCENT_COS: 'green',
-  AWS_S3: 'cyan',
+  ALIYUN: 'orange',
+  TENCENT: 'green',
+  AWS: 'cyan',
+  AZURE: 'purple',
+  BAIDU: 'default',
+  QINIU: 'default',
+  GOOGLE: 'default',
+  HUAWEI: 'default',
+  LOCAL: 'default',
 };
 
 /** 获取提供商映射（text + color） */
 export function getProviderMap(t: TFn) {
   return {
     MINIO: { text: t('providerMap.MINIO'), color: PROVIDER_COLORS.MINIO },
-    ALIYUN_OSS: { text: t('providerMap.ALIYUN_OSS'), color: PROVIDER_COLORS.ALIYUN_OSS },
-    TENCENT_COS: { text: t('providerMap.TENCENT_COS'), color: PROVIDER_COLORS.TENCENT_COS },
-    AWS_S3: { text: t('providerMap.AWS_S3'), color: PROVIDER_COLORS.AWS_S3 },
+    ALIYUN: { text: t('providerMap.ALIYUN'), color: PROVIDER_COLORS.ALIYUN },
+    TENCENT: { text: t('providerMap.TENCENT'), color: PROVIDER_COLORS.TENCENT },
+    AWS: { text: t('providerMap.AWS'), color: PROVIDER_COLORS.AWS },
+    AZURE: { text: t('providerMap.AZURE'), color: PROVIDER_COLORS.AZURE },
+    BAIDU: { text: t('providerMap.BAIDU'), color: PROVIDER_COLORS.BAIDU },
+    QINIU: { text: t('providerMap.QINIU'), color: PROVIDER_COLORS.QINIU },
+    GOOGLE: { text: t('providerMap.GOOGLE'), color: PROVIDER_COLORS.GOOGLE },
+    HUAWEI: { text: t('providerMap.HUAWEI'), color: PROVIDER_COLORS.HUAWEI },
+    LOCAL: { text: t('providerMap.LOCAL'), color: PROVIDER_COLORS.LOCAL },
   };
 }
 

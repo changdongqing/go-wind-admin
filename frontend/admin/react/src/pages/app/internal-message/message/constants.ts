@@ -8,26 +8,32 @@ type TFn = (key: string, options?: Record<string, any>) => string;
 
 export const STATUS_COLORS: Record<string, string> = {
   DRAFT: 'default',
-  SENT: 'success',
+  PUBLISHED: 'success',
   SCHEDULED: 'processing',
   REVOKED: 'warning',
+  ARCHIVED: 'default',
+  DELETED: 'error',
 };
 
 export function getStatusMap(t: TFn) {
   return {
     DRAFT: { text: t('statusMap.DRAFT'), color: STATUS_COLORS.DRAFT },
-    SENT: { text: t('statusMap.SENT'), color: STATUS_COLORS.SENT },
+    PUBLISHED: { text: t('statusMap.PUBLISHED'), color: STATUS_COLORS.PUBLISHED },
     SCHEDULED: { text: t('statusMap.SCHEDULED'), color: STATUS_COLORS.SCHEDULED },
     REVOKED: { text: t('statusMap.REVOKED'), color: STATUS_COLORS.REVOKED },
+    ARCHIVED: { text: t('statusMap.ARCHIVED'), color: STATUS_COLORS.ARCHIVED },
+    DELETED: { text: t('statusMap.DELETED'), color: STATUS_COLORS.DELETED },
   };
 }
 
 export function getStatusOptions(t: TFn) {
   return [
     { label: t('statusMap.DRAFT'), value: 'DRAFT' },
-    { label: t('statusMap.SENT'), value: 'SENT' },
+    { label: t('statusMap.PUBLISHED'), value: 'PUBLISHED' },
     { label: t('statusMap.SCHEDULED'), value: 'SCHEDULED' },
     { label: t('statusMap.REVOKED'), value: 'REVOKED' },
+    { label: t('statusMap.ARCHIVED'), value: 'ARCHIVED' },
+    { label: t('statusMap.DELETED'), value: 'DELETED' },
   ];
 }
 
@@ -35,22 +41,22 @@ export function getStatusOptions(t: TFn) {
 
 export const TYPE_COLORS: Record<string, string> = {
   NOTIFICATION: 'blue',
-  ANNOUNCEMENT: 'green',
-  SYSTEM: 'orange',
+  PRIVATE: 'green',
+  GROUP: 'orange',
 };
 
 export function getTypeMap(t: TFn) {
   return {
     NOTIFICATION: { text: t('typeMap.NOTIFICATION'), color: TYPE_COLORS.NOTIFICATION },
-    ANNOUNCEMENT: { text: t('typeMap.ANNOUNCEMENT'), color: TYPE_COLORS.ANNOUNCEMENT },
-    SYSTEM: { text: t('typeMap.SYSTEM'), color: TYPE_COLORS.SYSTEM },
+    PRIVATE: { text: t('typeMap.PRIVATE'), color: TYPE_COLORS.PRIVATE },
+    GROUP: { text: t('typeMap.GROUP'), color: TYPE_COLORS.GROUP },
   };
 }
 
 export function getTypeOptions(t: TFn) {
   return [
     { label: t('typeMap.NOTIFICATION'), value: 'NOTIFICATION' },
-    { label: t('typeMap.ANNOUNCEMENT'), value: 'ANNOUNCEMENT' },
-    { label: t('typeMap.SYSTEM'), value: 'SYSTEM' },
+    { label: t('typeMap.PRIVATE'), value: 'PRIVATE' },
+    { label: t('typeMap.GROUP'), value: 'GROUP' },
   ];
 }

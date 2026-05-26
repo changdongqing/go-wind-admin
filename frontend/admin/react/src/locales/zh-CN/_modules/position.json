@@ -43,9 +43,10 @@
   },
   "typeMap": {
     "REGULAR": "正式",
+    "LEADER": "负责人",
+    "MANAGER": "管理层",
+    "INTERN": "实习",
     "CONTRACT": "合同工",
-    "INTERNSHIP": "实习",
-    "PART_TIME": "兼职",
-    "OUTSOURCE": "外包"
+    "OTHER": "其他"
   }
 }

@@ -29,15 +29,14 @@
   "requiredMethod": "Please select login method",
   "requiredValue": "Please enter policy value",
   "policyType": {
-    "ALLOW": "Allow",
-    "DENY": "Deny"
+    "BLACKLIST": "Blacklist",
+    "WHITELIST": "Whitelist"
   },
   "policyMethod": {
-    "PASSWORD": "Password",
-    "SMS": "SMS",
-    "EMAIL": "Email",
-    "SOCIAL": "Social",
-    "LDAP": "LDAP",
-    "OTP": "OTP"
+    "IP": "IP Address",
+    "MAC": "MAC Address",
+    "REGION": "Region",
+    "TIME": "Time",
+    "DEVICE": "Device"
   }
 }

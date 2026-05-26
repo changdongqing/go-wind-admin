@@ -29,29 +29,32 @@ export function getStatusOptions(t: TFn) {
 
 export const POSITION_TYPE_COLORS: Record<string, string> = {
   REGULAR: 'blue',
+  LEADER: 'purple',
+  MANAGER: 'cyan',
+  INTERN: 'orange',
   CONTRACT: 'green',
-  INTERNSHIP: 'orange',
-  PART_TIME: 'cyan',
-  OUTSOURCE: 'purple',
+  OTHER: 'default',
 };
 
 export function getPositionTypeMap(t: TFn) {
   return {
     REGULAR: { text: t('typeMap.REGULAR'), color: POSITION_TYPE_COLORS.REGULAR },
+    LEADER: { text: t('typeMap.LEADER'), color: POSITION_TYPE_COLORS.LEADER },
+    MANAGER: { text: t('typeMap.MANAGER'), color: POSITION_TYPE_COLORS.MANAGER },
+    INTERN: { text: t('typeMap.INTERN'), color: POSITION_TYPE_COLORS.INTERN },
     CONTRACT: { text: t('typeMap.CONTRACT'), color: POSITION_TYPE_COLORS.CONTRACT },
-    INTERNSHIP: { text: t('typeMap.INTERNSHIP'), color: POSITION_TYPE_COLORS.INTERNSHIP },
-    PART_TIME: { text: t('typeMap.PART_TIME'), color: POSITION_TYPE_COLORS.PART_TIME },
-    OUTSOURCE: { text: t('typeMap.OUTSOURCE'), color: POSITION_TYPE_COLORS.OUTSOURCE },
+    OTHER: { text: t('typeMap.OTHER'), color: POSITION_TYPE_COLORS.OTHER },
   };
 }
 
 export function getPositionTypeOptions(t: TFn) {
   return [
     { label: t('typeMap.REGULAR'), value: 'REGULAR' },
+    { label: t('typeMap.LEADER'), value: 'LEADER' },
+    { label: t('typeMap.MANAGER'), value: 'MANAGER' },
+    { label: t('typeMap.INTERN'), value: 'INTERN' },
     { label: t('typeMap.CONTRACT'), value: 'CONTRACT' },
-    { label: t('typeMap.INTERNSHIP'), value: 'INTERNSHIP' },
-    { label: t('typeMap.PART_TIME'), value: 'PART_TIME' },
-    { label: t('typeMap.OUTSOURCE'), value: 'OUTSOURCE' },
+    { label: t('typeMap.OTHER'), value: 'OTHER' },
   ];
 }
 

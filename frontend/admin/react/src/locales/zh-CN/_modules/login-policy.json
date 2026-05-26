@@ -29,15 +29,14 @@
   "requiredMethod": "请选择登录方式",
   "requiredValue": "请输入策略值",
   "policyType": {
-    "ALLOW": "允许",
-    "DENY": "拒绝"
+    "BLACKLIST": "黑名单",
+    "WHITELIST": "白名单"
   },
   "policyMethod": {
-    "PASSWORD": "密码登录",
-    "SMS": "短信登录",
-    "EMAIL": "邮箱登录",
-    "SOCIAL": "社交登录",
-    "LDAP": "LDAP登录",
-    "OTP": "动态口令"
+    "IP": "IP地址",
+    "MAC": "MAC地址",
+    "REGION": "地区",
+    "TIME": "时间",
+    "DEVICE": "设备"
   }
 }

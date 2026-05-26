@@ -43,9 +43,10 @@
   },
   "typeMap": {
     "REGULAR": "Regular",
+    "LEADER": "Leader",
+    "MANAGER": "Manager",
+    "INTERN": "Intern",
     "CONTRACT": "Contract",
-    "INTERNSHIP": "Internship",
-    "PART_TIME": "Part-time",
-    "OUTSOURCE": "Outsource"
+    "OTHER": "Other"
   }
 }

@@ -28,26 +28,44 @@ export function getStatusOptions(t: TFn) {
 // ========== 组织类型 ==========
 
 export const ORG_TYPE_COLORS: Record<string, string> = {
-  GROUP: 'purple',
   COMPANY: 'blue',
-  DEPARTMENT: 'cyan',
-  TEAM: 'green',
+  DIVISION: 'cyan',
+  DEPARTMENT: 'green',
+  TEAM: 'processing',
+  PROJECT: 'purple',
+  COMMITTEE: 'orange',
+  REGION: 'geekblue',
+  SUBSIDIARY: 'default',
+  BRANCH: 'default',
+  OTHER: 'default',
 };
 
 export function getOrgTypeMap(t: TFn) {
   return {
-    GROUP: { text: t('typeMap.GROUP'), color: ORG_TYPE_COLORS.GROUP },
     COMPANY: { text: t('typeMap.COMPANY'), color: ORG_TYPE_COLORS.COMPANY },
+    DIVISION: { text: t('typeMap.DIVISION'), color: ORG_TYPE_COLORS.DIVISION },
     DEPARTMENT: { text: t('typeMap.DEPARTMENT'), color: ORG_TYPE_COLORS.DEPARTMENT },
     TEAM: { text: t('typeMap.TEAM'), color: ORG_TYPE_COLORS.TEAM },
+    PROJECT: { text: t('typeMap.PROJECT'), color: ORG_TYPE_COLORS.PROJECT },
+    COMMITTEE: { text: t('typeMap.COMMITTEE'), color: ORG_TYPE_COLORS.COMMITTEE },
+    REGION: { text: t('typeMap.REGION'), color: ORG_TYPE_COLORS.REGION },
+    SUBSIDIARY: { text: t('typeMap.SUBSIDIARY'), color: ORG_TYPE_COLORS.SUBSIDIARY },
+    BRANCH: { text: t('typeMap.BRANCH'), color: ORG_TYPE_COLORS.BRANCH },
+    OTHER: { text: t('typeMap.OTHER'), color: ORG_TYPE_COLORS.OTHER },
   };
 }
 
 export function getOrgTypeOptions(t: TFn) {
   return [
-    { label: t('typeMap.GROUP'), value: 'GROUP' },
     { label: t('typeMap.COMPANY'), value: 'COMPANY' },
+    { label: t('typeMap.DIVISION'), value: 'DIVISION' },
     { label: t('typeMap.DEPARTMENT'), value: 'DEPARTMENT' },
     { label: t('typeMap.TEAM'), value: 'TEAM' },
+    { label: t('typeMap.PROJECT'), value: 'PROJECT' },
+    { label: t('typeMap.COMMITTEE'), value: 'COMMITTEE' },
+    { label: t('typeMap.REGION'), value: 'REGION' },
+    { label: t('typeMap.SUBSIDIARY'), value: 'SUBSIDIARY' },
+    { label: t('typeMap.BRANCH'), value: 'BRANCH' },
+    { label: t('typeMap.OTHER'), value: 'OTHER' },
   ];
 }

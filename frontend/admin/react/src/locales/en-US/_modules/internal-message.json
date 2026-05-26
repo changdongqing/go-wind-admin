@@ -34,13 +34,15 @@
   "fetchFailed": "Failed to fetch data",
   "statusMap": {
     "DRAFT": "Draft",
-    "SENT": "Sent",
+    "PUBLISHED": "Published",
     "SCHEDULED": "Scheduled",
-    "REVOKED": "Revoked"
+    "REVOKED": "Revoked",
+    "ARCHIVED": "Archived",
+    "DELETED": "Deleted"
   },
   "typeMap": {
     "NOTIFICATION": "Notification",
-    "ANNOUNCEMENT": "Announcement",
-    "SYSTEM": "System"
+    "PRIVATE": "Private",
+    "GROUP": "Group"
   }
 }

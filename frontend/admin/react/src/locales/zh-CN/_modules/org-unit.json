@@ -50,9 +50,15 @@
     "OFF": "禁用"
   },
   "typeMap": {
-    "GROUP": "集团",
     "COMPANY": "公司",
+    "DIVISION": "事业部",
     "DEPARTMENT": "部门",
-    "TEAM": "团队"
+    "TEAM": "团队",
+    "PROJECT": "项目组",
+    "COMMITTEE": "委员会",
+    "REGION": "大区",
+    "SUBSIDIARY": "子公司",
+    "BRANCH": "分公司",
+    "OTHER": "其他"
   }
 }
