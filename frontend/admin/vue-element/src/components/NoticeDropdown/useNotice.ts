@@ -59,7 +59,7 @@ export function useNotice() {
     const userId = userStore.userInfo?.id;
     if (userId) {
       try {
-        await markNotificationAsRead({ userId, notificationIds: [numericId] });
+        await markNotificationAsRead({ userId, recipientIds: [numericId] });
         ElMessage.success("已标记为已读");
       } catch {
         ElMessage.error("标记失败");
@@ -91,7 +91,7 @@ export function useNotice() {
     }
 
     try {
-      await markNotificationAsRead({ userId, notificationIds: unreadIds });
+      await markNotificationAsRead({ userId, recipientIds: unreadIds });
       ElMessage.success("已全部标记为已读");
     } catch {
       ElMessage.error("操作失败");

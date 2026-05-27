@@ -155,13 +155,11 @@ const isFullscreen = ref(false);
 
 // 可筛选的列（有 prop 和 label，仅 el-table 引擎使用）
 const filterableColumns = computed(() =>
-  (props.columns ?? []).filter((col) => col.prop && col.label),
+  (props.columns ?? []).filter((col) => col.prop && col.label)
 );
 
 // filter 按钮是否有内容
-const hasFilterContent = computed(
-  () => filterableColumns.value.length > 0 || !!slots.filter,
-);
+const hasFilterContent = computed(() => filterableColumns.value.length > 0 || !!slots.filter);
 
 // 检查按钮是否应该显示
 function shouldShow(btn: ToolbarButton | ToolbarCustomButton): boolean {

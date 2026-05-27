@@ -273,7 +273,7 @@ async function handleView(row: any) {
     const userId = userStore.userInfo?.id;
     if (userId && row.status !== "READ") {
       try {
-        await markNotificationAsRead({ userId, notificationIds: [Number(row.id)] });
+        await markNotificationAsRead({ userId, recipientIds: [Number(row.id)] });
         // 刷新列表
         const queryParams = searchRef.value?.getQueryParams();
         contentRef.value?.fetchPageData(queryParams, true);

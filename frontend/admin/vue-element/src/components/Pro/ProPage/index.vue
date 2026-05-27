@@ -30,7 +30,9 @@
       >
         <template #left><slot name="toolbar-left" /></template>
         <template #before-tools><slot name="toolbar-before-tools" /></template>
-        <template v-if="!!$slots['toolbar-filter']" #filter><slot name="toolbar-filter" /></template>
+        <template v-if="!!$slots['toolbar-filter']" #filter>
+          <slot name="toolbar-filter" />
+        </template>
         <template #right><slot name="toolbar-right" /></template>
       </ProToolbar>
 
@@ -38,6 +40,7 @@
       <ProTable
         ref="tableRef"
         :engine="config.engine"
+        :table-id="tableId"
         :columns="config.table.columns"
         :data="tableData"
         :loading="tableState.loading.value"
@@ -62,121 +65,24 @@
     </div>
 
     <!-- 导出弹窗 -->
-    <ElDialog
-      v-model="exportsState.visible"
-      :title="t('pages.curd.export.title')"
-      width="600px"
-      align-center
-      @close="closeExportsModal"
-    >
-      <ElScrollbar max-height="60vh">
-        <ElForm
-          ref="exportsFormRef"
-          :model="exportsState.form"
-          :rules="exportsFormRules"
-          style="padding-right: var(--el-dialog-padding-primary)"
-        >
-          <ElFormItem :label="t('pages.curd.export.filename')" prop="filename">
-            <ElInput v-model="exportsState.form.filename" clearable />
-          </ElFormItem>
-          <ElFormItem :label="t('pages.curd.export.sheetname')" prop="sheetname">
-            <ElInput v-model="exportsState.form.sheetname" clearable />
-          </ElFormItem>
-          <ElFormItem :label="t('pages.curd.export.origin')" prop="origin">
-            <ElSelect v-model="exportsState.form.origin">
-              <ElOption :label="t('pages.curd.export.originOptions.current')" value="current" />
-              <ElOption
-                :label="t('pages.curd.export.originOptions.selected')"
-                value="selected"
-                :disabled="selectionData.length === 0"
-              />
-              <ElOption
-                :label="t('pages.curd.export.originOptions.remote')"
-                value="remote"
-                :disabled="!config.table.exportsAction"
-              />
-            </ElSelect>
-          </ElFormItem>
-          <ElFormItem :label="t('pages.curd.export.fields')" prop="fields">
-            <ElCheckboxGroup v-model="exportsState.form.fields">
-              <ElCheckbox
-                v-for="col in exportableColumns"
-                :key="col.prop"
-                :value="col.prop"
-                :label="col.label"
-              />
-            </ElCheckboxGroup>
-          </ElFormItem>
-        </ElForm>
-      </ElScrollbar>
-      <template #footer>
-        <ElButton type="primary" @click="submitExports">
-          {{ t("common.button.confirm") }}
-        </ElButton>
-        <ElButton @click="closeExportsModal">{{ t("common.button.cancel") }}</ElButton>
-      </template>
-    </ElDialog>
+    <ExportModal
+      ref="exportModalRef"
+      :columns="exportableColumns"
+      :selection-data="selectionData"
+      :table-data="tableData"
+      :exports-action="config.table.exportsAction"
+      :search-params="searchParams"
+      :default-filename="config.permPrefix"
+    />
 
     <!-- 导入弹窗 -->
-    <ElDialog
-      v-model="importsState.visible"
-      :title="t('pages.curd.import.title')"
-      width="600px"
-      align-center
-      @close="closeImportsModal"
-    >
-      <ElScrollbar max-height="60vh">
-        <ElForm
-          ref="importsFormRef"
-          :model="importsState"
-          :rules="importsFormRules"
-          style="padding-right: var(--el-dialog-padding-primary)"
-        >
-          <ElFormItem :label="t('pages.curd.import.file')" prop="files">
-            <ElUpload
-              ref="uploadRef"
-              v-model:file-list="importsState.files"
-              class="w-full"
-              accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-              :drag="true"
-              :limit="1"
-              :auto-upload="false"
-              :on-exceed="handleFileExceed"
-            >
-              <ElIcon class="el-icon--upload"><UploadFilled /></ElIcon>
-              <div class="el-upload__text">
-                <span>{{ t("pages.curd.import.dragText") }}</span>
-                <em>{{ t("pages.curd.import.clickText") }}</em>
-              </div>
-              <template #tip>
-                <div class="el-upload__tip">
-                  {{ t("pages.curd.import.fileTypeTip") }}
-                  <ElLink
-                    v-if="config.table.importTemplate"
-                    type="primary"
-                    icon="download"
-                    underline="never"
-                    @click="handleDownloadTemplate"
-                  >
-                    {{ t("pages.curd.import.downloadTemplate") }}
-                  </ElLink>
-                </div>
-              </template>
-            </ElUpload>
-          </ElFormItem>
-        </ElForm>
-      </ElScrollbar>
-      <template #footer>
-        <ElButton
-          type="primary"
-          :disabled="importsState.files.length === 0"
-          @click="submitImports"
-        >
-          {{ t("common.button.confirm") }}
-        </ElButton>
-        <ElButton @click="closeImportsModal">{{ t("common.button.cancel") }}</ElButton>
-      </template>
-    </ElDialog>
+    <ImportModal
+      ref="importModalRef"
+      :imports-action="config.table.importsAction"
+      :import-action="config.table.importAction"
+      :import-template="config.table.importTemplate"
+      @success="handleRefresh"
+    />
 
     <!-- 弹窗 -->
     <ProModal
@@ -195,45 +101,23 @@
 </template>
 
 <script setup lang="ts" generic="T extends Record<string, any>, Q extends Record<string, any>">
-import { reactive, computed, ref, nextTick, useSlots } from "vue";
-import {
-  ElMessage,
-  ElMessageBox,
-  ElDialog,
-  ElForm,
-  ElFormItem,
-  ElInput,
-  ElSelect,
-  ElOption,
-  ElScrollbar,
-  ElButton,
-  ElCheckbox,
-  ElCheckboxGroup,
-  ElUpload,
-  ElIcon,
-  ElLink,
-} from "element-plus";
-import { UploadFilled } from "@element-plus/icons-vue";
-import { useThrottleFn } from "@vueuse/core";
-import type { FormInstance, FormRules, UploadInstance, UploadRawFile } from "element-plus";
-import { genFileId } from "element-plus";
-import ExcelJS from "exceljs";
+import { reactive, computed, ref, useSlots } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { useRoute } from "vue-router";
 import { useI18n } from "@/i18n";
 
 import ProSearch from "../ProSearch/index.vue";
 import ProTable from "../ProTable/index.vue";
 import ProModal from "../ProModal/index.vue";
 import ProToolbar from "../ProToolbar/index.vue";
+import ExportModal from "./ExportModal.vue";
+import ImportModal from "./ImportModal.vue";
 
 import { useTableState } from "../composables/useTableState";
 import { useModalState } from "../composables/useModalState";
 
 import type { ToolbarButton } from "../ProToolbar/types";
-import type {
-  ProPageConfig,
-  ToolsButton,
-  ToolbarRight,
-} from "./types";
+import type { ProPageConfig, ToolsButton, ToolbarRight } from "./types";
 
 const props = defineProps<{ config: ProPageConfig<T, Q> }>();
 const emit = defineEmits<{
@@ -249,9 +133,13 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const slots = useSlots();
+const route = useRoute();
 
 // === 基础状态 ===
 const rowKey = props.config.rowKey ?? "id";
+// 自动生成 tableId：优先用 config.tableId，否则用路由路径
+const tableId =
+  props.config.tableId ?? (route.path.replace(/\//g, "_").replace(/^_/, "") || undefined);
 const searchParams = reactive<Q>({} as Q);
 const searchVisible = ref(true);
 
@@ -265,9 +153,8 @@ const tableState = useTableState<T, Q>({
 const modalState = useModalState<T>(rowKey);
 const tableRef = ref<any>(null);
 const contentRef = ref<HTMLElement | null>(null);
-const exportsFormRef = ref<FormInstance>();
-const importsFormRef = ref<FormInstance>();
-const uploadRef = ref<UploadInstance>();
+const exportModalRef = ref<InstanceType<typeof ExportModal>>();
+const importModalRef = ref<InstanceType<typeof ImportModal>>();
 
 const tableData = computed(() => tableState.data.value);
 
@@ -280,16 +167,13 @@ const filterColumns = computed(() => {
   const cols = tableRef.value?.resolvedColumns;
   if (!cols) return [];
   return cols.filter(
-    (col: any) =>
-      col.prop && col.label && col.type !== "selection" && col.type !== "index",
+    (col: any) => col.prop && col.label && col.type !== "selection" && col.type !== "index"
   );
 });
 
 // === 可导出的列（有 prop 和 label 的普通列） ===
 const exportableColumns = computed(() =>
-  props.config.table.columns.filter(
-    (col: any) => col.prop && col.label && !col.type,
-  ),
+  props.config.table.columns.filter((col: any) => col.prop && col.label && !col.type)
 );
 
 // === 区分表格插槽和弹窗插槽 ===
@@ -309,7 +193,10 @@ const modalSlots = computed(() => {
 });
 
 // === 工具栏按钮转换（参考CURD createToolbar） ===
-const builtinButtons: Record<string, { textKey: string; icon: string; attrs: Record<string, any> }> = {
+const builtinButtons: Record<
+  string,
+  { textKey: string; icon: string; attrs: Record<string, any> }
+> = {
   add: { textKey: "common.button.add", icon: "plus", attrs: { type: "success" } },
   delete: {
     textKey: "common.button.delete",
@@ -350,8 +237,7 @@ const leftButtons = computed(() => toToolbarButtons(props.config.table.toolbar))
 const rightButtons = computed(() => toToolbarButtons(props.config.table.toolbarRight));
 const defaultToolbarButtons = computed(() => {
   const dt = props.config.table.defaultToolbar;
-  if (!dt?.length)
-    return ["refresh", "filter", "search"] as Array<ToolbarRight | ToolsButton>;
+  if (!dt?.length) return ["refresh", "filter", "search"] as Array<ToolbarRight | ToolsButton>;
   return dt;
 });
 
@@ -480,184 +366,12 @@ function handleZoom(isFullscreen: boolean) {
   }
 }
 
-// === 导出弹窗（参考 CURD ExcelJS） ===
-const defaultExportFields = exportableColumns.value.map((col: any) => col.prop);
-const exportsState = reactive<{
-  visible: boolean;
-  form: {
-    filename: string;
-    sheetname: string;
-    fields: string[];
-    origin: "current" | "selected" | "remote";
-  };
-}>({
-  visible: false,
-  form: {
-    filename: "",
-    sheetname: "",
-    fields: [...defaultExportFields],
-    origin: "current",
-  },
-});
-const exportsFormRules: FormRules = {
-  fields: [{ required: true, message: t("pages.curd.message.selectFields") }],
-  origin: [{ required: true, message: t("pages.curd.message.selectOrigin") }],
-};
-
 function openExportsModal() {
-  // 重置字段为最新列
-  exportsState.form.fields = exportableColumns.value.map((col: any) => col.prop);
-  exportsState.visible = true;
+  exportModalRef.value?.open();
 }
-
-function closeExportsModal() {
-  exportsState.visible = false;
-  nextTick(() => exportsFormRef.value?.clearValidate());
-}
-
-const submitExports = useThrottleFn(() => {
-  exportsFormRef.value?.validate((valid: boolean) => {
-    if (!valid) return;
-    doExport();
-    closeExportsModal();
-  });
-}, 3000);
-
-function doExport() {
-  const filename = exportsState.form.filename || props.config.permPrefix || "export";
-  const sheetname = exportsState.form.sheetname || "sheet";
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet(sheetname);
-  const excelCols: Partial<ExcelJS.Column>[] = [];
-  exportableColumns.value.forEach((col: any) => {
-    if (col.prop && col.label && exportsState.form.fields.includes(col.prop)) {
-      excelCols.push({ header: col.label, key: col.prop });
-    }
-  });
-  worksheet.columns = excelCols;
-
-  if (exportsState.form.origin === "remote") {
-    if (!props.config.table.exportsAction) {
-      ElMessage.error(t("pages.curd.message.noExportsAction"));
-      return;
-    }
-    props.config.table.exportsAction({ ...searchParams } as Q).then((data) => {
-      worksheet.addRows(data);
-      workbook.xlsx.writeBuffer().then((buffer) => saveXlsx(buffer, filename));
-    });
-  } else {
-    const rows =
-      exportsState.form.origin === "selected"
-        ? (tableRef.value?.getSelectionRows?.() ?? [])
-        : (tableData.value ?? []);
-    worksheet.addRows(rows);
-    workbook.xlsx.writeBuffer().then((buffer) => saveXlsx(buffer, filename));
-  }
-}
-
-// === 导入弹窗（参考 CURD ExcelJS） ===
-const importsState = reactive<{
-  visible: boolean;
-  files: any[];
-}>({
-  visible: false,
-  files: [],
-});
-const importsFormRules: FormRules = {
-  files: [{ required: true, message: t("pages.curd.message.selectFile") }],
-};
 
 function openImportsModal() {
-  importsState.files = [];
-  importsState.visible = true;
-}
-
-function closeImportsModal() {
-  importsState.visible = false;
-  nextTick(() => importsFormRef.value?.clearValidate());
-}
-
-function handleFileExceed(files: File[]) {
-  uploadRef.value!.clearFiles();
-  const file = files[0] as UploadRawFile;
-  file.uid = genFileId();
-  uploadRef.value!.handleStart(file);
-}
-
-function handleDownloadTemplate() {
-  const tpl = props.config.table.importTemplate;
-  if (typeof tpl === "string") {
-    window.open(tpl);
-  } else if (typeof tpl === "function") {
-    tpl().then((res: any) => {
-      const disposition = res.headers?.["content-disposition"] ?? "";
-      const name = disposition
-        ? decodeURI(disposition.split(";")[1]?.split("=")[1] ?? "template.xlsx")
-        : "template.xlsx";
-      saveXlsx(res.data, name);
-    });
-  }
-}
-
-const submitImports = useThrottleFn(() => {
-  importsFormRef.value?.validate((valid: boolean) => {
-    if (!valid) return;
-    doImport();
-  });
-}, 3000);
-
-async function doImport() {
-  const file = importsState.files[0]?.raw as File;
-  if (!file) return;
-
-  // 如果配置了 importsAction（批量导入），解析 Excel 后传后端
-  if (props.config.table.importsAction) {
-    const workbook = new ExcelJS.Workbook();
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-    reader.onload = (ev) => {
-      const result = ev.target?.result as ArrayBuffer;
-      if (!result) {
-        ElMessage.error(t("pages.curd.message.readFileFailed"));
-        return;
-      }
-      workbook.xlsx.load(result).then((wb) => {
-        const ws = wb.getWorksheet(1);
-        if (!ws) return;
-        const fields: any[] = [];
-        ws.getRow(1).eachCell((cell) => fields.push(cell.value));
-        const data: Record<string, any>[] = [];
-        for (let i = 2; i <= ws.rowCount; i++) {
-          const row = ws.getRow(i);
-          const rowData: Record<string, any> = {};
-          row.eachCell((cell, colNumber) => {
-            rowData[fields[colNumber - 1]] = cell.value;
-          });
-          data.push(rowData);
-        }
-        if (data.length === 0) {
-          ElMessage.error(t("pages.curd.message.noDataParsed"));
-          return;
-        }
-        props.config.table.importsAction!(data).then(() => {
-          ElMessage.success(t("pages.curd.message.importSuccess"));
-          closeImportsModal();
-          handleRefresh();
-        });
-      });
-    };
-    return;
-  }
-
-  // 否则使用 importAction（文件直接上传）
-  if (!props.config.table.importAction) {
-    ElMessage.warning(t("pages.curd.message.noImportAction"));
-    return;
-  }
-  await props.config.table.importAction(file);
-  ElMessage.success(t("pages.curd.message.importSuccess"));
-  closeImportsModal();
-  handleRefresh();
+  importModalRef.value?.open();
 }
 
 // === 分页 ===
@@ -680,7 +394,7 @@ const modalConfig = computed(() => {
     drawer: props.config.modal.drawer,
     form: props.config.modal.form,
     colon: props.config.modal.colon,
-    rowKey: rowKey,
+    rowKey,
     fields: props.config.modal.fields ?? [],
     submitAction: props.config.modal.submitAction,
     beforeSubmit: props.config.modal.beforeSubmit,
@@ -689,21 +403,6 @@ const modalConfig = computed(() => {
 
 function handleModalSubmit() {
   tableState.fetch(searchParams, true);
-}
-
-// === 工具函数 ===
-function saveXlsx(fileData: any, fileName: string) {
-  const fileType =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8";
-  const blob = new Blob([fileData], { type: fileType });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
 }
 
 // 初始化加载数据

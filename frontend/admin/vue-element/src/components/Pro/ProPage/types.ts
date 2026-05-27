@@ -27,6 +27,8 @@ export interface ProPageConfig<T = any, Q = any> {
   engine?: TableEngine;
   // 主键名(默认id)
   rowKey?: string;
+  // 表格唯一标识（默认从路由路径自动生成，用于 vxe-table 列配置持久化）
+  tableId?: string;
 
   // === 搜索配置 ===
   search?: {

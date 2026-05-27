@@ -3,11 +3,12 @@
     <!-- ======================== vxe-table 引擎 ======================== -->
     <vxe-table
       v-if="engine === 'vxe'"
+      :id="tableId"
       ref="tableRef"
       v-loading="loading ?? false"
       :row-config="{ keyField: rowKey, isHover: true, isCurrent: true }"
       :column-config="{ resizable: true }"
-      :custom-config="{ storage: true, checkMethod }"
+      :custom-config="{ storage: !!tableId, checkMethod }"
       :data="data"
       class="w-full"
       v-bind="tableAttrs"
@@ -16,12 +17,7 @@
     >
       <template v-for="col in resolvedColumns" :key="col.prop ?? col.type">
         <!-- 复选框列 -->
-        <vxe-column
-          v-if="col.type === 'selection'"
-          type="checkbox"
-          width="50"
-          align="center"
-        />
+        <vxe-column v-if="col.type === 'selection'" type="checkbox" width="50" align="center" />
         <!-- 序号列 -->
         <vxe-column v-else-if="col.type === 'index'" type="seq" width="60" align="center" />
         <!-- 展开列 -->
@@ -37,7 +33,13 @@
           :title="col.label"
           :width="col.width"
           :min-width="col.minWidth"
-          :fixed="col.fixed === 'left' || col.fixed === 'right' ? col.fixed : col.fixed === true ? 'left' : undefined"
+          :fixed="
+            col.fixed === 'left' || col.fixed === 'right'
+              ? col.fixed
+              : col.fixed === true
+                ? 'left'
+                : undefined
+          "
           :align="col.align || 'center'"
           :sortable="col.sortable === true"
           :resizable="col.resizable !== false"
@@ -168,6 +170,7 @@ const emit = defineEmits<{
 
 const tableRef = ref<any>(null);
 const engine = props.engine;
+const tableId = props.tableId;
 
 // 解析列（支持 initFn 和 show 默认值）
 const resolvedColumns = ref(
@@ -185,7 +188,7 @@ const rowKey = props.rowKey;
 // vxe-table customConfig checkMethod: 控制 selection/index 列不可被自定义隐藏
 function checkMethod({ column }: { column: any }) {
   const field = column.field ?? column.type;
-  return field !== 'checkbox' && field !== 'seq' && column.type !== 'checkbox';
+  return field !== "checkbox" && field !== "seq" && column.type !== "checkbox";
 }
 
 // === vxe-table 选中处理 ===

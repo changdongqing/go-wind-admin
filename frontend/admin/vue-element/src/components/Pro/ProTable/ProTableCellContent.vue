@@ -48,11 +48,7 @@
 
   <!-- 日期模板 -->
   <template v-else-if="col.cellType === 'date'">
-    {{
-      row[field]
-        ? useDateFormat(row[field], col.dateFormat ?? "YYYY-MM-DD HH:mm:ss").value
-        : ""
-    }}
+    {{ row[field] ? useDateFormat(row[field], col.dateFormat ?? "YYYY-MM-DD HH:mm:ss").value : "" }}
   </template>
 
   <!-- 链接模板 -->

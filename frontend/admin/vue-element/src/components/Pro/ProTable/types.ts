@@ -92,6 +92,8 @@ export interface ProTableProps<T = any> {
   // 表格引擎
   engine?: TableEngine;
   rowKey?: string;
+  // 表格唯一标识（vxe-table customConfig storage 需要）
+  tableId?: string;
   // 透传表格属性（根据 engine 不同）
   table?: Record<string, any>;
 
