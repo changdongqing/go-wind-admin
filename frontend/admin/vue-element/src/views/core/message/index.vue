@@ -1,34 +1,25 @@
 <template>
   <div class="app-container h-full flex flex-1 flex-col">
-    <!-- 搜索 -->
-    <PageSearch
-      ref="searchRef"
-      :search-config="searchConfig"
-      @query-click="handleQueryClick"
-      @reset-click="handleResetClick"
-    />
-
-    <!-- 列表 -->
-    <PageContent ref="contentRef" :content-config="contentConfig">
+    <ProPage ref="pageRef" :config="pageConfig">
       <!-- 状态 -->
-      <template #status="{ row }">
+      <template #status="scope: any">
         <ElTag
           size="small"
           effect="dark"
           round
-          :color="internalMessageRecipientStatusColor(row.status)"
+          :color="internalMessageRecipientStatusColor(scope.row.status)"
         >
-          {{ internalMessageRecipientStatusLabel(row.status) }}
+          {{ internalMessageRecipientStatusLabel(scope.row.status) }}
         </ElTag>
       </template>
 
       <!-- 操作 -->
-      <template #operation="{ row }">
-        <el-button link type="primary" size="small" @click="handleView(row)">
+      <template #operation="scope: any">
+        <el-button link type="primary" size="small" @click="handleView(scope.row)">
           {{ $t("common.button.view") }}
         </el-button>
       </template>
-    </PageContent>
+    </ProPage>
 
     <!-- 消息详情对话框 -->
     <el-dialog
@@ -67,14 +58,13 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 import { ElTag, ElDivider, ElAvatar, ElMessage } from "element-plus";
 import { UserFilled } from "@element-plus/icons-vue";
 import dayjs from "dayjs";
 
-import PageContent from "@/components/CURD/PageContent.vue";
-import PageSearch from "@/components/CURD/PageSearch.vue";
-import usePage from "@/components/CURD/usePage";
-import type { ISearchConfig, IContentConfig } from "@/components/CURD/types";
+import ProPage from "@/components/Pro/ProPage/index.vue";
+import type { ProPageConfig } from "@/components/Pro/ProPage/types";
 
 import { $t } from "@/i18n";
 import {
@@ -91,192 +81,167 @@ import defaultAvatar from "@/assets/images/default-avatar.png";
 const { mutateAsync: markNotificationAsRead } = useMarkNotificationAsRead();
 const userStore = useAppUserStore();
 
-// 使用 CURD hook
-const { searchRef, contentRef, handleQueryClick, handleResetClick } = usePage();
-
-// 详情对话框
+const pageRef = ref();
 const detailDialogVisible = ref(false);
 const detail = ref<any | null>(null);
 
-// 搜索配置
-const searchConfig: ISearchConfig = {
-  grid: true,
-  formItems: [
-    {
-      type: "input",
-      label: $t("pages.internal_message.title"),
-      prop: "title",
-      attrs: {
-        placeholder: $t("common.placeholder.input"),
-        clearable: true,
+const pageConfig: ProPageConfig = {
+  permPrefix: "sys:internal_message",
+
+  search: {
+    grid: true,
+    fields: [
+      {
+        type: "input",
+        label: $t("pages.internal_message.title"),
+        field: "title",
+        attrs: { placeholder: $t("common.placeholder.input"), clearable: true },
       },
-    },
-    {
-      type: "select",
-      label: $t("pages.internal_message.status"),
-      prop: "status",
-      attrs: {
-        placeholder: $t("common.placeholder.select"),
-        clearable: true,
-      },
-      options: [
-        { label: $t("enum.internalMessageRecipient.status.SENT"), value: "SENT" },
-        { label: $t("enum.internalMessageRecipient.status.RECEIVED"), value: "RECEIVED" },
-        { label: $t("enum.internalMessageRecipient.status.READ"), value: "READ" },
-      ],
-    },
-    {
-      type: "date-picker",
-      label: $t("common.table.createdAt"),
-      prop: "createdAt",
-      attrs: {
-        type: "datetimerange",
-        startPlaceholder: $t("common.placeholder.date"),
-        endPlaceholder: $t("common.placeholder.date"),
-        clearable: true,
-        shortcuts: [
-          {
-            text: $t("common.dateRange.today"),
-            value: () => [dayjs().startOf("day").toDate(), dayjs().endOf("day").toDate()],
-          },
-          {
-            text: $t("common.dateRange.yesterday"),
-            value: () => [
-              dayjs().subtract(1, "day").startOf("day").toDate(),
-              dayjs().subtract(1, "day").endOf("day").toDate(),
-            ],
-          },
-          {
-            text: $t("common.dateRange.thisWeek"),
-            value: () => [dayjs().startOf("week").toDate(), dayjs().endOf("week").toDate()],
-          },
-          {
-            text: $t("common.dateRange.lastWeek"),
-            value: () => [
-              dayjs().subtract(1, "week").startOf("week").toDate(),
-              dayjs().subtract(1, "week").endOf("week").toDate(),
-            ],
-          },
-          {
-            text: $t("common.dateRange.thisMonth"),
-            value: () => [dayjs().startOf("month").toDate(), dayjs().endOf("month").toDate()],
-          },
-          {
-            text: $t("common.dateRange.lastMonth"),
-            value: () => [
-              dayjs().subtract(1, "month").startOf("month").toDate(),
-              dayjs().subtract(1, "month").endOf("month").toDate(),
-            ],
-          },
+      {
+        type: "select",
+        label: $t("pages.internal_message.status"),
+        field: "status",
+        attrs: { placeholder: $t("common.placeholder.select"), clearable: true },
+        options: [
+          { label: $t("enum.internalMessageRecipient.status.SENT"), value: "SENT" },
+          { label: $t("enum.internalMessageRecipient.status.RECEIVED"), value: "RECEIVED" },
+          { label: $t("enum.internalMessageRecipient.status.READ"), value: "READ" },
         ],
       },
-    },
-  ],
-};
-
-// 表格配置
-const contentConfig: IContentConfig = {
-  permPrefix: "sys:internal_message",
-  toolbarRight: [],
-  defaultToolbar: ["refresh", "filter"],
-  table: {
-    border: true,
-    stripe: true,
-    height: "auto",
-  },
-  indexAction: async (query: any) => {
-    const userId = userStore.userInfo?.id;
-    if (!userId) {
-      return {
-        items: [],
-        total: 0,
-      };
-    }
-
-    const { page, pageSize, ...queryParams } = query;
-
-    let startTime: string | undefined;
-    let endTime: string | undefined;
-
-    if (
-      queryParams.createdAt !== undefined &&
-      Array.isArray(queryParams.createdAt) &&
-      queryParams.createdAt.length === 2
-    ) {
-      startTime = dayjs(queryParams.createdAt[0]).format("YYYY-MM-DD HH:mm:ss");
-      endTime = dayjs(queryParams.createdAt[1]).format("YYYY-MM-DD HH:mm:ss");
-    }
-
-    const result = await fetchListUserInbox(
-      new PaginationQuery({
-        paging: { page: page || 1, pageSize: pageSize || 10 },
-        formValues: {
-          recipient_user_id: userId.toString(),
-          title: queryParams.title || undefined,
-          status: queryParams.status || undefined,
-          created_at__gte: startTime,
-          created_at__lte: endTime,
+      {
+        type: "date-picker",
+        label: $t("common.table.createdAt"),
+        field: "createdAt",
+        attrs: {
+          type: "datetimerange",
+          startPlaceholder: $t("common.placeholder.date"),
+          endPlaceholder: $t("common.placeholder.date"),
+          clearable: true,
+          shortcuts: [
+            {
+              text: $t("common.dateRange.today"),
+              value: () => [dayjs().startOf("day").toDate(), dayjs().endOf("day").toDate()],
+            },
+            {
+              text: $t("common.dateRange.yesterday"),
+              value: () => [
+                dayjs().subtract(1, "day").startOf("day").toDate(),
+                dayjs().subtract(1, "day").endOf("day").toDate(),
+              ],
+            },
+            {
+              text: $t("common.dateRange.thisWeek"),
+              value: () => [dayjs().startOf("week").toDate(), dayjs().endOf("week").toDate()],
+            },
+            {
+              text: $t("common.dateRange.lastWeek"),
+              value: () => [
+                dayjs().subtract(1, "week").startOf("week").toDate(),
+                dayjs().subtract(1, "week").endOf("week").toDate(),
+              ],
+            },
+            {
+              text: $t("common.dateRange.thisMonth"),
+              value: () => [dayjs().startOf("month").toDate(), dayjs().endOf("month").toDate()],
+            },
+            {
+              text: $t("common.dateRange.lastMonth"),
+              value: () => [
+                dayjs().subtract(1, "month").startOf("month").toDate(),
+                dayjs().subtract(1, "month").endOf("month").toDate(),
+              ],
+            },
+          ],
         },
-      })
-    );
-
-    return {
-      items: result.items || [],
-      total: result.total || 0,
-    };
+      },
+    ],
   },
-  columns: [
-    {
-      prop: "title",
-      label: $t("pages.internal_message.title"),
-      minWidth: 200,
-      align: "left",
+
+  table: {
+    listAction: async (query: any) => {
+      const userId = userStore.userInfo?.id;
+      if (!userId) return { items: [], total: 0 };
+
+      const { page, pageSize, ...queryParams } = query;
+      let startTime: string | undefined;
+      let endTime: string | undefined;
+
+      if (
+        queryParams.createdAt !== undefined &&
+        Array.isArray(queryParams.createdAt) &&
+        queryParams.createdAt.length === 2
+      ) {
+        startTime = dayjs(queryParams.createdAt[0]).format("YYYY-MM-DD HH:mm:ss");
+        endTime = dayjs(queryParams.createdAt[1]).format("YYYY-MM-DD HH:mm:ss");
+      }
+
+      const result = await fetchListUserInbox(
+        new PaginationQuery({
+          paging: { page: page || 1, pageSize: pageSize || 10 },
+          formValues: {
+            recipient_user_id: userId.toString(),
+            title: queryParams.title || undefined,
+            status: queryParams.status || undefined,
+            created_at__gte: startTime,
+            created_at__lte: endTime,
+          },
+        })
+      );
+      return { items: result.items || [], total: result.total || 0 };
     },
-    {
-      prop: "status",
-      label: $t("pages.internal_message.status"),
-      width: 120,
-      slotName: "status",
-    },
-    {
-      prop: "readAt",
-      label: $t("pages.internal_message.readAt"),
-      width: 160,
-      template: "date",
-      dateFormat: "YYYY-MM-DD HH:mm:ss",
-    },
-    {
-      prop: "createdAt",
-      label: $t("common.table.createdAt"),
-      width: 160,
-      template: "date",
-      dateFormat: "YYYY-MM-DD HH:mm:ss",
-    },
-    {
-      prop: "operation",
-      label: $t("common.table.operation"),
-      width: 100,
-      slotName: "operation",
-      fixed: "right",
-    },
-  ],
+    toolbar: [],
+    toolbarRight: [],
+    defaultToolbar: ["refresh", "filter"],
+    tableAttrs: { border: true, stripe: true, height: "auto" },
+    columns: [
+      {
+        prop: "title",
+        label: $t("pages.internal_message.title"),
+        minWidth: 200,
+        align: "left",
+      },
+      {
+        prop: "status",
+        label: $t("pages.internal_message.status"),
+        width: 120,
+        slotName: "status",
+      },
+      {
+        prop: "readAt",
+        label: $t("pages.internal_message.readAt"),
+        width: 160,
+        cellType: "date",
+        dateFormat: "YYYY-MM-DD HH:mm:ss",
+      },
+      {
+        prop: "createdAt",
+        label: $t("common.table.createdAt"),
+        width: 160,
+        cellType: "date",
+        dateFormat: "YYYY-MM-DD HH:mm:ss",
+      },
+      {
+        prop: "operation",
+        label: $t("common.table.operation"),
+        width: 100,
+        slotName: "operation",
+        fixed: "right",
+      },
+    ],
+  },
 };
 
-// 查看详情
 async function handleView(row: any) {
   try {
     const messageId = Number(row.messageId);
     detail.value = await fetchGetInternalMessage({ id: messageId });
     detailDialogVisible.value = true;
 
-    // 标记为已读
     const userId = userStore.userInfo?.id;
     if (userId && row.status !== "READ") {
       try {
         await markNotificationAsRead({ userId, recipientIds: [Number(row.id)] });
-        // 刷新列表
-        const queryParams = searchRef.value?.getQueryParams();
-        contentRef.value?.fetchPageData(queryParams, true);
+        pageRef.value?.refresh();
       } catch {
         ElMessage.error($t("common.message.operationFailed"));
       }

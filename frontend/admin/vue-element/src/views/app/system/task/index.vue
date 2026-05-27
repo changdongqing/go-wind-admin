@@ -1,39 +1,31 @@
 <template>
   <div class="app-container h-full flex flex-1 flex-col">
-    <!-- 搜索 -->
-    <PageSearch
-      ref="searchRef"
-      :search-config="searchConfig"
-      @query-click="handleQueryClick"
-      @reset-click="handleResetClick"
-    />
-
-    <!-- 列表 -->
-    <PageContent
-      ref="contentRef"
-      :content-config="contentConfig"
-      @add-click="handleAddClick"
-      @operate-click="handleOperateClick"
-      @toolbar-click="handleToolbarClick"
+    <ProPage
+      ref="pageRef"
+      :config="pageConfig"
+      @add="handleAdd"
+      @edit="handleEdit"
+      @toolbar="handleToolbar"
+      @operate="handleOperate"
     >
       <!-- 是否启用 -->
-      <template #enable="{ row }">
+      <template #enable="scope: any">
         <ElSwitch
-          v-model="row.enable"
-          :loading="row.pending"
+          v-model="scope.row.enable"
+          :loading="scope.row.pending"
           :active-text="$t('common.switch.active')"
           :inactive-text="$t('common.switch.inactive')"
-          @change="(value: string | number | boolean) => handleEnableChanged(row, !!value)"
+          @change="(value: string | number | boolean) => handleEnableChanged(scope.row, !!value)"
         />
       </template>
 
       <!-- 任务类型 -->
-      <template #type="{ row }">
-        <ElTag size="small" effect="dark" round :color="taskTypeToColor(row.type)">
-          {{ taskTypeToName(row.type) }}
+      <template #type="scope: any">
+        <ElTag size="small" effect="dark" round :color="taskTypeToColor(scope.row.type)">
+          {{ taskTypeToName(scope.row.type) }}
         </ElTag>
       </template>
-    </PageContent>
+    </ProPage>
 
     <!-- 新增/编辑抽屉 -->
     <TaskDrawer ref="drawerRef" @success="handleSuccess" />
@@ -41,12 +33,11 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 import { ElMessage, ElMessageBox, ElSwitch, ElTag } from "element-plus";
 
-import PageContent from "@/components/CURD/PageContent.vue";
-import PageSearch from "@/components/CURD/PageSearch.vue";
-import usePage from "@/components/CURD/usePage";
-import type { IOperateData, ISearchConfig, IContentConfig } from "@/components/CURD/types";
+import ProPage from "@/components/Pro/ProPage/index.vue";
+import type { ProPageConfig, ToolsButton } from "@/components/Pro/ProPage/types";
 import TaskDrawer from "./task-drawer.vue";
 
 import {
@@ -72,333 +63,227 @@ const { mutateAsync: startAllTask } = useStartAllTasks();
 const { mutateAsync: stopAllTask } = useStopAllTasks();
 const { mutateAsync: restartAllTask } = useRestartAllTasks();
 
-// 使用 CURD hook
-const { searchRef, contentRef, handleQueryClick, handleResetClick } = usePage();
-
-// 抽屉引用
+const pageRef = ref();
 const drawerRef = ref();
 
-// 搜索配置
-const searchConfig: ISearchConfig = {
-  grid: true, // 启用 Grid 布局
-  formItems: [
-    {
-      type: "select",
-      label: $t("pages.task.type"),
-      prop: "type",
-      attrs: {
-        placeholder: $t("common.placeholder.select"),
-        clearable: true,
-        filterable: true,
-      },
-      options: taskTypeList.value,
-    },
-    {
-      type: "input",
-      label: $t("pages.task.typeName"),
-      prop: "typeName",
-      attrs: {
-        placeholder: $t("common.placeholder.input"),
-        clearable: true,
-      },
-    },
-    {
-      type: "select",
-      label: $t("common.table.status"),
-      prop: "enable",
-      attrs: {
-        placeholder: $t("common.placeholder.select"),
-        clearable: true,
-        filterable: true,
-      },
-      options: enableList.value,
-    },
-  ],
-};
+const pageConfig: ProPageConfig = {
+  permPrefix: "sys:task",
 
-// 表格配置
-const contentConfig: IContentConfig = {
-  permPrefix: "sys:task", // 任务管理权限前缀
-  toolbarRight: [
-    {
-      name: "startAll",
-      text: $t("pages.task.button.startAll"),
-      attrs: {
-        type: "success",
+  search: {
+    grid: true,
+    fields: [
+      {
+        type: "select",
+        label: $t("pages.task.type"),
+        field: "type",
+        attrs: {
+          placeholder: $t("common.placeholder.select"),
+          clearable: true,
+          filterable: true,
+        },
+        options: taskTypeList.value,
       },
-    },
-    {
-      name: "stopAll",
-      text: $t("pages.task.button.stopAll"),
-      attrs: {
-        type: "danger",
+      {
+        type: "input",
+        label: $t("pages.task.typeName"),
+        field: "typeName",
+        attrs: { placeholder: $t("common.placeholder.input"), clearable: true },
       },
-    },
-    {
-      name: "restartAll",
-      text: $t("pages.task.button.restartAll"),
-      attrs: {
-        type: "primary",
+      {
+        type: "select",
+        label: $t("common.table.status"),
+        field: "enable",
+        attrs: {
+          placeholder: $t("common.placeholder.select"),
+          clearable: true,
+          filterable: true,
+        },
+        options: enableList.value,
       },
-    },
-    "add",
-  ],
-  defaultToolbar: ["refresh", "exports", "filter"],
+    ],
+  },
+
   table: {
-    border: true,
-    stripe: false,
+    listAction: async (query: any) => {
+      const { page, pageSize, ...queryParams } = query;
+      const result = await fetchListTasks(
+        new PaginationQuery({
+          paging: { page: page || 1, pageSize: pageSize || 10 },
+          formValues: queryParams,
+        })
+      );
+      return { items: result.items || [], total: result.total || 0 };
+    },
+    deleteAction: async (ids: string) => {
+      await deleteTask({ id: ids as any });
+    },
+    toolbar: [],
+    toolbarRight: [
+      {
+        name: "startAll",
+        text: $t("pages.task.button.startAll"),
+        attrs: { type: "success" },
+      } as ToolsButton,
+      {
+        name: "stopAll",
+        text: $t("pages.task.button.stopAll"),
+        attrs: { type: "danger" },
+      } as ToolsButton,
+      {
+        name: "restartAll",
+        text: $t("pages.task.button.restartAll"),
+        attrs: { type: "primary" },
+      } as ToolsButton,
+      "add",
+    ],
+    defaultToolbar: ["refresh", "exports", "filter"],
+    pagination: false,
+    tableAttrs: { border: true, stripe: false },
+    columns: [
+      { type: "index", label: $t("common.table.seq"), width: 60 },
+      {
+        prop: "type",
+        label: $t("pages.task.type"),
+        width: 120,
+        slotName: "type",
+      },
+      { prop: "typeName", label: $t("pages.task.typeName"), minWidth: 150 },
+      { prop: "taskPayload", label: $t("pages.task.taskPayload"), minWidth: 150 },
+      { prop: "cronSpec", label: $t("pages.task.cronSpec"), minWidth: 150 },
+      {
+        prop: "enable",
+        label: $t("pages.task.enable"),
+        width: 100,
+        slotName: "enable",
+      },
+      {
+        prop: "createdAt",
+        label: $t("common.table.createdAt"),
+        minWidth: 160,
+        cellType: "date",
+        dateFormat: "YYYY-MM-DD HH:mm:ss",
+      },
+      { prop: "remark", label: $t("common.table.remark"), minWidth: 150 },
+      {
+        prop: "action",
+        label: $t("common.table.action"),
+        fixed: "right",
+        width: 240,
+        cellType: "tool",
+        buttons: [
+          { name: "edit", text: $t("common.button.edit") },
+          {
+            name: "start",
+            text: $t("pages.task.text.do_you_want_start_task", {
+              moduleName: $t("pages.task.moduleName"),
+            }),
+            attrs: { type: "success" },
+          },
+          {
+            name: "stop",
+            text: $t("pages.task.text.do_you_want_stop_task", {
+              moduleName: $t("pages.task.moduleName"),
+            }),
+            attrs: { type: "danger" },
+          },
+          {
+            name: "restart",
+            text: $t("pages.task.text.do_you_want_restart_task", {
+              moduleName: $t("pages.task.moduleName"),
+            }),
+            attrs: { type: "primary" },
+          },
+          { name: "delete", text: $t("common.button.delete"), attrs: { type: "danger" } },
+        ],
+      },
+    ],
   },
-  pagination: false, // 禁用分页
-  indexAction: async (query: any) => {
-    const { page, pageSize, ...queryParams } = query;
-    const result = await fetchListTasks(
-      new PaginationQuery({
-        paging: { page: page || 1, pageSize: pageSize || 10 },
-        formValues: queryParams,
-      })
-    );
-    return {
-      items: result.items || [],
-      total: result.total || 0,
-    };
-  },
-  columns: [
-    { type: "index", label: $t("common.table.seq"), width: 60 },
-    {
-      prop: "type",
-      label: $t("pages.task.type"),
-      width: 120,
-      slotName: "type",
-    },
-    { prop: "typeName", label: $t("pages.task.typeName"), minWidth: 150 },
-    { prop: "taskPayload", label: $t("pages.task.taskPayload"), minWidth: 150 },
-    { prop: "cronSpec", label: $t("pages.task.cronSpec"), minWidth: 150 },
-    {
-      prop: "enable",
-      label: $t("pages.task.enable"),
-      width: 100,
-      slotName: "enable",
-    },
-    {
-      prop: "createdAt",
-      label: $t("common.table.createdAt"),
-      minWidth: 160,
-      template: "date",
-      dateFormat: "YYYY-MM-DD HH:mm:ss",
-    },
-    { prop: "remark", label: $t("common.table.remark"), minWidth: 150 },
-    {
-      prop: "action",
-      label: $t("common.table.action"),
-      fixed: "right",
-      width: 240,
-      template: "tool",
-      action: [
-        {
-          name: "edit",
-          text: $t("common.button.edit"),
-        },
-        {
-          name: "start",
-          text: $t("pages.task.text.do_you_want_start_task", {
-            moduleName: $t("pages.task.moduleName"),
-          }),
-          attrs: {
-            type: "success",
-          },
-        },
-        {
-          name: "stop",
-          text: $t("pages.task.text.do_you_want_stop_task", {
-            moduleName: $t("pages.task.moduleName"),
-          }),
-          attrs: {
-            type: "danger",
-          },
-        },
-        {
-          name: "restart",
-          text: $t("pages.task.text.do_you_want_restart_task", {
-            moduleName: $t("pages.task.moduleName"),
-          }),
-          attrs: {
-            type: "primary",
-          },
-        },
-        {
-          name: "delete",
-          text: $t("common.button.delete"),
-          attrs: {
-            type: "danger",
-          },
-        },
-      ],
-    },
-  ],
 };
 
-// 处理操作点击
-const handleOperateClick = (data: IOperateData) => {
-  const { name, row } = data;
-
-  if (name === "edit") {
-    // 编辑
-    drawerRef.value?.open(row);
-  } else if (name === "start") {
-    // 启动任务
-    ElMessageBox.confirm(
-      $t("pages.task.text.do_you_want_start_task", { moduleName: $t("pages.task.moduleName") }),
-      $t("common.title.confirm"),
-      {
-        confirmButtonText: $t("common.button.confirm"),
-        cancelButtonText: $t("common.button.cancel"),
-        type: "warning",
-      }
-    ).then(async () => {
-      try {
-        await controlTask({ typeName: row.typeName, controlType: "Start" });
-        ElMessage.success($t("common.notification.operation_success"));
-        contentRef.value?.fetchPageData({}, true);
-      } catch {
-        ElMessage.error($t("common.notification.operation_failed"));
-      }
-    });
-  } else if (name === "stop") {
-    // 停止任务
-    ElMessageBox.confirm(
-      $t("pages.task.text.do_you_want_stop_task", { moduleName: $t("pages.task.moduleName") }),
-      $t("common.title.confirm"),
-      {
-        confirmButtonText: $t("common.button.confirm"),
-        cancelButtonText: $t("common.button.cancel"),
-        type: "warning",
-      }
-    ).then(async () => {
-      try {
-        await controlTask({ typeName: row.typeName, controlType: "Stop" });
-        ElMessage.success($t("common.notification.operation_success"));
-        contentRef.value?.fetchPageData({}, true);
-      } catch {
-        ElMessage.error($t("common.notification.operation_failed"));
-      }
-    });
-  } else if (name === "restart") {
-    // 重启任务
-    ElMessageBox.confirm(
-      $t("pages.task.text.do_you_want_restart_task", { moduleName: $t("pages.task.moduleName") }),
-      $t("common.title.confirm"),
-      {
-        confirmButtonText: $t("common.button.confirm"),
-        cancelButtonText: $t("common.button.cancel"),
-        type: "warning",
-      }
-    ).then(async () => {
-      try {
-        await controlTask({ typeName: row.typeName, controlType: "Restart" });
-        ElMessage.success($t("common.notification.operation_success"));
-        contentRef.value?.fetchPageData({}, true);
-      } catch {
-        ElMessage.error($t("common.notification.operation_failed"));
-      }
-    });
-  } else if (name === "delete") {
-    // 删除
-    ElMessageBox.confirm(
-      $t("common.confirm.do_you_want_delete", { moduleName: $t("pages.task.moduleName") }),
-      $t("common.title.confirm"),
-      {
-        confirmButtonText: $t("common.button.confirm"),
-        cancelButtonText: $t("common.button.cancel"),
-        type: "warning",
-      }
-    ).then(async () => {
-      try {
-        await deleteTask({ id: row.id });
-        ElMessage.success($t("common.notification.delete_success"));
-        contentRef.value?.fetchPageData({}, true);
-      } catch {
-        ElMessage.error($t("common.notification.delete_failed"));
-      }
-    });
-  }
-};
-
-// 处理新增点击
-const handleAddClick = () => {
+function handleAdd() {
   drawerRef.value?.open();
-};
+}
 
-// 处理成功回调
-const handleSuccess = () => {
-  contentRef.value?.fetchPageData({}, true);
-};
+function handleEdit(row: any) {
+  drawerRef.value?.open(row);
+}
 
-// 处理工具栏点击
-const handleToolbarClick = async (name: string) => {
-  if (name === "startAll") {
-    ElMessageBox.confirm(
-      $t("pages.task.text.do_you_want_start_all_task", { moduleName: $t("pages.task.moduleName") }),
+async function handleToolbar(name: string) {
+  const actionMap: Record<string, () => Promise<any>> = {
+    startAll: () => startAllTask(),
+    stopAll: () => stopAllTask(),
+    restartAll: () => restartAllTask(),
+  };
+
+  const i18nMap: Record<string, string> = {
+    startAll: "pages.task.text.do_you_want_start_all_task",
+    stopAll: "pages.task.text.do_you_want_stop_all_task",
+    restartAll: "pages.task.text.do_you_want_restart_all_task",
+  };
+
+  const action = actionMap[name];
+  if (!action) return;
+
+  try {
+    await ElMessageBox.confirm(
+      $t(i18nMap[name], { moduleName: $t("pages.task.moduleName") }),
       $t("common.title.confirm"),
       {
         confirmButtonText: $t("common.button.confirm"),
         cancelButtonText: $t("common.button.cancel"),
         type: "warning",
       }
-    ).then(async () => {
-      try {
-        await startAllTask();
-        ElMessage.success($t("common.notification.operation_success"));
-        contentRef.value?.fetchPageData({}, true);
-      } catch {
-        ElMessage.error($t("common.notification.operation_failed"));
-      }
-    });
-  } else if (name === "stopAll") {
-    ElMessageBox.confirm(
-      $t("pages.task.text.do_you_want_stop_all_task", { moduleName: $t("pages.task.moduleName") }),
-      $t("common.title.confirm"),
-      {
-        confirmButtonText: $t("common.button.confirm"),
-        cancelButtonText: $t("common.button.cancel"),
-        type: "warning",
-      }
-    ).then(async () => {
-      try {
-        await stopAllTask();
-        ElMessage.success($t("common.notification.operation_success"));
-        contentRef.value?.fetchPageData({}, true);
-      } catch {
-        ElMessage.error($t("common.notification.operation_failed"));
-      }
-    });
-  } else if (name === "restartAll") {
-    ElMessageBox.confirm(
-      $t("pages.task.text.do_you_want_restart_all_task", {
-        moduleName: $t("pages.task.moduleName"),
-      }),
-      $t("common.title.confirm"),
-      {
-        confirmButtonText: $t("common.button.confirm"),
-        cancelButtonText: $t("common.button.cancel"),
-        type: "warning",
-      }
-    ).then(async () => {
-      try {
-        await restartAllTask();
-        ElMessage.success($t("common.notification.operation_success"));
-        contentRef.value?.fetchPageData({}, true);
-      } catch {
-        ElMessage.error($t("common.notification.operation_failed"));
-      }
-    });
+    );
+    await action();
+    ElMessage.success($t("common.notification.operation_success"));
+    pageRef.value?.refresh();
+  } catch (error) {
+    if (error !== "cancel") {
+      ElMessage.error($t("common.notification.operation_failed"));
+    }
   }
-};
+}
 
-// 修改状态
+async function handleOperate(data: { name: string; row: any }) {
+  const { name, row } = data;
+  const controlTypeMap: Record<string, string> = {
+    start: "Start",
+    stop: "Stop",
+    restart: "Restart",
+  };
+
+  const controlType = controlTypeMap[name];
+  if (controlType) {
+    const i18nMap: Record<string, string> = {
+      start: "pages.task.text.do_you_want_start_task",
+      stop: "pages.task.text.do_you_want_stop_task",
+      restart: "pages.task.text.do_you_want_restart_task",
+    };
+
+    try {
+      await ElMessageBox.confirm(
+        $t(i18nMap[name], { moduleName: $t("pages.task.moduleName") }),
+        $t("common.title.confirm"),
+        {
+          confirmButtonText: $t("common.button.confirm"),
+          cancelButtonText: $t("common.button.cancel"),
+          type: "warning",
+        }
+      );
+      await controlTask({ typeName: row.typeName, controlType });
+      ElMessage.success($t("common.notification.operation_success"));
+      pageRef.value?.refresh();
+    } catch (error) {
+      if (error !== "cancel") {
+        ElMessage.error($t("common.notification.operation_failed"));
+      }
+    }
+  }
+}
+
 async function handleEnableChanged(row: any, checked: boolean) {
   row.pending = true;
   row.enable = checked;
-
   try {
     await updateTask({ id: row.id, values: { enable: row.enable } });
     await controlTask({ typeName: row.typeName, controlType: row.enable ? "Start" : "Stop" });
@@ -408,6 +293,10 @@ async function handleEnableChanged(row: any, checked: boolean) {
   } finally {
     row.pending = false;
   }
+}
+
+function handleSuccess() {
+  pageRef.value?.refresh();
 }
 </script>
 
