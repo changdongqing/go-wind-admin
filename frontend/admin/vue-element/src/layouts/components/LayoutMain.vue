@@ -71,6 +71,7 @@ const appMainHeight = computed(() => {
 
 // 页面切换动画名称
 const transitionName = computed(() => {
+  if (!preferences.transition.enable) return "";
   return preferences.transition.name ?? "";
 });
 </script>
@@ -120,6 +121,34 @@ const transitionName = computed(() => {
   .fade-scale-leave-to {
     opacity: 0;
     transform: scale(0.8);
+  }
+
+  /* fade-down */
+  .fade-down-leave-active,
+  .fade-down-enter-active {
+    transition: all 0.3s;
+  }
+  .fade-down-enter-from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  .fade-down-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  /* fade-up */
+  .fade-up-leave-active,
+  .fade-up-enter-active {
+    transition: all 0.3s;
+  }
+  .fade-up-enter-from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  .fade-up-leave-to {
+    opacity: 0;
+    transform: translateY(-30px);
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="layout-wrapper">
     <component :is="currentLayoutComponent" />
-    <Settings v-if="showSettings" />
+    <PreferencesPanel :open="settingsVisible" @close="settingsVisible = false" />
   </div>
 </template>
 
@@ -12,10 +12,10 @@ import { useLayout } from "./useLayout";
 import LeftLayout from "./LeftLayout.vue";
 import TopLayout from "./TopLayout.vue";
 import MixLayout from "./MixLayout.vue";
-import Settings from "./components/LayoutSettings.vue";
+import { PreferencesPanel } from "@/core/preferences/components";
 
 const route = useRoute();
-const { currentLayout, showSettings } = useLayout();
+const { currentLayout } = useLayout();
 
 // 设置面板可见性（全局状态）
 const settingsVisible = ref(false);
