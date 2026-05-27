@@ -72,16 +72,16 @@ const { showTagsView, showLogo, isSidebarOpen, routes } = useLayout();
   }
 
   &__main {
-    position: relative;
-    height: 100%;
-    margin-left: $sidebar-width;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: $sidebar-width;
     overflow-y: auto;
-    transition: margin-left 0.28s;
-    width: calc(100% - #{$sidebar-width});
-    min-width: 0;
+    transition: left 0.28s;
 
     &--collapsed {
-      margin-left: $sidebar-width-collapsed;
+      left: $sidebar-width-collapsed;
     }
 
     .fixed-header {
@@ -115,7 +115,7 @@ const { showTagsView, showLogo, isSidebarOpen, routes } = useLayout();
   }
 
   .layout__main {
-    margin-left: 0 !important;
+    left: 0 !important;
   }
 }
 

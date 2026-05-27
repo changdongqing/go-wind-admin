@@ -77,19 +77,4 @@ svg {
   vertical-align: -0.15em;
 }
 
-// ============================================
-// Element Plus lock-scroll 兼容
-// ============================================
-// html/body 已设置 overflow:hidden（滚动在 .app-main 上），
-// Element Plus lockscreen 对 body 的任何修改都不会产生视觉效果。
-// 以下规则作为额外保障，防止 lockscreen 残留内联样式。
-
-body {
-  &.el-popup-parent--hidden,
-  &.el-overlay-is-hidden {
-    width: auto !important;
-    overflow: hidden !important;
-    padding-right: 0 !important;
-    margin-right: 0 !important;
-  }
-}
+// Element Plus lock-scroll 通过 JS 层面拦截 body.style.width 修改来阻止。
