@@ -93,72 +93,158 @@
       width: 100%;
       height: 100%;
       display: flex;
-      gap: 3px;
       position: relative;
-      padding: 3px;
-      background: var(--el-fill-color);
+      padding: 0;
+      background: transparent;
       border-radius: 4px;
 
-      .sidebar {
-        width: 14px;
-        background: var(--el-color-primary);
-        border-radius: 3px;
-        position: relative;
-        overflow: hidden;
+      // 浏览器窗口框架
+      .browser-frame {
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
+        background: var(--el-fill-color);
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid var(--el-border-color);
+      }
+
+      // 浏览器顶部
+      .browser-header {
+        height: 6px;
+        background: var(--el-fill-color-darker);
+        display: flex;
         align-items: center;
-        padding: 3px 0;
-        gap: 3px;
+        padding: 0 3px;
 
-        &.gray {
-          background: var(--el-fill-color-darker);
-        }
+        .browser-dots {
+          display: flex;
+          gap: 2px;
 
-        &.thin {
-          width: 8px;
-
-          &.gray {
-            background: var(--el-fill-color-darker);
+          span {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--el-text-color-placeholder);
           }
         }
       }
 
-      .main-content {
+      // 浏览器主体
+      .browser-body {
         flex: 1;
         display: flex;
-        flex-direction: column;
-        gap: 3px;
+        gap: 2px;
+        padding: 2px;
+        overflow: hidden;
 
-        .header-bar {
-          height: 10px;
+        &.column {
+          flex-direction: column;
+        }
+
+        // 侧边栏（宽）
+        .sidebar {
+          width: 20px;
           background: var(--el-color-primary);
-          border-radius: 3px;
+          border-radius: 2px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 2px 0;
+          gap: 2px;
+
+          .menu-item {
+            width: 14px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1px;
+          }
+        }
+
+        // 侧边栏（窄）
+        .sidebar-thin {
+          width: 8px;
+          border-radius: 2px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 2px 0;
+          gap: 2px;
+
+          &.primary {
+            background: var(--el-color-primary);
+          }
 
           &.gray {
             background: var(--el-fill-color-darker);
           }
 
-          &.full-width {
-            width: 100%;
+          .mini-item {
+            width: 5px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1px;
+
+            .gray & {
+              background: var(--el-text-color-placeholder);
+            }
           }
         }
 
-        .content-area {
+        // 主要内容区
+        .main-content {
           flex: 1;
           display: flex;
           flex-direction: column;
-          gap: 3px;
-          padding: 0;
+          gap: 2px;
+        }
 
-          &.full-width {
+        // 顶部导航栏
+        .header-nav-bar {
+          height: 8px;
+          background: var(--el-color-primary);
+          border-radius: 2px;
+          display: flex;
+          align-items: center;
+          padding: 0 3px;
+          gap: 3px;
+          width: 100%;
+
+          &.short {
+            width: 50%;
+          }
+
+          .nav-item {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1.5px;
+          }
+        }
+
+        // 混合布局主体
+        .mixed-body {
+          flex: 1;
+          display: flex;
+          gap: 2px;
+        }
+
+        // 内容区块
+        .content-blocks {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          &.full {
             width: 100%;
           }
 
           .block-row {
             flex: 1;
             display: flex;
-            gap: 3px;
+            gap: 2px;
 
             .block {
               flex: 1;
@@ -167,28 +253,12 @@
             }
           }
 
-          .block {
+          .block-full {
+            height: 12px;
             background: var(--el-fill-color-darker);
             border-radius: 2px;
           }
         }
-
-        .menu-item {
-          display: inline-block;
-          width: 8px;
-          height: 3px;
-          background: rgba(255, 255, 255, 0.9);
-          border-radius: 1.5px;
-          margin-right: 3px;
-        }
-      }
-
-      .content-wrapper {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
       }
     }
   }
@@ -197,7 +267,7 @@
     display: flex;
     align-items: center;
     gap: 2px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--el-text-color-regular);
     text-align: center;
@@ -252,32 +322,91 @@
       position: relative;
       overflow: hidden;
 
-      .preview-bar {
+      .browser-frame-small {
+        width: 100%;
         height: 100%;
-        border-radius: 4px;
-        background: var(--el-fill-color);
         display: flex;
         flex-direction: column;
-        gap: 3px;
-        padding: 3px;
+        background: var(--el-fill-color);
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid var(--el-border-color);
+      }
+
+      .browser-header-small {
+        height: 6px;
+        background: var(--el-fill-color-darker);
+        display: flex;
+        align-items: center;
+        padding: 0 3px;
+
+        .browser-dots-small {
+          display: flex;
+          gap: 2px;
+
+          span {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--el-text-color-placeholder);
+          }
+        }
+      }
+
+      .browser-body-small {
+        flex: 1;
+        padding: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .content-area-small {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        transition: all 0.3s;
+        padding: 0;
 
         &.narrow {
-          width: 75%;
-          margin-left: auto;
-          margin-right: auto;
+          padding: 0 12px;
         }
 
-        &.wide {
-          width: 100%;
+        &.full {
+          padding: 0;
+        }
+
+        .small-block-row {
+          flex: 1;
+          display: flex;
+          gap: 2px;
+
+          .small-block {
+            flex: 1;
+            background: var(--el-fill-color-darker);
+            border-radius: 2px;
+          }
+        }
+
+        .small-block-full {
+          height: 12px;
+          background: var(--el-fill-color-darker);
+          border-radius: 2px;
         }
       }
     }
+  }
 
-    > span {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--el-text-color-regular);
-      text-align: center;
-    }
+  .content-label {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--el-text-color-regular);
+    text-align: center;
+    justify-content: center;
   }
 }

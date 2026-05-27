@@ -1,5 +1,5 @@
 <template>
-  <section class="app-main" :style="{ height: appMainHeight }">
+  <section class="app-main" :class="mainClass" :style="{ height: appMainHeight }">
     <router-view>
       <template #default="{ Component, route }">
         <transition :name="transitionName" mode="out-in">
@@ -74,6 +74,14 @@ const transitionName = computed(() => {
   if (!preferences.transition.enable) return "";
   return preferences.transition.name ?? "";
 });
+
+// 根据 contentCompact 设置主容器类名
+const mainClass = computed(() => {
+  return {
+    "app-main--compact": preferences.app.contentCompact === "compact",
+    "app-main--wide": preferences.app.contentCompact === "wide",
+  };
+});
 </script>
 
 <style lang="scss" scoped>
@@ -85,6 +93,18 @@ const transitionName = computed(() => {
   width: 100%;
   min-width: 0;
 }
+
+// 紧凑模式：限制最大宽度并居中
+.app-main--compact {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// 宽屏模式：占满整个宽度
+.app-main--wide {
+  max-width: 100%;
+}
 </style>
 
 <style lang="scss">
@@ -93,7 +113,7 @@ const transitionName = computed(() => {
   /* fade */
   .fade-enter-active,
   .fade-leave-active {
-    transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.2s ease;
   }
   .fade-enter-from,
   .fade-leave-to {
@@ -103,57 +123,43 @@ const transitionName = computed(() => {
   /* fade-slide */
   .fade-slide-leave-active,
   .fade-slide-enter-active {
-    transition: all 0.3s;
+    transition: opacity 0.2s ease, transform 0.2s ease;
   }
   .fade-slide-enter-from {
     opacity: 0;
-    transform: translateX(-30px);
+    transform: translateX(-10px);
   }
   .fade-slide-leave-to {
     opacity: 0;
-    transform: translateX(30px);
-  }
-
-  /* fade-scale */
-  .fade-scale-leave-active,
-  .fade-scale-enter-active {
-    transition: all 0.28s;
-  }
-  .fade-scale-enter-from {
-    opacity: 0;
-    transform: scale(1.2);
-  }
-  .fade-scale-leave-to {
-    opacity: 0;
-    transform: scale(0.8);
+    transform: translateX(10px);
   }
 
   /* fade-down */
   .fade-down-leave-active,
   .fade-down-enter-active {
-    transition: all 0.3s;
+    transition: opacity 0.2s ease, transform 0.2s ease;
   }
   .fade-down-enter-from {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(-10px);
   }
   .fade-down-leave-to {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(10px);
   }
 
   /* fade-up */
   .fade-up-leave-active,
   .fade-up-enter-active {
-    transition: all 0.3s;
+    transition: opacity 0.2s ease, transform 0.2s ease;
   }
   .fade-up-enter-from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(10px);
   }
   .fade-up-leave-to {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(-10px);
   }
 }
 </style>

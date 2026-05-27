@@ -14,15 +14,31 @@
             <div class="layout-preview">
               <!-- sidebar-nav -->
               <div v-if="option.value === 'sidebar-nav'" class="layout-visual sidebar-nav">
-                <div class="sidebar" />
-                <div class="main-content">
-                  <div class="header-bar gray" />
-                  <div class="content-area">
-                    <div class="block-row">
-                      <div class="block" />
-                      <div class="block" />
+                <div class="browser-frame">
+                  <div class="browser-header">
+                    <div class="browser-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
                     </div>
-                    <div class="block" />
+                  </div>
+                  <div class="browser-body">
+                    <div class="sidebar">
+                      <div class="menu-item"></div>
+                      <div class="menu-item"></div>
+                      <div class="menu-item"></div>
+                      <div class="menu-item"></div>
+                      <div class="menu-item"></div>
+                    </div>
+                    <div class="main-content">
+                      <div class="content-blocks">
+                        <div class="block-row">
+                          <div class="block"></div>
+                          <div class="block"></div>
+                        </div>
+                        <div class="block-full"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -31,60 +47,118 @@
                 v-else-if="option.value === 'sidebar-mixed-nav'"
                 class="layout-visual sidebar-mixed-nav"
               >
-                <div class="sidebar thin primary" />
-                <div class="sidebar thin gray" />
-                <div class="main-content">
-                  <div class="header-bar gray" />
-                  <div class="content-area">
-                    <div class="block-row">
-                      <div class="block" />
-                      <div class="block" />
+                <div class="browser-frame">
+                  <div class="browser-header">
+                    <div class="browser-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
                     </div>
-                    <div class="block" />
+                  </div>
+                  <div class="browser-body">
+                    <div class="sidebar-thin primary">
+                      <div class="mini-item"></div>
+                      <div class="mini-item"></div>
+                      <div class="mini-item"></div>
+                      <div class="mini-item"></div>
+                    </div>
+                    <div class="sidebar-thin gray">
+                      <div class="mini-item"></div>
+                      <div class="mini-item"></div>
+                      <div class="mini-item"></div>
+                    </div>
+                    <div class="main-content">
+                      <div class="content-blocks">
+                        <div class="block-row">
+                          <div class="block"></div>
+                          <div class="block"></div>
+                        </div>
+                        <div class="block-full"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
               <!-- header-nav -->
               <div v-else-if="option.value === 'header-nav'" class="layout-visual header-nav">
-                <div class="content-wrapper">
-                  <div class="header-bar full-width">
-                    <div v-for="i in 5" :key="i" class="menu-item" />
-                  </div>
-                  <div class="content-area">
-                    <div class="block-row">
-                      <div class="block" />
-                      <div class="block" />
+                <div class="browser-frame">
+                  <div class="browser-header">
+                    <div class="browser-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
                     </div>
-                    <div class="block" />
+                  </div>
+                  <div class="browser-body column">
+                    <div class="header-nav-bar">
+                      <div class="nav-item"></div>
+                      <div class="nav-item"></div>
+                      <div class="nav-item"></div>
+                      <div class="nav-item"></div>
+                      <div class="nav-item"></div>
+                    </div>
+                    <div class="content-blocks">
+                      <div class="block-row">
+                        <div class="block"></div>
+                        <div class="block"></div>
+                      </div>
+                      <div class="block-full"></div>
+                    </div>
                   </div>
                 </div>
               </div>
               <!-- mixed-nav -->
               <div v-else-if="option.value === 'mixed-nav'" class="layout-visual mixed-nav">
-                <div class="content-wrapper">
-                  <div class="header-bar full-width">
-                    <div v-for="i in 3" :key="i" class="menu-item" />
+                <div class="browser-frame">
+                  <div class="browser-header">
+                    <div class="browser-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
                   </div>
-                  <div class="main-content">
-                    <div class="sidebar thin gray" />
-                    <div class="content-area">
-                      <div class="block-row">
-                        <div class="block" />
-                        <div class="block" />
+                  <div class="browser-body column">
+                    <div class="header-nav-bar">
+                      <div class="nav-item"></div>
+                      <div class="nav-item"></div>
+                      <div class="nav-item"></div>
+                    </div>
+                    <div class="mixed-body">
+                      <div class="sidebar-thin gray">
+                        <div class="mini-item"></div>
+                        <div class="mini-item"></div>
+                        <div class="mini-item"></div>
                       </div>
-                      <div class="block" />
+                      <div class="content-blocks">
+                        <div class="block-row">
+                          <div class="block"></div>
+                          <div class="block"></div>
+                        </div>
+                        <div class="block-full"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
               <!-- full-content -->
               <div v-else-if="option.value === 'full-content'" class="layout-visual full-content">
-                <div class="content-area full-width">
-                  <div class="block-row">
-                    <div class="block" />
-                    <div class="block" />
+                <div class="browser-frame">
+                  <div class="browser-header">
+                    <div class="browser-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
                   </div>
-                  <div class="block" />
+                  <div class="browser-body">
+                    <div class="content-blocks full">
+                      <div class="block-row">
+                        <div class="block"></div>
+                        <div class="block"></div>
+                      </div>
+                      <div class="block-full"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -111,10 +185,32 @@
             :class="{ active: preferences.app.contentCompact === option.value }"
           >
             <div class="content-preview">
-              <div class="preview-bar" :class="option.value === 'compact' ? 'narrow' : 'wide'" />
+              <div class="browser-frame-small">
+                <div class="browser-header-small">
+                  <div class="browser-dots-small">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+                <div class="browser-body-small">
+                  <div
+                    class="content-area-small"
+                    :class="option.value === 'compact' ? 'narrow' : 'full'"
+                  >
+                    <div class="small-block-row">
+                      <div class="small-block"></div>
+                      <div class="small-block"></div>
+                    </div>
+                    <div class="small-block-full"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <span>{{ t(`preferences.${option.label}`) }}</span>
+          <div class="content-label">
+            <span>{{ t(`preferences.${option.label}`) }}</span>
+          </div>
         </div>
       </div>
     </section>
@@ -357,7 +453,7 @@
         <span>{{ t("preferences.layout.tabbarStyle") }}</span>
         <ElSelect
           :model-value="preferences.tabbar.styleType"
-          style="width: 120px"
+          style="width: 160px"
           @change="(v: string) => updatePreferences({ tabbar: { styleType: v as any } })"
         >
           <ElOption
@@ -387,7 +483,7 @@
         <span>{{ t("preferences.layout.preferencesPosition") }}</span>
         <ElSelect
           :model-value="preferences.app.preferencesButtonPosition"
-          style="width: 120px"
+          style="width: 160px"
           @change="
             (v: string) => updatePreferences({ app: { preferencesButtonPosition: v as any } })
           "

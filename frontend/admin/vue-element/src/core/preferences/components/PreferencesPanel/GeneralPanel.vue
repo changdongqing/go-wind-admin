@@ -189,7 +189,7 @@ const LANGUAGE_OPTIONS = [
 
 .transition-item {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   border: 1px solid var(--el-border-color);
   border-radius: 6px;
   display: flex;
@@ -207,11 +207,14 @@ const LANGUAGE_OPTIONS = [
 }
 
 .transition-preview {
-  width: 80%;
-  height: 60%;
+  width: 70%;
+  height: 50%;
   background: var(--el-fill-color);
   border-radius: 4px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .transition-label {
@@ -221,15 +224,15 @@ const LANGUAGE_OPTIONS = [
 
 /* 过渡动画预览效果 */
 .animation-box {
-  width: 100%;
-  height: 100%;
-  background: var(--el-color-primary-light-7);
+  width: 24px;
+  height: 24px;
+  background: var(--el-color-primary);
   border-radius: 3px;
 }
 
 /* fade 动画 */
 .animation-box.fade {
-  animation: fadePreview 2s ease-in-out infinite;
+  animation: fadePreview 2.5s ease-in-out infinite;
 }
 
 @keyframes fadePreview {
@@ -244,7 +247,7 @@ const LANGUAGE_OPTIONS = [
 
 /* fade-down 动画 */
 .animation-box.fade-down {
-  animation: fadeDownPreview 2s ease-in-out infinite;
+  animation: fadeDownPreview 2.5s ease-in-out infinite;
 }
 
 @keyframes fadeDownPreview {
@@ -255,13 +258,13 @@ const LANGUAGE_OPTIONS = [
   }
   50% {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
 }
 
 /* fade-slide 动画 */
 .animation-box.fade-slide {
-  animation: fadeSlidePreview 2s ease-in-out infinite;
+  animation: fadeSlidePreview 2.5s ease-in-out infinite;
 }
 
 @keyframes fadeSlidePreview {
@@ -272,13 +275,13 @@ const LANGUAGE_OPTIONS = [
   }
   50% {
     opacity: 0;
-    transform: translateX(-10px);
+    transform: translateX(-8px);
   }
 }
 
 /* fade-up 动画 */
 .animation-box.fade-up {
-  animation: fadeUpPreview 2s ease-in-out infinite;
+  animation: fadeUpPreview 2.5s ease-in-out infinite;
 }
 
 @keyframes fadeUpPreview {
@@ -289,7 +292,7 @@ const LANGUAGE_OPTIONS = [
   }
   50% {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
 }
 </style>
