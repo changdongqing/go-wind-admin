@@ -3,6 +3,7 @@
   <el-menu
     ref="menuRef"
     :default-active="activeMenuPath"
+    :class="[`nav-style--${navigationStyle}`]"
     :collapse="sidebarCollapsed"
     :background-color="menuThemeProps.backgroundColor"
     :text-color="menuThemeProps.textColor"
@@ -56,6 +57,9 @@ const props = defineProps({
 const menuRef = ref<MenuInstance>();
 const currentRoute = useRoute();
 const { sidebarCollapsed, theme, navigationPreferences } = usePreferences();
+
+// 菜单风格类型
+const navigationStyle = computed(() => navigationPreferences.value.styleType);
 
 // 存储已展开的菜单项索引
 const expandedMenuIndexes = ref<string[]>([]);
@@ -272,6 +276,23 @@ onMounted(() => {
       padding-left: 48px !important;
     }
 
+    // ============================================
+    // navigation.styleType: rounded 风格
+    // 激活菜单项带圆角背景色
+    // ============================================
+    &.nav-style--rounded {
+      .el-menu-item,
+      .el-sub-menu__title {
+        margin: 0 8px !important;
+        border-radius: 6px;
+      }
+
+      .el-menu-item.is-active {
+        background-color: var(--el-color-primary) !important;
+        color: #fff !important;
+      }
+    }
+
     // 暗黑模式配色优化
     html.dark & {
       // 普通菜单文字
@@ -290,6 +311,12 @@ onMounted(() => {
       .el-menu-item:hover,
       .el-sub-menu__title:hover {
         background-color: var(--menu-hover) !important;
+      }
+
+      // rounded 风格暗黑模式
+      &.nav-style--rounded .el-menu-item.is-active {
+        background-color: var(--el-color-primary) !important;
+        color: #fff !important;
       }
     }
   }

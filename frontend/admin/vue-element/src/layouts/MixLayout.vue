@@ -7,8 +7,8 @@
           <LayoutLogo :collapse="isLogoCollapsed" />
         </div>
 
-        <!-- 顶部菜单 -->
-        <div class="layout__header-menu">
+        <!-- 顶部菜单（仅 split 模式下显示） -->
+        <div v-if="isSplit" class="layout__header-menu">
           <el-menu
             mode="horizontal"
             :default-active="activeTopMenuPath"
@@ -54,7 +54,7 @@
             :active-text-color="variables['menu-active-text']"
           >
             <LayoutSidebarItem
-              v-for="item in sideMenuRoutes"
+              v-for="item in effectiveSideMenuRoutes"
               :key="item.path"
               :item="item"
               :base-path="resolvePath(item.path)"
@@ -124,7 +124,7 @@ const { width } = useWindowSize();
 
 const accessStore = useAccessStore();
 
-const { showTagsView, showLogo, isSidebarOpen, toggleSidebar, sideMenuRoutes, activeTopMenuPath } =
+const { showTagsView, showLogo, isSidebarOpen, toggleSidebar, routes, sideMenuRoutes, activeTopMenuPath } =
   useLayout();
 
 const { navigationPreferences } = usePreferences();
@@ -134,6 +134,12 @@ const sidebarActualWidth = computed(() =>
   isSidebarOpen.value ? preferences.sidebar.width : SIDEBAR_COLLAPSED_WIDTH,
 );
 const accordion = computed(() => navigationPreferences.value.accordion);
+const isSplit = computed(() => navigationPreferences.value.split);
+
+// 侧边栏菜单数据：split 模式下显示二级菜单，否则显示完整菜单
+const effectiveSideMenuRoutes = computed(() =>
+  isSplit.value ? sideMenuRoutes.value : routes.value,
+);
 
 const isLogoCollapsed = computed(() => width.value < 768);
 
@@ -179,8 +185,14 @@ const activeSideMenuPath = computed(() => {
 // 解析左侧菜单路径
 function resolvePath(routePath: string) {
   if (isExternal(routePath)) return routePath;
-  if (routePath.startsWith("/")) return activeTopMenuPath.value + routePath;
-  return `${activeTopMenuPath.value}/${routePath}`;
+  if (isSplit.value) {
+    // split 模式：基于顶部激活菜单拼接路径
+    if (routePath.startsWith("/")) return activeTopMenuPath.value + routePath;
+    return `${activeTopMenuPath.value}/${routePath}`;
+  }
+  // 非 split 模式：直接使用路由路径
+  if (routePath.startsWith("/")) return routePath;
+  return routePath;
 }
 
 // 顶部菜单点击
