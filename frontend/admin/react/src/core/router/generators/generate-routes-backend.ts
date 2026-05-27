@@ -1,4 +1,5 @@
 import {type ComponentType, createElement, Suspense} from 'react';
+import {Navigate} from 'react-router-dom';
 
 import {mapTree} from '@/utils';
 import Loading from '@/components/common/Loading';
@@ -48,8 +49,10 @@ function convertRoutes(
     layoutMap: ComponentRecord,
     pageMap: ComponentRecord
 ): AppRouteObject[] {
+    // 注意：不手动递归 children，由 mapTree 自动处理递归
+    // children 必须保留在返回对象中，mapTree 才能自动递归
     return mapTree(routes, (node) => {
-        const {component: componentPath, name, children, ...rest} = node;
+        const {component: componentPath, name, ...rest} = node;
 
         if (!name) {
             console.error('Route name is required', node);
@@ -58,7 +61,6 @@ function convertRoutes(
         const route: AppRouteObject = {
             ...rest,
             name,
-            children: children?.length ? convertRoutes(children, layoutMap, pageMap) : undefined,
         };
 
         if (componentPath) {
@@ -100,6 +102,23 @@ function convertRoutes(
                     console.warn(`Component not found for path: ${componentPath}`);
                 }
                 route.element = createElement('div', null, `404 - Component "${componentPath}" not found`);
+            }
+        }
+
+        // 处理 redirect：将后端返回的 redirect 转换为 React Router 可识别的导航
+        // 1. 有 redirect + 有 children → 注入 index 子路由进行重定向
+        // 2. 有 redirect + 无 component → 纯重定向路由，element 设为 <Navigate>
+        if (rest.redirect) {
+            if (rest.children?.length) {
+                // 在 children 最前面注入 index 路由（匹配父路径本身）
+                const indexRoute: AppRouteObject = {
+                    index: true,
+                    element: createElement(Navigate, {to: rest.redirect, replace: true}),
+                };
+                route.children = [indexRoute, ...(rest.children as any[])];
+            } else if (!componentPath) {
+                // 纯重定向路由（无组件、无子路由）
+                route.element = createElement(Navigate, {to: rest.redirect, replace: true});
             }
         }
 
