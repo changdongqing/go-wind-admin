@@ -86,7 +86,7 @@ import {
   ElIcon,
 } from "element-plus";
 import { QuestionFilled } from "@element-plus/icons-vue";
-import InputTag from "../InputTag.vue";
+import InputTag from "@/components/InputTag/index.vue";
 import IconSelect from "@/components/IconSelect/index.vue";
 import type { ProFormField } from "./types";
 
