@@ -265,29 +265,15 @@ import {
   ScaleToOriginal,
   SemiSelect,
 } from "@element-plus/icons-vue";
-import { ElIcon } from "element-plus";
+import SvgIcon from "@/components/SvgIcon/index.vue";
 
-// 标签图标渲染组件（通用图标解析，支持任意 UnoCSS 图标集）
+// 标签图标渲染组件（使用统一 SvgIcon 组件）
 const TabIcon = defineComponent({
   props: { icon: { type: String, default: "" } },
   setup(props) {
     return () => {
       if (!props.icon) return null;
-
-      // Element Plus 图标：`el-icon-` 前缀
-      if (props.icon.startsWith("el-icon-")) {
-        const name = props.icon.replace("el-icon-", "");
-        return h(ElIcon, { size: 14 }, () => h(resolveComponent(name)));
-      }
-
-      // UnoCSS 图标集：`prefix:name` 格式 → `i-prefix:name`
-      // 支持 lucide、fa、mdi 等任意在 uno.config.ts 中注册的集合
-      if (props.icon.includes(":")) {
-        return h("div", { class: `i-${props.icon}` });
-      }
-
-      // 无前缀兜底：本地 SVG 图标
-      return h("div", { class: `i-svg:${props.icon}` });
+      return h(SvgIcon, { icon: props.icon, size: 14 });
     };
   },
 });

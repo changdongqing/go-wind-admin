@@ -47,37 +47,18 @@ import path from "path-browserify";
 import { RouteRecordRaw, LocationQueryRaw } from "vue-router";
 import { isExternal } from "@/utils";
 import { translateRouteTitle } from "@/core/i18n";
-import { ElIcon } from "element-plus";
+import SvgIcon from "@/components/SvgIcon/index.vue";
 
 defineOptions({
   name: "LayoutSidebarItem",
   inheritAttrs: false,
 });
 
-// 菜单图标组件（通用图标解析，支持任意 UnoCSS 图标集）
+// 菜单图标组件（使用统一 SvgIcon 组件）
 const MenuIcon = defineComponent({
   props: { icon: String },
   setup(props) {
-    return () => {
-      if (!props.icon) {
-        return h("div", { class: "i-svg:menu" });
-      }
-
-      // Element Plus 图标：`el-icon-` 前缀
-      if (props.icon.startsWith("el-icon-")) {
-        const name = props.icon.replace("el-icon-", "");
-        return h(ElIcon, null, () => h(resolveComponent(name)));
-      }
-
-      // UnoCSS 图标集：`prefix:name` 格式 → `i-prefix:name`
-      // 支持 lucide、fa、mdi 等任意在 uno.config.ts 中注册的集合
-      if (props.icon.includes(":")) {
-        return h("div", { class: `i-${props.icon}` });
-      }
-
-      // 无前缀兜底：本地 SVG 图标
-      return h("div", { class: `i-svg:${props.icon}` });
-    };
+    return () => h(SvgIcon, { icon: props.icon || "menu", size: 18 });
   },
 });
 

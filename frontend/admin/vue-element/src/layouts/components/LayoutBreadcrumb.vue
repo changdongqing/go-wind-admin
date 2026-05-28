@@ -6,7 +6,12 @@
       :to="{ path: '/' }"
       class="breadcrumb__home"
     >
-      <div v-if="breadcrumbPrefs.showIcon" class="i-svg:homepage breadcrumb__icon" />
+      <SvgIcon
+        v-if="breadcrumbPrefs.showIcon"
+        icon="homepage"
+        :size="16"
+        class="breadcrumb__icon"
+      />
       {{ $t("common.breadcrumb.home") }}
     </el-breadcrumb-item>
     <el-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="item.path">
@@ -14,17 +19,19 @@
         v-if="item.redirect === 'noredirect' || index === breadcrumbs.length - 1"
         class="color-gray-400"
       >
-        <div
+        <SvgIcon
           v-if="breadcrumbPrefs.showIcon && item.meta?.icon"
-          :class="getIconClass(item.meta.icon as string)"
+          :icon="item.meta.icon as string"
+          :size="16"
           class="breadcrumb__item-icon"
         />
         {{ translateRouteTitle((item.meta.title as string) ?? "") }}
       </span>
       <a v-else @click.prevent="handleLink(item)">
-        <div
+        <SvgIcon
           v-if="breadcrumbPrefs.showIcon && item.meta?.icon"
-          :class="getIconClass(item.meta.icon as string)"
+          :icon="item.meta.icon as string"
+          :size="16"
           class="breadcrumb__item-icon"
         />
         {{ translateRouteTitle((item.meta.title as string) ?? "") }}
@@ -40,6 +47,7 @@ import { compile } from "path-to-regexp";
 import { router } from "@/router";
 import { translateRouteTitle } from "@/core/i18n";
 import { preferences } from "@/core/preferences";
+import SvgIcon from "@/components/SvgIcon/index.vue";
 
 const currentRoute = useRoute();
 const pathCompile = (path: string) => {
@@ -65,15 +73,6 @@ const breadcrumbClass = computed(() => {
     "breadcrumb--background": breadcrumbPrefs.value.styleType === "background",
   };
 });
-
-// 图标类名处理（通用：支持任意 UnoCSS 图标集）
-// `prefix:name` → `i-prefix:name`（lucide、fa、mdi 等）
-// 无前缀 → `i-svg:name`（本地 SVG）
-function getIconClass(icon?: string) {
-  if (!icon) return "";
-  if (icon.includes(":")) return `i-${icon}`;
-  return `i-svg:${icon}`;
-}
 
 function getBreadcrumb() {
   breadcrumbs.value = currentRoute.matched.filter(
