@@ -39,6 +39,17 @@ const internal_message: RouteRecordRaw[] = [
         },
         component: () => import("@/pages/app/internal_message/category/index.vue"),
       },
+
+      {
+        path: "inbox",
+        name: "InboxPage",
+        component: () => import("@/pages/app/internal_message/inbox/index.vue"),
+        meta: {
+          title: "routes.profile.internalMessage",
+          icon: "lucide:message-circle-more",
+          hideInMenu: true,
+        },
+      },
     ],
   },
 ];

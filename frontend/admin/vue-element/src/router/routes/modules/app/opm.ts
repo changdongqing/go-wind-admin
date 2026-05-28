@@ -48,7 +48,7 @@ const opm: RouteRecordRaw[] = [
           title: "routes.opm.user",
           authority: ["sys:platform_admin", "sys:tenant_manager"],
         },
-        component: () => import("@/pages/app/opm/user/index.vue"),
+        component: () => import("@/pages/app/opm/user/list/index.vue"),
       },
       {
         path: "users/detail/:id",
@@ -59,6 +59,16 @@ const opm: RouteRecordRaw[] = [
           authority: ["sys:platform_admin", "sys:tenant_manager"],
         },
         component: () => import("@/pages/app/opm/user/detail/index.vue"),
+      },
+      {
+        path: "profile",
+        name: "UserProfile",
+        component: () => import("@/pages/app/opm/user/profile/index.vue"),
+        meta: {
+          title: "routes.profile.settings",
+          icon: "lucide:user-pen",
+          hideInMenu: true,
+        },
       },
     ],
   },

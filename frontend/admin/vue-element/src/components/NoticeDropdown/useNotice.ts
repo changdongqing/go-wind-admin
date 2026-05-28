@@ -140,7 +140,7 @@ export function useNotice() {
   }
 
   function goMore() {
-    router.push("/inbox/messages");
+    router.push("/internal-message/inbox");
   }
 
   /**

@@ -138,7 +138,7 @@ function handleRefresh() {
 
 /** 打开个人中心 */
 function handleProfileClick() {
-  router.push({ name: "Profile" });
+  router.push({ name: "UserProfile" });
 }
 
 /** 退出登录 */
