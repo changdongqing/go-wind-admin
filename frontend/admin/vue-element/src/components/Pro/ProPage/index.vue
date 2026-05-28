@@ -197,7 +197,7 @@ const modalSlots = computed(() => {
 // === 工具栏按钮转换 ===
 const builtinButtons: Record<string, { label: string; icon: string; attrs: Record<string, any> }> =
   {
-    add: { label: "common.button.add", icon: "plus", attrs: { type: "success" } },
+    add: { label: "common.button.add", icon: "plus", attrs: { type: "primary" } },
     delete: {
       label: "common.button.delete",
       icon: "delete",

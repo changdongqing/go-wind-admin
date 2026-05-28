@@ -8,7 +8,7 @@
   "createdAt": "创建时间",
   "button": {
     "create": "创建",
-    "sync": "同步权限"
+    "sync": "同步API"
   },
   "notification": {
     "sync_success": "同步成功",

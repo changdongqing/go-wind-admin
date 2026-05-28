@@ -8,7 +8,7 @@
   "createdAt": "Created At",
   "button": {
     "create": "Create",
-    "sync": "Sync Permissions"
+    "sync": "Sync API"
   },
   "notification": {
     "sync_success": "Sync successful",
