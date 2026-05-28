@@ -1,7 +1,7 @@
 import { BUILT_IN_THEME_PRESETS } from "./config/constants";
 import type { Preferences } from "./types";
 import { generateColorVariables, generatorColorVariables } from "@/utils/theme";
-import { toHex } from "@/utils/color";
+import { hexToHsl, hexToHslString, toHex } from "@/utils/color";
 
 /**
  * 更新 CSS 变量的函数
@@ -51,6 +51,7 @@ function updateCSSVariables(preferences: Preferences) {
   const theme = preferences?.theme ?? {};
 
   const { builtinType, mode, radius, semiDarkSidebar, semiDarkHeader } = theme;
+  const isDark = isDarkTheme(mode);
 
   // html 设置 dark 类
   if (Reflect.has(theme, "mode")) {
@@ -60,7 +61,6 @@ function updateCSSVariables(preferences: Preferences) {
 
   // html 设置 semi-dark-sidebar / semi-dark-header
   // 仅在浅色模式下生效：给侧边栏/顶栏启用深色背景
-  const isDark = isDarkTheme(mode);
   if (Reflect.has(theme, "semiDarkSidebar")) {
     root.classList.toggle("semi-dark-sidebar", !isDark && !!semiDarkSidebar);
   }
@@ -156,19 +156,42 @@ function updateMainColorVariables(preference: Preferences) {
     root.style.setProperty(key, value);
   });
 
-  // 4. 设置映射变量 (--primary-500 → --primary 等)
-  const colorMappings: Record<string, string> = {
-    "--green-500": "--success",
-    "--primary-500": "--primary",
-    "--red-500": "--destructive",
-    "--yellow-500": "--warning",
-  };
-  Object.entries(colorMappings).forEach(([sourceVar, targetVar]) => {
-    const colorValue = customVariables[sourceVar];
-    if (colorValue) {
-      root.style.setProperty(targetVar, colorValue);
-    }
-  });
+  // ------------------------------
+  // 主色
+  // ------------------------------
+  const hslPrimary = hexToHslString(hexPrimary);
+  root.style.setProperty("--primary", hexToHsl(hexPrimary));
+  root.style.setProperty("--primary-hsl", hslPrimary);
+
+  // ------------------------------
+  // 成功色
+  // ------------------------------
+  const hslSuccess = hexToHslString(hexSuccess);
+  root.style.setProperty("--success", hexSuccess);
+  root.style.setProperty("--success-hsl", hslSuccess);
+
+  // ------------------------------
+  // 警告色
+  // ------------------------------
+  const hslWarning = hexToHslString(hexWarning);
+  root.style.setProperty("--warning", hexWarning);
+  root.style.setProperty("--warning-hsl", hslWarning);
+
+  // ------------------------------
+  // 危险色
+  // ------------------------------
+  const hslDestructive = hexToHslString(hexDestructive);
+  root.style.setProperty("--destructive", hexDestructive);
+  root.style.setProperty("--destructive-hsl", hslDestructive);
+
+  // ------------------------------
+  // 前景色 foreground
+  // ------------------------------
+  const isDark = isDarkTheme(preference.theme.mode);
+  const foreground = isDark ? "#e5e7eb" : "#1f2937";
+  const hslForeground = hexToHslString(foreground);
+  root.style.setProperty("--foreground", hexToHsl(foreground));
+  root.style.setProperty("--foreground-hsl", hslForeground);
 
   // 5. 自定义变量通过 style 标签设置
   executeUpdateCSSVariables(customVariables);

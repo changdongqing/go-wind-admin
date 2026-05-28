@@ -183,16 +183,16 @@ function refresh() {
 }
 
 .fallback-image {
-  width: 50%;
-  max-width: 400px;
+  width: 65%;
+  max-width: 620px;
   height: auto;
 
   @media (min-width: 768px) {
-    width: 33.33%;
+    width: 50%;
   }
 
   @media (min-width: 1024px) {
-    width: 25%;
+    width: 42%;
   }
 
   svg,

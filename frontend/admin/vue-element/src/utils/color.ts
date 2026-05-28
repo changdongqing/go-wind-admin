@@ -38,6 +38,38 @@ export function rgbToHex(r: number, g: number, b: number): string {
 }
 
 /**
+ * 将 Hex 颜色转换为 HSL 数值字符串
+ * @returns 如 "210 100% 50%"，可直接用于 hsl(var(--primary))
+ */
+export function hexToHsl(hex: string): string {
+  const [r, g, b] = hexToRgb(hex);
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  const l = (max + min) / 2;
+
+  if (max === min) {
+    return `0 0% ${Math.round(l * 100)}%`;
+  }
+
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h = 0;
+
+  if (max === rn) {
+    h = ((gn - bn) / d + (gn < bn ? 6 : 0)) / 6;
+  } else if (max === gn) {
+    h = ((bn - rn) / d + 2) / 6;
+  } else {
+    h = ((rn - gn) / d + 4) / 6;
+  }
+
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
+/**
  * 将 HSL 颜色转换为十六进制格式
  */
 export function hslToHex(h: number, s: number, l: number): string {
@@ -62,7 +94,7 @@ export function toHex(color: string): string {
   if (color.startsWith("#")) return color;
   // HSL 格式: hsl(h, s%, l%) 或 hsl(h s% l%)
   const hslMatch = color.match(
-    /hsl\(\s*(\d+(?:\.\d+)?)\s*,?\s*(\d+(?:\.\d+)?)%\s*,?\s*(\d+(?:\.\d+)?)%\s*\)/,
+    /hsl\(\s*(\d+(?:\.\d+)?)\s*,?\s*(\d+(?:\.\d+)?)%\s*,?\s*(\d+(?:\.\d+)?)%\s*\)/
   );
   if (hslMatch) {
     return hslToHex(Number(hslMatch[1]), Number(hslMatch[2]), Number(hslMatch[3]));
@@ -73,4 +105,43 @@ export function toHex(color: string): string {
     return rgbToHex(Number(rgbMatch[1]), Number(rgbMatch[2]), Number(rgbMatch[3]));
   }
   return color;
+}
+
+/**
+ * 将十六进制颜色转换为 HSL 格式字符串
+ * @param hex 十六进制颜色
+ */
+export function hexToHslString(hex: string): string {
+  let r = 0,
+    g = 0,
+    b = 0;
+  if (hex.length === 4) {
+    r = parseInt(hex[1] + hex[1], 16);
+    g = parseInt(hex[2] + hex[2], 16);
+    b = parseInt(hex[3] + hex[3], 16);
+  } else if (hex.length === 7) {
+    r = parseInt(hex[1] + hex[2], 16);
+    g = parseInt(hex[3] + hex[4], 16);
+    b = parseInt(hex[5] + hex[6], 16);
+  }
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const cmin = Math.min(r, g, b);
+  const cmax = Math.max(r, g, b);
+  const delta = cmax - cmin;
+  let h = 0,
+    s = 0,
+    l = 0;
+  if (delta === 0) h = 0;
+  else if (cmax === r) h = ((g - b) / delta) % 6;
+  else if (cmax === g) h = (b - r) / delta + 2;
+  else h = (r - g) / delta + 4;
+  h = Math.round(h * 60);
+  if (h < 0) h += 360;
+  l = (cmax + cmin) / 2;
+  s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+  s = Math.round(s * 100);
+  l = Math.round(l * 100);
+  return `${h} ${s}% ${l}%`;
 }

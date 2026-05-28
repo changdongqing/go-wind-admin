@@ -87,6 +87,8 @@ export default defineConfig({
       success: "var(--success)",
       warning: "var(--warning)",
       danger: "var(--destructive)",
+
+      foreground: "var(--foreground)",
     },
 
     borderRadius: {
