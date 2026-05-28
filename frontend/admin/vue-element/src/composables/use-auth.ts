@@ -150,7 +150,11 @@ async function login(
       if (accessStore.loginExpired) {
         accessStore.setLoginExpired(false);
       } else {
-        onSuccess ? await onSuccess?.() : await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
+        if (onSuccess) {
+          await onSuccess();
+        } else {
+          await router.push(userInfo.homePath || DEFAULT_HOME_PATH);
+        }
       }
 
       if (userInfo?.realname) {
