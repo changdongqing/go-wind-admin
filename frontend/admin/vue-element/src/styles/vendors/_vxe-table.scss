@@ -114,6 +114,7 @@
   --vxe-ui-table-header-background-color: #f5f7fa;
   --vxe-ui-table-header-font-color: #1d2129;
   --vxe-ui-table-body-background-color: #ffffff;
+  --vxe-ui-table-row-striped-background-color: #fafafa; /* 亮色斑马纹 */
   --vxe-ui-table-row-hover-background-color: #f2f3f5;
   --vxe-ui-table-border-color: #e5e6eb;
 }
@@ -191,7 +192,6 @@ html.dark {
   --vxe-ui-table-header-background-color: #12151a !important; // 表头：比内容深一层
   --vxe-ui-table-header-font-color: #e5eaf3 !important;
   --vxe-ui-table-body-background-color: #1a1d24 !important;   // 内容区
-  --vxe-ui-table-row-striped-background-color: #1e2128 !important;
   --vxe-ui-table-row-hover-background-color: #2a2f3a !important;
   --vxe-ui-table-border-color: #2c303a !important;
   --vxe-ui-table-header-border-color: #0e1014 !important;

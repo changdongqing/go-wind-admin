@@ -581,33 +581,33 @@ html.dark {
   // 状态标签颜色优化
   // Tag 和操作按钮视觉分离：Tag 更扁更柔、无交互感；按钮有边框有 hover
   .el-tag {
-    border-radius: 3px !important; // 更小圆角，和按钮的 6px 明显区分
+    border-radius: 3px !important; // 暗黑模式再小一点，和按钮的 6px 明显区分
     cursor: default !important; // 不可点击，和按钮区分
 
     // 成功态（开启）
     &.el-tag--success {
-      background-color: rgba(0, 180, 42, 0.08) !important; // 比按钮更淡
-      border-color: transparent !important; // 无边框，更扁平
+      background-color: rgba(0, 180, 42, 0.12) !important;
+      border-color: transparent !important;
       color: #73d13d !important;
     }
 
     // 警告态（关闭）
     &.el-tag--warning {
-      background-color: rgba(247, 186, 30, 0.08) !important;
+      background-color: rgba(247, 186, 30, 0.12) !important;
       border-color: transparent !important;
       color: #ffd666 !important;
     }
 
     // 危险态（禁用）
     &.el-tag--danger {
-      background-color: rgba(245, 63, 63, 0.08) !important;
+      background-color: rgba(245, 63, 63, 0.12) !important;
       border-color: transparent !important;
       color: #ff7875 !important;
     }
 
     // 信息态（普通）
     &.el-tag--info {
-      background-color: rgba(144, 153, 167, 0.08) !important;
+      background-color: rgba(144, 153, 167, 0.12) !important;
       border-color: transparent !important;
       color: #a0aec0 !important;
     }

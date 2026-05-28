@@ -214,8 +214,14 @@ html.dark {
 }
 
 /* ---------- 标签精致化 ---------- */
+/* Tag 和操作按钮视觉分离：Tag 更小更扁、无交互感 */
 .el-tag {
-  border-radius: 6px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 4px; /* 比按钮的 6px 更方正 */
+  font-size: 12px;
+  font-weight: 500;
+  cursor: default; /* 不可点击，和按钮区分 */
 }
 
 /* ---------- 消息提示精致化 ---------- */

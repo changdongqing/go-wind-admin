@@ -755,7 +755,8 @@ $chrome-radius: 7px;
   display: flex;
   align-items: center;
   width: 100%;
-  border-top: 1px solid var(--el-border-color-lighter);
+  padding: 0 16px;
+  border-bottom: 1px solid #e5e6eb;
   background-color: var(--el-bg-color);
 
   // ==================== 滚动按钮 ====================
@@ -814,7 +815,7 @@ $chrome-radius: 7px;
     transition: all 0.2s ease;
     flex-shrink: 0;
     height: 100%;
-    color: var(--el-text-color-secondary);
+    color: #666e7d;
 
     &.is-active {
       color: var(--el-color-primary);
@@ -823,55 +824,52 @@ $chrome-radius: 7px;
 
     // 亮/暗模式通用：hover 文字提亮
     &:not(.is-active):hover {
-      color: var(--el-text-color-primary);
+      color: #1d2129;
     }
 
     // ---- Plain 样式 ----
     &--plain {
-      padding: 0 12px;
-      border-right: 1px solid var(--el-border-color-lighter);
-
-      &:first-child {
-        border-left: none;
-      }
+      padding: 0 16px;
 
       &.is-active {
         color: var(--el-color-primary);
-        background-color: var(--el-color-primary-light-9);
+        background-color: #ffffff;
+        font-weight: 500;
+        border-bottom: 2px solid var(--el-color-primary);
       }
 
       &:not(.is-active):hover {
-        background: var(--el-fill-color-light);
+        background: #f2f3f5;
+        color: #1d2129;
       }
     }
 
     // ---- Card 样式 ----
     &--card {
-      padding: 0 12px;
+      padding: 0 16px;
       margin: 3px 0 3px 4px;
       height: calc(100% - 6px);
-      border: 1px solid var(--el-border-color-lighter);
-      border-radius: 4px;
+      border: 1px solid transparent;
+      border-radius: 8px 8px 0 0;
 
       &.is-active {
         color: var(--el-color-primary);
-        background-color: var(--el-color-primary-light-9);
-        border-color: var(--el-color-primary-light-5);
+        background-color: #ffffff;
+        font-weight: 500;
+        border-bottom: 2px solid var(--el-color-primary);
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
       }
 
       &:not(.is-active):hover {
-        background: var(--el-fill-color-light);
+        background: #f2f3f5;
+        color: #1d2129;
       }
     }
 
     // ---- Brisk 样式 ----
     &--brisk {
-      padding: 0 12px;
+      padding: 0 16px;
       position: relative;
-
-      &:not(:first-child) {
-        border-left: 1px solid var(--el-border-color-lighter);
-      }
 
       // 底部指示线
       &::after {
@@ -893,6 +891,8 @@ $chrome-radius: 7px;
 
       &.is-active {
         color: var(--el-color-primary);
+        background-color: #ffffff;
+        font-weight: 500;
 
         &::after {
           transform: scaleX(1);
@@ -900,7 +900,8 @@ $chrome-radius: 7px;
       }
 
       &:not(.is-active):hover {
-        background: var(--el-fill-color-light);
+        background: #f2f3f5;
+        color: #1d2129;
       }
     }
 
@@ -1005,7 +1006,7 @@ $chrome-radius: 7px;
   &__item-main {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     height: 100%;
     padding-right: 4px;
     z-index: 2;
@@ -1039,18 +1040,19 @@ $chrome-radius: 7px;
     justify-content: center;
     width: 16px;
     height: 16px;
-    margin-left: 2px;
-    border-radius: 50%;
+    margin-left: 8px;
+    border-radius: 4px;
     transition: all 0.15s;
   }
 
   &__close {
-    color: var(--el-text-color-secondary);
+    color: #94a3b8;
     opacity: 0;
     transition: all 0.2s ease;
 
     .tabs-bar__item:hover & {
       opacity: 1;
+      color: #666e7d;
     }
 
     .tabs-bar__item.is-active & {
@@ -1059,8 +1061,8 @@ $chrome-radius: 7px;
     }
 
     &:hover {
-      color: #f53f3f;
       background-color: rgba(245, 63, 63, 0.1);
+      color: #f53f3f;
     }
   }
 
@@ -1156,12 +1158,12 @@ $chrome-radius: 7px;
 // ==================== 暗黑模式适配 ====================
 :global(html.dark) {
   .tabs-bar {
-    border-top-color: rgba(255, 255, 255, 0.06);
+    border-bottom-color: #2c303a;
     background-color: var(--el-bg-color);
 
     // 未激活文字
     &__item {
-      color: rgba(255, 255, 255, 0.5);
+      color: #94a3b8;
 
       &.is-active {
         color: var(--el-color-primary);
@@ -1169,20 +1171,39 @@ $chrome-radius: 7px;
 
       // 未激活 hover：文字提亮 + 柔和背景
       &:not(.is-active):hover {
-        color: rgba(255, 255, 255, 0.85);
+        color: #e5eaf3;
       }
     }
 
-    // Plain/Card/Brisk hover 背景
+    // Plain 激活态
+    &__item--plain.is-active {
+      background-color: #1a1d24;
+      border-bottom: 2px solid var(--el-color-primary);
+    }
+
+    // Card 激活态
+    &__item--card.is-active {
+      background-color: #1a1d24;
+      border-color: transparent;
+      border-bottom: 2px solid var(--el-color-primary);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    // Card/Brisk/Plain hover 背景
     &__item--plain:not(.is-active):hover,
     &__item--card:not(.is-active):hover,
     &__item--brisk:not(.is-active):hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    // Brisk 激活态
+    &__item--brisk.is-active {
+      background-color: #1a1d24;
     }
 
     // Chrome hover 背景
     &__item--chrome:not(.is-active):hover .tabs-bar__chrome-bg__content {
-      background-color: rgba(255, 255, 255, 0.08);
+      background-color: rgba(255, 255, 255, 0.05);
     }
 
     // Chrome 分割线
@@ -1190,28 +1211,25 @@ $chrome-radius: 7px;
       background-color: rgba(255, 255, 255, 0.1);
     }
 
-    // Plain 分割线
-    &__item--plain {
-      border-right-color: rgba(255, 255, 255, 0.06);
-    }
-
-    // Card 边框
+    // Card 边框（非激活态透明）
     &__item--card {
-      border-color: rgba(255, 255, 255, 0.08);
+      border-color: transparent;
 
       &.is-active {
-        border-color: var(--el-color-primary-light-5);
+        border-color: transparent;
+        border-bottom-color: var(--el-color-primary);
       }
-    }
-
-    // Brisk 分割线
-    &__item--brisk:not(:first-child) {
-      border-left-color: rgba(255, 255, 255, 0.06);
     }
 
     // Chrome 激活态背景
     &__item--chrome.is-active .tabs-bar__chrome-bg__content {
       background-color: var(--el-color-primary-light-9);
+    }
+
+    // Chrome 激活态 SVG 圆角填充
+    &__item--chrome.is-active .tabs-bar__chrome-bg__before,
+    &__item--chrome.is-active .tabs-bar__chrome-bg__after {
+      fill: var(--el-color-primary-light-9);
     }
 
     // 滚动按钮
