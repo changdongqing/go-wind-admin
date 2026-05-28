@@ -114,7 +114,7 @@
   --vxe-ui-table-header-background-color: #f5f7fa;
   --vxe-ui-table-header-font-color: #1d2129;
   --vxe-ui-table-body-background-color: #ffffff;
-  --vxe-ui-table-row-striped-background-color: #fafafa; /* 亮色斑马纹 */
+  --vxe-ui-table-row-striped-background-color: #f5f7fa; /* 亮色斑马纹 — 与表头色一致，清晰可辨 */
   --vxe-ui-table-row-hover-background-color: #f2f3f5;
   --vxe-ui-table-border-color: #e5e6eb;
 }
@@ -352,6 +352,16 @@ html.dark {
   &.row--hover.row--current {
     background-color: rgba(64, 128, 255, 0.1) !important;
   }
+}
+
+// ============================================
+// 斑马纹：确保亮色模式可见
+// vxe-table v4 的 stripe 样式作用在 td 上，
+// 需确保不受 ProTable scoped 样式干扰
+// ============================================
+
+.vxe-table--render-default .vxe-body--row.row--stripe > .vxe-body--column {
+  background-color: #f5f7fa !important;
 }
 
 // ============================================
