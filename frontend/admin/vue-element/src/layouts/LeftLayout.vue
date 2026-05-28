@@ -160,14 +160,19 @@ function toggleExpandOnHover() {
   if (newExpandOnHover) {
     // 切换到自动模式：保持当前视觉状态作为 hover 状态
     isHoverExpanded.value = isSidebarActuallyOpen.value;
+    preferencesManager.updatePreferences({
+      sidebar: { expandOnHover: true },
+    });
   } else {
-    // 切换到手动模式：清除 hover 状态
+    // 切换到固定模式：将当前视觉状态同步到 collapsed 偏好，然后清除 hover
+    preferencesManager.updatePreferences({
+      sidebar: {
+        expandOnHover: false,
+        collapsed: !isSidebarActuallyOpen.value,
+      },
+    });
     isHoverExpanded.value = false;
   }
-
-  preferencesManager.updatePreferences({
-    sidebar: { expandOnHover: newExpandOnHover },
-  });
 }
 </script>
 
