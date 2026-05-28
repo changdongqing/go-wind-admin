@@ -281,28 +281,6 @@ html.dark .table-icon-btn {
 
 // ============================================
 // vxe-table 全局选中行样式（明暗模式通用）
+// 注意：选中行/hover/斑马纹的完整覆盖已移至 _vxe-table.scss 统一管理
 // ============================================
 
-.vxe-table .vxe-body--row {
-  &.row--current {
-    background-color: rgba(64, 128, 255, 0.06) !important;
-    font-weight: 500;
-
-    > td {
-      background-color: transparent !important;
-    }
-  }
-
-  &.row--hover.row--current {
-    background-color: rgba(64, 128, 255, 0.1) !important;
-  }
-}
-
-// ============================================
-// vxe-table 亮色模式斑马纹
-// vxe-table v4 的 stripe 样式作用在 td 上，直接强制覆盖
-// ============================================
-
-.vxe-table--render-default .vxe-body--row.row--stripe > .vxe-body--column {
-  background-color: #f5f7fa !important;
-}

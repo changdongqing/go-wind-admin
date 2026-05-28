@@ -1,11 +1,10 @@
 <template>
-  <!--
-    动态组件渲染：通过注册表查找 cellType 对应的渲染组件
-    未注册类型回退为纯文本显示
-  -->
+  <template v-if="col.formatter">
+    {{ col.formatter(row, col) }}
+  </template>
   <component
     :is="renderer"
-    v-if="renderer"
+    v-else-if="renderer"
     :col="col"
     :row="row"
     :field="field"
@@ -13,9 +12,7 @@
     @modify="(d: any) => emit('modify', d)"
     @operate="(d: any) => emit('operate', d)"
   />
-  <template v-else>
-    {{ field ? row[field] : "" }}
-  </template>
+  <span v-else>{{ field ? row[field] : "" }}</span>
 </template>
 
 <script setup lang="ts">
@@ -36,8 +33,6 @@ const emit = defineEmits<{
 }>();
 
 const field = computed(() => props.col.prop ?? "");
-
-/** 从注册表查找 cellType 对应的渲染组件 */
 const renderer = computed<Component | undefined>(() => {
   const type = props.col.cellType;
   if (!type || type === "custom") return undefined;

@@ -327,10 +327,58 @@ html.dark {
   }
 }
 
+// ============================================
+// 浅色主题 - 行高 & 斑马纹 & 选中行 强制覆盖
+// vxe-table v4 的 size--medium 统一用 --vxe-ui-table-cell-padding-medium
+// 但我们需要 header 16px / body 14px 不同 padding，必须选择器级覆盖
+// ============================================
+
 .vxe-table--render-default.size--medium {
-  // 表头行高：48px（16+16+16=48px，文字和排序图标有充足呼吸空间）
-  // 通过覆盖 .vxe-cell 的 padding 实现，不与 body 共用 padding 变量
+  // 表头 cell padding：16+16+16=48px（文字和排序图标有充足呼吸空间）
   .vxe-header--column.is--padding .vxe-cell {
     padding: 16px !important;
+  }
+
+  // 表项 cell padding：14+16+14=44px（中后台黄金高度）
+  .vxe-body--column.is--padding .vxe-cell {
+    padding: 14px !important;
+  }
+}
+
+// 浅色模式表头 & 行样式（不受 size 类限制，所有尺寸生效）
+.vxe-table--render-default {
+  // 表头背景色强化（:root 变量可能被 vxe JS 内联覆盖）
+  .vxe-table--header-wrapper .vxe-header--column {
+    background-color: #f5f7fa !important;
+    color: #1d2129 !important;
+    font-weight: 600 !important;
+  }
+
+  // 数据行样式
+  .vxe-table--body-wrapper .vxe-body--row {
+    // 斑马纹（vxe-table v4 作用在 td 上：.row--stripe > .vxe-body--column）
+    &.row--stripe > .vxe-body--column {
+      background-color: #f5f7fa !important;
+    }
+
+    // hover 态
+    &.row--hover > .vxe-body--column {
+      background-color: #f2f3f5 !important;
+    }
+
+    // hover + 斑马纹
+    &.row--hover.row--stripe > .vxe-body--column {
+      background-color: #eceef2 !important;
+    }
+
+    // 选中行
+    &.row--current > .vxe-body--column {
+      background-color: rgba(64, 128, 255, 0.06) !important;
+    }
+
+    // hover + 选中
+    &.row--hover.row--current > .vxe-body--column {
+      background-color: rgba(64, 128, 255, 0.1) !important;
+    }
   }
 }
