@@ -185,11 +185,12 @@ function updateMainColorVariables(preference: Preferences) {
   root.style.setProperty("--destructive-hsl", hslDestructive);
 
   // ------------------------------
-  // 前景色 foreground
+  // 前景色 foreground（复用 Element Plus 文本色，跟随 dark/light 自动切换）
   // ------------------------------
-  const isDark = isDarkTheme(preference.theme.mode);
-  const foreground = isDark ? "#e5e7eb" : "#1f2937";
-  const hslForeground = hexToHslString(foreground);
+  const foreground =
+    getComputedStyle(root).getPropertyValue("--el-text-color-primary").trim() ||
+    (isDarkTheme(preference.theme.mode) ? "#CFD3DC" : "#303133");
+  const hslForeground = hexToHslString(toHex(foreground));
   root.style.setProperty("--foreground", foreground);
   root.style.setProperty("--foreground-hsl", hslForeground);
 
