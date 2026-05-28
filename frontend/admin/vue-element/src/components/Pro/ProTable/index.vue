@@ -268,14 +268,6 @@ defineExpose({
   overflow: hidden;
   font-size: var(--pro-table-font-size);
 
-  // 参照 vben 模式：在组件层级覆写 vxe-table CSS 变量
-  // 组件 scoped 变量 > :root 变量，可覆盖 vxe-table JS 内联设置的默认值
-  --vxe-ui-table-row-striped-background-color: var(--el-fill-color-light);
-  --vxe-ui-table-row-hover-background-color: var(--el-fill-color);
-  --vxe-ui-table-row-hover-striped-background-color: var(--el-fill-color);
-  --vxe-ui-table-row-current-background-color: rgba(64, 128, 255, 0.06);
-  --vxe-ui-table-row-hover-current-background-color: rgba(64, 128, 255, 0.1);
-
   .vxe-body--column,
   .vxe-header--column,
   .vxe-footer--column {
@@ -283,7 +275,6 @@ defineExpose({
   }
 
   .vxe-table--header-wrapper .vxe-header--column .vxe-cell {
-    font-weight: 600;
     display: flex;
     align-items: center;
     color: var(--el-text-color-primary);
@@ -307,16 +298,6 @@ defineExpose({
   .vxe-table--empty-content {
     color: var(--el-text-color-placeholder);
     padding: 32px 0;
-  }
-
-  // 表头 cell padding：通过 padding 控制，视觉高度 = 16 + 16 + 16 = 48px
-  .vxe-header--column.is--padding .vxe-cell {
-    padding: 16px !important;
-  }
-
-  // 表项 cell padding：通过 padding 控制，视觉高度 = 14 + 14 + 内容 = 42px
-  .vxe-body--column.is--padding .vxe-cell {
-    padding: 14px !important;
   }
 }
 

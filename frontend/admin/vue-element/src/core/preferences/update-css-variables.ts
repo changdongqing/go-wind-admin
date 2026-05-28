@@ -2,6 +2,7 @@ import { BUILT_IN_THEME_PRESETS } from "./config/constants";
 import type { Preferences } from "./types";
 import { generateColorVariables, generatorColorVariables } from "@/utils/theme";
 import { hexToHslString, toHex } from "@/utils/color";
+import { VxeUI } from "vxe-table";
 
 /**
  * 更新 CSS 变量的函数
@@ -58,9 +59,7 @@ function updateCSSVariables(preferences: Preferences) {
     const dark = isDarkTheme(mode);
     root.classList.toggle("dark", dark);
     // vxe-table 4.7+ 暗色主题同步
-    import("vxe-table").then(({ VxeUI }) => {
-      VxeUI.setTheme(dark ? "dark" : "light");
-    });
+    VxeUI.setTheme(dark ? "dark" : "light");
   }
 
   // html 设置 semi-dark-sidebar / semi-dark-header

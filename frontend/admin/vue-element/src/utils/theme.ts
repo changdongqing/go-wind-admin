@@ -1,5 +1,6 @@
 import { hexToRgb, rgbToHex } from "./color";
 import { ThemeModeType } from "@/core/preferences";
+import { VxeUI } from "vxe-table";
 
 /**
  * 加深颜色值
@@ -268,10 +269,9 @@ export function toggleDarkMode(isDark: boolean) {
   }
 
   // vxe-table 4.7+ 暗色主题同步
-  // 必须通过 VxeUI.setTheme() API 切换，否则 vxe-table 内部状态不感知主题变化
-  import("vxe-table").then(({ VxeUI }) => {
-    VxeUI.setTheme(isDark ? "dark" : "light");
-  });
+  // 通过 VxeUI.setTheme() API 切换，vxe-table 会自动设置 data-vxe-ui-theme 属性
+  // 内置的 [data-vxe-ui-theme=dark/light] CSS 变量随即生效
+  VxeUI.setTheme(isDark ? "dark" : "light");
 }
 
 /**

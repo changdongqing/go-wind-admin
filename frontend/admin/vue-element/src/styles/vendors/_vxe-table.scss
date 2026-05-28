@@ -93,18 +93,13 @@
   --vxe-select-option-hover-background-color: var(--el-bg-color-overlay);
   --vxe-select-panel-background-color: var(--el-bg-color);
 
-  /*
-   * ========== 表格行高 & 浅色模式配色 ==========
-   *
-   * 行高由 ProTable 组件的 scoped style 通过 .vxe-cell padding 控制
-   * 这里的变量作为全局兆底，处理不通过 ProTable 直接使用 vxe-table 的场景
-   */
+  /* ========== 行高：通过列级 padding 控制 ========== */
+  --vxe-ui-table-cell-padding-top: 10px;
+  --vxe-ui-table-cell-padding-bottom: 10px;
+  --vxe-ui-table-header-cell-padding-top: 12px;
+  --vxe-ui-table-header-cell-padding-bottom: 12px;
 
-  /* 行高 & cell padding */
-  --vxe-ui-table-row-height-medium: 44px;
-  --vxe-ui-table-cell-padding-medium: 14px;
-
-  /* 浅色模式配色（组件层级变量优先级更高，此处兆底） */
+  /* 浅色模式配色 */
   --vxe-ui-table-header-background-color: var(--el-fill-color-light, #f5f7fa);
   --vxe-ui-table-header-font-color: var(--el-text-color-primary, #1d2129);
   --vxe-ui-table-body-background-color: var(--el-bg-color, #ffffff);
@@ -175,17 +170,15 @@
 
 // ============================================
 // 暗色主题
-// 通过 VxeUI.setTheme('dark') 切换后，vxe-table 自动应用暗色变量
-// 此处仅补充自定义暗色变量值，无需选择器级 !important 覆盖
 // ============================================
 
 html.dark {
   // vxe-table 暗色主题变量
-  --vxe-ui-table-header-background-color: #212430; // 比内容区略深，极淡质感区分
+  --vxe-ui-table-header-background-color: #212430;
   --vxe-ui-table-header-font-color: #e5eaf3;
   --vxe-ui-table-body-background-color: #1a1d24;
-  --vxe-ui-table-row-striped-background-color: #21252d; // 暗色斑马纹
-  --vxe-ui-table-row-hover-background-color: #2a2f3a; // 柔和悬停反馈
+  --vxe-ui-table-row-striped-background-color: #21252d;
+  --vxe-ui-table-row-hover-background-color: #2a2f3a;
   --vxe-ui-table-row-current-background-color: rgba(64, 128, 255, 0.08);
   --vxe-ui-table-row-hover-current-background-color: rgba(64, 128, 255, 0.12);
   --vxe-ui-table-row-hover-striped-background-color: #2a2f3a;
@@ -193,6 +186,12 @@ html.dark {
   --vxe-ui-table-header-border-color: #0e1014;
   --vxe-ui-font-color: #cbd5e1;
   --vxe-ui-pager-background-color: #1a1d24;
+
+  // 行高：暗色模式与浅色模式完全对齐
+  --vxe-ui-table-cell-padding-top: var(--vxe-ui-table-cell-padding-top);
+  --vxe-ui-table-cell-padding-bottom: var(--vxe-ui-table-cell-padding-bottom);
+  --vxe-ui-table-header-cell-padding-top: var(--vxe-ui-table-header-cell-padding-top);
+  --vxe-ui-table-header-cell-padding-bottom: var(--vxe-ui-table-header-cell-padding-bottom);
 
   // vxe-table v3 兼容变量
   --vxe-table-border-color: #2c303a;
@@ -206,24 +205,24 @@ html.dark {
 }
 
 // ============================================
-// 行高覆盖（浅色 & 暗色通用）
-// vxe-table v4 的 size--medium 统一用 --vxe-ui-table-cell-padding-medium
-// 但我们需要 header 16px / body 14px 不同 padding，必须选择器级覆盖
+// 行高强制统一（明暗双模式）
+// 兜底硬覆盖，防止 vxe-table 内部样式优先级更高
 // ============================================
 
-.vxe-table--render-default.size--medium {
-  // 表头 cell padding：16+16+16=48px
-  .vxe-header--column.is--padding .vxe-cell {
-    padding: 16px !important;
+.vxe-table {
+  .vxe-body--column,
+  .vxe-header--column {
+    padding-top: var(--vxe-ui-table-cell-padding-top) !important;
+    padding-bottom: var(--vxe-ui-table-cell-padding-bottom) !important;
   }
 
-  // 表项 cell padding：14+16+14=44px
-  .vxe-body--column.is--padding .vxe-cell {
-    padding: 14px !important;
+  .vxe-header--column {
+    padding-top: var(--vxe-ui-table-header-cell-padding-top) !important;
+    padding-bottom: var(--vxe-ui-table-header-cell-padding-bottom) !important;
   }
 }
 
-// 浅色模式选中行强化（暗色模式由 html.dark 变量控制）
+// 表头字体加粗
 .vxe-table--render-default {
   .vxe-table--header-wrapper .vxe-header--column {
     font-weight: 600 !important;
