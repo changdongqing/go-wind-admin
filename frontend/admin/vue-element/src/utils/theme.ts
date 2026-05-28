@@ -266,6 +266,12 @@ export function toggleDarkMode(isDark: boolean) {
   } else {
     document.documentElement.classList.remove("dark");
   }
+
+  // vxe-table 4.7+ 暗色主题同步
+  // 必须通过 VxeUI.setTheme() API 切换，否则 vxe-table 内部状态不感知主题变化
+  import("vxe-table").then(({ VxeUI }) => {
+    VxeUI.setTheme(isDark ? "dark" : "light");
+  });
 }
 
 /**

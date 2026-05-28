@@ -57,6 +57,10 @@ function updateCSSVariables(preferences: Preferences) {
   if (Reflect.has(theme, "mode")) {
     const dark = isDarkTheme(mode);
     root.classList.toggle("dark", dark);
+    // vxe-table 4.7+ 暗色主题同步
+    import("vxe-table").then(({ VxeUI }) => {
+      VxeUI.setTheme(dark ? "dark" : "light");
+    });
   }
 
   // html 设置 semi-dark-sidebar / semi-dark-header
