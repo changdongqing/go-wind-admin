@@ -56,7 +56,8 @@
           <!-- 空状态 -->
           <template v-else>
             <div class="notice-dropdown__empty">
-              <el-empty :image-size="80" :description="t('core.notice.empty')" />
+              <SvgIcon icon="lucide:inbox" :size="48" class="notice-dropdown__empty-icon" />
+              <p class="notice-dropdown__empty-text">{{ t('core.notice.empty') }}</p>
             </div>
           </template>
         </div>
@@ -81,11 +82,11 @@
 
   <el-dialog
     v-model="dialogVisible"
-    :title="detail?.title ?? '通知详情'"
+    :title="detail?.title ?? t('core.notice.detail')"
     width="800px"
     custom-class="notification-detail"
   >
-    <div v-if="detail" class="p-x-20px">
+    <div v-if="detail" class="notification-detail__content">
       <div class="flex-y-center mb-16px text-13px text-color-secondary">
         <span class="flex-y-center">
           <el-icon><User /></el-icon>
@@ -160,7 +161,7 @@ function stripHtml(html: string): string {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
+    padding: 16px 24px;
     border-bottom: 1px solid var(--el-border-color-lighter);
 
     .notice-dropdown__title {
@@ -172,6 +173,7 @@ function stripHtml(html: string): string {
     .notice-dropdown__icon {
       color: var(--el-text-color-secondary);
       cursor: pointer;
+      transition: color 0.2s ease;
 
       &:hover {
         color: var(--el-color-primary);
@@ -202,9 +204,21 @@ function stripHtml(html: string): string {
   // 空状态
   &__empty {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 300px;
+  }
+
+  &__empty-icon {
+    color: var(--el-text-color-placeholder);
+  }
+
+  &__empty-text {
+    margin: 12px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--el-text-color-secondary);
   }
 
   // 底部操作栏
@@ -214,7 +228,7 @@ function stripHtml(html: string): string {
     justify-content: space-between;
     padding: 12px 20px;
     border-top: 1px solid var(--el-border-color-lighter);
-    background-color: var(--el-fill-color-lighter);
+    background-color: var(--el-bg-color);
 
     &-left {
       display: flex;
@@ -292,6 +306,49 @@ function stripHtml(html: string): string {
   &__time {
     font-size: 12px;
     color: var(--el-text-color-placeholder);
+  }
+}
+
+// ============================================
+// 通知详情弹窗样式覆盖
+// ============================================
+
+:deep(.notification-detail) {
+  .el-dialog__header {
+    padding: 16px 24px;
+    margin: 0;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+  }
+
+  .el-dialog__body {
+    padding: 24px 32px;
+  }
+
+  .notification-detail__content {
+    padding: 0;
+
+    .detail-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--el-text-color-secondary);
+
+      .detail-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+
+    .detail-body {
+      max-height: 60vh;
+      padding-top: 16px;
+      margin-bottom: 24px;
+      overflow-y: auto;
+      border-top: 1px solid var(--el-border-color);
+    }
   }
 }
 </style>

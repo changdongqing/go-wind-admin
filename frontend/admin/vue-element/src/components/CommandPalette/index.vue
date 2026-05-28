@@ -184,6 +184,7 @@ const handleInputKeydown: (evt: KeyboardEvent | Event) => any = (evt) => {
 
 .command-palette-trigger:hover {
   border-color: var(--el-border-color);
+  background: var(--el-fill-color-lighter);
 }
 
 .command-palette-dialog {

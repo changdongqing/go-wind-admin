@@ -3,7 +3,7 @@
     <!-- 桌面端工具项 -->
     <template v-if="isDesktop">
       <!-- 搜索 -->
-      <div class="navbar-actions__item">
+      <div class="navbar-actions__item navbar-actions__item--search">
         <CommandPalette />
       </div>
 
@@ -38,16 +38,13 @@
     </template>
 
     <!-- 用户菜单 -->
-    <div class="navbar-actions__item">
+    <div class="navbar-actions__item navbar-actions__item--profile">
       <el-dropdown trigger="click">
         <div class="user-profile">
-          <div style="width: 28px; height: 28px; overflow: hidden; border-radius: 50%">
-            <img
-              :src="userStore.userInfo?.avatar || '/default-avatar.png'"
-              class="user-profile__avatar"
-              style="width: 100%; height: 100%; object-fit: cover; object-position: center"
-            />
-          </div>
+          <img
+            :src="userStore.userInfo?.avatar || '/default-avatar.png'"
+            class="user-profile__avatar"
+          />
           <span class="user-profile__name">{{ userStore.userInfo?.username || "" }}</span>
         </div>
         <template #dropdown>
@@ -167,7 +164,9 @@ function handleSettingsClick() {
     padding: 0 8px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background: transparent;
 
     // 确保子元素居中
     > * {
@@ -200,14 +199,47 @@ function handleSettingsClick() {
       font-size: 18px;
       line-height: 1;
       color: var(--el-text-color-regular);
-      transition: color 0.3s;
+      transition: all 0.2s ease;
     }
 
+    // hover 态：柔和背景 + 图标主色高亮 + 轻微放大
     &:hover {
-      background: var(--el-fill-color-light);
+      background: rgba(0, 0, 0, 0.04);
+      transform: scale(1.05);
 
       :deep([class^="i-svg:"]) {
         color: var(--el-color-primary);
+      }
+    }
+
+    // 搜索按钮特殊处理：不放大、不显示背景，让内部胶囊条自行处理 hover
+    &--search {
+      min-width: auto;
+      padding: 0;
+      margin-right: 4px;
+      background: transparent !important;
+      transform: none !important;
+      box-shadow: none !important;
+
+      &:hover {
+        background: transparent;
+        transform: none;
+        box-shadow: none;
+
+        :deep([class^="i-svg:"]) {
+          color: var(--el-text-color-secondary);
+        }
+      }
+    }
+    // 用户头像区域：不放大，仅显示柔和背景
+    &--profile {
+      min-width: auto;
+      padding: 0 4px;
+      transform: none !important;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+        transform: none;
       }
     }
   }
@@ -217,20 +249,26 @@ function handleSettingsClick() {
     align-items: center;
     justify-content: center;
     height: 44px;
-    padding: 0 8px;
+    padding: 0 4px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
 
     &__avatar {
       flex-shrink: 0;
       width: 28px;
       height: 28px;
+      overflow: hidden;
       border-radius: 50%;
+      object-fit: cover;
+      object-position: center;
     }
 
     &__name {
       margin-left: 8px;
+      font-size: 14px;
       color: var(--el-text-color-regular);
       white-space: nowrap;
-      transition: color 0.3s;
+      transition: color 0.2s ease;
     }
   }
 }
@@ -239,35 +277,46 @@ function handleSettingsClick() {
 .navbar-actions--white-text {
   .navbar-actions__item {
     :deep([class^="i-svg:"]) {
-      color: color-mix(in srgb, var(--el-color-white) 85%, transparent);
+      color: rgba(255, 255, 255, 0.75);
     }
 
     &:hover {
-      background: color-mix(in srgb, var(--el-color-white) 10%, transparent);
+      background: rgba(255, 255, 255, 0.08);
+      transform: scale(1.05);
 
       :deep([class^="i-svg:"]) {
-        color: var(--el-color-white);
+        color: #ffffff;
       }
     }
   }
 
   .user-profile__name {
-    color: color-mix(in srgb, var(--el-color-white) 85%, transparent);
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  // profile 按钮不放大
+  .navbar-actions__item--profile {
+    transform: none !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: none;
+    }
   }
 
   // 租户选择器在白色文字模式下的样式
   ::v-deep(.tenant-switcher__trigger) {
-    color: color-mix(in srgb, var(--el-color-white) 85%, transparent);
+    color: rgba(255, 255, 255, 0.85);
   }
   ::v-deep(.tenant-switcher__trigger .tenant-switcher__icon) {
-    color: color-mix(in srgb, var(--el-color-white) 85%, transparent);
+    color: rgba(255, 255, 255, 0.85);
   }
   ::v-deep(.tenant-switcher__trigger:hover) {
-    color: var(--el-color-white);
-    background: color-mix(in srgb, var(--el-color-white) 10%, transparent);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
   }
   ::v-deep(.tenant-switcher__trigger:hover .tenant-switcher__icon) {
-    color: var(--el-color-white);
+    color: #ffffff;
   }
 }
 
@@ -280,6 +329,7 @@ function handleSettingsClick() {
 
     &:hover {
       background: rgba(0, 0, 0, 0.04);
+      transform: scale(1.05);
 
       :deep([class^="i-svg:"]) {
         color: var(--el-color-primary) !important;
@@ -289,6 +339,16 @@ function handleSettingsClick() {
 
   .user-profile__name {
     color: var(--el-text-color-regular) !important;
+  }
+
+  // profile 按钮不放大
+  .navbar-actions__item--profile {
+    transform: none !important;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+      transform: none;
+    }
   }
 
   // 租户选择器在深色文字模式下的样式

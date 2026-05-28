@@ -56,7 +56,7 @@ const { t } = useI18n();
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 8px;
+  padding: 6px 10px;
   flex-shrink: 0;
   border-top: 1px solid var(--el-border-color-lighter);
 
@@ -65,21 +65,38 @@ const { t } = useI18n();
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 8px;
     color: var(--el-text-color-secondary);
-    transition: all 0.2s;
+    background: transparent;
+    transition: all 0.2s ease;
 
     &:hover {
       color: var(--el-color-primary);
-      background-color: var(--el-fill-color-light);
+      background: rgba(0, 0, 0, 0.04);
+      transform: scale(1.05);
     }
 
     // 自动模式：pin 旋转 45° 表示「未钉住」
     .is-unpinned {
       transform: rotate(45deg);
+    }
+  }
+
+  // 暗黑模式 / 深色侧边栏
+  :global(html.dark) &,
+  :global(html.semi-dark-sidebar) & {
+    border-top-color: rgba(255, 255, 255, 0.08);
+
+    .sidebar-control-panel__btn {
+      color: rgba(255, 255, 255, 0.65);
+
+      &:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.08);
+      }
     }
   }
 }
