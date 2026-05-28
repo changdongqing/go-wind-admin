@@ -99,9 +99,9 @@ const menuThemeProps = computed(() => {
 const activeMenuPath = computed((): string => {
   const { meta, path } = currentRoute;
 
-  // 如果路由 meta 中设置了 activeMenu，则使用它（用于处理一些特殊情况，如详情页等）
-  if (meta?.activeMenu && typeof meta.activeMenu === "string") {
-    return meta.activeMenu;
+  // 如果路由 meta 中设置了 activePath，则使用它（用于处理一些特殊情况，如详情页等）
+  if (meta?.activePath && typeof meta.activePath === "string") {
+    return meta.activePath;
   }
 
   // 否则使用当前路由路径

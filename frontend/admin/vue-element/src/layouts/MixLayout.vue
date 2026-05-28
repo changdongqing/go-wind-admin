@@ -214,7 +214,7 @@ const topMenuItems = computed(() => {
 // 左侧菜单激活路径
 const activeSideMenuPath = computed(() => {
   const { meta, path } = route;
-  return typeof meta?.activeMenu === "string" ? meta.activeMenu : path;
+  return typeof meta?.activePath === "string" ? meta.activePath : path;
 });
 
 // 解析左侧菜单路径

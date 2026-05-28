@@ -89,7 +89,7 @@ export function useLayout() {
   /** 当前激活菜单 */
   const activeMenu = computed(() => {
     const { meta, path } = route;
-    return meta?.activeMenu || path;
+    return meta?.activePath || path;
   });
 
   // ============================================
