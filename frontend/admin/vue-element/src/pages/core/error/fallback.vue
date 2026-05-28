@@ -153,7 +153,13 @@ function back() {
 }
 
 function refresh() {
-  location.reload();
+  // 网络异常页不能 reload（会停留在 /offline 死循环），
+  // 而是跳转首页，让路由守卫重新判断网络状态
+  if (props.status === "offline") {
+    push(props.homePath);
+  } else {
+    location.reload();
+  }
 }
 </script>
 

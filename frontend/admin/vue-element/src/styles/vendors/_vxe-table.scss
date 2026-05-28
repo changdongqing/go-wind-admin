@@ -92,6 +92,19 @@
   /* select */
   --vxe-select-option-hover-background-color: var(--el-bg-color-overlay);
   --vxe-select-panel-background-color: var(--el-bg-color);
+
+  /* 行高强制统一：明暗模式完全一致 */
+  --vxe-ui-table-cell-padding-top: 10px;
+  --vxe-ui-table-cell-padding-bottom: 10px;
+  --vxe-ui-table-header-cell-padding-top: 12px;
+  --vxe-ui-table-header-cell-padding-bottom: 12px;
+
+  /* 浅色模式配色 */
+  --vxe-ui-table-header-background-color: #f5f7fa;
+  --vxe-ui-table-header-font-color: #1d2129;
+  --vxe-ui-table-body-background-color: #ffffff;
+  --vxe-ui-table-row-hover-background-color: #f2f3f5;
+  --vxe-ui-table-border-color: #e5e6eb;
 }
 
 // ============================================
@@ -168,22 +181,28 @@ html.dark {
   --vxe-ui-table-header-font-color: #e5eaf3 !important;
   --vxe-ui-table-body-background-color: #1a1d24 !important;   // 内容区
   --vxe-ui-table-row-striped-background-color: #1e2128 !important;
-  --vxe-ui-table-row-hover-background-color: #21252d !important;
+  --vxe-ui-table-row-hover-background-color: #2a2f3a !important;
   --vxe-ui-table-border-color: #2c303a !important;
   --vxe-ui-table-header-border-color: #0e1014 !important;
   --vxe-ui-font-color: #cbd5e1 !important;
   --vxe-ui-pager-background-color: #1a1d24 !important;
 
+  // 强制覆盖深色模式的行高，和浅色模式完全对齐
+  --vxe-ui-table-cell-padding-top: var(--vxe-ui-table-cell-padding-top) !important;
+  --vxe-ui-table-cell-padding-bottom: var(--vxe-ui-table-cell-padding-bottom) !important;
+  --vxe-ui-table-header-cell-padding-top: var(--vxe-ui-table-header-cell-padding-top) !important;
+  --vxe-ui-table-header-cell-padding-bottom: var(--vxe-ui-table-header-cell-padding-bottom) !important;
+
   // --- vxe-table v3 兼容变量 ---
   --vxe-table-border-color: #2c303a !important;
   --vxe-table-header-background-color: #12151a !important;
   --vxe-table-body-background-color: #1a1d24 !important;
-  --vxe-table-row-hover-background-color: #21252d !important;
-  --vxe-table-row-current-background-color: #21252d !important;
-  --vxe-table-row-hover-current-background-color: #21252d !important;
+  --vxe-table-row-hover-background-color: #2a2f3a !important;
+  --vxe-table-row-current-background-color: #2a2f3a !important;
+  --vxe-table-row-hover-current-background-color: #2a2f3a !important;
   --vxe-table-header-font-color: #e5eaf3 !important;
   --vxe-table-body-font-color: #cbd5e1 !important;
-  --vxe-table-checkbox-range-background-color: #21252d !important;
+  --vxe-table-checkbox-range-background-color: #2a2f3a !important;
 
   // ============================================
   // 边框强制覆盖
@@ -235,8 +254,6 @@ html.dark {
 
       .vxe-cell {
         border-bottom: 1px solid #0e1014 !important;
-        padding-top: 14px;
-        padding-bottom: 14px;
       }
     }
   }
@@ -258,8 +275,6 @@ html.dark {
         > td {
           background-color: transparent !important;
           color: #cbd5e1 !important;
-          padding-top: 12px;
-          padding-bottom: 12px;
         }
       }
 
@@ -270,15 +285,13 @@ html.dark {
         > td {
           background-color: transparent !important;
           color: #e5eaf3 !important;
-          padding-top: 12px;
-          padding-bottom: 12px;
         }
       }
 
       // hover 态
       &:hover,
       &.row--hover {
-        background-color: #21252d !important;
+        background-color: #2a2f3a !important;
 
         > td {
           background-color: transparent !important;
@@ -286,10 +299,11 @@ html.dark {
         }
       }
 
-      // 选中行
+      // 选中行：柔和背景高亮，去掉原生蓝线
       &.row--current {
-        background-color: #21252d !important;
-        outline: 1px solid var(--dark-primary, #409EFF) !important;
+        background-color: rgba(64, 128, 255, 0.08) !important;
+        font-weight: 500;
+        border-bottom: none !important;
 
         > td {
           background-color: transparent !important;
@@ -299,7 +313,7 @@ html.dark {
 
       // hover + 选中
       &.row--hover.row--current {
-        background-color: #2a2f3a !important;
+        background-color: rgba(64, 128, 255, 0.12) !important;
       }
     }
   }
@@ -311,5 +325,21 @@ html.dark {
   .vxe-pager {
     background-color: #1a1d24 !important;
     color: #cbd5e1 !important;
+  }
+}
+
+// ============================================
+// 行高兜底硬覆盖：防止 vxe-table 内部样式优先级更高
+// ============================================
+
+.vxe-table {
+  .vxe-body--column {
+    padding-top: var(--vxe-ui-table-cell-padding-top) !important;
+    padding-bottom: var(--vxe-ui-table-cell-padding-bottom) !important;
+  }
+
+  .vxe-header--column {
+    padding-top: var(--vxe-ui-table-header-cell-padding-top) !important;
+    padding-bottom: var(--vxe-ui-table-header-cell-padding-bottom) !important;
   }
 }
