@@ -172,7 +172,7 @@ import {
   useUpdateTask,
   fetchListTaskTypeNames,
 } from "@/api/composables";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 const emit = defineEmits<{
   success: [];

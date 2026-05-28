@@ -6,7 +6,7 @@
 import type { EChartsOption } from "echarts";
 
 import { EchartsUI, EchartsUIType, useEcharts } from "@/plugins/echarts";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 const chartRef = ref<EchartsUIType>();
 const { renderEcharts } = useEcharts(chartRef);

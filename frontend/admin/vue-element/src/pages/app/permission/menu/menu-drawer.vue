@@ -202,7 +202,7 @@ import {
   useUpdateMenu,
 } from "@/api/composables";
 import { PaginationQuery } from "@/core/transport/rest";
-import { $t, $te } from "@/i18n";
+import { $t, $te } from '@/core/i18n';
 
 const emit = defineEmits<{
   success: [];

@@ -23,7 +23,7 @@ import { ElTag } from "element-plus";
 import ProPage from "@/components/Pro/ProPage/index.vue";
 import type { ProPageConfig } from "@/components/Pro/ProPage/types";
 
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 import {
   internalMessageRecipientStatusColor,
   internalMessageRecipientStatusLabel,

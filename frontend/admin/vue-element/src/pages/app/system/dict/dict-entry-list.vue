@@ -27,7 +27,7 @@ import type { ProPageConfig } from "@/components/Pro/ProPage/types";
 import DictEntryDrawer from "./dict-entry-drawer.vue";
 
 import { enableBoolToColor, enableBoolToName, useDeleteDictEntry } from "@/api/composables";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 import { getEntryLabel, useDictViewStore } from "@/pages/app/system/dict/dict-view.state";
 
 const { mutateAsync: deleteDictEntry } = useDeleteDictEntry();

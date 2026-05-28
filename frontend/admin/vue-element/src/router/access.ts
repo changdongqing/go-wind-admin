@@ -5,7 +5,7 @@ import { generateAccessible } from "@/core/router";
 import { preferences } from "@/core/preferences";
 import { fetchNavigation } from "@/api/composables";
 
-import { i18n } from "@/i18n/setup";
+import { i18n } from '@/core/i18n';
 
 const t = i18n.global.t;
 

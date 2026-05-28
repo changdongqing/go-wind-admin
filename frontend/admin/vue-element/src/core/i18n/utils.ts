@@ -1,5 +1,5 @@
 import type { Locale } from "vue-i18n";
-import { ImportLocaleFn } from "@/i18n/types";
+import type { ImportLocaleFn } from "./types";
 
 /**
  * Load locale modules

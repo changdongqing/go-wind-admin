@@ -46,7 +46,7 @@
 import path from "path-browserify";
 import { RouteRecordRaw, LocationQueryRaw } from "vue-router";
 import { isExternal } from "@/utils";
-import { translateRouteTitle } from "@/i18n";
+import { translateRouteTitle } from '@/core/i18n';
 import { ElIcon } from "element-plus";
 
 defineOptions({

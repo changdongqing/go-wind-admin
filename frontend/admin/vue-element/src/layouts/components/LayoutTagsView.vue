@@ -247,7 +247,7 @@
 import { useRoute, useRouter, type RouteRecordRaw } from "vue-router";
 import { resolve } from "path-browserify";
 import { useSortable, type Sortable } from "@/composables/use-sortable";
-import { translateRouteTitle } from "@/i18n";
+import { translateRouteTitle } from '@/core/i18n';
 import { useAccessStore, useTagsViewStore } from "@/stores";
 import { preferences, updatePreferences } from "@/core/preferences";
 

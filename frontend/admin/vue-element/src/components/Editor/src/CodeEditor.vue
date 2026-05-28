@@ -19,7 +19,7 @@ import * as monaco from "monaco-editor";
 
 import { initMonacoWorkers } from "./monaco-loader";
 import { isDarkMode } from "./utils";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 // 扩展monaco主题类型，增强类型安全
 type MonacoTheme = "dark" | "hc-black" | "light" | "vs" | "vs-dark";

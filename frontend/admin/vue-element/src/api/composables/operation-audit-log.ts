@@ -9,7 +9,7 @@ import type {
 import type { PaginationQuery } from "@/core/transport/rest";
 import { listOperationAuditLogs, getOperationAuditLog } from "@/api/service/operation-audit-log";
 import { queryClient } from "@/plugins/vue-query";
-import { i18n } from "@/i18n";
+import { i18n } from '@/core/i18n';
 
 const t = i18n.global.t;
 

@@ -54,7 +54,7 @@ import { computed, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 
 import { useEditUserPassword } from "@/api/composables";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 const { mutateAsync: editUserPassword } = useEditUserPassword();
 

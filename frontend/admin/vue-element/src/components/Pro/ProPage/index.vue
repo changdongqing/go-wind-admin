@@ -105,7 +105,7 @@
 import { reactive, computed, ref, useSlots } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useRoute } from "vue-router";
-import { useI18n } from "@/i18n";
+import { useI18n } from '@/core/i18n';
 
 import ProSearch from "../ProSearch/index.vue";
 import ProTable from "../ProTable/index.vue";

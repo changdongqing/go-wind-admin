@@ -20,7 +20,7 @@ import type { EditorEmits, EditorProps } from "../types";
 
 import { computed, defineAsyncComponent } from "vue";
 
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 import { EditorType } from "../types";
 

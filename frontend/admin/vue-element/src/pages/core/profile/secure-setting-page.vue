@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 interface SettingItem {
   key: string;

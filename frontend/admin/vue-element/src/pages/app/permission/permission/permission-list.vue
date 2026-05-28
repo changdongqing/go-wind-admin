@@ -23,7 +23,7 @@ import type { ProPageConfig } from "@/components/Pro/ProPage/types";
 import PermissionDrawer from "./permission-drawer.vue";
 
 import { statusList, statusToColor, statusToName, useDeletePermission } from "@/api/composables";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 import { usePermissionViewStore } from "@/pages/app/permission/permission/permission-view.state";
 
 const { mutateAsync: deletePermission } = useDeletePermission();

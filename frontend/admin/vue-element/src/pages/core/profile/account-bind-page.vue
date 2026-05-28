@@ -36,7 +36,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { Icon as IconifyIcon } from "@iconify/vue";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 interface AccountBindItem {
   key: string;

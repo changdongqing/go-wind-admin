@@ -64,7 +64,7 @@
 import { ref, type Component } from "vue";
 import { ElDrawer, ElButton } from "element-plus";
 import { RefreshRight, Close, CopyDocument, SwitchButton } from "@element-plus/icons-vue";
-import { useI18n } from "@/i18n";
+import { useI18n } from '@/core/i18n';
 import { resetPreferences } from "../../index";
 import { useAuth } from "@/composables/use-auth";
 

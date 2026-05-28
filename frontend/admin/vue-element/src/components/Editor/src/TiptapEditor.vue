@@ -1013,7 +1013,7 @@ import type { Level } from "@tiptap/extension-heading";
 import { computed, nextTick, onUnmounted, ref, watch } from "vue";
 
 import { WarningFilled } from "@element-plus/icons-vue";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 import { preferences } from "@/core/preferences";
 
 import { mergeAttributes, Node } from "@tiptap/core";

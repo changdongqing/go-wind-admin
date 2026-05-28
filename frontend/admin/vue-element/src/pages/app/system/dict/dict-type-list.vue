@@ -29,7 +29,7 @@ import type { ProPageConfig } from "@/components/Pro/ProPage/types";
 import DictTypeDrawer from "./dict-type-drawer.vue";
 
 import { enableBoolToColor, enableBoolToName, useDeleteDictType } from "@/api/composables";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 import { useDictViewStore } from "@/pages/app/system/dict/dict-view.state";
 
 const { mutateAsync: deleteDictType } = useDeleteDictType();

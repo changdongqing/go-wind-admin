@@ -35,7 +35,7 @@ import {
   statusToName,
   useDeletePermissionGroup,
 } from "@/api/composables";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 import { usePermissionViewStore } from "@/pages/app/permission/permission/permission-view.state";
 
 const { mutateAsync: deletePermissionGroup } = useDeletePermissionGroup();

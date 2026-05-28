@@ -407,7 +407,7 @@ import {
   ElSegmented,
 } from "element-plus";
 import { Minus, Plus } from "@element-plus/icons-vue";
-import { useI18n } from "@/i18n";
+import { useI18n } from '@/core/i18n';
 import { preferences, updatePreferences } from "../../index";
 import {
   SidebarNav,

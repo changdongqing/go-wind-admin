@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import { ElSwitch } from "element-plus";
-import { useI18n } from "@/i18n";
+import { useI18n } from '@/core/i18n';
 import { preferences, updatePreferences } from "../../index";
 
 const { t } = useI18n();

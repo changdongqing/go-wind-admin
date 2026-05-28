@@ -17,7 +17,7 @@ import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
 import { listMenus, getMenu, createMenu, updateMenu, deleteMenu } from "@/api/service/menu";
 import { queryClient } from "@/plugins/vue-query";
 
-import { i18n } from "@/i18n";
+import { i18n } from '@/core/i18n';
 
 const t = i18n.global.t;
 

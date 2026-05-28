@@ -1,4 +1,4 @@
-import { $t, $te } from "@/i18n";
+import { $t, $te } from '@/core/i18n';
 import type { HttpResponse } from "@/core/transport/rest";
 
 /**

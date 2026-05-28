@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import { reactive } from "vue";
 
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 interface NotifyItem {
   key: string;

@@ -37,7 +37,7 @@
 import { RouteLocationMatched } from "vue-router";
 import { compile } from "path-to-regexp";
 import { router } from "@/router";
-import { translateRouteTitle } from "@/i18n";
+import { translateRouteTitle } from '@/core/i18n';
 import { preferences } from "@/core/preferences";
 
 const currentRoute = useRoute();

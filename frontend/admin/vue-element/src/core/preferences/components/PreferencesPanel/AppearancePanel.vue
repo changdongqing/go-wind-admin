@@ -126,7 +126,7 @@
 <script setup lang="ts">
 import { ElSwitch, ElIcon } from "element-plus";
 import { Sunny, Moon, Monitor, Brush } from "@element-plus/icons-vue";
-import { useI18n } from "@/i18n";
+import { useI18n } from '@/core/i18n';
 import { preferences, updatePreferences } from "../../index";
 import type { BuiltinThemeType } from "../../types";
 

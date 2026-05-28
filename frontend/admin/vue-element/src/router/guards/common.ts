@@ -4,7 +4,7 @@ import { effectScope, watch } from "vue";
 
 import { startProgress, stopProgress } from "@/utils";
 import { preferences } from "@/core/preferences";
-import { i18n, translateRouteTitle } from "@/i18n";
+import { i18n, translateRouteTitle } from '@/core/i18n';
 
 /**
  * 根据当前路由和 i18n 状态更新浏览器标签页标题

@@ -40,7 +40,7 @@ import AccountBindPage from "./account-bind-page.vue";
 import MsgNotifyPage from "./msg-notify-page.vue";
 import SecureSettingPage from "./secure-setting-page.vue";
 
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 const activeTab = ref("1");
 

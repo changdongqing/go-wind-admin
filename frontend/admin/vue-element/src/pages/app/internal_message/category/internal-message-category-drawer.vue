@@ -59,7 +59,7 @@ import { ElMessage, type FormInstance, type FormRules } from "element-plus";
 import { ref, reactive, computed } from "vue";
 
 import { useCreateMessageCategory, useUpdateMessageCategory } from "@/api/composables";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 const emit = defineEmits(["success"]);
 

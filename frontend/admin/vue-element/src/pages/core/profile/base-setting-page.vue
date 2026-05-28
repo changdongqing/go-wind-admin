@@ -114,7 +114,7 @@ import { ElMessage } from "element-plus";
 import { UserFilled } from "@element-plus/icons-vue";
 
 import { genderList, fetchUserProfile, useUpdateUserProfile } from "@/api/composables";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 const { mutateAsync: updateUserProfile } = useUpdateUserProfile();
 

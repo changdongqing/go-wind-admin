@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 import { preferences } from "@/core/preferences";
 
 import { type EditorProps, MdEditor } from "md-editor-v3";

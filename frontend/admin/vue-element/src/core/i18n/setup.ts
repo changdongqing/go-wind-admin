@@ -1,9 +1,8 @@
 import { createI18n, Locale } from "vue-i18n";
 import { App } from "vue";
 
-import { LoadMessageFn, LocaleSetupOptions } from "@/i18n/types";
-import { loadLocalesMap, loadLocalesMapFromDir } from "@/i18n/utils";
-import { SupportedLanguagesType } from "@/core/preferences";
+import type { LoadMessageFn, LocaleSetupOptions } from "./types";
+import { loadLocalesMap, loadLocalesMapFromDir } from "./utils";
 
 const i18n = createI18n({
   globalInjection: true,
@@ -12,9 +11,9 @@ const i18n = createI18n({
   messages: {},
 });
 
-const modules = import.meta.glob("./langs/**/*.json");
-
-const localesMap = loadLocalesMapFromDir(/\.\/langs\/([^/]+)\/(.*)\.json$/, modules);
+// 从 src/locales/ 加载翻译文件
+const modules = import.meta.glob("../../locales/**/*.json");
+const localesMap = loadLocalesMapFromDir(/..\/locales\/([^/]+)\/(.*)\.json$/, modules);
 let loadMessages: LoadMessageFn;
 
 /**
@@ -42,7 +41,7 @@ async function setupI18n(app: App, options: LocaleSetupOptions = {}) {
   });
 }
 
-async function loadLocaleMessages(lang: SupportedLanguagesType) {
+async function loadLocaleMessages(lang: string) {
   // 将应用语言值转换为语言文件目录名（zh-CN -> zh-CN, en-US -> en-US）
   const langDir = lang;
 

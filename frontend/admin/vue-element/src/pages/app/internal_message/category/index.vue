@@ -28,7 +28,7 @@ import {
   useDeleteMessageCategory,
 } from "@/api/composables";
 import { PaginationQuery } from "@/core/transport/rest";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 import InternalMessageCategoryDrawer from "./internal-message-category-drawer.vue";
 

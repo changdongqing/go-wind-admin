@@ -3,7 +3,7 @@
  * 从 stores/modules/api 迁移而来
  */
 import { computed } from "vue";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 export const enableList = computed(() => [
   { value: "true", label: $t("enum.enable.true") },

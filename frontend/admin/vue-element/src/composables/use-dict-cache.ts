@@ -4,7 +4,7 @@
  */
 import { ref } from "vue";
 import type { dictservicev1_DictEntry } from "@/api/generated/admin/service/v1";
-import { i18n } from "@/i18n/setup";
+import { i18n } from '@/core/i18n';
 import { fetchListDictTypes, fetchListDictEntries } from "@/api/composables/dict";
 import { PaginationQuery } from "@/core/transport/rest";
 

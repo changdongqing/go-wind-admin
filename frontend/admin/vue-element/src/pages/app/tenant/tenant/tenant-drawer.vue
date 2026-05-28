@@ -148,7 +148,7 @@ import {
 } from "@/api/composables";
 import { PaginationQuery } from "@/core/transport/rest";
 import type { identityservicev1_Tenant as Tenant } from "@/api/generated/admin/service/v1";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 import { injectProModalApi } from "@/components/Pro";
 
 // 通过 inject 获取列表页传入的 modalApi

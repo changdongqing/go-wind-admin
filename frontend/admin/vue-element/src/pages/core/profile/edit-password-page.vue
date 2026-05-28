@@ -52,7 +52,7 @@ import { reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 
 import { useChangePassword } from "@/api/composables";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 const { mutateAsync: changePassword } = useChangePassword();
 

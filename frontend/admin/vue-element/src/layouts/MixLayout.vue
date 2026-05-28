@@ -88,7 +88,7 @@ import { ElIcon } from "element-plus";
 import { useLayout } from "./useLayout";
 import { useAccessStore } from "@/stores";
 import { isExternal } from "@/utils";
-import { translateRouteTitle } from "@/i18n";
+import { translateRouteTitle } from '@/core/i18n';
 import { preferences, preferencesManager, usePreferences } from "@/core/preferences";
 
 import BaseLayout from "./BaseLayout.vue";

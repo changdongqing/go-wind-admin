@@ -83,7 +83,7 @@ import {
 } from "@/api/composables";
 import { PaginationQuery } from "@/core/transport/rest";
 import { getRandomColor } from "@/utils/color";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 const { mutateAsync: deleteMenu } = useDeleteMenu();
 

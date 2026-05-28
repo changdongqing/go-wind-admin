@@ -123,7 +123,7 @@ import {
 } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
 import { useThrottleFn } from "@vueuse/core";
-import { useI18n } from "@/i18n";
+import { useI18n } from '@/core/i18n';
 import type { ProTableColumn } from "../ProTable/types";
 
 const props = defineProps<{

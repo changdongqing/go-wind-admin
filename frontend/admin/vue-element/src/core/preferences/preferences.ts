@@ -7,7 +7,7 @@ import type { DeepPartial, InitialOptions, Preferences } from "./types";
 import type { SupportedLanguagesType } from "./types";
 import { updateCSSVariables } from "./update-css-variables";
 import { StorageManager } from "@/core/storage";
-import { loadLocaleMessages } from "@/i18n";
+import { loadLocaleMessages } from '@/core/i18n';
 import { merge } from "@/utils/merge";
 import { isMacOs } from "@/utils/inference";
 

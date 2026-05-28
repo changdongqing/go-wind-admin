@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 interface Props {
   modelValue: string;

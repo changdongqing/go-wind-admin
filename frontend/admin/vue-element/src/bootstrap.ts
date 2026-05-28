@@ -9,7 +9,7 @@ import "uno.css";
 import "animate.css";
 
 import { setupDirective } from "@/directives";
-import { setupI18n } from "@/i18n";
+import { setupI18n } from '@/core/i18n';
 import { setupRouter } from "@/router";
 import { initStores } from "@/stores/setup";
 import { registerGlobComp } from "@/registerGlobComp";
@@ -18,7 +18,7 @@ import { RequestClient } from "@/core/transport/rest";
 import { logoutToLoginPage, refreshToken } from "@/composables/use-token-refresh";
 import { useAccessStore } from "@/stores";
 import { createI18nGetErrorMsg } from "@/composables/use-request-error-msg";
-import { i18n } from "@/i18n";
+import { i18n } from '@/core/i18n';
 
 import App from "./App.vue";
 import { setupVueQuery } from "@/plugins/vue-query";

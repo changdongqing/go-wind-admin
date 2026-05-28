@@ -18,7 +18,8 @@
 
 <script setup lang="ts">
 import { preferencesManager } from "@/core/preferences";
-import { loadLocaleMessages } from "@/i18n";
+import type { SupportedLanguagesType } from "@/core/preferences";
+import { loadLocaleMessages } from "@/core/i18n";
 
 defineProps({
   size: {

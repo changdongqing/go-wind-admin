@@ -19,7 +19,7 @@ import {
   getMyPermissionCode,
   getMe,
 } from "@/api/composables";
-import { i18n } from "@/i18n/setup";
+import { i18n } from '@/core/i18n';
 import {
   startRefreshTimer,
   stopRefreshTimer,

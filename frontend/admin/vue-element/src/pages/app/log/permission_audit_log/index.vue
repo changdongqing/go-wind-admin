@@ -36,7 +36,7 @@ import {
   fetchListPermissionAuditLogs,
 } from "@/api/composables";
 import { PaginationQuery } from "@/core/transport/rest";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 const pageRef = ref();
 

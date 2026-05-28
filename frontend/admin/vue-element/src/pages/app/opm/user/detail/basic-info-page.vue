@@ -109,7 +109,7 @@ import { computed, ref } from "vue";
 
 import { ElDescriptions, ElDescriptionsItem, ElAvatar, ElTag } from "element-plus";
 import { formatDateTime } from "@/utils";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 import { type identityservicev1_User as User } from "@/api/generated/admin/service/v1";
 import { genderToColor, genderToName, fetchUser } from "@/api/composables";

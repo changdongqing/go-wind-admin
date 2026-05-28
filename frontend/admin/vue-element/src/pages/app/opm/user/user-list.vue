@@ -88,7 +88,7 @@ import {
   useDeleteUser,
 } from "@/api/composables";
 import { PaginationQuery } from "@/core/transport/rest";
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 import { router } from "@/router";
 import { getRandomColor } from "@/utils/color";
 import { useUserViewStore } from "@/pages/app/opm/user/user-view.state";

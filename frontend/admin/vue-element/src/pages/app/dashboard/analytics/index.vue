@@ -76,7 +76,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 
-import { $t } from "@/i18n";
+import { $t } from '@/core/i18n';
 
 import AnalyticsTrends from "./analytics-trends.vue";
 import AnalyticsVisits from "./analytics-visits.vue";
