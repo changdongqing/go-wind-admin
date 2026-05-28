@@ -85,11 +85,12 @@ import type { LocationQueryRaw, RouteRecordRaw } from "vue-router";
 import { useWindowSize } from "@vueuse/core";
 import { ElIcon } from "element-plus";
 
-import { useLayout } from "./useLayout";
 import { useAccessStore } from "@/stores";
 import { isExternal } from "@/utils";
 import { translateRouteTitle } from "@/core/i18n";
 import { preferences, preferencesManager, usePreferences } from "@/core/preferences";
+
+import variables from "@/styles/variables.module.scss";
 
 import BaseLayout from "./BaseLayout.vue";
 import LayoutLogo from "./components/LayoutLogo.vue";
@@ -98,7 +99,8 @@ import LayoutTagsView from "./components/LayoutTagsView.vue";
 import LayoutMain from "./components/LayoutMain.vue";
 import LayoutSidebarItem from "./components/LayoutSidebarItem.vue";
 import SidebarControlPanel from "./components/SidebarControlPanel.vue";
-import variables from "@/styles/variables.module.scss";
+
+import { useLayout } from "./useLayout";
 
 // 菜单图标渲染组件
 const MenuIcon = defineComponent({

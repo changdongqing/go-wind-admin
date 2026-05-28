@@ -267,29 +267,26 @@ import {
 } from "@element-plus/icons-vue";
 import { ElIcon } from "element-plus";
 
-// 标签图标渲染组件（与侧边栏 MenuIcon 逻辑一致）
+// 标签图标渲染组件（通用图标解析，支持任意 UnoCSS 图标集）
 const TabIcon = defineComponent({
   props: { icon: { type: String, default: "" } },
   setup(props) {
-    const isLucideIcon = computed(() => props.icon?.startsWith("lucide:"));
-    const isElIcon = computed(() => props.icon?.startsWith("el-icon"));
-    const lucideName = computed(() => props.icon?.replace("lucide:", ""));
-    const iconName = computed(() => props.icon?.replace("el-icon-", ""));
-
     return () => {
       if (!props.icon) return null;
 
-      // Lucide 图标（通过 UnoCSS）
-      if (isLucideIcon.value) {
-        return h("div", { class: `i-lucide:${lucideName.value}` });
+      // Element Plus 图标：`el-icon-` 前缀
+      if (props.icon.startsWith("el-icon-")) {
+        const name = props.icon.replace("el-icon-", "");
+        return h(ElIcon, { size: 14 }, () => h(resolveComponent(name)));
       }
 
-      // Element Plus 图标
-      if (isElIcon.value) {
-        return h(ElIcon, { size: 14 }, () => h(resolveComponent(iconName.value!)));
+      // UnoCSS 图标集：`prefix:name` 格式 → `i-prefix:name`
+      // 支持 lucide、fa、mdi 等任意在 uno.config.ts 中注册的集合
+      if (props.icon.includes(":")) {
+        return h("div", { class: `i-${props.icon}` });
       }
 
-      // SVG 图标（通过 UnoCSS）
+      // 无前缀兜底：本地 SVG 图标
       return h("div", { class: `i-svg:${props.icon}` });
     };
   },
@@ -321,6 +318,9 @@ const tabHeight = computed(() => preferences.tabbar.height || 38);
 
 // 注入内容区刷新状态
 const contentRefreshing = inject<Ref<boolean>>("contentRefreshing", ref(false));
+
+// 注入刷新 key
+const contentRefreshKey = inject<Ref<number>>("contentRefreshKey", ref(0));
 
 // 最大化状态
 const isMaximized = ref(false);
@@ -546,10 +546,10 @@ const refreshSelectedTag = (tag: TagView | null) => {
   if (!tag) return;
   closeContextMenu();
   contentRefreshing.value = true;
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      contentRefreshing.value = false;
-    });
+  // 递增 key 强制组件重建（router-view 保持挂载，不触发 ResizeObserver 错误）
+  contentRefreshKey.value++;
+  nextTick(() => {
+    contentRefreshing.value = false;
   });
 };
 

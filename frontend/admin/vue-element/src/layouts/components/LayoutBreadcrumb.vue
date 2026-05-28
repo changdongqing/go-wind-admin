@@ -36,6 +36,7 @@
 <script setup lang="ts">
 import { RouteLocationMatched } from "vue-router";
 import { compile } from "path-to-regexp";
+
 import { router } from "@/router";
 import { translateRouteTitle } from "@/core/i18n";
 import { preferences } from "@/core/preferences";
@@ -55,8 +56,7 @@ const breadcrumbs = ref<Array<RouteLocationMatched>>([]);
 // 是否可见：启用 + 不只有一个时隐藏检查
 const visible = computed(() => {
   if (!breadcrumbPrefs.value.enable) return false;
-  if (breadcrumbPrefs.value.hideOnlyOne && breadcrumbs.value.length <= 1) return false;
-  return true;
+  return !(breadcrumbPrefs.value.hideOnlyOne && breadcrumbs.value.length <= 1);
 });
 
 // 面包屑样式类
@@ -66,10 +66,12 @@ const breadcrumbClass = computed(() => {
   };
 });
 
-// 图标类名处理
+// 图标类名处理（通用：支持任意 UnoCSS 图标集）
+// `prefix:name` → `i-prefix:name`（lucide、fa、mdi 等）
+// 无前缀 → `i-svg:name`（本地 SVG）
 function getIconClass(icon?: string) {
   if (!icon) return "";
-  if (icon.startsWith("lucide:")) return `i-lucide:${icon.replace("lucide:", "")}`;
+  if (icon.includes(":")) return `i-${icon}`;
   return `i-svg:${icon}`;
 }
 

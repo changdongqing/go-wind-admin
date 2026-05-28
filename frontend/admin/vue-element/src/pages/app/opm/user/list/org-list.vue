@@ -35,7 +35,7 @@
               :prefix-icon="Search"
             />
             <ElDropdown trigger="click" @command="handleToolbarClick">
-              <ElLink :underline="false" class="more-btn">
+              <ElLink underline="never" class="more-btn">
                 <ElIcon :size="18">
                   <More />
                 </ElIcon>

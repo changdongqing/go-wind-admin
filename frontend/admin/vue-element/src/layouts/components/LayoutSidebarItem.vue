@@ -54,31 +54,28 @@ defineOptions({
   inheritAttrs: false,
 });
 
-// 菜单图标组件
+// 菜单图标组件（通用图标解析，支持任意 UnoCSS 图标集）
 const MenuIcon = defineComponent({
   props: { icon: String },
   setup(props) {
-    const isElIcon = computed(() => props.icon?.startsWith("el-icon"));
-    const isLucideIcon = computed(() => props.icon?.startsWith("lucide:"));
-    const iconName = computed(() => props.icon?.replace("el-icon-", ""));
-    const lucideName = computed(() => props.icon?.replace("lucide:", ""));
-
     return () => {
       if (!props.icon) {
         return h("div", { class: "i-svg:menu" });
       }
 
-      // Element Plus 图标
-      if (isElIcon.value) {
-        return h(ElIcon, null, () => h(resolveComponent(iconName.value!)));
+      // Element Plus 图标：`el-icon-` 前缀
+      if (props.icon.startsWith("el-icon-")) {
+        const name = props.icon.replace("el-icon-", "");
+        return h(ElIcon, null, () => h(resolveComponent(name)));
       }
 
-      // Lucide 图标
-      if (isLucideIcon.value) {
-        return h("div", { class: `i-lucide:${lucideName.value}` });
+      // UnoCSS 图标集：`prefix:name` 格式 → `i-prefix:name`
+      // 支持 lucide、fa、mdi 等任意在 uno.config.ts 中注册的集合
+      if (props.icon.includes(":")) {
+        return h("div", { class: `i-${props.icon}` });
       }
 
-      // SVG 图标
+      // 无前缀兜底：本地 SVG 图标
       return h("div", { class: `i-svg:${props.icon}` });
     };
   },
@@ -158,8 +155,7 @@ function resolvePath(routePath: string) {
     color: currentcolor;
   }
 
-  [class^="i-svg:"],
-  [class^="i-lucide:"] {
+  [class^="i-"] {
     width: 18px;
     height: 18px;
     font-size: 18px;
@@ -175,8 +171,7 @@ function resolvePath(routePath: string) {
 .el-menu--collapse {
   .el-menu-item,
   .el-sub-menu > .el-sub-menu__title {
-    [class^="i-svg:"],
-    [class^="i-lucide:"] {
+    [class^="i-"] {
       width: 18px !important;
       min-width: 18px !important;
       height: 18px !important;
@@ -191,8 +186,7 @@ function resolvePath(routePath: string) {
 
   /* tooltip 弹出层中的图标 */
   .el-tooltip__trigger {
-    [class^="i-svg:"],
-    [class^="i-lucide:"] {
+    [class^="i-"] {
       width: 18px !important;
       min-width: 18px !important;
       height: 18px !important;
@@ -208,8 +202,7 @@ function resolvePath(routePath: string) {
 
 /* hideSidebar 状态下的图标 */
 .hideSidebar {
-  [class^="i-svg:"],
-  [class^="i-lucide:"] {
+  [class^="i-"] {
     width: 18px !important;
     min-width: 18px !important;
     height: 18px !important;

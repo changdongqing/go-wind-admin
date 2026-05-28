@@ -1,10 +1,13 @@
 <template>
   <section class="app-main" :class="mainClass" :style="{ height: appMainHeight }">
-    <router-view v-if="!isRefreshing">
+    <router-view>
       <template #default="{ Component, route }">
         <transition :name="transitionName" mode="out-in">
           <keep-alive :include="cachedViews">
-            <component :is="currentComponent(Component, route)" :key="route.fullPath" />
+            <component
+              :is="currentComponent(Component, route)"
+              :key="contentRefreshKey ? `${route.fullPath}__${contentRefreshKey}` : route.fullPath"
+            />
           </keep-alive>
         </transition>
       </template>
@@ -28,13 +31,16 @@ const { cachedViews } = toRefs(useTagsViewStore());
 const { tabbarPreferences } = usePreferences();
 
 // 注入刷新状态
-const isRefreshing = inject<Ref<boolean>>("contentRefreshing", ref(false));
+const contentRefreshing = inject<Ref<boolean>>("contentRefreshing", ref(false));
+
+// 刷新 key：每次刷新递增，强制组件重建
+const contentRefreshKey = inject<Ref<number>>("contentRefreshKey", ref(0));
 
 // 当前组件
 const wrapperMap = new Map<string, Component>();
 
 // 刷新时清理 wrapperMap，确保组件完全重建
-watch(isRefreshing, (val) => {
+watch(contentRefreshing, (val) => {
   if (val) {
     wrapperMap.clear();
   }

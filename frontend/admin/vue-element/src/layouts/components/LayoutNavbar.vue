@@ -111,6 +111,9 @@ const settingsVisible = inject<Ref<boolean>>("settingsVisible", ref(false));
 // 注入内容区刷新状态
 const contentRefreshing = inject<Ref<boolean>>("contentRefreshing", ref(false));
 
+// 注入刷新 key
+const contentRefreshKey = inject<Ref<number>>("contentRefreshKey", ref(0));
+
 // 侧边栏是否启用
 const isSidebarEnabled = computed(() => preferences.sidebar.enable);
 
@@ -127,12 +130,10 @@ function toggleSidebarVisibility() {
 function handleRefresh() {
   if (contentRefreshing.value) return;
   contentRefreshing.value = true;
-  // 双重 rAF：第一帧让 Vue 完成 DOM 卸载，第二帧确保浏览器已渲染空状态
-  // 这样 ElForm 的 ResizeObserver 在下一帧触发时容器已不存在，不会报 NaN
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      contentRefreshing.value = false;
-    });
+  // 递增 key 强制组件销毁重建（router-view 保持挂载，不会触发 ResizeObserver 错误）
+  contentRefreshKey.value++;
+  nextTick(() => {
+    contentRefreshing.value = false;
   });
 }
 

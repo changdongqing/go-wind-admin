@@ -7,12 +7,15 @@
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
+
+import { PreferencesPanel } from "@/core/preferences/components";
+import { LayoutType } from "@/core/preferences";
+
 import { useLayout } from "./useLayout";
 
 import LeftLayout from "./LeftLayout.vue";
 import TopLayout from "./TopLayout.vue";
 import MixLayout from "./MixLayout.vue";
-import { PreferencesPanel } from "@/core/preferences/components";
 
 const route = useRoute();
 const { currentLayout } = useLayout();
@@ -20,12 +23,16 @@ const { currentLayout } = useLayout();
 // 设置面板可见性（全局状态）
 const settingsVisible = ref(false);
 
-// 内容区刷新状态（true 时 router-view 卸载，false 时重新挂载）
+// 内容区刷新状态（true 表示正在刷新，用于清理 wrapperMap）
 const contentRefreshing = ref(false);
+
+// 刷新 key：每次刷新递增，改变组件 key 强制重建
+const contentRefreshKey = ref(0);
 
 // 提供给子组件使用
 provide("settingsVisible", settingsVisible);
 provide("contentRefreshing", contentRefreshing);
+provide("contentRefreshKey", contentRefreshKey);
 
 const currentLayoutComponent = computed(() => {
   const override = route.meta?.layout as LayoutType | undefined;

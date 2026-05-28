@@ -25,8 +25,10 @@
 
 <script setup lang="ts">
 import { useWindowSize } from "@vueuse/core";
-import { useLayout } from "./useLayout";
 import { useAccessStore } from "@/stores";
+
+import { useLayout } from "./useLayout";
+
 import BaseLayout from "./BaseLayout.vue";
 import LayoutLogo from "./components/LayoutLogo.vue";
 import LayoutSidebar from "./components/LayoutSidebar.vue";

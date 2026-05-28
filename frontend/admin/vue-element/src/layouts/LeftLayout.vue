@@ -40,8 +40,8 @@
 </template>
 
 <script setup lang="ts">
-import { useLayout } from "./useLayout";
-import { preferences } from "@/core/preferences";
+import { preferences, preferencesManager } from "@/core/preferences";
+
 import BaseLayout from "./BaseLayout.vue";
 import LayoutLogo from "./components/LayoutLogo.vue";
 import LayoutNavbar from "./components/LayoutNavbar.vue";
@@ -49,7 +49,8 @@ import LayoutTagsView from "./components/LayoutTagsView.vue";
 import LayoutMain from "./components/LayoutMain.vue";
 import LayoutSidebar from "./components/LayoutSidebar.vue";
 import SidebarControlPanel from "./components/SidebarControlPanel.vue";
-import { preferencesManager } from "@/core/preferences";
+
+import { useLayout } from "./useLayout";
 
 const { showTagsView, showLogo, isSidebarOpen, toggleSidebar, routes } = useLayout();
 
