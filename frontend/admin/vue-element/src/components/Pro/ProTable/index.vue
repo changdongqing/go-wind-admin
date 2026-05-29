@@ -314,16 +314,29 @@ defineExpose({
   border-radius: var(--pro-table-radius);
   font-size: var(--pro-table-font-size);
 
-  // ======== 列边框：全部去除 border-right ========
+  // ======== 1. 清除所有竖线来源 ========
+  // 1a. 去掉所有列的 border-right / border-left
   .vxe-header--column,
   .vxe-body--column,
   .vxe-footer--column {
     border-right: none !important;
+    border-left: none !important;
   }
 
-  // ======== 表头列间小竖线 ========
-  // 使用 .vxe-cell 的 ::after 伪元素画 1px × 50% 高度的小竖线
-  // 不依赖 vxe-table 的 resizable handle（border--none 模式下可能不渲染）
+  // 1b. 清除所有列的 background-image（vxe-table 用它画列线）
+  .vxe-header--column,
+  .vxe-body--column,
+  .vxe-footer--column {
+    background-image: none !important;
+  }
+
+  // 1c. 隐藏 resizable handle 的伪元素（表头和表体都隐藏）
+  .vxe-cell--col-resizable::before,
+  .vxe-cell--col-resizable::after {
+    display: none !important;
+  }
+
+  // ======== 2. 表头列间小竖线（自定义） ========
   .vxe-header--column .vxe-cell {
     display: flex;
     align-items: center;
@@ -346,22 +359,22 @@ defineExpose({
     display: none;
   }
 
-  // ======== 表头底部横线（分隔表头与表体） ========
+  // ======== 3. 表头底部横线 ========
   .vxe-header--column {
     border-bottom: 1px solid var(--el-border-color-lighter) !important;
   }
 
-  // ======== 表体行间横线 ========
+  // ======== 4. 表体行间横线 ========
   .vxe-body--column {
-    border-bottom: 1px solid var(--el-border-color-extra-light) !important;
+    border-bottom: 1px solid var(--el-border-color-lighter) !important;
   }
 
-  // ======== 表头单元格文本色 ========
+  // ======== 5. 文本色 ========
+  // 表头
   .vxe-table--header-wrapper .vxe-header--column .vxe-cell {
     color: var(--el-text-color-primary);
   }
-
-  // 表项单元格默认文本色
+  // 表项
   .vxe-body--column .vxe-cell {
     color: var(--el-text-color-regular);
   }
