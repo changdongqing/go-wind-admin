@@ -14,8 +14,9 @@
       @checkbox-change="handleVxeSelectionChange"
       @checkbox-all="handleVxeSelectionChange"
       @current-change="handleVxeCurrentChange"
+      @sort-change="handleSortChange"
     >
-      <template v-for="col in resolvedColumns" :key="col.prop ?? col.type">
+      <template v-for="(col, colIdx) in resolvedColumns" :key="col.prop ?? col.type ?? colIdx">
         <vxe-column v-if="col.type === 'selection'" type="checkbox" width="50" align="center" />
         <vxe-column v-else-if="col.type === 'index'" type="seq" width="60" align="center" />
         <vxe-column v-else-if="col.type === 'expand'" type="expand">
@@ -37,7 +38,8 @@
                 : undefined
           "
           :align="col.align || 'center'"
-          :sortable="col.sortable === true"
+          :sortable="!!col.sortable"
+          :show-overflow="col.showOverflowTooltip ? 'tooltip' : false"
           :resizable="col.resizable !== false"
           :tree-node="col.treeNode"
           :cell-style="col.cellStyle"
@@ -77,8 +79,9 @@
       v-bind="tableAttrs"
       @selection-change="handleElSelectionChange"
       @current-change="handleElCurrentChange"
+      @sort-change="handleSortChange"
     >
-      <template v-for="col in resolvedColumns" :key="col.prop ?? col.type">
+      <template v-for="(col, colIdx) in resolvedColumns" :key="col.prop ?? col.type ?? colIdx">
         <ElTableColumn
           v-if="col.type === 'selection'"
           type="selection"
@@ -165,6 +168,7 @@ const emit = defineEmits<{
   "current-change": [currentPage: number];
   "size-change": [pageSize: number];
   "row-click": [row: T];
+  "sort-change": [data: { prop: string; order: string | null }];
 }>();
 
 const tableRef = ref<any>(null);
@@ -228,24 +232,30 @@ function handleElCurrentChange(row: T) {
   emit("row-click", row);
 }
 
+function handleSortChange(data: any) {
+  const prop = data.prop ?? data.property ?? data.field;
+  const order = data.order;
+  emit("sort-change", { prop, order });
+}
+
 defineExpose({
   tableRef,
   resolvedColumns,
   getSelectionRows: () => {
-    if (engine === "vxe") {
+    if (props.engine === "vxe") {
       return tableRef.value?.getCheckboxRecords?.();
     }
     return tableRef.value?.getSelectionRows?.();
   },
   clearSelection: () => {
-    if (engine === "vxe") {
+    if (props.engine === "vxe") {
       tableRef.value?.clearCheckboxRow?.();
     } else {
       tableRef.value?.clearSelection?.();
     }
   },
   toggleRowSelection: (row: T, selected?: boolean) => {
-    if (engine === "vxe") {
+    if (props.engine === "vxe") {
       tableRef.value?.setCheckboxRow?.(row, selected ?? true);
     } else {
       tableRef.value?.toggleRowSelection?.(row, selected);
@@ -272,6 +282,14 @@ defineExpose({
   .vxe-header--column,
   .vxe-footer--column {
     border-right: none !important;
+  }
+
+  .vxe-body--row {
+    height: var(--pro-table-row-height);
+  }
+
+  .vxe-header--row {
+    height: var(--pro-table-header-height);
   }
 
   .vxe-table--header-wrapper .vxe-header--column .vxe-cell {

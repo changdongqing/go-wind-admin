@@ -1,15 +1,20 @@
+import type { ButtonProps } from "element-plus";
 import type { DialogProps, DrawerProps } from "element-plus";
 import type { ProFormField } from "../ProForm/types";
 import type { ProTableColumn, TableEngine } from "../ProTable/types";
 
 export type ToolbarLeft = "add" | "delete" | "import" | "export";
-export type ToolbarRight = "refresh" | "filter" | "search" | "zoom";
+export type ToolbarRight = "refresh" | "filter" | "search" | "exports" | "imports" | "zoom";
 
 export interface ToolsButton {
   name: string;
   label?: string;
+  icon?: string;
   auth?: string | string[];
-  attrs?: Record<string, any>;
+  attrs?: Partial<ButtonProps> & { style?: any };
+  hidden?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
   visible?: (...args: any[]) => boolean;
 }
 

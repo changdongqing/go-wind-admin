@@ -157,7 +157,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
     toolbar: [],
     toolbarRight: [],
     defaultToolbar: ["refresh", "exports", "filter"],
-    tableAttrs: { border: true, stripe: false },
+    tableAttrs: { border: true, stripe: true },
     columns: [
       {
         prop: "createdAt",

@@ -21,10 +21,6 @@
         :default-toolbar="defaultToolbarButtons"
         :columns="filterColumns"
         @button-click="handleToolbarClick"
-        @refresh="handleRefresh"
-        @search="toggleSearch"
-        @export="openExportsModal"
-        @import="openImportsModal"
         @zoom="handleZoom"
         @filter-change="handleFilterChange"
       >
@@ -117,7 +113,7 @@ import ImportModal from "./ImportModal.vue";
 import { useTableState } from "../composables/useTableState";
 import { useModalState } from "../composables/useModalState";
 
-import type { ToolbarButton } from "../ProToolbar/types";
+import type { ToolbarButton, ToolbarCustomButton, ToolbarRightType } from "../ProToolbar/types";
 import type { ProPageConfig, ToolsButton, ToolbarRight } from "./types";
 
 const props = defineProps<{ config: ProPageConfig<T, Q> }>();
@@ -161,7 +157,7 @@ const importModalRef = ref<InstanceType<typeof ImportModal>>();
 const tableData = computed(() => tableState.data.value);
 
 // === 选中数据（用于导出） ===
-const selectionData = computed(() => tableRef.value?.getSelectionRows?.() ?? []);
+const selectionData = computed(() => tableState.selection.value);
 
 // === filter 列显隐 ===
 // vxe-table 引擎由 customConfig 接管列显隐；el-table 引擎使用 checkbox
@@ -237,19 +233,33 @@ const leftButtons = computed(() => toToolbarButtons(props.config.table.toolbar))
 const rightButtons = computed(() => toToolbarButtons(props.config.table.toolbarRight));
 const defaultToolbarButtons = computed(() => {
   const dt = props.config.table.defaultToolbar;
-  if (!dt?.length) return ["refresh", "filter", "search"] as Array<ToolbarRight | ToolsButton>;
-  return dt;
+  if (!dt?.length) return ["refresh", "filter", "search"] as Array<ToolbarRightType | ToolbarCustomButton>;
+  return dt.map((item) => {
+    if (typeof item === "string") return item as ToolbarRightType;
+    // ToolsButton (label) -> ToolbarCustomButton (text)
+    return {
+      name: item.name,
+      text: item.label,
+      icon: item.icon,
+      auth: item.auth,
+      attrs: item.attrs,
+      hidden: item.hidden,
+      disabled: item.disabled,
+      loading: item.loading,
+      visible: item.visible,
+    } as ToolbarCustomButton;
+  });
 });
 
 // === 搜索处理 ===
-function handleSearch(params: Q) {
+function handleSearch(params: Record<string, any>) {
   Object.keys(searchParams).forEach((k) => delete (searchParams as any)[k]);
   Object.assign(searchParams, params);
   tableState.fetch(searchParams, true);
   emit("search", { ...searchParams } as Q);
 }
 
-function handleReset(params: Q) {
+function handleReset(params: Record<string, any>) {
   Object.keys(searchParams).forEach((k) => delete (searchParams as any)[k]);
   Object.assign(searchParams, params);
   tableState.fetch(searchParams, true);
@@ -277,9 +287,11 @@ function handleToolbarClick(name: string) {
       handleBatchDelete();
       break;
     case "export":
+    case "exports":
       openExportsModal();
       break;
     case "import":
+    case "imports":
       openImportsModal();
       break;
     case "refresh":

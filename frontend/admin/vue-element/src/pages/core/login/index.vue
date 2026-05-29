@@ -207,27 +207,16 @@ const formComponents = {
 
   .brand-info {
     .brand-title {
-      font-size: 18px;
-      font-weight: 500;
-      color: #a0aec0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1d28;
       margin: 0 0 8px 0;
-
-      html:not(.dark) & {
-        font-size: 20px;
-        font-weight: 600;
-        color: #1a1d28;
-      }
     }
 
     .brand-desc {
-      font-size: 12px;
-      color: #6b7a8d;
+      font-size: 13px;
+      color: #6b7280;
       margin: 0;
-
-      html:not(.dark) & {
-        font-size: 13px;
-        color: #6b7280;
-      }
     }
   }
 }

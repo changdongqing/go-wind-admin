@@ -233,3 +233,12 @@
     font-weight: 600 !important;
   }
 }
+
+// ============================================
+// 斑马纹强制覆盖
+// 使用选择器 + !important 确保不被 vxe-table 内置样式覆盖
+// ============================================
+
+.vxe-table--render-default .vxe-body--row.row--stripe > .vxe-body--column {
+  background-color: var(--vxe-ui-table-row-striped-background-color) !important;
+}
