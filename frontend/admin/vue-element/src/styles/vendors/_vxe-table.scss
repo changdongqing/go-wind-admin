@@ -161,17 +161,35 @@
 }
 
 // ============================================
-// 去掉列分割线（暗色模式）
-// 浅色模式保留细微边框
+// 列分割线策略：表头保留列线，表项去除列线
+// 表头：需要列分割线帮助区分列标题
+// 表项：只保留行间水平线，不需要列间竖线
 // ============================================
 
-[data-vxe-ui-theme="dark"] .vxe-table {
-  // 去掉列之间的边框
+// 1. 表项去除列线（border-right）
+.vxe-table {
   .vxe-body--column,
-  .vxe-header--column,
   .vxe-footer--column {
     border-right: none !important;
   }
+}
+
+// 2. 覆盖 border--default/inner/full 的 background-image（表项列线）
+.vxe-table--render-default {
+  &.border--default,
+  &.border--inner,
+  &.border--full {
+    .vxe-body--column,
+    .vxe-footer--column {
+      background-image: none !important;
+    }
+  }
+}
+
+// 3. 隐藏表项的 resizable handle 竖线伪元素
+// 表头的保留（帮助区分列标题）
+.vxe-table .vxe-body--column .vxe-cell--col-resizable::before {
+  display: none !important;
 }
 
 // 浅色模式保留整体边框
@@ -219,48 +237,44 @@
 }
 
 // ============================================
-// 表头下边框（明暗模式）
+// 表头下边框由 vxe-table 自身 border--outer 机制提供
+// 不再手动添加，避免与内置线重叠形成"双下巴"
 // ============================================
 
-// 浅色模式
-[data-vxe-ui-theme="light"] .vxe-table {
-  .vxe-header--column .vxe-cell {
-    border-bottom: 1px solid #e5e6eb;
-  }
-}
-
-// 暗色模式
-[data-vxe-ui-theme="dark"] .vxe-table {
-  .vxe-header--column .vxe-cell {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  // 移除手动添加的表项底边框，使用 vxe-table 自身边框系统
-  // 避免最后一行出现多余细线
-}
-
 // ============================================
-// 去除数据行内部线
-// vxe-table 的内部线不是用 border 画的，而是用 background-image: linear-gradient()
-// 同时将 body 区域的边框颜色变量设为透明，确保所有来源的线都不可见
+// 数据行水平分割线
+// vxe-table 使用 background-image: linear-gradient() 绘制行间水平线
+// 恢复行间水平分割线（border:outer 模式下只保留外边框，不显示列间线）
 // ============================================
 
-// 方案1: 覆盖 background-image（vxe-table 用此画线）
-.vxe-table--render-default {
-  &.border--outer,
-  &.border--inner,
-  &.border--default,
-  &.border--full {
+// 浅色模式：保留行间水平分割线
+[data-vxe-ui-theme="light"] .vxe-table--render-default {
+  &.border--outer {
     .vxe-body--column {
-      background-image: none !important;
+      background-image: linear-gradient(
+        var(--vxe-ui-table-border-color),
+        var(--vxe-ui-table-border-color)
+      ) !important;
+      background-repeat: no-repeat !important;
+      background-size: 100% 1px !important;
+      background-position: bottom !important;
     }
   }
 }
 
-// 方案2: 将 body 区域的 --vxe-ui-table-border-color 设为透明
-// 这样无论用什么方式画的线（border、background-image、outline 等）都会不可见
-.vxe-table--render-default .vxe-table--body-wrapper {
-  --vxe-ui-table-border-color: transparent;
+// 暗色模式：保留行间水平分割线
+[data-vxe-ui-theme="dark"] .vxe-table--render-default {
+  &.border--outer {
+    .vxe-body--column {
+      background-image: linear-gradient(
+        var(--vxe-ui-table-border-color),
+        var(--vxe-ui-table-border-color)
+      ) !important;
+      background-repeat: no-repeat !important;
+      background-size: 100% 1px !important;
+      background-position: bottom !important;
+    }
+  }
 }
 
 // ============================================

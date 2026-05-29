@@ -314,13 +314,10 @@ defineExpose({
   border-radius: var(--pro-table-radius);
   font-size: var(--pro-table-font-size);
 
-  // 暗色模式去掉列分割线（border:outer 仍会在列间渲染细线）
-  [data-vxe-ui-theme="dark"] & {
-    .vxe-body--column,
-    .vxe-header--column,
-    .vxe-footer--column {
-      border-right: none !important;
-    }
+  // 去掉表项列分割线（表头保留列线）
+  .vxe-body--column,
+  .vxe-footer--column {
+    border-right: none !important;
   }
 
   .vxe-table--header-wrapper .vxe-header--column .vxe-cell {
