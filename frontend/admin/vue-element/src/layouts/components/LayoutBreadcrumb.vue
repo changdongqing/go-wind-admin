@@ -17,7 +17,7 @@
     <el-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="item.path">
       <span
         v-if="item.redirect === 'noredirect' || index === breadcrumbs.length - 1"
-        class="color-gray-400"
+        class="breadcrumb__current"
       >
         <SvgIcon
           v-if="breadcrumbPrefs.showIcon && item.meta?.icon"
@@ -171,6 +171,11 @@ onBeforeMount(() => {
       display: inline-flex;
       align-items: center;
     }
+  }
+
+  &__current {
+    // 当前页和非可跳转中间页的默认颜色，由 :last-child 规则覆盖当前页
+    color: #909399;
   }
 
   &__icon,

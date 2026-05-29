@@ -138,14 +138,14 @@ const pageConfig = computed<ProPageConfig>(() => ({
       },
       { prop: "description", label: $t("pages.position.description"), minWidth: 150 },
       { prop: "orgUnitName", label: $t("pages.position.orgUnitName"), minWidth: 120 },
-      { prop: "headcount", label: $t("pages.position.headcount"), width: 80 },
+      { prop: "headcount", label: $t("pages.position.headcount"), width: 80, align: "right" },
       {
         prop: "status",
         label: $t("common.table.status"),
         minWidth: 100,
         slotName: "status",
       },
-      { prop: "sortOrder", label: $t("common.table.sortOrder"), width: 80 },
+      { prop: "sortOrder", label: $t("common.table.sortOrder"), width: 80, align: "right" },
       {
         prop: "createdAt",
         label: $t("common.table.createdAt"),

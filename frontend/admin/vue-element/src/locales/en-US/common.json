@@ -74,7 +74,8 @@
     }
   },
   "table": {
-    "seq": "Seq",
+    "seq": "No.",
+    "noData": "No Data",
     "status": "Status",
     "createdAt": "Created At",
     "remark": "Remark",
@@ -120,6 +121,14 @@
   "confirm": {
     "do_you_want_delete": "Are you sure you want to delete this {moduleName}?",
     "do_you_want_sync": "Are you sure you want to sync {moduleName} permissions?"
+  },
+  "commandPalette": {
+    "searchMenu": "Search Menu",
+    "openSearch": "Open search panel",
+    "close": "Close",
+    "noHistory": "No search history",
+    "switch": "Switch",
+    "select": "Select"
   },
   "navbar": {
     "profile": "Profile",

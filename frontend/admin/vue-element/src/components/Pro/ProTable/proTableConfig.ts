@@ -12,7 +12,7 @@ export const proTableGlobalConfig: ProTableConfig = {
   stripe: true,
   borderRadius: 6,
   fontSize: 13,
-  emptyText: "暂无数据",
+  emptyText: "common.table.noData",
 
   pagination: {
     show: true,

@@ -88,7 +88,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
       { prop: "fileName", label: $t("pages.file.fileName"), minWidth: 150 },
       { prop: "saveFileName", label: $t("pages.file.saveFileName"), minWidth: 150 },
       { prop: "fileDirectory", label: $t("pages.file.fileDirectory"), minWidth: 150 },
-      { prop: "sizeFormat", label: $t("pages.file.size"), width: 100 },
+      { prop: "sizeFormat", label: $t("pages.file.size"), width: 100, align: "right" },
       {
         prop: "createdAt",
         label: $t("common.table.createdAt"),

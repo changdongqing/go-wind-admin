@@ -418,20 +418,20 @@ defineExpose({
       // stylelint-disable-next-line selector-max-universal
       &:not(.el-button--primary):not(.el-button--danger):not(.el-button--success):not(.el-button--warning):not(.el-button--info):not(.is-circle) {
         --el-button-bg-color: rgba(255, 255, 255, 0.06);
-        --el-button-border-color: rgba(255, 255, 255, 0.12);
+        --el-button-border-color: rgba(255, 255, 255, 0.15);
         --el-button-text-color: var(--el-text-color-regular);
         --el-button-hover-bg-color: rgba(255, 255, 255, 0.1);
-        --el-button-hover-border-color: rgba(255, 255, 255, 0.2);
+        --el-button-hover-border-color: rgba(255, 255, 255, 0.25);
         --el-button-hover-text-color: var(--el-text-color-primary);
 
         background-color: rgba(255, 255, 255, 0.06) !important;
-        border-color: rgba(255, 255, 255, 0.12) !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
         color: var(--el-text-color-regular) !important;
 
         &:hover,
         &:focus {
           background-color: rgba(255, 255, 255, 0.1) !important;
-          border-color: rgba(255, 255, 255, 0.2) !important;
+          border-color: rgba(255, 255, 255, 0.25) !important;
           color: var(--el-text-color-primary) !important;
         }
       }

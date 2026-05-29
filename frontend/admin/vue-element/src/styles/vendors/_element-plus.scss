@@ -182,6 +182,29 @@ html.dark {
     padding-top: 2px;
     padding-bottom: 2px;
   }
+
+  // 空状态：居中图标 + 文本
+  .el-table__empty-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+  }
+
+  .el-table__empty-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--el-text-color-placeholder);
+
+    .el-icon {
+      font-size: 48px;
+      color: var(--el-text-color-placeholder);
+      margin-bottom: 8px;
+    }
+  }
 }
 
 /* ---------- 输入框精致化 ---------- */

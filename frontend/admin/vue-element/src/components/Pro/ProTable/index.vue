@@ -20,7 +20,7 @@
     >
       <template v-for="(col, colIdx) in resolvedColumns" :key="col.prop ?? col.type ?? colIdx">
         <vxe-column v-if="col.type === 'selection'" type="checkbox" width="50" align="center" />
-        <vxe-column v-else-if="col.type === 'index'" type="seq" width="60" align="center" />
+        <vxe-column v-else-if="col.type === 'index'" type="seq" :title="col.label" :width="col.width ?? 60" align="center" />
         <vxe-column v-else-if="col.type === 'expand'" type="expand">
           <template #default="scope">
             <slot name="expand" v-bind="scope" />
@@ -69,6 +69,12 @@
           </template>
         </vxe-column>
       </template>
+      <template #empty>
+        <div class="pro-table__empty">
+          <IconifyIcon icon="lucide:inbox" class="pro-table__empty-icon" />
+          <span>{{ t(tableConfig.emptyText ?? "common.table.noData") }}</span>
+        </div>
+      </template>
     </vxe-table>
 
     <ElTable
@@ -91,7 +97,7 @@
           width="50"
           :reserve-selection="col.reserveSelection ?? true"
         />
-        <ElTableColumn v-else-if="col.type === 'index'" type="index" width="60" />
+        <ElTableColumn v-else-if="col.type === 'index'" type="index" :label="col.label" :width="col.width ?? 60" />
         <ElTableColumn v-else-if="col.type === 'expand'" type="expand">
           <template #default="scope">
             <slot name="expand" v-bind="scope" />
@@ -132,6 +138,12 @@
           </template>
         </ElTableColumn>
       </template>
+      <template #empty>
+        <div class="pro-table__empty">
+          <IconifyIcon icon="lucide:inbox" class="pro-table__empty-icon" />
+          <span>{{ t(tableConfig.emptyText ?? "common.table.noData") }}</span>
+        </div>
+      </template>
     </ElTable>
 
     <ProPagination
@@ -150,6 +162,7 @@
 
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { ElTable, ElTableColumn } from "element-plus";
 import ProPagination from "../ProPagination/index.vue";
 import ProTableCellContent from "./ProTableCellContent.vue";
@@ -163,6 +176,8 @@ const props = withDefaults(defineProps<ProTableProps<T>>(), {
   currentPage: 1,
   pageSize: 20,
 });
+
+const { t } = useI18n();
 
 const emit = defineEmits<{
   "selection-change": [rows: T[]];
@@ -227,7 +242,6 @@ const tableStyle = computed(() => ({
 
 const tableAttrs = computed(() => ({
   stripe: tableConfig.value.stripe,
-  emptyText: tableConfig.value.emptyText,
   ...props.table,
 }));
 
@@ -399,8 +413,7 @@ defineExpose({
   }
 
   .vxe-table--empty-content {
-    color: var(--el-text-color-placeholder);
-    padding: 32px 0;
+    padding: 0;
   }
 }
 
@@ -423,8 +436,23 @@ defineExpose({
   }
 
   .el-table__empty-block {
+    padding: 0;
+  }
+}
+
+// 空状态：图标 + 文本
+.pro-table__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 0;
+  color: var(--el-text-color-placeholder);
+
+  &-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
     color: var(--el-text-color-placeholder);
-    padding: 32px 0;
   }
 }
 </style>

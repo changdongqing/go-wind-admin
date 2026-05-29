@@ -173,7 +173,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
         minWidth: 150,
         slotName: "geoLocation",
       },
-      { prop: "ipAddress", label: $t("pages.permission_audit_log.ipAddress"), width: 140 },
+      { prop: "ipAddress", label: $t("pages.permission_audit_log.ipAddress"), width: 140, align: "right" },
     ],
   },
 }));

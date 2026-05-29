@@ -4,14 +4,14 @@
       class="command-palette-trigger"
       role="button"
       tabindex="0"
-      aria-label="打开搜索面板"
+      :aria-label="$t('common.commandPalette.openSearch')"
       @click="open"
       @keydown.enter.prevent="open"
       @keydown.space.prevent="open"
     >
       <div class="command-palette-trigger__left">
         <SvgIcon icon="search" />
-        <span class="command-palette-trigger__text">搜索菜单</span>
+        <span class="command-palette-trigger__text">{{ $t('common.commandPalette.searchMenu') }}</span>
       </div>
       <kbd class="command-palette-trigger__kbd">Ctrl K</kbd>
     </div>
@@ -28,7 +28,7 @@
           ref="inputRef"
           v-model="keyword"
           class="command-palette-input"
-          placeholder="搜索菜单"
+          :placeholder="$t('common.commandPalette.searchMenu')"
           @input="onSearch"
           @keydown="handleInputKeydown"
         >
@@ -37,13 +37,13 @@
           </template>
           <template #suffix>
             <div class="command-palette-input__suffix">
-              <SvgIcon icon="close" role="button" tabindex="0" aria-label="关闭" @click="close" />
+              <SvgIcon icon="close" role="button" tabindex="0" :aria-label="$t('common.commandPalette.close')" @click="close" />
             </div>
           </template>
         </el-input>
 
         <div class="command-palette-results">
-          <div v-if="displayList.length === 0" class="command-palette-empty">没有搜索历史</div>
+          <div v-if="displayList.length === 0" class="command-palette-empty">{{ $t('common.commandPalette.noHistory') }}</div>
 
           <ul v-else class="command-palette-list">
             <li
@@ -63,15 +63,15 @@
           <div class="command-palette-hint">
             <div class="command-palette-hint__key"><SvgIcon icon="up" /></div>
             <div class="command-palette-hint__key"><SvgIcon icon="down" /></div>
-            <span class="command-palette-hint__text">切换</span>
+            <span class="command-palette-hint__text">{{ $t('common.commandPalette.switch') }}</span>
           </div>
           <div class="command-palette-hint">
             <div class="command-palette-hint__key"><SvgIcon icon="enter" /></div>
-            <span class="command-palette-hint__text">选择</span>
+            <span class="command-palette-hint__text">{{ $t('common.commandPalette.select') }}</span>
           </div>
           <div class="command-palette-hint">
             <div class="command-palette-hint__key"><SvgIcon icon="esc" /></div>
-            <span class="command-palette-hint__text">关闭</span>
+            <span class="command-palette-hint__text">{{ $t('common.commandPalette.close') }}</span>
           </div>
         </div>
       </div>

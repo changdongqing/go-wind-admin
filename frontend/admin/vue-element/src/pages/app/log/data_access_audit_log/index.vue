@@ -193,7 +193,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
         label: $t("pages.data_access_audit_log.dataCategory"),
         minWidth: 150,
       },
-      { prop: "latencyMs", label: $t("pages.data_access_audit_log.latencyMs"), width: 120 },
+      { prop: "latencyMs", label: $t("pages.data_access_audit_log.latencyMs"), width: 120, align: "right" },
       { prop: "username", label: $t("pages.data_access_audit_log.username"), minWidth: 120 },
       {
         prop: "geoLocation",
@@ -201,7 +201,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
         minWidth: 150,
         slotName: "geoLocation",
       },
-      { prop: "ipAddress", label: $t("pages.data_access_audit_log.ipAddress"), width: 140 },
+      { prop: "ipAddress", label: $t("pages.data_access_audit_log.ipAddress"), width: 140, align: "right" },
     ],
   },
 }));

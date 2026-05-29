@@ -103,11 +103,13 @@ const pageConfig = computed<ProPageConfig>(() => ({
         prop: "numericValue",
         label: $t("pages.dict.numericValue"),
         minWidth: 95,
+        align: "right",
       },
       {
         prop: "sortOrder",
         label: $t("common.table.sortOrder"),
         width: 95,
+        align: "right",
       },
       {
         prop: "isEnabled",

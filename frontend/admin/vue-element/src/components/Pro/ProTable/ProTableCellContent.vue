@@ -12,7 +12,10 @@
     @modify="(d: any) => emit('modify', d)"
     @operate="(d: any) => emit('operate', d)"
   />
-  <span v-else>{{ field ? row[field] : "" }}</span>
+  <span v-else-if="field" :class="{ 'pro-table__empty-cell': isEmptyValue(row[field]) }">
+    {{ isEmptyValue(row[field]) ? "-" : row[field] }}
+  </span>
+  <span v-else></span>
 </template>
 
 <script setup lang="ts">
@@ -38,4 +41,16 @@ const renderer = computed<Component | undefined>(() => {
   if (!type || type === "custom") return undefined;
   return getCellRenderer(type);
 });
+
+// 判断是否为空值（null、undefined、空字符串）
+function isEmptyValue(val: any): boolean {
+  return val === null || val === undefined || val === "";
+}
 </script>
+
+<style scoped lang="scss">
+// 空值单元格样式：浅灰色短横线
+.pro-table__empty-cell {
+  color: #c0c4cc;
+}
+</style>

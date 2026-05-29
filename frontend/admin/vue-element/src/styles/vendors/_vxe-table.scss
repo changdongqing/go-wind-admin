@@ -273,3 +273,70 @@
     background-color: var(--el-color-primary-light-8) !important;
   }
 }
+
+// ============================================
+// 树形表格优化
+// ============================================
+
+.vxe-table {
+  // 树形展开图标：增大点击热区
+  .vxe-cell--tree-node {
+    // 扩大点击区域：左右各加 4px
+    padding: 0 4px;
+
+    // 展开/收起图标本身
+    .vxe-tree--expand-btn {
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: var(--el-fill-color-light);
+      }
+
+      // 图标尺寸
+      .vxe-icon--caret-right,
+      .vxe-icon--caret-bottom {
+        font-size: 14px;
+      }
+    }
+
+    // 子节点缩进量
+    .vxe-tree--indent {
+      width: 24px;
+    }
+  }
+}
+
+// ============================================
+// 空状态样式：居中图标 + 文本
+// ============================================
+
+.vxe-table {
+  .vxe-table--empty-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+  }
+
+  .vxe-table--empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--el-text-color-placeholder);
+
+    .vxe-icon--empty {
+      font-size: 48px;
+      color: var(--el-text-color-placeholder);
+      margin-bottom: 8px;
+    }
+  }
+}

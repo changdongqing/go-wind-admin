@@ -216,6 +216,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
         prop: "latencyMs",
         label: $t("pages.api_audit_log.latencyMs"),
         width: 120,
+        align: "right",
       },
       {
         prop: "platform",
@@ -233,6 +234,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
         prop: "ipAddress",
         label: $t("pages.api_audit_log.ipAddress"),
         width: 140,
+        align: "right",
       },
     ],
   },

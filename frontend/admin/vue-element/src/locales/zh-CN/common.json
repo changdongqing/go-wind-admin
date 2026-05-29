@@ -75,6 +75,7 @@
   },
   "table": {
     "seq": "序号",
+    "noData": "暂无数据",
     "status": "状态",
     "createdAt": "创建时间",
     "remark": "备注",
@@ -120,6 +121,14 @@
   "confirm": {
     "do_you_want_delete": "确定要删除该{moduleName}吗？",
     "do_you_want_sync": "确定要同步{moduleName}权限吗？"
+  },
+  "commandPalette": {
+    "searchMenu": "搜索菜单",
+    "openSearch": "打开搜索面板",
+    "close": "关闭",
+    "noHistory": "没有搜索历史",
+    "switch": "切换",
+    "select": "选择"
   },
   "navbar": {
     "profile": "个人中心",

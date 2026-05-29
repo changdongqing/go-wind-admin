@@ -88,6 +88,7 @@ const SwitchCell = defineComponent({
         },
         activeValue: props.col.activeValue ?? 1,
         inactiveValue: props.col.inactiveValue ?? 0,
+        inlinePrompt: false, // 不显示文本，只显示开关图标
       });
     };
   },
@@ -119,7 +120,7 @@ const ToolCell = defineComponent({
   setup(props, { emit }) {
     return () => {
       const buttons = props.col.buttons ?? [];
-      return h("div", { class: "flex items-center justify-center gap-1" }, [
+      return h("div", { class: "flex items-center justify-center gap-2" }, [
         buttons.map((btn: any) => {
           const codes = btn.auth ? (Array.isArray(btn.auth) ? btn.auth : [btn.auth]) : undefined;
           const visible = btn.visible?.(props.row) ?? true;

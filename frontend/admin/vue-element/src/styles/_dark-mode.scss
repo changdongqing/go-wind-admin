@@ -405,6 +405,33 @@ html.dark {
   }
 
   // ============================================
+  // Pro 工具栏按钮（ProToolbar）
+  // ============================================
+  .pro-toolbar .toolbar-left .el-button,
+  .pro-toolbar .toolbar-right .el-button {
+    height: 32px !important;
+    border-radius: 6px !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+
+    // 重置/default 按钮 — 使用亮色模式相同的设计语言，颜色适配暗色背景
+    // stylelint-disable-next-line selector-max-universal
+    &:not(.el-button--primary):not(.el-button--danger):not(.el-button--success):not(.el-button--warning):not(.el-button--info):not(.is-circle) {
+      background-color: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      color: var(--el-text-color-regular) !important;
+
+      &:hover,
+      &:focus {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.25) !important;
+        color: var(--el-text-color-primary) !important;
+      }
+    }
+  }
+
+  // ============================================
   // 表格暗色模式专项适配
   // ============================================
 

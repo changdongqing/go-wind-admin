@@ -78,7 +78,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
     columns: [
       { prop: "name", label: $t("pages.internal_message_category.name"), minWidth: 150 },
       { prop: "code", label: $t("pages.internal_message_category.code"), minWidth: 150 },
-      { prop: "sortOrder", label: $t("common.table.sortOrder"), width: 70 },
+      { prop: "sortOrder", label: $t("common.table.sortOrder"), width: 70, align: "right" },
       {
         prop: "isEnabled",
         label: $t("common.table.status"),

@@ -16,7 +16,7 @@ export function configureVxeTable() {
       showHeaderOverflow: "title",
       autoResize: true,
       border: "outer",
-      emptyText: "暂无数据",
+      emptyText: "暂无数据", // vxe-table 内部使用，不需要 i18n
       rowConfig: {
         isHover: true,
         isCurrent: true,

@@ -13,8 +13,6 @@
         <ElSwitch
           v-model="scope.row.enable"
           :loading="scope.row.pending"
-          :active-text="$t('common.switch.active')"
-          :inactive-text="$t('common.switch.inactive')"
           @change="(value: string | number | boolean) => handleEnableChanged(scope.row, !!value)"
         />
       </template>

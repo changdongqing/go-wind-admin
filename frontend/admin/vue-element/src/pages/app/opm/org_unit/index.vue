@@ -136,7 +136,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
         minWidth: 100,
         slotName: "status",
       },
-      { prop: "sortOrder", label: $t("common.table.sortOrder"), width: 80 },
+      { prop: "sortOrder", label: $t("common.table.sortOrder"), width: 80, align: "right" },
       {
         prop: "createdAt",
         label: $t("common.table.createdAt"),

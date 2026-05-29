@@ -182,7 +182,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
         tagTypeMap: httpMethodTagTypeMap,
       },
       { prop: "path", label: $t("pages.api_audit_log.path"), minWidth: 200 },
-      { prop: "latencyMs", label: $t("pages.api_audit_log.latencyMs"), width: 120 },
+      { prop: "latencyMs", label: $t("pages.api_audit_log.latencyMs"), width: 120, align: "right" },
       {
         prop: "deviceInfo.platform",
         label: $t("pages.api_audit_log.platform"),
@@ -195,7 +195,7 @@ const pageConfig = computed<ProPageConfig>(() => ({
         minWidth: 150,
         slotName: "geoLocation",
       },
-      { prop: "ipAddress", label: $t("pages.api_audit_log.ipAddress"), width: 140 },
+      { prop: "ipAddress", label: $t("pages.api_audit_log.ipAddress"), width: 140, align: "right" },
     ],
   },
 }));
