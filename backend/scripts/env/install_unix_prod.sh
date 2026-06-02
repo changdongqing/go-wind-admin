@@ -28,6 +28,7 @@ source "${_LIB_DIR}/basic-tools.sh"
 source "${_LIB_DIR}/docker-utils.sh"
 source "${_LIB_DIR}/nodejs-utils.sh"
 source "${_LIB_DIR}/go-utils.sh"
+source "${_LIB_DIR}/host-utils.sh"
 
 # 错误处理
 trap 'err_trap $LINENO' ERR
@@ -56,6 +57,28 @@ cleanup() {
       brew cleanup --prune=30 2>/dev/null || true
       ;;
   esac
+}
+
+maybe_initialize_hosts() {
+  local auto_init="${AUTO_INIT_HOSTS:-false}"
+
+  if [[ ! "$auto_init" =~ ^(1|true|TRUE|yes|YES)$ ]]; then
+    log "  [跳过] hosts 初始化未启用 (设置 AUTO_INIT_HOSTS=true 可开启)"
+    return 0
+  fi
+
+  local hosts_ip="${HOSTS_IP:-127.0.0.1}"
+  local hosts_domain_suffix="${HOSTS_DOMAIN_SUFFIX:-.local}"
+  local hosts_services="${HOSTS_SERVICES:-postgres mysql redis}"
+
+  read -r -a services <<< "$hosts_services"
+  if [ "${#services[@]}" -eq 0 ]; then
+    warn "HOSTS_SERVICES 为空，跳过 hosts 初始化"
+    return 0
+  fi
+
+  log "初始化 hosts 记录..."
+  initialize_hosts "$hosts_ip" "$hosts_domain_suffix" "${services[@]}"
 }
 
 # ============================================================================
@@ -87,6 +110,7 @@ main() {
   install_nodejs_and_pm2 "$pkg_mgr"
   install_docker "$pkg_mgr" "$docker_setup"
   install_golang
+  maybe_initialize_hosts
   cleanup "$pkg_mgr"
 
   log ""
