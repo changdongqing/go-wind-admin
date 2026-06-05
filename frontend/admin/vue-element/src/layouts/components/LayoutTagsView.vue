@@ -1033,7 +1033,8 @@ $chrome-radius: 7px;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 120px;
-    line-height: 1;
+    // flex 父级 align-items:center 已负责垂直居中，这里用 normal 避免 span 行高异常
+    line-height: normal;
   }
 
   // ==================== 关闭/固定按钮 ====================

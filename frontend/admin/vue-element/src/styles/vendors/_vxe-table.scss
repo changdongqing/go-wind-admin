@@ -362,3 +362,32 @@
     }
   }
 }
+
+// ============================================
+// VxeTable 单元格 flex 垂直居中
+// 修复不同语种（中/韩/日/俄/西）字符基线差导致文字高低不齐
+// 表头单元格：强制 flex + align-items: center
+// 表格内容单元格：强制 flex + align-items: center
+// .vxe-cell--content 宽度 100% 撑满
+// ============================================
+
+.vxe-table--render-default {
+  // 表头单元格
+  .vxe-header--row .vxe-cell {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+  }
+
+  // 表格内容单元格
+  .vxe-body--row .vxe-cell {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+  }
+
+  // 单元格内部内容容器撑满宽度
+  .vxe-cell--content {
+    width: 100%;
+  }
+}

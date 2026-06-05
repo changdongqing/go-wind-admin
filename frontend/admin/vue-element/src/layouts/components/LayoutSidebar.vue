@@ -271,11 +271,13 @@ onMounted(() => {
 
 .layout__sidebar {
   .el-menu {
-    // 菜单项全局统一规范：36px 高度，圆角 6px，柔和交互
+    // 菜单项高度与间距（基线修复已在全局 _element-plus.scss 中通过 flex 对齐解决）
     .el-menu-item,
     .el-sub-menu__title {
       height: 36px !important;
-      line-height: 36px !important;
+      // flex 布局下不能用 line-height: 36px 撑高，否则文字 span 继承 36px 行高
+      // 导致文字在 span 内顶部对齐而非居中。改用 normal 让 flex 的 align-items: center 负责垂直居中
+      line-height: normal !important;
       padding: 0 16px !important;
       margin: 4px 12px !important;
       border-radius: 6px !important;
@@ -286,10 +288,9 @@ onMounted(() => {
         color 0.2s ease;
     }
 
-    // 图标与文字间距
+    // 图标尺寸
     .el-menu-item .el-icon,
     .el-sub-menu__title .el-icon {
-      margin-right: 10px !important;
       width: 18px !important;
       height: 18px !important;
       transition: color 0.2s ease;
@@ -311,11 +312,6 @@ onMounted(() => {
       .el-icon {
         color: var(--el-color-primary) !important;
       }
-    }
-
-    // 子菜单缩进
-    .el-sub-menu .el-menu-item {
-      padding-left: 48px !important;
     }
 
     // ============================================

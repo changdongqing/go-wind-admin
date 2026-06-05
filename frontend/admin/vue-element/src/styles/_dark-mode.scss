@@ -586,7 +586,7 @@ html.dark {
     border-radius: 6px !important;
     padding: 0 16px !important;
     font-size: 14px !important;
-    line-height: 1 !important;
+    line-height: normal !important;
 
     // 主按钮（搜索）— 白色文字确保对比度
     &.el-button--primary {
@@ -620,8 +620,7 @@ html.dark {
     padding: 0 16px !important;
     font-size: 14px !important;
     font-weight: 500 !important;
-    line-height: 1 !important;
-    font-family: var(--el-font-family) !important;
+    line-height: normal !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
     text-rendering: auto !important;

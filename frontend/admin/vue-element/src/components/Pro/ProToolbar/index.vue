@@ -267,7 +267,7 @@ defineExpose({
     border-radius: 6px;
     padding: 0 16px;
     font-size: 14px;
-    line-height: 1;
+    line-height: normal;
     transition: all 0.2s ease;
     cursor: pointer;
 

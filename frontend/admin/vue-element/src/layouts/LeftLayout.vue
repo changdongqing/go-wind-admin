@@ -221,7 +221,7 @@ function toggleExpandOnHover() {
         .el-menu-item,
         .el-sub-menu > .el-sub-menu__title {
           height: auto !important;
-          line-height: 1.2 !important;
+          line-height: normal !important;
           padding: 8px 0 !important;
           text-align: center;
 

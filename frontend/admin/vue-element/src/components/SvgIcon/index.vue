@@ -118,7 +118,9 @@ const iconSize = computed(() => props.size || undefined);
  */
 const svgStyle = computed(() => {
   const base: Record<string, string> = {
-    display: "inline-block",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     verticalAlign: "middle",
   };
   if (props.size) {

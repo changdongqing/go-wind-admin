@@ -16,6 +16,23 @@
 @use "./dark-mode"; // 暗黑模式专项优化（表单、Drawer、输入框等）
 
 // ============================================
+// 1.1 Noto Sans SC 本地字体（统一多语种基线度量）
+//     按需加载：400 正文 / 500 primary / 700 表头加粗
+//     中文子集 + 拉丁 + 西里尔子集（覆盖俄/西/法/德等字符）
+//     放在 @use 之后，所有样式规则之前
+// ============================================
+
+@import "@fontsource/noto-sans-sc/chinese-simplified-400.css";
+@import "@fontsource/noto-sans-sc/chinese-simplified-500.css";
+@import "@fontsource/noto-sans-sc/chinese-simplified-700.css";
+@import "@fontsource/noto-sans-sc/latin-400.css";
+@import "@fontsource/noto-sans-sc/latin-500.css";
+@import "@fontsource/noto-sans-sc/cyrillic-400.css";
+@import "@fontsource/noto-sans-sc/cyrillic-500.css";
+
+// ============================================
+
+// ============================================
 // 1.5 Element Plus 全局字体变量覆盖
 //     修复 Windows Chrome/Edge 下字体发虚问题
 //     核心原因：Element Plus 默认将 'Helvetica Neue' 排在中文字体前，
@@ -23,9 +40,8 @@
 // ============================================
 
 :root {
-  --el-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, 'Noto Sans', 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', Helvetica, sans-serif !important;
+  --el-font-family: 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR',
+    sans-serif !important;
   // 统一正文 500（明暗一致，消除非标准字重导致的中文渲染差异）
   --el-font-weight-primary: 500;
   // 亮色文字加深，不用浅灰，避免发虚
@@ -70,7 +86,7 @@ body {
   overflow: hidden;
   font-family: var(--el-font-family);
   font-weight: var(--el-font-weight-primary);
-  line-height: 1.5;
+  line-height: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: auto;
@@ -99,7 +115,7 @@ div:focus {
 
 img,
 svg {
-  display: inline-block;
+  display: inline-flex;
 }
 
 svg {

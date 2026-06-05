@@ -146,6 +146,126 @@ html.dark {
   justify-content: flex-end;
 }
 
+/* ---------- 全局字体锁定 + inline 基线修复 ---------- */
+/* 根因：不同字体的 ascender/descender 度量不同，inline 基线对齐
+ * 导致中/韩/日/俄/西等不同语种文字肉眼高低不齐。
+ * 方案：
+ * 1. 全局锁定 font-family 为 Noto 全系列优先，统一基线度量
+ * 2. 所有图标+文字混排容器统一用 flex + align-items:center 废掉 baseline
+ * 3. line-height: normal 避免子 span 继承过大行高 */
+
+// --- 全局字体锁定（多语种统一基线）---
+:root,
+body,
+.el-button,
+.el-input__inner,
+.el-menu-item,
+.el-sub-menu__title,
+.el-table__cell .cell,
+.el-table__header-cell .cell,
+.vxe-table,
+.vxe-cell,
+.vxe-header--column .vxe-cell,
+.vxe-body--column .vxe-cell {
+  font-family: "Noto Sans SC", "Noto Sans JP", "Noto Sans KR",
+    sans-serif !important;
+}
+
+// --- 菜单：flex 居中，抛弃基线 ---
+.el-menu-item,
+.el-sub-menu__title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  line-height: normal !important;
+}
+
+.el-menu-item .el-icon,
+.el-sub-menu__title .el-icon,
+.el-menu-item .svg-local-icon,
+.el-sub-menu__title .svg-local-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.el-menu--inline .el-menu-item {
+  padding-left: 36px !important;
+}
+
+// 菜单内文字 span 统一继承 normal 行高
+.el-menu-item .menu-title,
+.el-sub-menu__title .menu-title {
+  line-height: normal !important;
+}
+
+// --- 表格单元格：flex 居中 ---
+.el-table__cell .cell,
+.el-table__header-cell .cell {
+  display: flex !important;
+  align-items: center !important;
+  height: 100%;
+}
+
+// --- 面包屑 ---
+.el-breadcrumb__item {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.el-breadcrumb__inner,
+.el-breadcrumb__inner a {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px;
+  line-height: normal !important;
+}
+
+// --- 按钮 ---
+.el-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: normal !important;
+}
+
+.el-button .el-icon {
+  display: inline-flex !important;
+}
+
+// --- Tabs ---
+.el-tabs__item {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: normal !important;
+}
+
+// --- Tag ---
+.el-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: normal !important;
+}
+
+// --- 下拉菜单选项 ---
+.el-dropdown-menu__item {
+  display: flex !important;
+  align-items: center !important;
+  line-height: normal !important;
+}
+
+// --- Select 选项 ---
+.el-select-dropdown__item {
+  display: flex !important;
+  align-items: center !important;
+  line-height: normal !important;
+}
+
+// --- 表单 label ---
+.el-form-item__label {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: normal !important;
+}
+
 /* ---------- 按钮精致化 ---------- */
 .el-button {
   border-radius: 8px;
