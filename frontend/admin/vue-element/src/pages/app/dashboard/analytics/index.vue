@@ -1,24 +1,37 @@
 <template>
-  <div class="p-5">
+  <div class="analytics-page">
     <!-- Overview Cards -->
-    <el-row :gutter="20" class="mb-6">
+    <el-row :gutter="16" class="mb-5">
       <el-col v-for="(item, index) in overviewItems" :key="index" :xs="24" :sm="12" :md="6">
         <el-card shadow="hover" class="overview-card">
           <div class="overview-header">
-            <div class="title">{{ item.title }}</div>
-            <SvgIcon :icon="item.icon" :size="28" class="icon-svg" />
+            <div class="overview-header__text">
+              <div class="title">{{ item.title }}</div>
+              <div class="value-row">
+                <span class="value">{{ item.value.toLocaleString() }}</span>
+                <span :class="['trend', item.trend >= 0 ? 'trend--up' : 'trend--down']">
+                  <SvgIcon :icon="item.trend >= 0 ? 'lucide:trending-up' : 'lucide:trending-down'" :size="14" />
+                  {{ Math.abs(item.trend) }}%
+                </span>
+              </div>
+            </div>
+            <div class="overview-header__icon">
+              <SvgIcon :icon="item.icon" :size="32" />
+            </div>
           </div>
-          <div class="value">{{ item.value.toLocaleString() }}</div>
-          <div class="total-row">
-            <span class="total-label">{{ item.totalTitle }}</span>
-            <span class="total-value">{{ item.totalValue.toLocaleString() }}</span>
+          <div class="overview-footer">
+            <span class="footer-label">{{ $t("pages.dashboard.vsYesterday") }}</span>
+            <span class="footer-total">
+              {{ $t("pages.dashboard.total") }}
+              <strong>{{ item.totalValue.toLocaleString() }}</strong>
+            </span>
           </div>
         </el-card>
       </el-col>
     </el-row>
 
     <!-- Trends Chart -->
-    <el-card shadow="hover" class="mb-6">
+    <el-card shadow="hover" class="mb-5">
       <template #header>
         <div class="card-header-tabs">
           <el-radio-group v-model="activeTab" size="small">
@@ -38,7 +51,7 @@
     </el-card>
 
     <!-- Chart Cards Grid -->
-    <el-row :gutter="20">
+    <el-row :gutter="16">
       <el-col :xs="24" :sm="24" :md="8">
         <el-card shadow="hover">
           <template #header>
@@ -89,8 +102,8 @@ import AnalyticsVisitsSource from "./analytics-visits-source.vue";
 interface OverviewItem {
   icon: string;
   title: string;
-  totalTitle: string;
   totalValue: number;
+  trend: number;
   value: number;
 }
 
@@ -98,29 +111,29 @@ const overviewItems = ref<OverviewItem[]>([
   {
     icon: "svg:color_card",
     title: $t("pages.dashboard.currentUserCount"),
-    totalTitle: $t("pages.dashboard.totalUserCount"),
     totalValue: 120_000,
+    trend: 12,
     value: 2000,
   },
   {
     icon: "svg:color_cake",
     title: $t("pages.dashboard.currentAccessCount"),
-    totalTitle: $t("pages.dashboard.totalAccessCount"),
     totalValue: 500_000,
+    trend: -5,
     value: 20_000,
   },
   {
     icon: "svg:color_download",
     title: $t("pages.dashboard.currentDownloadCount"),
-    totalTitle: $t("pages.dashboard.totalDownloadCount"),
     totalValue: 120_000,
+    trend: 18,
     value: 8000,
   },
   {
     icon: "svg:color_bell",
     title: $t("pages.dashboard.currentUsageCount"),
-    totalTitle: $t("pages.dashboard.totalUsageCount"),
     totalValue: 50_000,
+    trend: 8,
     value: 5000,
   },
 ]);
@@ -130,55 +143,124 @@ const activeTab = ref<"trends" | "visits">("trends");
 </script>
 
 <style lang="scss" scoped>
+.analytics-page {
+  padding: 20px;
+}
+
 .overview-card {
-  height: 160px;
-  border-radius: 4px;
-  transition: all 0.3s;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border: 1px solid var(--el-border-color-lighter);
+
+  &:hover {
+    border-color: var(--el-color-primary-light-5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+
+  // 暗黑模式 hover 阴影
+  html.dark & {
+    &:hover {
+      border-color: var(--el-color-primary-light-3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .overview-header__icon {
+      background: rgba(64, 128, 255, 0.15);
+    }
+  }
 
   :deep(.el-card__body) {
-    padding: 20px 24px;
+    padding: 20px;
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 8px;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   .overview-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
 
-    .title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--el-text-color-primary);
+    &__text {
+      flex: 1;
+      min-width: 0;
     }
 
-    .icon-svg {
-      width: 28px;
-      height: 28px;
-      font-size: 28px;
+    &__icon {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--el-color-primary-light-9);
     }
+  }
+
+  .title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--el-text-color-regular);
+    margin-bottom: 8px;
+  }
+
+  .value-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .value {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
     color: var(--el-text-color-primary);
     line-height: 1;
+    letter-spacing: -0.5px;
   }
 
-  .total-row {
+  .trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+
+    &--up {
+      color: var(--el-color-success);
+      background: var(--el-color-success-light-9);
+    }
+
+    &--down {
+      color: var(--el-color-danger);
+      background: var(--el-color-danger-light-9);
+    }
+  }
+
+  .overview-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--el-border-color-lighter);
     font-size: 12px;
-    color: var(--el-text-color-secondary);
-    margin-top: auto;
 
-    .total-value {
+    .footer-label {
       color: var(--el-text-color-regular);
+    }
+
+    .footer-total {
+      color: var(--el-text-color-regular);
+
+      strong {
+        color: var(--el-text-color-primary);
+        font-weight: 600;
+      }
     }
   }
 }
@@ -192,6 +274,8 @@ const activeTab = ref<"trends" | "visits">("trends");
   font-size: 15px;
   font-weight: 600;
   color: var(--el-text-color-primary);
+  display: block;
+  padding-top: 2px;
 }
 
 .chart-container {
@@ -200,10 +284,10 @@ const activeTab = ref<"trends" | "visits">("trends");
 }
 
 .chart-container-trend {
-  height: 350px;
+  height: 380px;
 }
 
 .chart-container-small {
-  height: 280px;
+  height: 300px;
 }
 </style>

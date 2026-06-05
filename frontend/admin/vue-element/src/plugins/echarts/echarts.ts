@@ -16,6 +16,7 @@ import { BarChart, LineChart, PieChart, RadarChart } from "echarts/charts";
 import {
   // 数据集组件
   DatasetComponent,
+  GraphicComponent,
   GridComponent,
   LegendComponent,
   TitleComponent,
@@ -54,6 +55,7 @@ echarts.use([
   CanvasRenderer,
   LegendComponent,
   ToolboxComponent,
+  GraphicComponent,
 ]);
 
 export default echarts;
