@@ -411,3 +411,21 @@ html.dark .breadcrumb {
   opacity: 0.35;
   cursor: not-allowed;
 }
+
+// ============================================
+// Tiptap Editor disabled 状态（全局，明暗双模式）
+// scoped :deep() 对 ProseMirror DOM 的 [contenteditable] 属性选择器匹配不稳定
+// 因此将 disabled 样式移至全局样式表
+// ============================================
+
+.tiptap-editor-wrapper .ProseMirror[contenteditable="false"] {
+  cursor: not-allowed;
+}
+
+.tiptap-editor-wrapper .ProseMirror[contenteditable="false"] * {
+  opacity: 0.7;
+}
+
+.tiptap-editor-wrapper .ProseMirror[contenteditable="true"] {
+  cursor: text;
+}

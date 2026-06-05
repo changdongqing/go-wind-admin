@@ -1003,4 +1003,7 @@ html.dark {
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     padding-bottom: 12px;
   }
+
+  // ---- 7. Tiptap Editor disabled 状态 ----
+  // 已移至全局 _layouts.scss（明暗双模式通用），此处不再重复
 }

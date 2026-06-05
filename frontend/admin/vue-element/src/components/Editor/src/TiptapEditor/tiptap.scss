@@ -430,14 +430,8 @@
 }
 
 /* ============ Disabled State ============ */
-/* 使用 :deep() 确保在 scoped 环境下正确穿透到 ProseMirror */
-.tiptap-editor-wrapper :deep(.ProseMirror[contenteditable="false"]) {
-  cursor: not-allowed;
-}
-
-.tiptap-editor-wrapper :deep(.ProseMirror[contenteditable="false"]) * {
-  opacity: 0.7;
-}
+/* 注意：disabled 状态样式已移至全局 _dark-mode.scss，
+   因为 scoped :deep() 对 ProseMirror DOM 属性选择器匹配不稳定 */
 
 /* ============ Focus State ============ */
 .tiptap-editor-wrapper:focus-within {
