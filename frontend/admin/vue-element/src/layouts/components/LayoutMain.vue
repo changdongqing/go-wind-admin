@@ -6,8 +6,6 @@
           :name="transitionName"
           mode="out-in"
           :duration="150"
-          @before-leave="onBeforeLeave"
-          @after-enter="onAfterEnter"
         >
           <keep-alive :include="cachedViews">
             <component
@@ -21,8 +19,6 @@
           </keep-alive>
         </transition>
 
-        <!-- 页面切换骨架屏 -->
-        <PageSkeleton :visible="showSkeleton" :type="skeletonType" />
       </template>
     </router-view>
 
@@ -37,15 +33,12 @@
 import { type RouteLocationNormalized, useRoute } from "vue-router";
 import { useTagsViewStore } from "./useTagsViewStore";
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import PageSkeleton from "@/components/PageSkeleton/index.vue";
-import { resolveSkeletonType } from "@/components/PageSkeleton/index.vue";
 import { preferences, usePreferences } from "@/core/preferences";
 import variables from "@/styles/variables.module.scss";
 import Error404 from "@/pages/core/error/404.vue";
 
 const { cachedViews } = toRefs(useTagsViewStore());
 const { tabbarPreferences } = usePreferences();
-const route = useRoute();
 
 // 注入刷新状态
 const contentRefreshing = inject<Ref<boolean>>("contentRefreshing", ref(false));
@@ -94,21 +87,7 @@ const currentComponent = (component: Component, route: RouteLocationNormalized) 
   return h(wrapper);
 };
 
-// 页面切换骨架屏状态
-const showSkeleton = ref(false);
-const skeletonType = ref<"table" | "dashboard">("table");
-
-function onBeforeLeave() {
-  if (preferences.transition.enable) {
-    skeletonType.value = resolveSkeletonType(route.fullPath);
-    showSkeleton.value = true;
-  }
-}
-
-function onAfterEnter() {
-  showSkeleton.value = false;
-}
-
+// 页面高度
 const appMainHeight = computed(() => {
   if (tabbarPreferences.value.enable) {
     return `calc(100vh - ${variables["navbar-height"]} - ${variables["tags-view-height"]})`;

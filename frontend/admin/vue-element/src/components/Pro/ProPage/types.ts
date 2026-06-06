@@ -44,6 +44,22 @@ export interface ProPageGlobalConfig {
   };
 }
 
+// 骨架屏配置
+export interface SkeletonConfig {
+  /** 是否显示搜索区骨架 */
+  showSearch?: boolean;
+  /** 搜索字段数（默认 3） */
+  searchFieldCount?: number;
+  /** 是否显示选择列（默认 true） */
+  showSelection?: boolean;
+  /** 是否显示序号列（默认 true） */
+  showIndex?: boolean;
+  /** 骨架行数（默认 8） */
+  rowCount?: number;
+  /** 是否显示分页（默认 true） */
+  showPagination?: boolean;
+}
+
 // 页面配置
 export interface ProPageConfig<T = any, Q = any> {
   exportFilename?: string;
@@ -51,6 +67,8 @@ export interface ProPageConfig<T = any, Q = any> {
   rowKey?: string;
   tableId?: string;
   pageKey?: string;
+  /** 首次加载时显示骨架屏（默认 false） */
+  skeleton?: boolean | SkeletonConfig;
 
   search?: {
     fields?: ProFormField[];

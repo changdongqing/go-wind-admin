@@ -267,13 +267,11 @@ export function resolveSkeletonType(path: string): SkeletonType {
 </script>
 
 <script lang="ts" setup>
-import type { SkeletonType } from "./index.vue";
-
 // eslint-disable-next-line vue/no-export-in-script-setup -- type-only import is fine
 withDefaults(
   defineProps<{
     visible: boolean;
-    type?: SkeletonType;
+    type?: "table" | "dashboard";
   }>(),
   { type: "table" }
 );

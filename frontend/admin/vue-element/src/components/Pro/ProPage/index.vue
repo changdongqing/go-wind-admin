@@ -2,7 +2,7 @@
   <div class="pro-page">
     <!-- 搜索区 -->
     <ProSearch
-      v-if="searchVisible && config.search?.fields?.length"
+      v-if="!showSkeleton && searchVisible && config.search?.fields?.length"
       :fields="config.search.fields"
       :colon="config.search.colon"
       :is-expandable="config.search.isExpandable"
@@ -14,6 +14,17 @@
 
     <!-- 表格区 -->
     <div ref="contentRef" class="pro-page__content">
+      <!-- 首次加载骨架屏 -->
+      <TableSkeleton
+        v-if="showSkeleton"
+        v-bind="skeletonProps"
+        :show-search="skeletonProps.showSearch ?? !!config.search?.fields?.length"
+        :column-count="config.table.columns.filter((c: any) => c.prop && c.type !== 'selection' && c.type !== 'index').length"
+        :show-pagination="skeletonProps.showPagination ?? (config.table.pagination !== false)"
+      />
+
+      <!-- 正常内容 -->
+      <template v-else>
       <!-- 工具栏 -->
       <ProToolbar
         :left-buttons="leftButtons"
@@ -60,6 +71,7 @@
           <slot :name="name" v-bind="slotProps" />
         </template>
       </ProTable>
+      </template>
     </div>
 
     <!-- 导出弹窗 -->
@@ -99,7 +111,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends Record<string, any>, Q extends Record<string, any>">
-import { reactive, computed, ref, useSlots } from "vue";
+import { reactive, computed, ref, useSlots, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useRoute } from "vue-router";
 import { useI18n } from "@/core/i18n";
@@ -110,12 +122,13 @@ import ProModal from "../ProModal/index.vue";
 import ProToolbar from "../ProToolbar/index.vue";
 import ExportModal from "./ExportModal.vue";
 import ImportModal from "./ImportModal.vue";
+import TableSkeleton from "./TableSkeleton.vue";
 
 import { useTableState } from "../composables/useTableState";
 import { useModalState } from "../composables/useModalState";
 
 import type { ToolbarButton, ToolbarCustomButton, ToolbarRightType } from "../ProToolbar/types";
-import type { ProPageConfig, ToolsButton } from "./types";
+import type { ProPageConfig, SkeletonConfig, ToolsButton } from "./types";
 
 const props = defineProps<{ config: ProPageConfig<T, Q> }>();
 const emit = defineEmits<{
@@ -430,6 +443,23 @@ function handleModalSubmit() {
 
 // 初始化加载数据
 tableState.fetch(searchParams);
+
+// === 骨架屏：追踪首次加载 ===
+const skeletonEnabled = computed(() => props.config.skeleton !== undefined && props.config.skeleton !== false);
+const skeletonProps = computed<SkeletonConfig>(() => {
+  const s = props.config.skeleton;
+  if (s === true || s === undefined || s === false) return {} as SkeletonConfig;
+  return s;
+});
+const hasLoaded = ref(false);
+const showSkeleton = computed(() => skeletonEnabled.value && !hasLoaded.value);
+
+watch(
+  () => tableState.loading.value,
+  (loading) => {
+    if (!loading) hasLoaded.value = true;
+  }
+);
 
 defineExpose({
   tableRef,
