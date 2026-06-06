@@ -256,9 +256,20 @@
   </Transition>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts">
 export type SkeletonType = "table" | "dashboard";
 
+// 根据路由路径自动推断骨架屏类型（供外部使用）
+export function resolveSkeletonType(path: string): SkeletonType {
+  if (path.includes("/analytics") || path.includes("/dashboard")) return "dashboard";
+  return "table";
+}
+</script>
+
+<script lang="ts" setup>
+import type { SkeletonType } from "./index.vue";
+
+// eslint-disable-next-line vue/no-export-in-script-setup -- type-only import is fine
 withDefaults(
   defineProps<{
     visible: boolean;
@@ -286,13 +297,6 @@ const tagColors = [
 // 交错延迟
 function stagger(delay: number) {
   return { animationDelay: `${delay}s` };
-}
-
-// 根据路由路径自动推断骨架屏类型（供外部使用）
-// eslint-disable-next-line vue/no-export-in-script-setup
-export function resolveSkeletonType(path: string): SkeletonType {
-  if (path.includes("/analytics") || path.includes("/dashboard")) return "dashboard";
-  return "table";
 }
 </script>
 
