@@ -55,7 +55,7 @@ class RequestClient {
       headers: {
         'Content-Type': 'application/json;charset=utf-8' as RequestContentType,
       },
-      timeout: 10_000,
+      // timeout: 10_000,
     };
     const { ...axiosConfig } = options;
     const requestConfig = merge(axiosConfig, defaultConfig);
@@ -133,7 +133,7 @@ class RequestClient {
         doReAuthenticate: async () => {
           console.warn('Token expired, redirecting to login...');
           if (callbacks.onReAuthenticate) {
-            await callbacks.onReAuthenticate(true);
+            await callbacks.onReAuthenticate();
           } else {
             console.error(
               'onReAuthenticate callback not set. Call RequestClient.init() during bootstrap.',
@@ -202,6 +202,21 @@ class RequestClient {
         const { data: responseData, status } = response;
 
         if (status >= 200 && status < 400) {
+          // 业务层 code=401 时构造错误抛给认证拦截器处理
+          if (
+            responseData &&
+            typeof responseData === 'object' &&
+            'code' in responseData &&
+            (responseData as any).code === 401
+          ) {
+            const error: any = new Error(
+              (responseData as any).message || 'Unauthorized',
+            );
+            error.response = response;
+            error.config = response.config;
+            return Promise.reject(error);
+          }
+
           return responseData;
         }
 

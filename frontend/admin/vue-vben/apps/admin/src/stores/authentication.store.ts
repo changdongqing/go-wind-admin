@@ -203,6 +203,9 @@ export const useAuthStore = defineStore('auth', () => {
 
     resetAllStores();
 
+    // resetAllStores 可能从持久化中恢复 token，必须再次清除
+    accessStore.setAccessToken(null);
+    accessStore.setRefreshToken(null);
     accessStore.setLoginExpired(false);
 
     globalSSEClient.close();
@@ -299,8 +302,10 @@ export const useAuthStore = defineStore('auth', () => {
       ) {
         accessStore.setLoginExpired(true);
       } else {
-        // 非 modal 模式直接登出并跳转登录页
-        await logout();
+        // 非 modal 模式直接清理并跳转登录页
+        // 注意：不调用 logout()，因为 logout() 会调后端 logout API，
+        // 但此时 token 已过期，后端会返回 401 又触发一轮拦截器循环
+        await _doLogout();
       }
     } finally {
       isReauthenticating = false;

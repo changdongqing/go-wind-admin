@@ -1,4 +1,4 @@
-﻿import { createApp, watchEffect } from 'vue';
+import { createApp, watchEffect } from 'vue';
 
 import { registerAccessDirective } from '@vben/access';
 import { preferences } from '@vben/preferences';
@@ -43,7 +43,7 @@ async function bootstrap(namespace: string) {
   RequestClient.init(import.meta.env.VITE_GLOB_API_URL, {
     getToken: () => accessStore.accessToken,
     refreshToken: () => authStore.refreshToken(),
-    onReAuthenticate: () => authStore.logout(true),
+    onReAuthenticate: () => authStore.reauthenticate(),
     onError: (msg) => console.error('[RequestClient]', msg),
   });
 

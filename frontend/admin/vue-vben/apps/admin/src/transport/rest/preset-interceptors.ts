@@ -1,4 +1,4 @@
-﻿import type { RequestClient } from './request-client';
+import type { RequestClient } from './request-client';
 import type { MakeErrorMessageFn, ResponseInterceptorConfig } from './types';
 
 import axios from 'axios';
@@ -31,14 +31,23 @@ export const authenticateResponseInterceptor = ({
     rejected: async (error) => {
       const { config, response } = error;
 
-      // / 不是 401 → 直接抛错，交给错误拦截器处理
-      if (response?.status !== 401) {
+      // 判断是否为 401 认证错误：HTTP 401 或业务层 code=401
+      const isHttp401 = response?.status === 401;
+      const isBiz401 =
+        response?.status >= 200 &&
+        response?.status < 400 &&
+        response?.data?.code === 401;
+
+      // 不是 401 → 直接抛错，交给错误拦截器处理
+      if (!isHttp401 && !isBiz401) {
         throw error;
       }
 
       // 刷新 token 请求本身返回 401 → refresh_token 已失效，直接重新认证
       // 避免将 refresh 请求加入队列导致死锁（队列等待 refresh 完成，但 refresh 本身在队列中）
-      const isRefreshTokenRequest = config.url?.includes('/refresh-token');
+      const isRefreshTokenRequest =
+        config.url?.includes('/refresh-token') ||
+        config.url?.includes('/refresh_token');
 
       // 判断是否启用了 refreshToken 功能
       // 如果没有启用或者已经是重试请求了，直接跳转到重新登录
@@ -95,7 +104,7 @@ export const authenticateResponseInterceptor = ({
             __handledByAuthInterceptor: true,
           },
         );
-        return Promise.reject(handledError);
+        throw handledError;
       } finally {
         client.isRefreshing = false;
       }
