@@ -1,10 +1,11 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
-import { $t } from '@vben/locales';
 import { preferences } from '@vben/preferences';
 
 import { type EditorProps, MdEditor } from 'md-editor-v3';
+
+import { $t } from '#/locales';
 
 import { isDarkMode } from './utils';
 
@@ -23,7 +24,7 @@ interface UseEditorConfigProps {
 const props = withDefaults(defineProps<UseEditorConfigProps>(), {
   disabled: false,
   height: '100%', // 默认撑满父容器
-  placeholder: $t('ui.editor.please_input_content'),
+  placeholder: $t('common.editor.please_input_content'),
   options: () => ({}),
   uploadImage: undefined,
 });
@@ -109,16 +110,18 @@ const toolbars = computed(() => {
 });
 
 // 编辑器配置
-const editorProps = computed<EditorProps>(() => ({
-  previewOnly: false,
-  preview: true,
-  showCodeRowNumber: true,
-  noMermaid: false,
-  noKatex: false,
-  toolbars: toolbars.value,
-  // 合并用户自定义配置
-  ...props.options,
-}));
+const editorProps = computed(
+  () =>
+    ({
+      preview: true,
+      showCodeRowNumber: true,
+      noMermaid: false,
+      noKatex: false,
+      toolbars: toolbars.value,
+      // 合并用户自定义配置
+      ...props.options,
+    }) as EditorProps,
+);
 
 // 响应式高度（传给编辑器）
 const editorHeight = ref<number>(600); // 初始兜底高度
@@ -146,7 +149,6 @@ const updateEditorHeight = () => {
   } else if (typeof props.height === 'string') {
     // 处理带px的字符串（如"800px"）
     const pxMatch = props.height.match(/^(\d+)px$/);
-    // eslint-disable-next-line unicorn/prefer-ternary
     if (pxMatch) {
       editorHeight.value = Number(pxMatch[1]);
     } else {
@@ -186,7 +188,7 @@ const handleUploadImages = async (
   callback(urls);
 };
 
-const handleSave = (val: string, _html: string) => {
+const handleSave = (val: string) => {
   // 创建 Blob 对象（Markdown 格式）
   const blob = new Blob([val], { type: 'text/markdown;charset=utf-8' });
 
@@ -265,22 +267,21 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
-    ref="wrapperRef"
-    class="md-editor-wrapper"
-    :style="{ height: props.height === '100vh' ? '100vh' : '100%' }"
-  >
+  <div ref="wrapperRef" class="markdown-editor-wrapper">
     <MdEditor
       v-model="localValue"
       :theme="theme"
+      :height="editorHeight"
       :placeholder="placeholder"
-      :preview-only="false"
       :disabled="disabled"
-      v-bind="editorProps"
-      @change="handleChange"
+      :preview="editorProps.preview"
+      :toolbars="editorProps.toolbars"
+      :show-code-row-number="editorProps.showCodeRowNumber"
+      :no-mermaid="editorProps.noMermaid"
+      :no-katex="editorProps.noKatex"
       @on-upload-img="handleUploadImages"
       @on-save="handleSave"
-      class="md-editor-inner"
+      @update:model-value="handleChange"
     />
   </div>
 </template>

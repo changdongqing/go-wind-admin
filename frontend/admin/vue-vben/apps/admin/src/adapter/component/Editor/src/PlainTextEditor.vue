@@ -1,7 +1,7 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import { $t } from '@vben/locales';
+import { $t } from '#/locales';
 
 interface Props {
   modelValue: string;
@@ -13,7 +13,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   height: '100%',
-  placeholder: $t('ui.editor.please_input_content'),
+  placeholder: $t('common.editor.please_input_content'),
 });
 
 const emit = defineEmits<{

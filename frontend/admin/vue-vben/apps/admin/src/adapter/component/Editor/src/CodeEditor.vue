@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import {
   computed,
   nextTick,
@@ -8,11 +8,12 @@ import {
   watch,
 } from 'vue';
 
-import { $t } from '@vben/locales';
 import { preferences } from '@vben/preferences';
 
 import hljs from 'highlight.js';
 import * as monaco from 'monaco-editor';
+
+import { $t } from '#/locales';
 
 import { initMonacoWorkers } from './monaco-loader';
 import { isDarkMode } from './utils';
@@ -57,7 +58,7 @@ const props = withDefaults(defineProps<Props>(), {
   autoDetectLanguage: true, // 默认启用自动侦测
   disabled: false,
   height: '100%',
-  placeholder: $t('ui.editor.please_input_content'),
+  placeholder: $t('common.editor.please_input_content'),
   options: () => ({
     language: 'javascript',
     theme: 'light',
@@ -115,7 +116,9 @@ const detectLanguage = (content: string): EditorLanguage => {
       try {
         JSON.parse(content);
         return 'json';
-      } catch {}
+      } catch {
+        // JSON 解析失败，继续其他检测
+      }
     }
 
     const detectedLanguage = hljs.highlightAuto(content);
