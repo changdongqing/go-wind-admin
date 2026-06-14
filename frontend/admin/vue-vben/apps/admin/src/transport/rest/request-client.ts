@@ -290,6 +290,16 @@ class RequestClient {
       });
       return response as T;
     } catch (error: unknown) {
+      // 已由认证拦截器处理的错误（如 token 过期跳转登录页），
+      // 必须原样抛出，保留 __handledByAuthInterceptor 标记，
+      // 避免下方 error.response.data 转换剥离标记导致调用方误判
+      if (
+        error &&
+        typeof error === 'object' &&
+        '__handledByAuthInterceptor' in error
+      ) {
+        throw error;
+      }
       // @ts-expect-error 忽略类型检查
       throw error.response ? error.response.data : error;
     }

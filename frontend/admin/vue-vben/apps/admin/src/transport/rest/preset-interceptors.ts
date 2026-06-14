@@ -49,6 +49,16 @@ export const authenticateResponseInterceptor = ({
         config.url?.includes('/refresh-token') ||
         config.url?.includes('/refresh_token');
 
+      // 登录请求返回 401 → 密码错误或凭证无效，属于业务错误
+      // 直接抛出，不触发 token 刷新 / 重新认证逻辑，
+      // 让错误正常传递给调用方（authLogin 的 catch）处理
+      const isLoginRequest =
+        config.url?.includes('/login') && !isRefreshTokenRequest;
+
+      if (isLoginRequest) {
+        throw error;
+      }
+
       // 判断是否启用了 refreshToken 功能
       // 如果没有启用或者已经是重试请求了，直接跳转到重新登录
       if (
@@ -81,6 +91,12 @@ export const authenticateResponseInterceptor = ({
 
       try {
         const newToken = await doRefreshToken();
+
+        // doRefreshToken 返回空字符串说明刷新已失败（refreshToken 内部 catch 了错误），
+        // 此时 reauthenticate 已被执行，不应继续用空 token 重试原始请求
+        if (!newToken) {
+          throw new Error('Refresh token returned empty');
+        }
 
         // 处理队列中的请求
         client.refreshTokenQueue.forEach((callback) => callback(newToken));
