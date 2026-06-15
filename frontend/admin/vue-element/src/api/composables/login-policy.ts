@@ -14,13 +14,7 @@ import type {
   authenticationservicev1_LoginPolicy_Type as LoginPolicy_Type,
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
-import {
-  listLoginPolicies,
-  getLoginPolicy,
-  createLoginPolicy,
-  updateLoginPolicy,
-  deleteLoginPolicy,
-} from "@/api/service/login-policy";
+import { apiClient } from "@/api/client";
 import { queryClient } from "@/plugins/vue-query";
 import { i18n } from "@/core/i18n";
 
@@ -36,7 +30,7 @@ export function useListLoginPolicies(
 ) {
   return useQuery({
     queryKey: ["listLoginPolicies", query],
-    queryFn: () => listLoginPolicies(query),
+    queryFn: () => apiClient.loginPolicyService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -44,7 +38,7 @@ export function useListLoginPolicies(
 export async function fetchListLoginPolicies(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listLoginPolicies", params],
-    queryFn: () => listLoginPolicies(params),
+    queryFn: () => apiClient.loginPolicyService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -55,7 +49,7 @@ export function useGetLoginPolicy(
 ) {
   return useQuery({
     queryKey: ["getLoginPolicy", req],
-    queryFn: () => getLoginPolicy(req),
+    queryFn: () => apiClient.loginPolicyService.Get(req),
     ...options,
   });
 }
@@ -64,7 +58,7 @@ export function useCreateLoginPolicy(
   options?: UseMutationOptions<authenticationservicev1_LoginPolicy, Error, Record<string, any>>
 ) {
   return useMutation({
-    mutationFn: (values) => createLoginPolicy({ ...values } as authenticationservicev1_LoginPolicy),
+    mutationFn: (values) => apiClient.loginPolicyService.Create({ data: { ...values } as authenticationservicev1_LoginPolicy }),
     ...options,
   });
 }
@@ -74,7 +68,7 @@ export function useUpdateLoginPolicy(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateLoginPolicy({
+      apiClient.loginPolicyService.Update({
         id,
         data: { ...values },
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -87,7 +81,7 @@ export function useDeleteLoginPolicy(
   options?: UseMutationOptions<{}, Error, authenticationservicev1_DeleteLoginPolicyRequest>
 ) {
   return useMutation({
-    mutationFn: (req) => deleteLoginPolicy(req),
+    mutationFn: (req) => apiClient.loginPolicyService.Delete(req),
     ...options,
   });
 }

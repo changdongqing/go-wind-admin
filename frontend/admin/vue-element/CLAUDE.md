@@ -16,8 +16,8 @@ Vue 3.5 / TypeScript 5.9 / Vite 8 / Element Plus 2.x / vxe-table 4.x / Pinia 3 /
 src/
 ├── api/
 │   ├── generated/          # gRPC 自动生成代码（禁止手动修改）
-│   ├── service/            # 服务层：封装 gRPC 客户端调用
-│   └── composables/        # Composable 层：Vue Query hooks + 枚举工具函数
+│   ├── client.ts           # ApiClient 单例（transport 适配层）
+│   └── composables/        # Composable 层：Vue Query hooks + 枚举工具函数（通过 apiClient 调用）
 ├── components/Pro/         # Pro 组件库（配置化 CRUD 页面）
 ├── core/
 │   ├── transport/rest/     # 请求客户端、PaginationQuery、拦截器
@@ -48,19 +48,20 @@ src/
 - `t()` 用于 composable 顶层（非响应式场景）
 - 翻译 key 命名：`pages.<module>.<field>` / `enum.<module>.<field>.<VALUE>` / `routes.<module>.<page>` / `common.<category>.<key>`
 
-### API 三层架构
+### API 两层架构
 
-严格遵循分层：`generated/` → `service/` → `composables/`
+严格遵循分层：`generated/` + `apiClient` → `composables/`
 
-#### 服务层 (`src/api/service/`)
-- 使用单例模式创建 gRPC 服务客户端
-- 列表查询使用 `PaginationQuery.toRawParams()` 并清除无用字段（`sorting`, `offset`, `limit`, `token`, `filter`, `filterExpr`）
-- 在 `src/api/service/index.ts` 中添加 `export *`
+#### ApiClient 单例 (`src/api/client.ts`)
+- 全局唯一实例，通过 `ClientTransport` 适配 axios 请求
+- 懒加载属性访问器按需创建各服务 Client（如 `apiClient.userService`、`apiClient.authenticationService`）
+- protobuf 重新生成后 `ApiClient` 类自动包含新服务属性
 
 #### Composable 层 (`src/api/composables/`)
-- **禁止直接依赖 gRPC 生成代码的实现细节**，只导入类型
+- 从 `generated/` **只导入类型**（`type` import），运行时调用通过 `apiClient`
 - 每个 composable 文件导出：`use*` Hook + `fetch*` 非 Hook 函数 + 枚举工具
 - queryKey 格式：`["操作名", 参数]`，全局唯一
+- 列表查询使用 `apiClient.xxxService.List(query.toRawParams())`
 - **创建 mutation 的参数必须用 `{ data: {...} }` 包裹**（gRPC 约定）
 - **更新 mutation 必须使用 `makeUpdateMask` 生成字段掩码**
 - 枚举列表用 `computed(() => [...])` + i18n `t()` 标签
@@ -91,17 +92,15 @@ src/
 
 创建新业务模块时，按以下顺序生成文件：
 
-1. **`src/api/service/<module>.ts`** — gRPC 服务客户端封装
-2. **`src/api/composables/<module>.ts`** — Vue Query hooks + 枚举工具
-3. **`src/api/service/index.ts`** — 添加 `export *`
-4. **`src/api/composables/index.ts`** — 添加 `export *`
-5. **`src/locales/zh-CN/pages/<module>.json`** — 中文翻译
-6. **`src/locales/en-US/pages/<module>.json`** — 英文翻译
-7. **`src/locales/zh-CN/enum.json`** — 追加枚举翻译
-8. **`src/locales/zh-CN/routes.json`** — 追加路由标题
-9. **`src/router/routes/modules/app/<module>.ts`** — 路由配置
-10. **`src/pages/app/<module>/<module>/index.vue`** — 列表页（ProPage 配置）
-11. **`src/pages/app/<module>/<module>/<module>-drawer.vue`** — 弹窗组件（useProModal 模式）
+1. **`src/api/composables/<module>.ts`** — Vue Query hooks + 枚举工具（通过 apiClient 调用）
+2. **`src/api/composables/index.ts`** — 添加 `export *`
+3. **`src/locales/zh-CN/pages/<module>.json`** — 中文翻译
+4. **`src/locales/en-US/pages/<module>.json`** — 英文翻译
+5. **`src/locales/zh-CN/enum.json`** — 追加枚举翻译
+6. **`src/locales/zh-CN/routes.json`** — 追加路由标题
+7. **`src/router/routes/modules/app/<module>.ts`** — 路由配置
+8. **`src/pages/app/<module>/<module>/index.vue`** — 列表页（ProPage 配置）
+9. **`src/pages/app/<module>/<module>/<module>-drawer.vue`** — 弹窗组件（useProModal 模式）
 
 ---
 

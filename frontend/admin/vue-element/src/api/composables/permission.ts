@@ -12,13 +12,7 @@ import type {
   permissionservicev1_DeletePermissionRequest,
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
-import {
-  listPermissions,
-  getPermission,
-  createPermission,
-  updatePermission,
-  deletePermission,
-} from "@/api/service/permission";
+import { apiClient } from "@/api/client";
 import { queryClient } from "@/plugins/vue-query";
 import { i18n } from "@/core/i18n";
 
@@ -34,7 +28,7 @@ export function useListPermissions(
 ) {
   return useQuery({
     queryKey: ["listPermissions", query],
-    queryFn: () => listPermissions(query),
+    queryFn: () => apiClient.permissionService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -42,7 +36,7 @@ export function useListPermissions(
 export async function fetchListPermissions(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listPermissions", params],
-    queryFn: () => listPermissions(params),
+    queryFn: () => apiClient.permissionService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -53,14 +47,14 @@ export function useGetPermission(
 ) {
   return useQuery({
     queryKey: ["getPermission", req],
-    queryFn: () => getPermission(req),
+    queryFn: () => apiClient.permissionService.Get(req),
     ...options,
   });
 }
 
 export function useCreatePermission(options?: UseMutationOptions<{}, Error, Record<string, any>>) {
   return useMutation({
-    mutationFn: (values) => createPermission({ data: { ...values } as Permission }),
+    mutationFn: (values) => apiClient.permissionService.Create({ data: { ...values } as Permission }),
     ...options,
   });
 }
@@ -70,7 +64,7 @@ export function useUpdatePermission(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updatePermission({
+      apiClient.permissionService.Update({
         id,
         data: { ...values } as any,
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -83,7 +77,7 @@ export function useDeletePermission(
   options?: UseMutationOptions<{}, Error, permissionservicev1_DeletePermissionRequest>
 ) {
   return useMutation({
-    mutationFn: (req) => deletePermission(req),
+    mutationFn: (req) => apiClient.permissionService.Delete(req),
     ...options,
   });
 }

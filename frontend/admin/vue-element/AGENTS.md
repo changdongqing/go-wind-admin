@@ -14,8 +14,8 @@ Vue 3.5, TypeScript 5.9, Vite 8, Element Plus 2.x, vxe-table 4.x, Pinia 3, @tans
 
 ```
 src/api/generated/    → gRPC 自动生成（禁止修改）
-src/api/service/      → gRPC 客户端封装（单例模式）
-src/api/composables/  → Vue Query hooks + 枚举工具
+src/api/client.ts     → ApiClient 单例（懒加载各服务 Client）
+src/api/composables/  → Vue Query hooks + 枚举工具（通过 apiClient 调用）
 src/components/Pro/   → 配置化 CRUD 组件库（ProPage/ProTable/ProModal...）
 src/core/             → transport, i18n, router, access
 src/pages/app/        → 业务页面（按模块分目录）
@@ -39,15 +39,16 @@ src/router/routes/    → 路由配置（modules/app/*.ts 为动态路由）
 
 ### API 分层规则
 
-**服务层** (`src/api/service/`):
-- 单例模式创建 gRPC 客户端
-- 列表查询：`PaginationQuery.toRawParams()` + 清除 `sorting/offset/limit/token/filter/filterExpr`
-- 在 `service/index.ts` 添加 `export *`
+**ApiClient 单例** (`src/api/client.ts`):
+- 全局唯一实例，通过 `ClientTransport` 适配 axios 请求
+- 懒加载属性访问器按需创建各服务 Client（如 `apiClient.userService`）
+- protobuf 重新生成后自动包含新服务
 
 **Composable 层** (`src/api/composables/`):
-- 禁止直接依赖 gRPC 实现细节，只导入类型
+- 从 `generated/` 只导入类型（`type` import），运行时调用通过 `apiClient`
 - 导出：`use*` Hook + `fetch*` 函数 + 枚举工具
 - queryKey：`["操作名", 参数]`
+- 列表查询：`apiClient.xxxService.List(query.toRawParams())`
 - **创建参数用 `{ data: {...} }` 包裹**
 - **更新操作用 `makeUpdateMask` 生成掩码**
 - 枚举列表：`computed(() => [...])` + `t()`
@@ -73,15 +74,14 @@ src/router/routes/    → 路由配置（modules/app/*.ts 为动态路由）
 
 ## 新建 CRUD 模块步骤
 
-1. `src/api/service/<module>.ts` — gRPC 客户端
-2. `src/api/composables/<module>.ts` — hooks + 枚举
-3. 两个 index.ts 添加 `export *`
-4. `src/locales/{zh-CN,en-US}/pages/<module>.json` — 页面翻译
-5. `src/locales/zh-CN/enum.json` — 枚举翻译
-6. `src/locales/zh-CN/routes.json` — 路由标题
-7. `src/router/routes/modules/app/<module>.ts` — 路由
-8. `src/pages/app/<module>/<module>/index.vue` — ProPage 列表页
-9. `src/pages/app/<module>/<module>/<module>-drawer.vue` — useProModal 弹窗
+1. `src/api/composables/<module>.ts` — hooks + 枚举（通过 apiClient 调用）
+2. `src/api/composables/index.ts` — 添加 `export *`
+3. `src/locales/{zh-CN,en-US}/pages/<module>.json` — 页面翻译
+4. `src/locales/zh-CN/enum.json` — 枚举翻译
+5. `src/locales/zh-CN/routes.json` — 路由标题
+6. `src/router/routes/modules/app/<module>.ts` — 路由
+7. `src/pages/app/<module>/<module>/index.vue` — ProPage 列表页
+8. `src/pages/app/<module>/<module>/<module>-drawer.vue` — useProModal 弹窗
 
 ## 常见陷阱
 

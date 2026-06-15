@@ -76,10 +76,10 @@ pnpm run preview                       # 预览生产构建
 
 ```
 src/
-├── api/                    # API 接口层（三层架构）
+├── api/                    # API 接口层（两层架构）
 │   ├── generated/          #   protobuf 自动生成（勿手动修改）
-│   ├── service/            #   Service 层（gRPC Client 封装）
-│   └── composables/        #   Vue Query hooks（面向组件的最终 API）
+│   ├── client.ts           #   ApiClient 单例（transport 适配层）
+│   └── composables/        #   Vue Query hooks（通过 apiClient 调用）
 │
 ├── pages/                  # 页面视图
 │   ├── app/                #   业务页面
@@ -168,7 +168,7 @@ src/
 │  components/  composables/ 组件 & 组合函数层         │
 ├─────────────────────────────────────────────────────┤
 │  api/composables/          API hooks 层（Vue Query） │
-│  api/service/              Service 层（gRPC Client） │
+│  api/client.ts             ApiClient 单例（懒加载 Client）│
 │  api/generated/            类型 & Client 工厂（自动）│
 ├─────────────────────────────────────────────────────┤
 │  core/                     核心基础设施层            │
@@ -186,14 +186,14 @@ src/
 └─────────────────────────────────────────────────────┘
 ```
 
-### API 三层架构
+### API 两层架构
 
 ```
-generated/  ←── protobuf 自动生成，勿手动修改
+generated/   ←── protobuf 自动生成，勿手动修改
     │
-service/    ←── 一个文件 = 一个 gRPC Service 的单例封装
+client.ts    ←── ApiClient 单例（懒加载各服务 Client）
     │
-composables/ ←── 面向组件的 Vue Query hooks
+composables/ ←── 面向组件的 Vue Query hooks（通过 apiClient 调用）
     ├── use*()    组件内使用（需要 setup 上下文）
     ├── fetch*()  组件外使用（Store、路由守卫等）
     └── 工具函数   枚举映射（状态/颜色/名称）
@@ -204,11 +204,11 @@ composables/ ←── 面向组件的 Vue Query hooks
 ```
 组件 → useXxx(query)                    Vue Query hook
          ↓
-      xxxService.List(params)           service 层
+      apiClient.xxxService.List(params) ApiClient 层
          ↓
-      gRPC Client → requestApi()        generated 层
+      ClientTransport.unary()           transport 适配
          ↓
-      RequestClient (Axios)             transport 层
+      requestApi() → RequestClient(Axios) transport 层
          ├── 注入 Authorization Token
          ├── 注入 X-Request-ID
          ├── 注入 Accept-Language
@@ -223,7 +223,7 @@ composables/ ←── 面向组件的 Vue Query hooks
 
 | 模块 | 文档 | 说明 |
 |---|---|---|
-| API 层 | [src/api/README.md](src/api/README.md) | 三层架构、hooks 用法、新增模块步骤 |
+| API 层 | [src/api/README.md](src/api/README.md) | 两层架构、hooks 用法、新增模块步骤 |
 | 路由核心 | [src/core/router/README.md](src/core/router/README.md) | 动态路由、权限模式、路由配置方法 |
 | 偏好设置 | [src/core/preferences/README.md](src/core/preferences/README.md) | 主题/布局/侧边栏配置、usePreferences() |
 | 存储管理 | [src/core/storage/README.md](src/core/storage/README.md) | StorageManager 用法、TTL/驱逐/批量操作 |

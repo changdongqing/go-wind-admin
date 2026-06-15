@@ -14,7 +14,7 @@ import type {
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
 import { queryClient } from "@/plugins/vue-query";
-import { listFiles, getFile, createFile, updateFile, deleteFile } from "@/api/service/file";
+import { apiClient } from "@/api/client";
 import { i18n } from "@/core/i18n";
 
 const t = i18n.global.t;
@@ -29,7 +29,7 @@ export function useListFiles(
 ) {
   return useQuery({
     queryKey: ["listFiles", query],
-    queryFn: () => listFiles(query),
+    queryFn: () => apiClient.fileService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -37,7 +37,7 @@ export function useListFiles(
 export async function fetchListFiles(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listFiles", params],
-    queryFn: () => listFiles(params),
+    queryFn: () => apiClient.fileService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -48,14 +48,14 @@ export function useGetFile(
 ) {
   return useQuery({
     queryKey: ["getFile", req],
-    queryFn: () => getFile(req),
+    queryFn: () => apiClient.fileService.Get(req),
     ...options,
   });
 }
 
 export function useCreateFile(options?: UseMutationOptions<{}, Error, Record<string, any>>) {
   return useMutation({
-    mutationFn: (values) => createFile({ data: { ...values } as storageservicev1_File }),
+    mutationFn: (values) => apiClient.fileService.Create({ data: { ...values } as storageservicev1_File }),
     ...options,
   });
 }
@@ -65,7 +65,7 @@ export function useUpdateFile(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateFile({
+      apiClient.fileService.Update({
         id,
         data: { ...values },
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -78,7 +78,7 @@ export function useDeleteFile(
   options?: UseMutationOptions<{}, Error, storageservicev1_DeleteFileRequest>
 ) {
   return useMutation({
-    mutationFn: (data) => deleteFile(data),
+    mutationFn: (data) => apiClient.fileService.Delete(data),
     ...options,
   });
 }

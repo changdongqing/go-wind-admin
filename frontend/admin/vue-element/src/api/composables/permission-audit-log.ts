@@ -7,7 +7,7 @@ import type {
   auditservicev1_PermissionAuditLog_ActionType as PermissionAuditActionType,
 } from "@/api/generated/admin/service/v1";
 import type { PaginationQuery } from "@/core/transport/rest";
-import { listPermissionAuditLogs, getPermissionAuditLog } from "@/api/service/permission-audit-log";
+import { apiClient } from "@/api/client";
 import { queryClient } from "@/plugins/vue-query";
 import { i18n } from "@/core/i18n";
 
@@ -23,7 +23,7 @@ export function useListPermissionAuditLogs(
 ) {
   return useQuery({
     queryKey: ["listPermissionAuditLogs", query],
-    queryFn: () => listPermissionAuditLogs(query),
+    queryFn: () => apiClient.permissionAuditLogService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -31,7 +31,7 @@ export function useListPermissionAuditLogs(
 export async function fetchListPermissionAuditLogs(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listPermissionAuditLogs", params],
-    queryFn: () => listPermissionAuditLogs(params),
+    queryFn: () => apiClient.permissionAuditLogService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -42,7 +42,7 @@ export function useGetPermissionAuditLog(
 ) {
   return useQuery({
     queryKey: ["getPermissionAuditLog", req],
-    queryFn: () => getPermissionAuditLog(req),
+    queryFn: () => apiClient.permissionAuditLogService.Get(req),
     ...options,
   });
 }

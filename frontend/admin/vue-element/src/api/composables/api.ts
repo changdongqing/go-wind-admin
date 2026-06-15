@@ -11,7 +11,7 @@ import type {
   permissionservicev1_ListApiResponse,
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
-import { listApis, getApi, createApi, updateApi, deleteApi, syncApis } from "@/api/service/api";
+import { apiClient } from "@/api/client";
 import { queryClient } from "@/plugins/vue-query";
 
 // ==============================
@@ -24,7 +24,7 @@ export function useListApis(
 ) {
   return useQuery({
     queryKey: ["listApis", query],
-    queryFn: () => listApis(query),
+    queryFn: () => apiClient.apiService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -32,7 +32,7 @@ export function useListApis(
 export async function fetchListApis(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listApis", params],
-    queryFn: () => listApis(params),
+    queryFn: () => apiClient.apiService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -43,14 +43,14 @@ export function useGetApi(
 ) {
   return useQuery({
     queryKey: ["getApi", req],
-    queryFn: () => getApi(req),
+    queryFn: () => apiClient.apiService.Get(req),
     ...options,
   });
 }
 
 export function useCreateApi(options?: UseMutationOptions<{}, Error, Record<string, any>>) {
   return useMutation({
-    mutationFn: (values) => createApi({ data: { ...values } as permissionservicev1_Api }),
+    mutationFn: (values) => apiClient.apiService.Create({ data: { ...values } as permissionservicev1_Api }),
     ...options,
   });
 }
@@ -60,7 +60,7 @@ export function useUpdateApi(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateApi({
+      apiClient.apiService.Update({
         id,
         data: {
           ...values,
@@ -75,14 +75,14 @@ export function useDeleteApi(
   options?: UseMutationOptions<{}, Error, permissionservicev1_DeleteApiRequest>
 ) {
   return useMutation({
-    mutationFn: (data) => deleteApi(data),
+    mutationFn: (data) => apiClient.apiService.Delete(data),
     ...options,
   });
 }
 
 export function useSyncApisApi(options?: UseMutationOptions<{}, Error>) {
   return useMutation({
-    mutationFn: () => syncApis(),
+    mutationFn: () => apiClient.apiService.SyncApis({}),
     ...options,
   });
 }

@@ -14,7 +14,7 @@ import {
   type UseQueryOptions,
 } from "@tanstack/vue-query";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
-import { listMenus, getMenu, createMenu, updateMenu, deleteMenu } from "@/api/service/menu";
+import { apiClient } from "@/api/client";
 import { queryClient } from "@/plugins/vue-query";
 
 import { i18n } from "@/core/i18n";
@@ -31,7 +31,7 @@ export function useListMenus(
 ) {
   return useQuery({
     queryKey: ["listMenus", query],
-    queryFn: () => listMenus(query),
+    queryFn: () => apiClient.menuService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -39,7 +39,7 @@ export function useListMenus(
 export async function fetchListMenus(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listMenus", params],
-    queryFn: () => listMenus(params),
+    queryFn: () => apiClient.menuService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -50,14 +50,14 @@ export function useGetMenu(
 ) {
   return useQuery({
     queryKey: ["getMenu", req],
-    queryFn: () => getMenu(req),
+    queryFn: () => apiClient.menuService.Get(req),
     ...options,
   });
 }
 
 export function useCreateMenu(options?: UseMutationOptions<{}, Error, Record<string, any>>) {
   return useMutation({
-    mutationFn: (values) => createMenu({ data: { ...values } as Menu }),
+    mutationFn: (values) => apiClient.menuService.Create({ data: { ...values } as Menu }),
     ...options,
   });
 }
@@ -67,7 +67,7 @@ export function useUpdateMenu(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateMenu({
+      apiClient.menuService.Update({
         id,
         data: { ...values } as any,
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -80,7 +80,7 @@ export function useDeleteMenu(
   options?: UseMutationOptions<{}, Error, permissionservicev1_DeleteMenuRequest>
 ) {
   return useMutation({
-    mutationFn: (data) => deleteMenu(data),
+    mutationFn: (data) => apiClient.menuService.Delete(data),
     ...options,
   });
 }

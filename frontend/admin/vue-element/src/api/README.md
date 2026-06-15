@@ -4,16 +4,15 @@
 
 ## 模块定位
 
-API 层采用 **三层架构**，将后端 gRPC/HTTP 接口封装为前端可用的 Vue Query hooks：
+API 层采用 **两层架构**，将后端 gRPC/HTTP 接口封装为前端可用的 Vue Query hooks：
 
 ```
-generated/           ← 第 1 层：protobuf 自动生成的 TypeScript 类型 + Service Client 工厂
+generated/           ← 第 1 层：protobuf 自动生成的 TypeScript 类型 + ApiClient 工厂
   （由 protoc-gen-typescript-http 生成，不要手动编辑）
 
-service/             ← 第 2 层：Service 层，调用 generated Client，封装纯异步函数
-  每个 service 文件 = 一个 gRPC Service 的单例封装
+client.ts            ← ApiClient 单例，将 axios 请求适配为 ClientTransport
 
-composables/         ← 第 3 层：Vue Query hooks 层，面向业务组件的最终 API
+composables/         ← 第 2 层：Vue Query hooks 层，面向业务组件的最终 API
   use*   = 组件内使用的 Vue Query hook（useQuery / useMutation）
   fetch* = 组件外使用的 Promise 方法（Store、路由守卫等）
   枚举工具 = 各模块的状态/颜色映射函数
@@ -26,41 +25,49 @@ composables/         ← 第 3 层：Vue Query hooks 层，面向业务组件的
 ```
 src/api/
 ├── index.ts                        # 统一导出入口
+├── client.ts                       # ApiClient 单例（transport 适配层）
 ├── generated/
 │   └── admin/service/v1/           # protobuf 自动生成的代码（勿手动修改）
-│       └── index.ts                # 所有类型 + createXxxServiceClient 工厂
-├── service/                        # Service 层（一个文件对应一个后端 Service）
-│   ├── auth.ts                     # 认证服务
-│   ├── user.ts                     # 用户管理
-│   ├── role.ts                     # 角色管理
-│   ├── permission.ts               # 权限管理
-│   ├── permission-group.ts         # 权限组管理
-│   ├── org-unit.ts                 # 组织单元
-│   ├── position.ts                 # 岗位管理
-│   ├── menu.ts                     # 菜单管理
-│   ├── api.ts                      # API 管理
-│   ├── dict.ts                     # 字典管理（类型 + 条目）
-│   ├── file.ts                     # 文件管理
-│   ├── file-transfer.ts            # 文件传输
-│   ├── tenant.ts                   # 租户管理
-│   ├── task.ts                     # 异步任务
-│   ├── login-policy.ts             # 登录策略
-│   ├── language.ts                 # 语言管理
-│   ├── admin-portal.ts             # 管理门户（导航等）
-│   ├── user-profile.ts             # 用户个人资料
-│   ├── internal-message.ts         # 内部消息
-│   ├── login-audit-log.ts          # 登录审计日志
-│   ├── api-audit-log.ts            # API 审计日志
-│   ├── operation-audit-log.ts      # 操作审计日志
-│   ├── data-access-audit-log.ts    # 数据访问审计日志
-│   ├── permission-audit-log.ts     # 权限审计日志
-│   └── policy-evaluation-log.ts    # 策略评估日志
-└── composables/                    # Vue Query hooks 层（与 service 一一对应）
+│       └── index.ts                # 所有类型 + createApiClient 工厂 + ApiClient 类
+└── composables/                    # Vue Query hooks 层（与业务模块一一对应）
     ├── shared.ts                   # 通用枚举工具（enable/status/成功失败等）
     ├── auth.ts                     # 认证 hooks
     ├── user.ts                     # 用户 hooks + 用户枚举工具
-    ├── ...其余同 service 目录
+    ├── ...其余模块
     └── index.ts                    # 统一导出
+```
+
+---
+
+## 核心：ApiClient 单例
+
+`src/api/client.ts` 导出全局唯一的 `apiClient` 实例。它通过懒加载属性访问器按需创建各服务的 Client：
+
+```ts
+// src/api/client.ts
+import { type ClientTransport, createApiClient } from "@/api/generated/admin/service/v1";
+import { requestApi } from "@/core/transport/rest";
+
+const transport: ClientTransport = {
+  unary(path, method, body, _meta) {
+    return requestApi({ body, method, path });
+  },
+  serverStream(path, _meta) { throw new Error(...); },
+  duplexStream(path, _meta) { throw new Error(...); },
+};
+
+export const apiClient = createApiClient(transport);
+```
+
+在 composable 中使用时，通过属性访问器获取对应服务：
+
+```ts
+import { apiClient } from "@/api/client";
+
+// 每个服务对应 apiClient 的一个属性访问器（懒加载单例）
+apiClient.userService.List(params);
+apiClient.authenticationService.Login(request);
+apiClient.positionService.Create({ data: { ... } });
 ```
 
 ---
@@ -115,7 +122,7 @@ const user = await fetchUser({ id: 1 });
 
 ---
 
-## 三层架构详解
+## 两层架构详解
 
 ### 第 1 层：generated（自动生成）
 
@@ -123,15 +130,15 @@ const user = await fetchUser({ id: 1 });
 
 - **类型定义**：`permissionservicev1_Role`、`identityservicev1_User` 等
 - **请求/响应类型**：`permissionservicev1_ListRoleResponse`、`identityservicev1_CreateUserRequest` 等
-- **Service Client 工厂**：`createUserServiceClient(requestApi)` 等
+- **ApiClient 类**：`createApiClient(transport)` 工厂函数，内置所有服务的懒加载访问器
 
 ```ts
-// 典型导入（composables 和 service 层使用）
+// 典型导入（composable 层使用）
 import type {
   identityservicev1_User,
   identityservicev1_ListUserResponse,
-  createUserServiceClient,
 } from "@/api/generated/admin/service/v1";
+import { apiClient } from "@/api/client";
 ```
 
 **命名规则**：`{service}v1_{MessageName}`
@@ -141,36 +148,9 @@ import type {
 - `authenticationservicev1_` — 认证相关
 - 以此类推
 
-### 第 2 层：service
+### 第 2 层：composables
 
-每个文件对应一个后端 gRPC Service，提供：
-- **延迟初始化的单例 Client**
-- **纯异步函数**（可直接 `await` 调用）
-
-```ts
-// service/user.ts 的典型结构
-import { createUserServiceClient } from "@/api/generated/admin/service/v1";
-import { requestApi } from "@/core/transport/rest";
-
-let _instance: ReturnType<typeof createUserServiceClient> | null = null;
-
-export function getUserService() {
-  if (!_instance) {
-    _instance = createUserServiceClient(requestApi);
-  }
-  return _instance;
-}
-
-export async function listUsers(query: PaginationQuery) {
-  return getUserService().List(query.toRawParams());
-}
-```
-
-**何时直接用 service 层**：当你在 composables 层构建 hook 时，或在非 Vue 上下文不需要缓存时。
-
-### 第 3 层：composables
-
-面向业务组件的最终 API 层，提供三种导出：
+面向业务组件的最终 API 层，通过 `apiClient` 调用 gRPC 服务，提供三种导出：
 
 #### `use*` — Vue Query hooks（组件内使用）
 
@@ -275,63 +255,63 @@ await mutateAsync({ ids: [1, 2, 3] });
 
 ### 认证与门户
 
-| 模块 | composable | service | 说明 |
-|---|---|---|---|
-| 认证 | `auth.ts` | `auth.ts` | 登录、登出、注册、验证码、刷新Token |
-| 管理门户 | `admin-portal.ts` | `admin-portal.ts` | 导航菜单获取 |
+| 模块 | composable | 说明 |
+|---|---|---|
+| 认证 | `auth.ts` | 登录、登出、注册、验证码、刷新Token |
+| 管理门户 | `admin-portal.ts` | 导航菜单获取 |
 
 ### 用户与身份
 
-| 模块 | composable | service | 说明 |
-|---|---|---|---|
-| 用户管理 | `user.ts` | `user.ts` | 用户 CRUD + 枚举（状态/性别） |
-| 用户资料 | `user-profile.ts` | `user-profile.ts` | 当前用户个人资料 |
-| 租户管理 | `tenant.ts` | `tenant.ts` | 租户 CRUD |
+| 模块 | composable | 说明 |
+|---|---|---|
+| 用户管理 | `user.ts` | 用户 CRUD + 枚举（状态/性别） |
+| 用户资料 | `user-profile.ts` | 当前用户个人资料 |
+| 租户管理 | `tenant.ts` | 租户 CRUD |
 
 ### 组织架构
 
-| 模块 | composable | service | 说明 |
-|---|---|---|---|
-| 组织单元 | `org-unit.ts` | `org-unit.ts` | 部门树管理 |
-| 岗位管理 | `position.ts` | `position.ts` | 岗位 CRUD |
+| 模块 | composable | 说明 |
+|---|---|---|
+| 组织单元 | `org-unit.ts` | 部门树管理 |
+| 岗位管理 | `position.ts` | 岗位 CRUD |
 
 ### 权限管理
 
-| 模块 | composable | service | 说明 |
-|---|---|---|---|
-| 权限 | `permission.ts` | `permission.ts` | 权限 CRUD |
-| 权限组 | `permission-group.ts` | `permission-group.ts` | 权限组 CRUD |
-| 角色 | `role.ts` | `role.ts` | 角色 CRUD |
-| 菜单 | `menu.ts` | `menu.ts` | 菜单 CRUD |
-| API | `api.ts` | `api.ts` | API 管理 |
+| 模块 | composable | 说明 |
+|---|---|---|
+| 权限 | `permission.ts` | 权限 CRUD |
+| 权限组 | `permission-group.ts` | 权限组 CRUD |
+| 角色 | `role.ts` | 角色 CRUD |
+| 菜单 | `menu.ts` | 菜单 CRUD |
+| API | `api.ts` | API 管理 |
 
 ### 系统管理
 
-| 模块 | composable | service | 说明 |
-|---|---|---|---|
-| 字典 | `dict.ts` | `dict.ts` | 字典类型 + 字典条目 |
-| 文件 | `file.ts` | `file.ts` | 文件上传下载 |
-| 文件传输 | `file-transfer.ts` | `file-transfer.ts` | 文件传输任务 |
-| 异步任务 | `task.ts` | `task.ts` | 后台任务管理 |
-| 登录策略 | `login-policy.ts` | `login-policy.ts` | 登录策略配置 |
-| 语言 | `language.ts` | `language.ts` | 语言管理 |
+| 模块 | composable | 说明 |
+|---|---|---|
+| 字典 | `dict.ts` | 字典类型 + 字典条目 |
+| 文件 | `file.ts` | 文件上传下载 |
+| 文件传输 | `file-transfer.ts` | 文件传输任务 |
+| 异步任务 | `task.ts` | 后台任务管理 |
+| 登录策略 | `login-policy.ts` | 登录策略配置 |
+| 语言 | `language.ts` | 语言管理 |
 
 ### 审计日志
 
-| 模块 | composable | service | 说明 |
-|---|---|---|---|
-| 登录日志 | `login-audit-log.ts` | `login-audit-log.ts` | 登录审计 |
-| API 日志 | `api-audit-log.ts` | `api-audit-log.ts` | API 调用审计 |
-| 操作日志 | `operation-audit-log.ts` | `operation-audit-log.ts` | 操作审计 |
-| 数据访问日志 | `data-access-audit-log.ts` | `data-access-audit-log.ts` | 数据访问审计 |
-| 权限日志 | `permission-audit-log.ts` | `permission-audit-log.ts` | 权限变更审计 |
-| 策略评估日志 | `policy-evaluation-log.ts` | `policy-evaluation-log.ts` | 策略评估日志 |
+| 模块 | composable | 说明 |
+|---|---|---|
+| 登录日志 | `login-audit-log.ts` | 登录审计 |
+| API 日志 | `api-audit-log.ts` | API 调用审计 |
+| 操作日志 | `operation-audit-log.ts` | 操作审计 |
+| 数据访问日志 | `data-access-audit-log.ts` | 数据访问审计 |
+| 权限日志 | `permission-audit-log.ts` | 权限变更审计 |
+| 策略评估日志 | `policy-evaluation-log.ts` | 策略评估日志 |
 
 ### 消息
 
-| 模块 | composable | service | 说明 |
-|---|---|---|---|
-| 内部消息 | `internal-message.ts` | `internal-message.ts` | 站内信 |
+| 模块 | composable | 说明 |
+|---|---|---|
+| 内部消息 | `internal-message.ts` | 站内信 |
 
 ---
 
@@ -366,48 +346,32 @@ import { methodList } from "@/api";
 确保 protobuf 已重新生成，`@/api/generated/admin/service/v1` 中包含：
 - `notificationservicev1_*` 类型
 - `createNotificationServiceClient` 工厂函数
+- ApiClient 中已包含 `notificationService` 属性访问器
 
-### 第 2 步：创建 service 层
+### 第 2 步：创建 composable 层
 
-新建 `src/api/service/notification.ts`：
-
-```ts
-import { createNotificationServiceClient } from "@/api/generated/admin/service/v1";
-import { type PaginationQuery, requestApi } from "@/core/transport/rest";
-
-let _instance: ReturnType<typeof createNotificationServiceClient> | null = null;
-
-function getNotificationService() {
-  if (!_instance) {
-    _instance = createNotificationServiceClient(requestApi);
-  }
-  return _instance;
-}
-
-export async function listNotifications(query: PaginationQuery) {
-  return getNotificationService().List(query.toRawParams());
-}
-
-export async function createNotification(request: any) {
-  return getNotificationService().Create(request);
-}
-```
-
-### 第 3 步：创建 composables 层
-
-新建 `src/api/composables/notification.ts`：
+新建 `src/api/composables/notification.ts`，通过 `apiClient` 调用服务：
 
 ```ts
-import { useMutation, useQuery } from "@tanstack/vue-query";
-import { type PaginationQuery, makeUpdateMask } from "@/core/transport/rest";
-import { listNotifications, createNotification } from "@/api/service/notification";
+import { computed } from "vue";
+import { useMutation, useQuery, type UseMutationOptions, type UseQueryOptions } from "@tanstack/vue-query";
+import type {
+  notificationservicev1_Notification,
+  notificationservicev1_ListNotificationResponse,
+} from "@/api/generated/admin/service/v1";
+import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
+import { apiClient } from "@/api/client";
 import { queryClient } from "@/plugins/vue-query";
+import { i18n } from "@/core/i18n";
+
+const t = i18n.global.t;
 
 // 组件内使用
-export function useListNotifications(query: PaginationQuery) {
+export function useListNotifications(query: PaginationQuery, options?: UseQueryOptions<notificationservicev1_ListNotificationResponse, Error>) {
   return useQuery({
     queryKey: ["listNotifications", query],
-    queryFn: () => listNotifications(query),
+    queryFn: () => apiClient.notificationService.List(query.toRawParams()),
+    ...options,
   });
 }
 
@@ -415,22 +379,36 @@ export function useListNotifications(query: PaginationQuery) {
 export async function fetchListNotifications(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listNotifications", params],
-    queryFn: () => listNotifications(params),
+    queryFn: () => apiClient.notificationService.List(params.toRawParams()),
     retry: 0,
   });
 }
 
-// 写操作
-export function useCreateNotification() {
+// 创建 — 注意 { data: {...} } 包裹
+export function useCreateNotification(options?: UseMutationOptions<{}, Error, Record<string, any>>) {
   return useMutation({
-    mutationFn: (values: Record<string, any>) => createNotification({ data: { ...values } }),
+    mutationFn: (values) => apiClient.notificationService.Create({ data: { ...values } }),
+    ...options,
+  });
+}
+
+// 更新 — 必须使用 makeUpdateMask 生成字段掩码
+export function useUpdateNotification(options?: UseMutationOptions<{}, Error, { id: number; values: Record<string, any> }>) {
+  return useMutation({
+    mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
+      apiClient.notificationService.Update({
+        id,
+        data: { ...values },
+        updateMask: makeUpdateMask(Object.keys(values ?? {})),
+      }),
+    ...options,
   });
 }
 ```
 
-### 第 4 步：注册导出
+### 第 3 步：注册导出
 
-在 `service/index.ts` 和 `composables/index.ts` 中各加一行：
+在 `src/api/composables/index.ts` 中追加一行：
 
 ```ts
 export * from "./notification";
@@ -468,18 +446,20 @@ export * from "./notification";
          │    ├─ 命中且未过期 → 返回缓存数据
          │    └─ 未命中 → 调用 queryFn
          │
-         └─ queryFn → listUsers(query)
+         └─ queryFn → apiClient.userService.List(params)
                        │
-                       └─ service 层 → UserService.List(params)
-                                       │
-                                       └─ gRPC Client → requestApi({ path, method, body })
-                                                          │
-                                                          └─ RequestClient (axios)
-                                                              ├─ 注入 Token
-                                                              ├─ 注入 Request-ID
-                                                              ├─ 注入 Accept-Language
-                                                              ├─ 发送 HTTP 请求
-                                                              └─ 响应拦截（401 → 刷新Token）
+                       └─ ApiClient (懒加载 Service Client)
+                           │
+                           └─ ClientTransport.unary(path, method, body)
+                               │
+                               └─ requestApi({ path, method, body })
+                                   │
+                                   └─ RequestClient (axios)
+                                       ├─ 注入 Token
+                                       ├─ 注入 Request-ID
+                                       ├─ 注入 Accept-Language
+                                       ├─ 发送 HTTP 请求
+                                       └─ 响应拦截（401 → 刷新Token）
 ```
 
 ---
@@ -489,6 +469,6 @@ export * from "./notification";
 1. **不要修改 generated 目录** — 由 protobuf 工具链自动生成，修改会被覆盖
 2. **组件内用 `use*`，组件外用 `fetch*`** — `use*` 依赖 Vue setup 上下文，在 Store/路由守卫中使用会报错
 3. **更新操作只传变化的字段** — `useUpdate*` 内部会自动生成 `updateMask`，只传需要修改的字段即可
-4. **composables 不要直接依赖 generated 代码** — 通过 service 层间接使用，保持依赖方向清晰
+4. **composable 层只导入类型** — 从 `generated/` 只导入 `type`，运行时调用通过 `apiClient`
 5. **Query Key 是响应式的** — 传入 `useQuery` 的参数如果包含 `ref/reactive/computed`，变化时会自动重新请求
 6. **错误处理** — Vue Query 的 `error` 已包含错误信息，无需手动 try/catch；`mutation` 的错误通过 `onError` 回调处理

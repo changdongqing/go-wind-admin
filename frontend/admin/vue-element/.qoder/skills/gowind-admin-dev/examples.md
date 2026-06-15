@@ -6,51 +6,7 @@
 
 ## 示例 1：完整 CRUD 模块（职位管理 position）
 
-### 1.1 API 服务层
-
-```typescript
-// src/api/service/position.ts
-import {
-  createPositionServiceClient,
-  type identityservicev1_CreatePositionRequest,
-  type identityservicev1_DeletePositionRequest,
-  type identityservicev1_GetPositionRequest,
-  type identityservicev1_UpdatePositionRequest,
-} from "@/api/generated/admin/service/v1";
-import { type PaginationQuery, requestApi } from "@/core/transport/rest";
-
-let _positionInstance: ReturnType<typeof createPositionServiceClient> | null = null;
-
-export function getPositionService() {
-  if (!_positionInstance) {
-    _positionInstance = createPositionServiceClient(requestApi);
-  }
-  return _positionInstance;
-}
-
-export async function listPositions(query: PaginationQuery) {
-  const params = query.toRawParams();
-  return getPositionService().List(params);
-}
-
-export async function getPosition(request: identityservicev1_GetPositionRequest) {
-  return getPositionService().Get(request);
-}
-
-export async function createPosition(request: identityservicev1_CreatePositionRequest) {
-  return getPositionService().Create(request);
-}
-
-export async function updatePosition(request: identityservicev1_UpdatePositionRequest) {
-  return getPositionService().Update(request);
-}
-
-export async function deletePosition(request: identityservicev1_DeletePositionRequest) {
-  return getPositionService().Delete(request);
-}
-```
-
-### 1.2 API Composable 层
+### 1.1 API Composable 层
 
 ```typescript
 // src/api/composables/position.ts
@@ -68,10 +24,8 @@ import type {
   identityservicev1_Position_Type as Position_Type,
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
-import {
-  listPositions, getPosition, createPosition, updatePosition, deletePosition,
-} from "@/api/service/position";
-import { queryClient } from "@/plugins/vue-query";
+import { apiClient } from "@/api/client";
+import { queryClient } from "@plugins/vue-query";
 import { i18n } from "@/core/i18n";
 
 const t = i18n.global.t;
@@ -83,7 +37,7 @@ export function useListPositions(
 ) {
   return useQuery({
     queryKey: ["listPositions", query],
-    queryFn: () => listPositions(query),
+    queryFn: () => apiClient.positionService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -92,7 +46,7 @@ export function useListPositions(
 export async function fetchListPositions(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listPositions", params],
-    queryFn: () => listPositions(params),
+    queryFn: () => apiClient.positionService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -104,7 +58,7 @@ export function useGetPosition(
 ) {
   return useQuery({
     queryKey: ["getPosition", req],
-    queryFn: () => getPosition(req),
+    queryFn: () => apiClient.positionService.Get(req),
     ...options,
   });
 }
@@ -112,7 +66,7 @@ export function useGetPosition(
 // 创建 — 注意 { data: {...} } 包裹
 export function useCreatePosition(options?: UseMutationOptions<{}, Error, Record<string, any>>) {
   return useMutation({
-    mutationFn: (values) => createPosition({ data: { ...values } as identityservicev1_Position }),
+    mutationFn: (values) => apiClient.positionService.Create({ data: { ...values } as identityservicev1_Position }),
     ...options,
   });
 }
@@ -123,7 +77,7 @@ export function useUpdatePosition(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updatePosition({
+      apiClient.positionService.Update({
         id,
         data: { ...values },
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -136,7 +90,7 @@ export function useUpdatePosition(
 export function useDeletePosition(
   options?: UseMutationOptions<{}, Error, identityservicev1_DeletePositionRequest>
 ) {
-  return useMutation({ mutationFn: (req) => deletePosition(req), ...options });
+  return useMutation({ mutationFn: (req) => apiClient.positionService.Delete(req), ...options });
 }
 
 // ==============================

@@ -4,67 +4,70 @@
 
 ---
 
-## 1. API 三层架构
+## 1. API 两层架构
 
 ### 层级关系
 
 ```
 gRPC 生成代码 (generated/)      ← 禁止修改
-    ↓ 只导入类型（type import）
-服务层 (service/)                ← 单例 gRPC 客户端，纯异步函数
-    ↓ 调用 service 函数
+    ↓ 只导入类型（type import） + apiClient
+ApiClient (client.ts)           ← 全局单例，懒加载各服务 Client
+    ↓ 调用 apiClient.xxxService.Method()
 Composable 层 (composables/)    ← Vue Query hooks + 枚举工具，面向组件
 ```
 
-### 1.1 服务层 (`src/api/service/`)
+### 1.1 ApiClient 单例 (`src/api/client.ts`)
 
-**职责**：创建 gRPC 服务客户端单例，提供纯异步函数。
+**职责**：全局唯一的 API 入口，通过 `ClientTransport` 适配 axios 请求，懒加载各服务 Client。
 
 ```typescript
-// 标准模板
-import { createXxxServiceClient, type XxxRequest } from "@/api/generated/admin/service/v1";
-import { type PaginationQuery, requestApi } from "@/core/transport/rest";
+// src/api/client.ts — 全局单例
+import { type ClientTransport, createApiClient } from "@/api/generated/admin/service/v1";
+import { requestApi } from "@/core/transport/rest";
 
-let _instance: ReturnType<typeof createXxxServiceClient> | null = null;
+const transport: ClientTransport = {
+  unary(path, method, body, _meta) {
+    return requestApi({ body, method, path });
+  },
+  serverStream(path, _meta) { throw new Error(...); },
+  duplexStream(path, _meta) { throw new Error(...); },
+};
 
-export function getXxxService() {
-  if (!_instance) _instance = createXxxServiceClient(requestApi);
-  return _instance;
-}
+export const apiClient = createApiClient(transport);
+```
 
-// 列表 — toRawParams() 自动处理
-export async function listXxx(query: PaginationQuery) {
-  const params = query.toRawParams();
-  return getXxxService().List(params);
-}
+**使用方式**：
+```typescript
+import { apiClient } from "@/api/client";
 
-// CRUD
-export async function getXxx(req: GetXxxRequest) { return getXxxService().Get(req); }
-export async function createXxx(req: CreateXxxRequest) { return getXxxService().Create(req); }
-export async function updateXxx(req: UpdateXxxRequest) { return getXxxService().Update(req); }
-export async function deleteXxx(req: DeleteXxxRequest) { return getXxxService().Delete(req); }
+// 通过属性访问器获取服务 Client（懒加载单例）
+apiClient.userService.List(params);
+apiClient.authenticationService.Login(request);
+apiClient.positionService.Create({ data: { ... } });
 ```
 
 **注意事项**：
-- `toRawParams()` 返回的对象中 `sorting/offset/limit/token/filter/filterExpr` 已自动设为 `undefined`
 - `requestApi` 是全局请求适配器，从 `@/core/transport/rest` 导入
-- 新建文件后必须在 `src/api/service/index.ts` 中添加 `export * from "./xxx"`
+- `apiClient` 的服务属性命名：驼峰服务名 + `Service` 后缀（如 `positionService`、`dictTypeService`）
+- 新增服务无需手动注册，protobuf 重新生成后 `ApiClient` 类自动包含新属性
 
 ### 1.2 Composable 层 (`src/api/composables/`)
 
-**职责**：基于 Vue Query 的 hooks，提供响应式数据管理。
+**职责**：基于 Vue Query 的 hooks，通过 `apiClient` 调用服务，提供响应式数据管理。
 
 #### use* Hook 系列（组件 setup 中使用）
 
 ```typescript
+import { apiClient } from "@/api/client";
+
 // 列表查询
 export function useListXxx(query: PaginationQuery, options?: UseQueryOptions) {
-  return useQuery({ queryKey: ["listXxx", query], queryFn: () => listXxx(query), ...options });
+  return useQuery({ queryKey: ["listXxx", query], queryFn: () => apiClient.xxxService.List(query.toRawParams()), ...options });
 }
 
 // 单条查询
 export function useGetXxx(req: GetXxxRequest, options?: UseQueryOptions) {
-  return useQuery({ queryKey: ["getXxx", req], queryFn: () => getXxx(req), ...options });
+  return useQuery({ queryKey: ["getXxx", req], queryFn: () => apiClient.xxxService.Get(req), ...options });
 }
 ```
 
@@ -74,7 +77,7 @@ export function useGetXxx(req: GetXxxRequest, options?: UseQueryOptions) {
 export async function fetchListXxx(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listXxx", params],
-    queryFn: () => listXxx(params),
+    queryFn: () => apiClient.xxxService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -86,7 +89,7 @@ export async function fetchListXxx(params: PaginationQuery) {
 // 创建 — 参数用 { data: {...} } 包裹
 export function useCreateXxx(options?: UseMutationOptions) {
   return useMutation({
-    mutationFn: (values) => createXxx({ data: { ...values } as XxxType }),
+    mutationFn: (values) => apiClient.xxxService.Create({ data: { ...values } as XxxType }),
     ...options,
   });
 }
@@ -95,14 +98,14 @@ export function useCreateXxx(options?: UseMutationOptions) {
 export function useUpdateXxx(options?: UseMutationOptions) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateXxx({ id, data: { ...values }, updateMask: makeUpdateMask(Object.keys(values ?? {})) }),
+      apiClient.xxxService.Update({ id, data: { ...values }, updateMask: makeUpdateMask(Object.keys(values ?? {})) }),
     ...options,
   });
 }
 
 // 删除
 export function useDeleteXxx(options?: UseMutationOptions) {
-  return useMutation({ mutationFn: (req) => deleteXxx(req), ...options });
+  return useMutation({ mutationFn: (req) => apiClient.xxxService.Delete(req), ...options });
 }
 ```
 
@@ -456,7 +459,8 @@ const label = t("enum.position.type.REGULAR");
 
 ```typescript
 // API 层
-import { fetchListXxx, useCreateXxx, useUpdateXxx, useDeleteXxx, xxxStatusList } from "@/api/composables";
+import { apiClient } from "@/api/client";  // Composable 内部使用
+import { fetchListXxx, useCreateXxx, useUpdateXxx, useDeleteXxx, xxxStatusList } from "@/api/composables";  // 组件中使用
 
 // Pro 组件
 import ProPage from "@/components/Pro/ProPage/index.vue";

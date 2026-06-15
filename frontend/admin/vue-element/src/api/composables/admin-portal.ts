@@ -4,12 +4,21 @@ import type {
   ListPermissionCodeResponse,
   ListRouteResponse,
 } from "@/api/generated/admin/service/v1";
-import { getNavigation, getMyPermissionCode, getInitialContext } from "@/api/service/admin-portal";
-
-// 直接导出 service 层函数，供非 Vue 上下文使用
-export { getMyPermissionCode };
-
+import { apiClient } from "@/api/client";
 import { queryClient } from "@/plugins/vue-query";
+
+// 直接导出函数，供非 Vue 上下文使用
+export async function getMyPermissionCode() {
+  return apiClient.adminPortalService.GetMyPermissionCode({});
+}
+
+async function getNavigation() {
+  return apiClient.adminPortalService.GetNavigation({});
+}
+
+async function getInitialContext() {
+  return apiClient.adminPortalService.GetInitialContext({});
+}
 
 // ------------------------------
 // 1. 获取导航路由（左侧菜单）

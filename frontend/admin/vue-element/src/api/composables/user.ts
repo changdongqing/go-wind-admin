@@ -16,15 +16,7 @@ import type {
   identityservicev1_User_Status as User_Status,
 } from "@/api/generated/admin/service/v1";
 import { makeUpdateMask, type PaginationQuery } from "@/core/transport/rest";
-import {
-  createUser,
-  deleteUser,
-  getUser,
-  listUsers,
-  updateUser,
-  userExists,
-  editUserPassword,
-} from "@/api/service/user";
+import { apiClient } from "@/api/client";
 import { queryClient } from "@/plugins/vue-query";
 import { i18n } from "@/core/i18n";
 
@@ -39,7 +31,18 @@ export function useListUsers(
 ) {
   return useQuery({
     queryKey: ["listUsers", query],
-    queryFn: () => listUsers(query),
+    queryFn: () => {
+      const params = query.toRawParams();
+      return apiClient.userService.List({
+        ...params,
+        sorting: undefined,
+        offset: undefined,
+        limit: undefined,
+        token: undefined,
+        filter: undefined,
+        filterExpr: undefined,
+      });
+    },
     ...options,
   });
 }
@@ -50,7 +53,18 @@ export function useListUsers(
 export async function fetchListUsers(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ["listUsers", params],
-    queryFn: () => listUsers(params),
+    queryFn: () => {
+      const reqParams = params.toRawParams();
+      return apiClient.userService.List({
+        ...reqParams,
+        sorting: undefined,
+        offset: undefined,
+        limit: undefined,
+        token: undefined,
+        filter: undefined,
+        filterExpr: undefined,
+      });
+    },
     retry: 0,
   });
 }
@@ -64,7 +78,7 @@ export function useGetUser(
 ) {
   return useQuery({
     queryKey: ["getUser", req],
-    queryFn: () => getUser(req),
+    queryFn: () => apiClient.userService.Get(req),
     ...options,
   });
 }
@@ -75,7 +89,7 @@ export function useGetUser(
 export async function fetchUser(params: identityservicev1_GetUserRequest) {
   return queryClient.fetchQuery({
     queryKey: ["getUser", params],
-    queryFn: () => getUser(params),
+    queryFn: () => apiClient.userService.Get(params),
     retry: 0,
   });
 }
@@ -87,7 +101,7 @@ export function useCreateUser(
   options?: UseMutationOptions<{}, Error, { data: identityservicev1_User; password?: string }>
 ) {
   return useMutation({
-    mutationFn: ({ data, password }) => createUser({ data, password }),
+    mutationFn: ({ data, password }) => apiClient.userService.Create({ data, password }),
     ...options,
   });
 }
@@ -97,7 +111,7 @@ export function useCreateUser(
 // ==============================
 export function useDeleteUser(options?: UseMutationOptions<{}, Error, number>) {
   return useMutation({
-    mutationFn: (id) => deleteUser({ id }),
+    mutationFn: (id) => apiClient.userService.Delete({ id }),
     ...options,
   });
 }
@@ -110,7 +124,7 @@ export function useUpdateUser(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateUser({
+      apiClient.userService.Update({
         id,
         data: { ...values } as any,
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -130,7 +144,7 @@ export function useUserExists(
   >
 ) {
   return useMutation({
-    mutationFn: (data) => userExists(data),
+    mutationFn: (data) => apiClient.userService.UserExists(data),
     ...options,
   });
 }
@@ -142,7 +156,7 @@ export function useEditUserPassword(
   options?: UseMutationOptions<{}, Error, identityservicev1_EditUserPasswordRequest>
 ) {
   return useMutation({
-    mutationFn: (data) => editUserPassword(data),
+    mutationFn: (data) => apiClient.userService.EditUserPassword(data),
     ...options,
   });
 }

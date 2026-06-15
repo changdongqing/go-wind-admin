@@ -12,18 +12,17 @@ import type {
   identityservicev1_BindContactRequest,
   identityservicev1_VerifyContactRequest,
 } from "@/api/generated/admin/service/v1";
-import {
-  bindMyContact,
-  changeMyPassword,
-  deleteMyAvatar,
-  getMe,
-  updateMyUserInfo,
-  uploadMyAvatar,
-  verifyMyContact,
-} from "@/api/service/user-profile";
+import { apiClient } from "@/api/client";
 
-// 直接导出 service 层函数，供非 Vue 上下文使用
-export { getMe };
+// 直接导出函数，供非 Vue 上下文使用
+export async function getMe(): Promise<identityservicev1_User | null> {
+  try {
+    return await apiClient.userProfileService.GetUser({});
+  } catch (error) {
+    console.error("getMe failed:", error);
+    return null;
+  }
+}
 import { makeUpdateMask } from "@/core/transport/rest";
 import { queryClient } from "@/plugins/vue-query";
 
@@ -51,7 +50,7 @@ export function useUpdateUserProfile(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateMyUserInfo({
+      apiClient.userProfileService.UpdateUser({
         id,
         data: { ...values } as any,
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -64,7 +63,7 @@ export function useChangePassword(
   options?: UseMutationOptions<{}, Error, identityservicev1_ChangePasswordRequest>
 ) {
   return useMutation({
-    mutationFn: (data) => changeMyPassword(data),
+    mutationFn: (data) => apiClient.userProfileService.ChangePassword(data),
     ...options,
   });
 }
@@ -77,14 +76,14 @@ export function useUploadAvatar(
   >
 ) {
   return useMutation({
-    mutationFn: (data) => uploadMyAvatar(data),
+    mutationFn: (data) => apiClient.userProfileService.UploadAvatar(data),
     ...options,
   });
 }
 
 export function useDeleteAvatar(options?: UseMutationOptions<{}, Error, void>) {
   return useMutation({
-    mutationFn: () => deleteMyAvatar(),
+    mutationFn: () => apiClient.userProfileService.DeleteAvatar({}),
     ...options,
   });
 }
@@ -93,7 +92,7 @@ export function useBindContact(
   options?: UseMutationOptions<{}, Error, identityservicev1_BindContactRequest>
 ) {
   return useMutation({
-    mutationFn: (data) => bindMyContact(data),
+    mutationFn: (data) => apiClient.userProfileService.BindContact(data),
     ...options,
   });
 }
@@ -102,7 +101,7 @@ export function useVerifyContact(
   options?: UseMutationOptions<{}, Error, identityservicev1_VerifyContactRequest>
 ) {
   return useMutation({
-    mutationFn: (data) => verifyMyContact(data),
+    mutationFn: (data) => apiClient.userProfileService.VerifyContact(data),
     ...options,
   });
 }
