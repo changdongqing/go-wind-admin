@@ -169,9 +169,12 @@ class PreferenceManager {
     this.initialPreferences = merge({}, overrides, defaultPreferences);
 
     // 加载并合并当前存储的偏好设置
+    // 注意：merge = defu，前面的参数优先级更高
+    // overrides 放在最前面，确保 env 中定义的配置（如 accessMode）
+    // 始终优先于 localStorage 缓存的值
     const mergedPreference = merge(
       {},
-      // overrides,
+      overrides,
       this.loadCachedPreferences() || {},
       this.initialPreferences,
     );
