@@ -201,6 +201,42 @@ func (r *MenuRepo) Create(ctx context.Context, req *permissionV1.CreateMenuReque
 	return nil
 }
 
+// CreateReturn 创建菜单并返回包含数据库生成 ID 的实体
+// CreateReturn creates a menu and returns the entity with the database-generated ID
+func (r *MenuRepo) CreateReturn(ctx context.Context, req *permissionV1.CreateMenuRequest) (*permissionV1.Menu, error) {
+	if req == nil || req.Data == nil {
+		return nil, permissionV1.ErrorBadRequest("invalid parameter")
+	}
+
+	builder := r.entClient.Client().Menu.Create().
+		SetNillableParentID(req.Data.ParentId).
+		SetNillableType(r.typeConverter.ToEntity(req.Data.Type)).
+		SetNillablePath(req.Data.Path).
+		SetNillableRedirect(req.Data.Redirect).
+		SetNillableAlias(req.Data.Alias).
+		SetNillableName(req.Data.Name).
+		SetNillableComponent(req.Data.Component).
+		SetNillableStatus(r.statusConverter.ToEntity(req.Data.Status)).
+		SetNillableCreatedBy(req.Data.CreatedBy).
+		SetCreatedAt(time.Now())
+
+	if req.Data.Meta != nil {
+		builder.SetMeta(req.Data.Meta)
+	}
+
+	if req.Data.Id != nil {
+		builder.SetID(req.GetData().GetId())
+	}
+
+	entity, err := builder.Save(ctx)
+	if err != nil {
+		r.log.Errorf("insert menu failed: %s", err.Error())
+		return nil, permissionV1.ErrorInternalServerError("insert menu failed")
+	}
+
+	return r.mapper.ToDTO(entity), nil
+}
+
 func (r *MenuRepo) Update(ctx context.Context, req *permissionV1.UpdateMenuRequest) error {
 	if req == nil || req.Data == nil {
 		return permissionV1.ErrorBadRequest("invalid parameter")

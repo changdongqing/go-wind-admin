@@ -1,4 +1,4 @@
-﻿<script lang="ts" setup>
+<script lang="ts" setup>
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { h } from 'vue';
@@ -11,6 +11,7 @@ import { notification } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
+  buildSyncMenusRequest,
   fetchListMenus,
   menuTypeToColor,
   menuTypeToName,
@@ -19,14 +20,17 @@ import {
   statusToColor,
   statusToName,
   useDeleteMenu,
+  useSyncMenus,
 } from '#/api';
 import { type permissionservicev1_Menu as Menu } from '#/api';
+import { accessRoutes } from '#/router/routes';
 import { $t } from '#/locales';
 import { getRandomColor } from '#/utils/color';
 
 import MenuDrawer from './menu-drawer.vue';
 
 const { mutateAsync: deleteMenu } = useDeleteMenu();
+const { mutateAsync: syncMenus, isPending: isSyncing } = useSyncMenus();
 
 const formOptions: VbenFormProps = {
   // 默认展开
@@ -208,6 +212,17 @@ const collapseAll = () => {
   gridApi.grid?.setAllTreeExpand(false);
 };
 
+/* 同步菜单：将本地静态路由全部推送到后端 */
+async function handleSyncMenus() {
+  try {
+    await syncMenus(buildSyncMenusRequest(accessRoutes));
+    notification.success({ message: $t('ui.notification.update_success') });
+    await gridApi.reload();
+  } catch {
+    notification.error({ message: $t('ui.notification.update_failed') });
+  }
+}
+
 function normalizeAuthority(authority: unknown): string[] {
   if (Array.isArray(authority)) return authority;
   if (typeof authority === 'string') {
@@ -227,6 +242,16 @@ function normalizeAuthority(authority: unknown): string[] {
         <a-button class="mr-2" type="primary" @click="handleCreate">
           {{ $t('page.menu.button.create') }}
         </a-button>
+        <a-popconfirm
+          :cancel-text="$t('ui.button.cancel')"
+          :ok-text="$t('ui.button.ok')"
+          :title="$t('page.menu.text.do_you_want_sync_menus')"
+          @confirm="handleSyncMenus"
+        >
+          <a-button class="mr-2" danger :loading="isSyncing">
+            {{ $t('page.menu.button.sync') }}
+          </a-button>
+        </a-popconfirm>
         <a-button class="mr-2" @click="expandAll">
           {{ $t('ui.tree.expand_all') }}
         </a-button>

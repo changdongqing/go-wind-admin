@@ -193,7 +193,11 @@
       "authority": "多个权限用逗号隔开，如：sys:user:add,sys:user:edit"
     },
     "button": {
-      "create": "创建菜单"
+      "create": "创建菜单",
+      "sync": "同步菜单"
+    },
+    "text": {
+      "do_you_want_sync_menus": "将把本地静态路由全量同步到后端，可能会覆盖已有菜单数据，是否继续？"
     }
   },
   "orgUnit": {

@@ -1,3 +1,5 @@
+import type { RouteRecordRaw } from 'vue-router';
+
 import type {
   permissionservicev1_Menu as Menu,
   permissionservicev1_Menu_Type as Menu_Type,
@@ -5,6 +7,8 @@ import type {
   permissionservicev1_GetMenuRequest,
   permissionservicev1_ListMenuResponse,
   permissionservicev1_Menu,
+  permissionservicev1_MenuMeta,
+  permissionservicev1_SyncMenusRequest,
 } from '#/api/generated/admin/service/v1';
 
 import { computed } from 'vue';
@@ -19,6 +23,7 @@ import {
 } from '@tanstack/vue-query';
 
 import { apiClient } from '#/api/client';
+import { BasicLayout, IFrameView } from '#/layouts';
 import { queryClient } from '#/plugins/vue-query';
 import { makeUpdateMask, type PaginationQuery } from '#/transport/rest';
 
@@ -62,7 +67,8 @@ export function useCreateMenu(
   options?: UseMutationOptions<object, Error, Record<string, any>>,
 ) {
   return useMutation({
-    mutationFn: (values) => apiClient.menuService.Create({ data: { ...values } as Menu }),
+    mutationFn: (values) =>
+      apiClient.menuService.Create({ data: { ...values } as Menu }),
     ...options,
   });
 }
@@ -96,6 +102,89 @@ export function useDeleteMenu(
     mutationFn: (data) => apiClient.menuService.Delete(data),
     ...options,
   });
+}
+
+// ==============================
+// 同步菜单（将前端静态路由推送到后端）
+// ==============================
+
+export function useSyncMenus(
+  options?: UseMutationOptions<
+    object,
+    Error,
+    permissionservicev1_SyncMenusRequest
+  >,
+) {
+  return useMutation({
+    mutationFn: (data) => apiClient.menuService.SyncMenus(data),
+    ...options,
+  });
+}
+
+/**
+ * 将前端静态路由定义转换为后端菜单同步请求格式
+ *
+ * 遍历路由树，提取 path / name / component / redirect / meta 等字段，
+ * 映射为 permissionservicev1_Menu 结构。
+ *
+ * component 路径规则:
+ * - 布局组件 → "BasicLayout" / "IFrameView"
+ * - 页面组件 → 相对于 views/ 的路径，如 "app/opm/org_unit/index.vue"
+ */
+function routeToMenu(route: RouteRecordRaw): null | permissionservicev1_Menu {
+  if (!route.path || !route.name) return null;
+
+  // 解析 component
+  let component: string | undefined;
+  if (route.component) {
+    const comp = route.component as any;
+    if (comp === BasicLayout) {
+      component = 'BasicLayout';
+    } else if (comp === IFrameView) {
+      component = 'IFrameView';
+    } else if (typeof comp === 'function') {
+      // 从 import() 路径中提取相对于 views/ 的路径
+      const source = comp.toString();
+      const match = source.match(/['"]([^'"]+\.vue)['"]/);
+      if (match) {
+        const fullPath = match[1];
+        const viewsIdx = fullPath.indexOf('/views/');
+        component =
+          viewsIdx === -1
+            ? fullPath.replace(/^(\.\.|\.\/)+/, '')
+            : fullPath.slice(viewsIdx + '/views/'.length);
+      }
+    }
+  }
+
+  const menu: permissionservicev1_Menu = {
+    name: route.name as string,
+    path: route.path,
+    component,
+    children: undefined,
+    redirect: route.redirect as string | undefined,
+    meta: route.meta as permissionservicev1_MenuMeta | undefined,
+  };
+
+  if (route.children && route.children.length > 0) {
+    menu.children = route.children
+      .map((child) => routeToMenu(child as RouteRecordRaw))
+      .filter((item): item is permissionservicev1_Menu => item !== null);
+  }
+
+  return menu;
+}
+
+/**
+ * 将前端静态路由定义列表转换为后端菜单同步请求
+ */
+export function buildSyncMenusRequest(
+  routes: RouteRecordRaw[],
+): permissionservicev1_SyncMenusRequest {
+  const items = routes
+    .map((route) => routeToMenu(route))
+    .filter((item): item is permissionservicev1_Menu => item !== null);
+  return { items };
 }
 
 // ==============================

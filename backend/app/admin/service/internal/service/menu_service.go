@@ -127,8 +127,8 @@ func (s *MenuService) Delete(ctx context.Context, req *permissionV1.DeleteMenuRe
 	return &emptypb.Empty{}, nil
 }
 
-// SyncMenus 同步菜单（将前端传入的菜单列表全量同步到数据库）
-// SyncMenus: full sync of client-provided menu list into the database
+// SyncMenus 同步菜单（将前端传入的树形菜单递归插入数据库）
+// SyncMenus: recursively insert client-provided tree-structured menus into the database
 func (s *MenuService) SyncMenus(ctx context.Context, req *permissionV1.SyncMenusRequest) (*emptypb.Empty, error) {
 	if req == nil {
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
@@ -145,22 +145,54 @@ func (s *MenuService) SyncMenus(ctx context.Context, req *permissionV1.SyncMenus
 		return nil, err
 	}
 
-	// 逐条写入前端传入的菜单 / Insert client-provided menus one by one
-	for _, m := range req.Items {
+	// 递归插入树形菜单 / Recursively insert tree-structured menus
+	count, err := s.syncMenuTree(ctx, req.Items, nil, operator.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	s.log.Infof("sync menus success, total: %d", count)
+
+	return &emptypb.Empty{}, nil
+}
+
+// syncMenuTree 递归插入菜单树：先插入父节点拿到 ID，再设置子节点的 parent_id
+// syncMenuTree recursively inserts the menu tree: insert parent first, get ID, then set children's parent_id
+func (s *MenuService) syncMenuTree(ctx context.Context, menus []*permissionV1.Menu, parentId *uint32, operatorId uint32) (int, error) {
+	count := 0
+	for _, m := range menus {
 		if m == nil {
 			continue
 		}
-		m.CreatedBy = trans.Ptr(operator.UserId)
+
+		// 保存子节点引用后清除，避免写入 / Save children ref then clear to avoid writing
+		children := m.Children
+		m.Children = nil
+
+		// 清除前端可能传入的 ID，由数据库自增生成 / Clear client-provided ID, let DB auto-increment
+		m.Id = nil
+		m.ParentId = parentId
+		m.CreatedBy = trans.Ptr(operatorId)
 		m.UpdatedBy = nil
-		if err = s.menuRepo.Create(ctx, &permissionV1.CreateMenuRequest{Data: m}); err != nil {
+
+		// 插入当前节点，获取数据库生成的 ID / Insert current node, get DB-generated ID
+		created, err := s.menuRepo.CreateReturn(ctx, &permissionV1.CreateMenuRequest{Data: m})
+		if err != nil {
 			s.log.Errorf("sync menu failed, name: %s, err: %v", m.GetName(), err)
-			return nil, err
+			return count, err
+		}
+		count++
+
+		// 递归处理子节点，用刚插入的 ID 作为 parent_id / Recurse into children with new ID as parent_id
+		if len(children) > 0 {
+			childCount, err := s.syncMenuTree(ctx, children, created.Id, operatorId)
+			if err != nil {
+				return count, err
+			}
+			count += childCount
 		}
 	}
-
-	s.log.Infof("sync menus success, total: %d", len(req.Items))
-
-	return &emptypb.Empty{}, nil
+	return count, nil
 }
 
 func (s *MenuService) createDefaultMenus(ctx context.Context) error {
