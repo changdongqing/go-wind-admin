@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { getAccessStatic } from '@/core/access';
 import { fetchAllDictEntries } from '@/hooks/useDictCache';
 import { usePreferencesStore } from '@/core/preferences/store';
-import { getNavigation } from '@/api/service/admin-portal';
+import { apiClient } from '@/api/client';
 
 import { Forbidden } from '@/pages/core/error';
 import type { AppRouteObject, ComponentRecordType } from '@/core/router';
@@ -139,7 +139,7 @@ export const AppRouter = () => {
           permissions: freshPermissions,
           forbiddenElement: <Forbidden />,
           fetchMenuListAsync: async () => {
-            const data = await getNavigation();
+            const data = await apiClient.adminPortalService.GetNavigation({});
             return data.items ?? [];
           },
           layoutMap,

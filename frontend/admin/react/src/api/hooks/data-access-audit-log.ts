@@ -5,10 +5,7 @@ import {
   type auditservicev1_ListDataAccessAuditLogResponse,
 } from '@/api/generated/admin/service/v1';
 import { type PaginationQuery, queryClient } from '@/core';
-import {
-  listDataAccessAuditLogs,
-  getDataAccessAuditLog,
-} from '@/api/service/data-access-audit-log';
+import { apiClient } from '@/api/client';
 
 // ==============================
 // 数据访问审计日志
@@ -20,7 +17,7 @@ export function useListDataAccessAuditLogs(
 ) {
   return useQuery({
     queryKey: ['listDataAccessAuditLogs', query],
-    queryFn: () => listDataAccessAuditLogs(query),
+    queryFn: () => apiClient.dataAccessAuditLogService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -28,7 +25,7 @@ export function useListDataAccessAuditLogs(
 export async function fetchListDataAccessAuditLogs(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listDataAccessAuditLogs', params],
-    queryFn: () => listDataAccessAuditLogs(params),
+    queryFn: () => apiClient.dataAccessAuditLogService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -39,7 +36,7 @@ export function useGetDataAccessAuditLog(
 ) {
   return useQuery({
     queryKey: ['getDataAccessAuditLog', req],
-    queryFn: () => getDataAccessAuditLog(req),
+    queryFn: () => apiClient.dataAccessAuditLogService.Get(req),
     ...options,
   });
 }

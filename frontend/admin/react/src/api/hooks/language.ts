@@ -13,14 +13,7 @@ import {
   type dictservicev1_BatchCreateLanguagesRequest,
 } from '@/api/generated/admin/service/v1';
 import { makeUpdateMask, type PaginationQuery, queryClient } from '@/core';
-import {
-  listLanguages,
-  getLanguage,
-  createLanguage,
-  updateLanguage,
-  deleteLanguage,
-  batchCreateLanguages,
-} from '@/api/service/language';
+import { apiClient } from '@/api/client';
 
 // ==============================
 // 语言管理
@@ -32,7 +25,7 @@ export function useListLanguages(
 ) {
   return useQuery({
     queryKey: ['listLanguages', query],
-    queryFn: () => listLanguages(query),
+    queryFn: () => apiClient.languageService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -40,7 +33,7 @@ export function useListLanguages(
 export async function fetchListLanguages(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listLanguages', params],
-    queryFn: () => listLanguages(params),
+    queryFn: () => apiClient.languageService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -51,7 +44,7 @@ export function useGetLanguage(
 ) {
   return useQuery({
     queryKey: ['getLanguage', req],
-    queryFn: () => getLanguage(req),
+    queryFn: () => apiClient.languageService.Get(req),
     ...options,
   });
 }
@@ -60,7 +53,7 @@ export function useCreateLanguage(
   options?: UseMutationOptions<{}, Error, dictservicev1_CreateLanguageRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => createLanguage(data),
+    mutationFn: (data) => apiClient.languageService.Create(data),
     ...options,
   });
 }
@@ -70,7 +63,7 @@ export function useUpdateLanguage(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateLanguage({
+      apiClient.languageService.Update({
         id,
         data: { ...values },
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -83,7 +76,7 @@ export function useDeleteLanguage(
   options?: UseMutationOptions<{}, Error, dictservicev1_DeleteLanguageRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => deleteLanguage(data),
+    mutationFn: (data) => apiClient.languageService.Delete(data),
     ...options,
   });
 }
@@ -92,7 +85,7 @@ export function useBatchCreateLanguages(
   options?: UseMutationOptions<{}, Error, dictservicev1_BatchCreateLanguagesRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => batchCreateLanguages(data),
+    mutationFn: (data) => apiClient.languageService.BatchCreate(data),
     ...options,
   });
 }

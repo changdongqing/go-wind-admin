@@ -22,9 +22,9 @@ description: GoWind React Admin 脚手架开发指南。帮助二开人员理解
 
 ```
 src/
-├── api/                    # API 层（三层架构）
+├── api/                    # API 层（两层架构）
 │   ├── generated/          # 自动生成代码（禁止手动修改）
-│   ├── service/            # Service 层 - API 调用封装
+│   ├── client.ts           # apiClient 单例（懒加载各 Service）
 │   └── hooks/              # Hooks 层 - React Query 集成
 ├── core/                   # 核心模块
 │   ├── access/             # 权限控制
@@ -50,41 +50,40 @@ src/
 └── utils/                  # 工具函数
 ```
 
-## API 三层架构
+## API 两层架构
 
 ```
-Generated (自动生成) → Service (纯函数封装) → Hooks (React Query 集成)
+Generated (自动生成类型和 Service Client) → Hooks (通过 apiClient 直调，React Query 集成)
 ```
 
-### Service 层 (`src/api/service/*.ts`)
-
-```typescript
-// 单例模式 + 纯函数
-let _instance: ReturnType<typeof createXxxServiceClient> | null = null;
-
-export function getXxxService() {
-  if (!_instance) _instance = createXxxServiceClient(requestApi);
-  return _instance;
-}
-
-export async function listXxx(query: PaginationQuery) {
-  return getXxxService().List(query.toRawParams());
-}
-```
+`apiClient`（`src/api/client.ts`）是单例，以懒加载 getter 聚合所有 Service Client。Hooks 层直接通过 `apiClient.xxxService.Method()` 调用。
 
 ### Hooks 层 (`src/api/hooks/*.ts`)
 
 ```typescript
+import { apiClient } from '@/api/client';
+
 // React Hook（组件中使用）
-export function useListXxx(options?: UseMutationOptions<...>) {
-  return useMutation({ mutationFn: (q) => listXxx(q), ...options });
+export function useListXxx(query: PaginationQuery, options?: UseQueryOptions<...>) {
+  return useQuery({
+    queryKey: ['listXxx', query],
+    queryFn: () => apiClient.xxxService.List(query.toRawParams()),
+    ...options,
+  });
 }
 
 // Fetch 方法（Store/工具函数/路由守卫中使用）
 export async function fetchListXxx(params: PaginationQuery) {
   return queryClient.fetchQuery({
-    queryKey: ['listXxx', params], queryFn: () => listXxx(params), retry: 0,
+    queryKey: ['listXxx', params],
+    queryFn: () => apiClient.xxxService.List(params.toRawParams()),
+    retry: 0,
   });
+}
+
+// Mutation 示例
+export function useCreateXxx(options?: UseMutationOptions<...>) {
+  return useMutation({ mutationFn: (data) => apiClient.xxxService.Create(data), ...options });
 }
 ```
 
@@ -135,40 +134,34 @@ export default myModuleRoutes;
 
 ### 3. 新增 API
 
-**步骤**: 生成代码 → 创建 Service → 创建 Hooks → 导出
-
-Service 文件 `src/api/service/my-module.ts`：
-```typescript
-import { createMyModuleServiceClient } from '@/api/generated/admin/service/v1';
-import { type PaginationQuery, requestApi } from '@/core';
-
-let _instance: ReturnType<typeof createMyModuleServiceClient> | null = null;
-export function getMyModuleService() {
-  if (!_instance) _instance = createMyModuleServiceClient(requestApi);
-  return _instance;
-}
-export async function listMyModules(query: PaginationQuery) {
-  return getMyModuleService().List(query.toRawParams());
-}
-```
+**步骤**: 生成代码 → 创建 Hooks → 导出
 
 Hooks 文件 `src/api/hooks/my-module.ts`：
 ```typescript
-import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
-import { listMyModules } from '@/api/service/my-module';
+import { useMutation, useQuery, type UseMutationOptions, type UseQueryOptions } from '@tanstack/react-query';
+import { apiClient } from '@/api/client';
 import { type PaginationQuery, queryClient } from '@/core';
 
-export function useListMyModules(options?: UseMutationOptions<...>) {
-  return useMutation({ mutationFn: (q) => listMyModules(q), ...options });
+export function useListMyModules(
+  query: PaginationQuery,
+  options?: UseQueryOptions<...>,
+) {
+  return useQuery({
+    queryKey: ['listMyModules', query],
+    queryFn: () => apiClient.myModuleService.List(query.toRawParams()),
+    ...options,
+  });
 }
 export async function fetchListMyModules(params: PaginationQuery) {
   return queryClient.fetchQuery({
-    queryKey: ['listMyModules', params], queryFn: () => listMyModules(params), retry: 0,
+    queryKey: ['listMyModules', params],
+    queryFn: () => apiClient.myModuleService.List(params.toRawParams()),
+    retry: 0,
   });
 }
 ```
 
-然后在 `src/api/service/index.ts` 和 `src/api/hooks/index.ts` 中添加导出。
+然后在 `src/api/hooks/index.ts` 中添加导出。
 
 ### 4. 新增国际化
 
@@ -269,7 +262,7 @@ meta: {
 ## 关键注意事项
 
 1. **PaginationQuery 必须用 new 实例化**: `new PaginationQuery({ page, pageSize })`
-2. **非组件环境用 fetchXxx / service**: 不要在非 React 环境使用 useXxx Hook
+2. **非组件环境用 fetchXxx / apiClient**: 不要在非 React 环境使用 useXxx Hook
 3. **国际化插值用 `{{var}}`**: 不是 `#{var}` 或 `${var}`
 4. **路由标题用 `routes:` 前缀**: `meta.title` 使用 `'routes:xxx'` 格式
 5. **权限码格式**: `模块:资源:操作`，如 `sys:user:create`
@@ -283,5 +276,5 @@ meta: {
 
 - Prettier: 单引号、分号、尾逗号、100 字符行宽、2 空格缩进
 - 路径别名: `@/` → `src/`，`#/` → `types/`
-- 命名: Service 层 `listXxx/getXxx`，Hooks 层 `useListXxx/fetchListXxx`
+- 命名: Hooks 层 `useListXxx/useGetXxx` + `fetchListXxx/fetchXxx`
 - 提交: Husky + commitlint 约定式提交

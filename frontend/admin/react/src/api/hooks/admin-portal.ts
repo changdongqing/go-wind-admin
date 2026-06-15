@@ -4,7 +4,7 @@ import {
   type ListPermissionCodeResponse,
   type ListRouteResponse,
 } from '@/api/generated/admin/service/v1';
-import { getNavigation, getMyPermissionCode, getInitialContext } from '@/api/service/admin-portal';
+import { apiClient } from '@/api/client';
 import { queryClient } from '@/core';
 
 // ------------------------------
@@ -13,7 +13,7 @@ import { queryClient } from '@/core';
 export function useGetNavigation(options?: UseQueryOptions<ListRouteResponse, Error>) {
   return useQuery({
     queryKey: ['getNavigation'],
-    queryFn: () => getNavigation(),
+    queryFn: () => apiClient.adminPortalService.GetNavigation({}),
     ...options,
   });
 }
@@ -24,7 +24,7 @@ export function useGetNavigation(options?: UseQueryOptions<ListRouteResponse, Er
 export async function fetchNavigation() {
   return queryClient.fetchQuery({
     queryKey: ['navigation'],
-    queryFn: () => getNavigation(),
+    queryFn: () => apiClient.adminPortalService.GetNavigation({}),
     retry: 0,
   });
 }
@@ -37,7 +37,7 @@ export function useGetMyPermissionCode(
 ) {
   return useQuery({
     queryKey: ['getMyPermissionCode'],
-    queryFn: () => getMyPermissionCode(),
+    queryFn: () => apiClient.adminPortalService.GetMyPermissionCode({}),
     ...options,
   });
 }
@@ -48,7 +48,7 @@ export function useGetMyPermissionCode(
 export async function fetchMyPermissionCode() {
   return queryClient.fetchQuery({
     queryKey: ['permissionCode'],
-    queryFn: () => getMyPermissionCode(),
+    queryFn: () => apiClient.adminPortalService.GetMyPermissionCode({}),
     retry: 0,
   });
 }
@@ -59,7 +59,7 @@ export async function fetchMyPermissionCode() {
 export function useGetInitialContext(options?: UseQueryOptions<InitialContextResponse, Error>) {
   return useQuery({
     queryKey: ['getInitialContext'],
-    queryFn: () => getInitialContext(),
+    queryFn: () => apiClient.adminPortalService.GetInitialContext({}),
     ...options,
   });
 }
@@ -70,7 +70,7 @@ export function useGetInitialContext(options?: UseQueryOptions<InitialContextRes
 export async function fetchInitialContext() {
   return queryClient.fetchQuery({
     queryKey: ['initialContext'],
-    queryFn: () => getInitialContext(),
+    queryFn: () => apiClient.adminPortalService.GetInitialContext({}),
     retry: 0,
   });
 }

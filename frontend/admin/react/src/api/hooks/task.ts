@@ -5,6 +5,7 @@ import {
   type UseQueryOptions,
 } from '@tanstack/react-query';
 import {
+  type taskservicev1_ControlTaskRequest,
   type taskservicev1_CreateTaskRequest,
   type taskservicev1_DeleteTaskRequest,
   type taskservicev1_GetTaskRequest,
@@ -12,18 +13,7 @@ import {
   type taskservicev1_Task,
 } from '@/api/generated/admin/service/v1';
 import { makeUpdateMask, type PaginationQuery, queryClient } from '@/core';
-import {
-  listTasks,
-  getTask,
-  createTask,
-  updateTask,
-  deleteTask,
-  listTaskTypeNames,
-  controlTask,
-  startAllTasks,
-  stopAllTasks,
-  restartAllTasks,
-} from '@/api/service/task';
+import { apiClient } from '@/api/client';
 
 // ==============================
 // 任务管理
@@ -35,7 +25,7 @@ export function useListTasks(
 ) {
   return useQuery({
     queryKey: ['listTasks', query],
-    queryFn: () => listTasks(query),
+    queryFn: () => apiClient.taskService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -43,7 +33,7 @@ export function useListTasks(
 export async function fetchListTasks(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listTasks', params],
-    queryFn: () => listTasks(params),
+    queryFn: () => apiClient.taskService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -54,7 +44,7 @@ export function useGetTask(
 ) {
   return useQuery({
     queryKey: ['getTask', req],
-    queryFn: () => getTask(req),
+    queryFn: () => apiClient.taskService.Get(req),
     ...options,
   });
 }
@@ -63,7 +53,7 @@ export function useCreateTask(
   options?: UseMutationOptions<{}, Error, taskservicev1_CreateTaskRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => createTask(data),
+    mutationFn: (data) => apiClient.taskService.Create(data),
     ...options,
   });
 }
@@ -73,7 +63,7 @@ export function useUpdateTask(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateTask({
+      apiClient.taskService.Update({
         id,
         data: { ...values },
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -86,7 +76,7 @@ export function useDeleteTask(
   options?: UseMutationOptions<{}, Error, taskservicev1_DeleteTaskRequest>,
 ) {
   return useMutation({
-    mutationFn: (req) => deleteTask(req),
+    mutationFn: (req) => apiClient.taskService.Delete(req),
     ...options,
   });
 }
@@ -99,7 +89,7 @@ export function useDeleteTask(
 export async function fetchListTaskTypeNames() {
   return queryClient.fetchQuery({
     queryKey: ['listTaskTypeNames'],
-    queryFn: () => listTaskTypeNames(),
+    queryFn: () => apiClient.taskService.ListTaskTypeName({}),
     retry: 0,
   });
 }
@@ -109,7 +99,11 @@ export function useControlTask(
   options?: UseMutationOptions<{}, Error, { typeName: string; controlType: string }>,
 ) {
   return useMutation({
-    mutationFn: ({ typeName, controlType }) => controlTask(typeName, controlType),
+    mutationFn: ({ typeName, controlType }) =>
+      apiClient.taskService.ControlTask({
+        typeName,
+        controlType: controlType as taskservicev1_ControlTaskRequest['controlType'],
+      }),
     ...options,
   });
 }
@@ -117,7 +111,7 @@ export function useControlTask(
 /** 启动所有任务 */
 export function useStartAllTasks(options?: UseMutationOptions<{}, Error, void>) {
   return useMutation({
-    mutationFn: () => startAllTasks(),
+    mutationFn: () => apiClient.taskService.StartAllTask({}),
     ...options,
   });
 }
@@ -125,7 +119,7 @@ export function useStartAllTasks(options?: UseMutationOptions<{}, Error, void>) 
 /** 停止所有任务 */
 export function useStopAllTasks(options?: UseMutationOptions<{}, Error, void>) {
   return useMutation({
-    mutationFn: () => stopAllTasks(),
+    mutationFn: () => apiClient.taskService.StopAllTask({}),
     ...options,
   });
 }
@@ -133,7 +127,7 @@ export function useStopAllTasks(options?: UseMutationOptions<{}, Error, void>) {
 /** 重启所有任务 */
 export function useRestartAllTasks(options?: UseMutationOptions<{}, Error, void>) {
   return useMutation({
-    mutationFn: () => restartAllTasks(),
+    mutationFn: () => apiClient.taskService.RestartAllTask({}),
     ...options,
   });
 }

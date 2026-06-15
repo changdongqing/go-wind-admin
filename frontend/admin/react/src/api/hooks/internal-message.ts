@@ -22,22 +22,7 @@ import {
   type internal_messageservicev1_MarkNotificationAsReadRequest,
 } from '@/api/generated/admin/service/v1';
 import { makeUpdateMask, type PaginationQuery, queryClient } from '@/core';
-import {
-  listInternalMessages,
-  getInternalMessage,
-  updateInternalMessage,
-  deleteInternalMessage,
-  sendMessage,
-  revokeMessage,
-  listMessageCategories,
-  getMessageCategory,
-  createMessageCategory,
-  updateMessageCategory,
-  deleteMessageCategory,
-  listUserInbox,
-  deleteNotificationFromInbox,
-  markNotificationAsRead,
-} from '@/api/service/internal-message';
+import { apiClient } from '@/api/client';
 
 // ==============================
 // 内部消息管理
@@ -48,7 +33,7 @@ export function useListInternalMessages(
 ) {
   return useQuery({
     queryKey: ['listInternalMessages', query],
-    queryFn: () => listInternalMessages(query),
+    queryFn: () => apiClient.internalMessageService.ListMessage(query.toRawParams()),
     ...options,
   });
 }
@@ -56,7 +41,7 @@ export function useListInternalMessages(
 export async function fetchListInternalMessages(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listInternalMessages', params],
-    queryFn: () => listInternalMessages(params),
+    queryFn: () => apiClient.internalMessageService.ListMessage(params.toRawParams()),
     retry: 0,
   });
 }
@@ -67,7 +52,7 @@ export function useGetInternalMessage(
 ) {
   return useQuery({
     queryKey: ['getInternalMessage', req],
-    queryFn: () => getInternalMessage(req),
+    queryFn: () => apiClient.internalMessageService.GetMessage(req),
     ...options,
   });
 }
@@ -77,7 +62,7 @@ export function useUpdateInternalMessage(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateInternalMessage({
+      apiClient.internalMessageService.UpdateMessage({
         id,
         data: { ...values },
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -90,7 +75,7 @@ export function useDeleteInternalMessage(
   options?: UseMutationOptions<{}, Error, internal_messageservicev1_DeleteInternalMessageRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => deleteInternalMessage(data),
+    mutationFn: (data) => apiClient.internalMessageService.DeleteMessage(data),
     ...options,
   });
 }
@@ -103,7 +88,7 @@ export function useSendMessage(
   >,
 ) {
   return useMutation({
-    mutationFn: (data) => sendMessage(data),
+    mutationFn: (data) => apiClient.internalMessageService.SendMessage(data),
     ...options,
   });
 }
@@ -112,7 +97,7 @@ export function useRevokeMessage(
   options?: UseMutationOptions<{}, Error, internal_messageservicev1_RevokeMessageRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => revokeMessage(data),
+    mutationFn: (data) => apiClient.internalMessageService.RevokeMessage(data),
     ...options,
   });
 }
@@ -126,7 +111,7 @@ export function useListMessageCategories(
 ) {
   return useQuery({
     queryKey: ['listMessageCategories', query],
-    queryFn: () => listMessageCategories(query),
+    queryFn: () => apiClient.internalMessageCategoryService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -134,7 +119,7 @@ export function useListMessageCategories(
 export async function fetchListMessageCategories(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listMessageCategories', params],
-    queryFn: () => listMessageCategories(params),
+    queryFn: () => apiClient.internalMessageCategoryService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -145,7 +130,7 @@ export function useGetMessageCategory(
 ) {
   return useQuery({
     queryKey: ['getMessageCategory', req],
-    queryFn: () => getMessageCategory(req),
+    queryFn: () => apiClient.internalMessageCategoryService.Get(req),
     ...options,
   });
 }
@@ -158,7 +143,7 @@ export function useCreateMessageCategory(
   >,
 ) {
   return useMutation({
-    mutationFn: (data) => createMessageCategory(data),
+    mutationFn: (data) => apiClient.internalMessageCategoryService.Create(data),
     ...options,
   });
 }
@@ -172,7 +157,7 @@ export function useUpdateMessageCategory(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateMessageCategory({
+      apiClient.internalMessageCategoryService.Update({
         id,
         data: { ...values },
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -189,7 +174,7 @@ export function useDeleteMessageCategory(
   >,
 ) {
   return useMutation({
-    mutationFn: (data) => deleteMessageCategory(data),
+    mutationFn: (data) => apiClient.internalMessageCategoryService.Delete(data),
     ...options,
   });
 }
@@ -203,7 +188,7 @@ export function useListUserInbox(
 ) {
   return useQuery({
     queryKey: ['listUserInbox', query],
-    queryFn: () => listUserInbox(query),
+    queryFn: () => apiClient.internalMessageRecipientService.ListUserInbox(query.toRawParams()),
     ...options,
   });
 }
@@ -211,7 +196,7 @@ export function useListUserInbox(
 export async function fetchListUserInbox(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listUserInbox', params],
-    queryFn: () => listUserInbox(params),
+    queryFn: () => apiClient.internalMessageRecipientService.ListUserInbox(params.toRawParams()),
     retry: 0,
   });
 }
@@ -224,7 +209,7 @@ export function useDeleteNotificationFromInbox(
   >,
 ) {
   return useMutation({
-    mutationFn: (data) => deleteNotificationFromInbox(data),
+    mutationFn: (data) => apiClient.internalMessageRecipientService.DeleteNotificationFromInbox(data),
     ...options,
   });
 }
@@ -233,7 +218,7 @@ export function useMarkNotificationAsRead(
   options?: UseMutationOptions<{}, Error, internal_messageservicev1_MarkNotificationAsReadRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => markNotificationAsRead(data),
+    mutationFn: (data) => apiClient.internalMessageRecipientService.MarkNotificationAsRead(data),
     ...options,
   });
 }

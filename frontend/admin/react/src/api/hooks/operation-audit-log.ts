@@ -5,7 +5,7 @@ import {
   type auditservicev1_OperationAuditLog,
 } from '@/api/generated/admin/service/v1';
 import { type PaginationQuery, queryClient } from '@/core';
-import { listOperationAuditLogs, getOperationAuditLog } from '@/api/service/operation-audit-log';
+import { apiClient } from '@/api/client';
 
 // ==============================
 // 操作审计日志
@@ -17,7 +17,7 @@ export function useListOperationAuditLogs(
 ) {
   return useQuery({
     queryKey: ['listOperationAuditLogs', query],
-    queryFn: () => listOperationAuditLogs(query),
+    queryFn: () => apiClient.operationAuditLogService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -25,7 +25,7 @@ export function useListOperationAuditLogs(
 export async function fetchListOperationAuditLogs(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listOperationAuditLogs', params],
-    queryFn: () => listOperationAuditLogs(params),
+    queryFn: () => apiClient.operationAuditLogService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -36,7 +36,7 @@ export function useGetOperationAuditLog(
 ) {
   return useQuery({
     queryKey: ['getOperationAuditLog', req],
-    queryFn: () => getOperationAuditLog(req),
+    queryFn: () => apiClient.operationAuditLogService.Get(req),
     ...options,
   });
 }

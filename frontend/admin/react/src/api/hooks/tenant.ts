@@ -13,14 +13,7 @@ import {
   type identityservicev1_Tenant,
 } from '@/api/generated/admin/service/v1';
 import { makeUpdateMask, type PaginationQuery } from '@/core/transport/rest';
-import {
-  listTenants,
-  getTenant,
-  createTenant,
-  updateTenant,
-  deleteTenant,
-  createTenantWithAdminUser,
-} from '@/api/service/tenant';
+import { apiClient } from '@/api/client';
 import { queryClient } from '@/core';
 
 // ==============================
@@ -32,7 +25,7 @@ export function useListTenants(
 ) {
   return useQuery({
     queryKey: ['listTenants', query],
-    queryFn: () => listTenants(query),
+    queryFn: () => apiClient.tenantService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -40,7 +33,7 @@ export function useListTenants(
 export async function fetchListTenants(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listTenants', params],
-    queryFn: () => listTenants(params),
+    queryFn: () => apiClient.tenantService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -54,7 +47,7 @@ export function useGetTenant(
 ) {
   return useQuery({
     queryKey: ['getTenant', req],
-    queryFn: () => getTenant(req),
+    queryFn: () => apiClient.tenantService.Get(req),
     ...options,
   });
 }
@@ -66,7 +59,7 @@ export function useCreateTenant(
   options?: UseMutationOptions<{}, Error, identityservicev1_CreateTenantRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => createTenant(data),
+    mutationFn: (data) => apiClient.tenantService.Create(data),
     ...options,
   });
 }
@@ -79,7 +72,7 @@ export function useUpdateTenant(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateTenant({
+      apiClient.tenantService.Update({
         id,
         data: {
           ...values,
@@ -97,7 +90,7 @@ export function useDeleteTenant(
   options?: UseMutationOptions<{}, Error, identityservicev1_DeleteTenantRequest>,
 ) {
   return useMutation({
-    mutationFn: (req) => deleteTenant(req),
+    mutationFn: (req) => apiClient.tenantService.Delete(req),
     ...options,
   });
 }
@@ -107,7 +100,7 @@ export function useCreateTenantWithAdminUser(
   options?: UseMutationOptions<{}, Error, identityservicev1_CreateTenantWithAdminUserRequest>,
 ) {
   return useMutation({
-    mutationFn: (req) => createTenantWithAdminUser(req),
+    mutationFn: (req) => apiClient.tenantService.CreateTenantWithAdminUser(req),
     ...options,
   });
 }

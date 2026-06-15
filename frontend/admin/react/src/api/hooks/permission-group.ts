@@ -13,13 +13,7 @@ import {
   type permissionservicev1_UpdatePermissionGroupRequest,
 } from '@/api/generated/admin/service/v1';
 import { makeUpdateMask, type PaginationQuery, queryClient } from '@/core';
-import {
-  listPermissionGroups,
-  getPermissionGroup,
-  createPermissionGroup,
-  updatePermissionGroup,
-  deletePermissionGroup,
-} from '@/api/service/permission-group';
+import { apiClient } from '@/api/client';
 
 // ==============================
 // 权限组管理
@@ -31,7 +25,7 @@ export function useListPermissionGroups(
 ) {
   return useQuery({
     queryKey: ['listPermissionGroups', query],
-    queryFn: () => listPermissionGroups(query),
+    queryFn: () => apiClient.permissionGroupService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -39,7 +33,7 @@ export function useListPermissionGroups(
 export async function fetchListPermissionGroups(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listPermissionGroups', params],
-    queryFn: () => listPermissionGroups(params),
+    queryFn: () => apiClient.permissionGroupService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -50,7 +44,7 @@ export function useGetPermissionGroup(
 ) {
   return useQuery({
     queryKey: ['getPermissionGroup', req],
-    queryFn: () => getPermissionGroup(req),
+    queryFn: () => apiClient.permissionGroupService.Get(req),
     ...options,
   });
 }
@@ -59,7 +53,7 @@ export function useCreatePermissionGroup(
   options?: UseMutationOptions<{}, Error, permissionservicev1_CreatePermissionGroupRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => createPermissionGroup(data),
+    mutationFn: (data) => apiClient.permissionGroupService.Create(data),
     ...options,
   });
 }
@@ -69,7 +63,7 @@ export function useUpdatePermissionGroup(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updatePermissionGroup({
+      apiClient.permissionGroupService.Update({
         id,
         data: { ...values },
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -82,7 +76,7 @@ export function useDeletePermissionGroup(
   options?: UseMutationOptions<{}, Error, permissionservicev1_DeletePermissionGroupRequest>,
 ) {
   return useMutation({
-    mutationFn: (req) => deletePermissionGroup(req),
+    mutationFn: (req) => apiClient.permissionGroupService.Delete(req),
     ...options,
   });
 }

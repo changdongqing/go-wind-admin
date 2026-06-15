@@ -12,7 +12,7 @@ import {
   type permissionservicev1_Role,
 } from '@/api/generated/admin/service/v1';
 import { makeUpdateMask, type PaginationQuery, queryClient } from '@/core';
-import { listRoles, getRole, createRole, updateRole, deleteRole } from '@/api/service/role';
+import { apiClient } from '@/api/client';
 
 // ==============================
 // 角色管理
@@ -24,7 +24,7 @@ export function useListRoles(
 ) {
   return useQuery({
     queryKey: ['listRoles', query],
-    queryFn: () => listRoles(query),
+    queryFn: () => apiClient.roleService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -32,7 +32,7 @@ export function useListRoles(
 export async function fetchListRoles(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listRoles', params],
-    queryFn: () => listRoles(params),
+    queryFn: () => apiClient.roleService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -43,7 +43,7 @@ export function useGetRole(
 ) {
   return useQuery({
     queryKey: ['getRole', req],
-    queryFn: () => getRole(req),
+    queryFn: () => apiClient.roleService.Get(req),
     ...options,
   });
 }
@@ -52,7 +52,7 @@ export function useCreateRole(
   options?: UseMutationOptions<{}, Error, permissionservicev1_CreateRoleRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => createRole(data),
+    mutationFn: (data) => apiClient.roleService.Create(data),
     ...options,
   });
 }
@@ -62,7 +62,7 @@ export function useUpdateRole(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateRole({
+      apiClient.roleService.Update({
         id,
         data: { ...values } as any,
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -75,7 +75,7 @@ export function useDeleteRole(
   options?: UseMutationOptions<{}, Error, permissionservicev1_DeleteRoleRequest>,
 ) {
   return useMutation({
-    mutationFn: (req) => deleteRole(req),
+    mutationFn: (req) => apiClient.roleService.Delete(req),
     ...options,
   });
 }

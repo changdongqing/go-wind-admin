@@ -22,9 +22,9 @@ GoWind React Admin 是基于 React 19 的企业级后台管理脚手架，采用
 
 ```
 src/
-├── api/                    # API 层（三层架构）
+├── api/                    # API 层（两层架构）
 │   ├── generated/          # 自动生成代码（禁止手动修改）
-│   ├── service/            # Service 层 - API 调用纯函数封装
+│   ├── client.ts           # apiClient 单例（懒加载各 Service）
 │   └── hooks/              # Hooks 层 - React Query 集成
 ├── core/                   # 核心模块（access/i18n/preferences/router/storage/transport）
 ├── hooks/                  # 业务 Hooks
@@ -37,52 +37,39 @@ src/
 └── utils/                  # 工具函数
 ```
 
-## API 三层架构
+## API 两层架构
 
 ```
-Generated (自动生成类型和 Client) → Service (纯函数封装) → Hooks (React Query 集成)
+Generated (自动生成类型和 Service Client) → Hooks (通过 apiClient 直调，React Query 集成)
 ```
+
+`apiClient`（`src/api/client.ts`）是单例，以懒加载 getter 聚合所有 Service Client。Hooks 层直接通过 `apiClient.xxxService.Method()` 调用。
 
 **使用规则**：
 - React 组件中 → `useXxx()` Hook（来自 `api/hooks/`）
 - Zustand Store / 路由守卫 / 工具函数 → `fetchXxx()` 方法（来自 `api/hooks/`）
-- Service 层 → 纯 async 函数，不使用 React Hook
 
 **命名规范**：
-- Service 层：`listXxx()`, `getXxx()`, `createXxx()`, `updateXxx()`, `deleteXxx()`
 - Hooks 层：`useListXxx()`, `useGetXxx()` + `fetchListXxx()`, `fetchXxx()`
-
-**Service 层模板**：
-
-```typescript
-import { createXxxServiceClient } from '@/api/generated/admin/service/v1';
-import { type PaginationQuery, requestApi } from '@/core';
-
-let _instance: ReturnType<typeof createXxxServiceClient> | null = null;
-export function getXxxService() {
-  if (!_instance) _instance = createXxxServiceClient(requestApi);
-  return _instance;
-}
-
-export async function listXxx(query: PaginationQuery) {
-  return getXxxService().List(query.toRawParams());
-}
-```
 
 **Hooks 层模板**：
 
 ```typescript
-import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
-import { listXxx } from '@/api/service/xxx';
+import { useMutation, useQuery, type UseMutationOptions, type UseQueryOptions } from '@tanstack/react-query';
+import { apiClient } from '@/api/client';
 import { type PaginationQuery, queryClient } from '@/core';
 
-export function useListXxx(options?: UseMutationOptions<...>) {
-  return useMutation({ mutationFn: (q) => listXxx(q), ...options });
+export function useListXxx(query: PaginationQuery, options?: UseQueryOptions<...>) {
+  return useQuery({
+    queryKey: ['listXxx', query],
+    queryFn: () => apiClient.xxxService.List(query.toRawParams()),
+    ...options,
+  });
 }
 
 export async function fetchListXxx(params: PaginationQuery) {
   return queryClient.fetchQuery({
-    queryKey: ['listXxx', params], queryFn: () => listXxx(params), retry: 0,
+    queryKey: ['listXxx', params], queryFn: () => apiClient.xxxService.List(params.toRawParams()), retry: 0,
   });
 }
 ```
@@ -250,7 +237,7 @@ const { isDark, theme, app, sidebar, tabbar, updatePreferences, toggleTheme } = 
 ## 关键注意事项
 
 1. **PaginationQuery 必须用 new**: `new PaginationQuery({ page, pageSize })`
-2. **非组件环境禁用 useXxx Hook**: Store/路由守卫/工具函数中只能用 `fetchXxx()` 或直接调 Service 层
+2. **非组件环境禁用 useXxx Hook**: Store/路由守卫/工具函数中只能用 `fetchXxx()` 或 `apiClient` 直调
 3. **国际化插值**: `{{var}}` 而非 `#{var}`
 4. **meta.title 格式**: `'routes:xxx'`
 5. **禁止修改 generated 目录**: 由工具自动生成
@@ -266,6 +253,6 @@ const { isDark, theme, app, sidebar, tabbar, updatePreferences, toggleTheme } = 
 
 1. 创建翻译文件: `src/locales/zh-CN/_modules/xxx.json` + `src/locales/en-US/_modules/xxx.json`
 2. 创建页面组件: `src/pages/app/xxx/index.tsx`
-3. 创建 API: Service 层 (`src/api/service/xxx.ts`) + Hooks 层 (`src/api/hooks/xxx.ts`) + 导出
+3. 创建 API: Hooks 层 (`src/api/hooks/xxx.ts`，通过 `apiClient` 直调) + 导出
 4. 创建路由: `src/router/modules/xxx.tsx`（自动导入）
 5. 如需权限控制：配置 `meta.authority` 并在页面中使用 `useAccess()`

@@ -13,7 +13,7 @@ import {
 } from '@/api/generated/admin/service/v1';
 import { makeUpdateMask, type PaginationQuery } from '@/core/transport/rest';
 import { queryClient } from '@/core';
-import { listFiles, getFile, createFile, updateFile, deleteFile } from '@/api/service/file';
+import { apiClient } from '@/api/client';
 
 // ==============================
 // 文件管理
@@ -25,7 +25,7 @@ export function useListFiles(
 ) {
   return useQuery({
     queryKey: ['listFiles', query],
-    queryFn: () => listFiles(query),
+    queryFn: () => apiClient.fileService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -33,7 +33,7 @@ export function useListFiles(
 export async function fetchListFiles(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listFiles', params],
-    queryFn: () => listFiles(params),
+    queryFn: () => apiClient.fileService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -44,7 +44,7 @@ export function useGetFile(
 ) {
   return useQuery({
     queryKey: ['getFile', req],
-    queryFn: () => getFile(req),
+    queryFn: () => apiClient.fileService.Get(req),
     ...options,
   });
 }
@@ -53,7 +53,7 @@ export function useCreateFile(
   options?: UseMutationOptions<{}, Error, storageservicev1_CreateFileRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => createFile(data),
+    mutationFn: (data) => apiClient.fileService.Create(data),
     ...options,
   });
 }
@@ -63,7 +63,7 @@ export function useUpdateFile(
 ) {
   return useMutation({
     mutationFn: ({ id, values }: { id: number; values: Record<string, any> }) =>
-      updateFile({
+      apiClient.fileService.Update({
         id,
         data: { ...values },
         updateMask: makeUpdateMask(Object.keys(values ?? {})),
@@ -76,7 +76,7 @@ export function useDeleteFile(
   options?: UseMutationOptions<{}, Error, storageservicev1_DeleteFileRequest>,
 ) {
   return useMutation({
-    mutationFn: (data) => deleteFile(data),
+    mutationFn: (data) => apiClient.fileService.Delete(data),
     ...options,
   });
 }

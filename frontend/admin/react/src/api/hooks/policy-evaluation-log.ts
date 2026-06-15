@@ -5,10 +5,7 @@ import {
   type permissionservicev1_ListPolicyEvaluationLogResponse,
 } from '@/api/generated/admin/service/v1';
 import { type PaginationQuery, queryClient } from '@/core';
-import {
-  listPolicyEvaluationLogs,
-  getPolicyEvaluationLog,
-} from '@/api/service/policy-evaluation-log';
+import { apiClient } from '@/api/client';
 
 // ==============================
 // 策略评估日志管理
@@ -20,7 +17,7 @@ export function useListPolicyEvaluationLogs(
 ) {
   return useQuery({
     queryKey: ['listPolicyEvaluationLogs', query],
-    queryFn: () => listPolicyEvaluationLogs(query),
+    queryFn: () => apiClient.policyEvaluationLogService.List(query.toRawParams()),
     ...options,
   });
 }
@@ -28,7 +25,7 @@ export function useListPolicyEvaluationLogs(
 export async function fetchListPolicyEvaluationLogs(params: PaginationQuery) {
   return queryClient.fetchQuery({
     queryKey: ['listPolicyEvaluationLogs', params],
-    queryFn: () => listPolicyEvaluationLogs(params),
+    queryFn: () => apiClient.policyEvaluationLogService.List(params.toRawParams()),
     retry: 0,
   });
 }
@@ -39,7 +36,7 @@ export function useGetPolicyEvaluationLog(
 ) {
   return useQuery({
     queryKey: ['getPolicyEvaluationLog', req],
-    queryFn: () => getPolicyEvaluationLog(req),
+    queryFn: () => apiClient.policyEvaluationLogService.Get(req),
     ...options,
   });
 }

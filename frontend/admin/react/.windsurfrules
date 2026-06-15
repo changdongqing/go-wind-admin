@@ -6,18 +6,18 @@ GoWind React Admin 脚手架开发指南
 - i18next + react-i18next + Less + UnoCSS + Iconify (lucide) + pnpm
 
 ## 目录结构
-- src/api/ - API 层（generated/ 禁止手动修改, service/ 纯函数, hooks/ React Query）
+- src/api/ - API 层（generated/ 禁止手动修改, client.ts apiClient 单例, hooks/ React Query）
 - src/core/ - 核心模块（access/i18n/preferences/router/storage/transport）
 - src/pages/app/ - 业务页面, src/pages/core/ - 系统页面
 - src/router/modules/ - 业务路由（import.meta.glob 自动导入）
 - src/stores/ - Zustand Stores（auth/user/tabs/pageRefresh）
 - src/locales/ - 翻译资源（zh-CN/en-US, _core/ + _modules/）
 
-## API 三层架构
-Generated → Service (纯函数) → Hooks (React Query)
+## API 两层架构
+Generated → Hooks (通过 apiClient 直调, React Query)
+- apiClient (src/api/client.ts) 单例懒加载所有 Service Client
 - React 组件用 useXxx() Hook
 - Store/路由守卫/工具函数用 fetchXxx() 方法
-- Service 命名: listXxx/getXxx/createXxx/updateXxx/deleteXxx
 - Hooks 命名: useListXxx/useGetXxx + fetchListXxx/fetchXxx
 
 ## 路由
@@ -53,7 +53,7 @@ Generated → Service (纯函数) → Hooks (React Query)
 
 ## 关键注意事项
 1. PaginationQuery 必须用 new: new PaginationQuery({ page, pageSize })
-2. 非组件环境禁用 useXxx Hook, 只能用 fetchXxx() 或 Service 层
+2. 非组件环境禁用 useXxx Hook, 只能用 fetchXxx() 或 apiClient 直调
 3. 国际化插值 {{var}} 非 #{var}
 4. meta.title 用 'routes:xxx' 格式
 5. 禁止修改 generated 目录
@@ -66,6 +66,6 @@ Generated → Service (纯函数) → Hooks (React Query)
 ## 新增模块清单
 1. 翻译: locales/{zh-CN,en-US}/_modules/xxx.json
 2. 页面: pages/app/xxx/index.tsx
-3. API: api/service/xxx.ts + api/hooks/xxx.ts + 导出
+3. API: api/hooks/xxx.ts (通过 apiClient 直调) + 导出
 4. 路由: router/modules/xxx.tsx
 5. 权限: meta.authority + useAccess()

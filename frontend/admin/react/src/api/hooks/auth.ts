@@ -11,7 +11,7 @@ import {
   type authenticationservicev1_RegisterUserRequest,
   type authenticationservicev1_RegisterUserResponse,
 } from '@/api/generated/admin/service/v1';
-import { login, logout, refreshToken, generateCaptcha, registerUser } from '@/api/service/auth';
+import { apiClient } from '@/api/client';
 import { queryClient } from '@/core';
 
 // ------------------------------
@@ -25,7 +25,7 @@ export function useLogin(
   >,
 ) {
   return useMutation({
-    mutationFn: (req) => login(req),
+    mutationFn: (req) => apiClient.authenticationService.Login(req),
     ...options,
   });
 }
@@ -35,7 +35,7 @@ export function useLogin(
 // ------------------------------
 export const loginMutation = queryClient.getMutationCache().build(queryClient, {
   mutationKey: ['login'],
-  mutationFn: login,
+  mutationFn: apiClient.authenticationService.Login,
   retry: 0,
 });
 
@@ -44,7 +44,7 @@ export const loginMutation = queryClient.getMutationCache().build(queryClient, {
 // ------------------------------
 export function useLogout(options?: UseMutationOptions<{}, Error, {}>) {
   return useMutation({
-    mutationFn: () => logout(),
+    mutationFn: () => apiClient.authenticationService.Logout({}),
     ...options,
   });
 }
@@ -54,7 +54,7 @@ export function useLogout(options?: UseMutationOptions<{}, Error, {}>) {
 // ------------------------------
 export const logoutMutation = queryClient.getMutationCache().build(queryClient, {
   mutationKey: ['logout'],
-  mutationFn: logout,
+  mutationFn: () => apiClient.authenticationService.Logout({}),
   retry: 0,
 });
 
@@ -69,7 +69,7 @@ export function useRegisterUser(
   >,
 ) {
   return useMutation({
-    mutationFn: (req) => registerUser(req),
+    mutationFn: (req) => apiClient.authenticationService.RegisterUser(req),
     ...options,
   });
 }
@@ -79,7 +79,7 @@ export function useRegisterUser(
 // ------------------------------
 export const registerMutation = queryClient.getMutationCache().build(queryClient, {
   mutationKey: ['register'],
-  mutationFn: registerUser,
+  mutationFn: apiClient.authenticationService.RegisterUser,
   retry: 0,
 });
 
@@ -94,7 +94,11 @@ export function useRefreshToken(
   >,
 ) {
   return useMutation({
-    mutationFn: (req) => refreshToken(req.refresh_token ?? ''),
+    mutationFn: (req) =>
+      apiClient.authenticationService.RefreshToken({
+        grant_type: 'refresh_token',
+        refresh_token: req.refresh_token ?? '',
+      }),
     ...options,
   });
 }
@@ -104,7 +108,11 @@ export function useRefreshToken(
 // ------------------------------
 export const refreshTokenMutation = queryClient.getMutationCache().build(queryClient, {
   mutationKey: ['refreshToken'],
-  mutationFn: refreshToken,
+  mutationFn: (token: string) =>
+    apiClient.authenticationService.RefreshToken({
+      grant_type: 'refresh_token',
+      refresh_token: token ?? '',
+    }),
   retry: 0,
 });
 
@@ -116,7 +124,7 @@ export function useGenerateCaptcha(
 ) {
   return useQuery({
     queryKey: ['captcha'],
-    queryFn: () => generateCaptcha(),
+    queryFn: () => apiClient.authenticationService.GenerateCaptcha({}),
     ...options,
   });
 }
@@ -127,7 +135,7 @@ export function useGenerateCaptcha(
 export async function fetchGenerateCaptcha() {
   return queryClient.fetchQuery({
     queryKey: ['generateCaptcha'],
-    queryFn: () => generateCaptcha(),
+    queryFn: () => apiClient.authenticationService.GenerateCaptcha({}),
     retry: 0,
   });
 }
