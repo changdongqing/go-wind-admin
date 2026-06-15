@@ -78,7 +78,7 @@ install_go_plugins() {
     go_install_packages \
         "google.golang.org/protobuf/cmd/protoc-gen-go@latest" \
         "google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest" \
-        "github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest" \
+        "github.com/tx7do/go-wind-toolkit/protoc-gen-typescript-http@latest" \
         "github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest" \
         "github.com/google/gnostic/cmd/protoc-gen-openapi@latest" \
         "github.com/envoyproxy/protoc-gen-validate@latest" \
