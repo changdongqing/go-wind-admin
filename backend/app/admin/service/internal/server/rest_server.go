@@ -154,7 +154,7 @@ func NewRestServer(
 	adminV1.RegisterPolicyEvaluationLogServiceHTTPServer(srv, policyEvaluationLogService)
 	adminV1.RegisterPermissionAuditLogServiceHTTPServer(srv, permissionAuditLogService)
 
-	adminV1.RegisterUserServiceHTTPServer(srv, userService)
+	adminV1.RegisterUserServiceHTTPServer(srv, adminV1.RedactedUserServiceServer(&userServiceServerAdapter{UserServiceHTTPServer: userService}, nil))
 	adminV1.RegisterOrgUnitServiceHTTPServer(srv, orgUnitService)
 	adminV1.RegisterRoleServiceHTTPServer(srv, roleService)
 	adminV1.RegisterPositionServiceHTTPServer(srv, positionService)
@@ -191,4 +191,11 @@ func NewRestServer(
 	}
 
 	return srv, nil
+}
+
+// userServiceServerAdapter 将 UserServiceHTTPServer 桥接为 UserServiceServer，
+// 使其可以被 RedactedUserServiceServer 包装以实现 HTTP 路径的脱敏。
+type userServiceServerAdapter struct {
+	adminV1.UnsafeUserServiceServer
+	adminV1.UserServiceHTTPServer
 }

@@ -5,7 +5,7 @@ package authenticationpb
 
 import (
 	context "context"
-	redact "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
+	redact "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
 	identitypb "go-wind-admin/api/gen/go/identity/service/v1"
 	annotations "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
@@ -181,10 +181,13 @@ func (s *redactedAuthenticationServiceServer) VerifyCaptcha(ctx context.Context,
 	return res, err
 }
 
+// Ensure LoginRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*LoginRequest)(nil)
+
 // Redact method implementation for LoginRequest
-func (x *LoginRequest) Redact() string {
+func (x *LoginRequest) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: GrantType
@@ -212,13 +215,15 @@ func (x *LoginRequest) Redact() string {
 	// Safe field: DeviceId
 
 	// Safe field: Jti
-	return x.String()
 }
 
+// Ensure LoginResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*LoginResponse)(nil)
+
 // Redact method implementation for LoginResponse
-func (x *LoginResponse) Redact() string {
+func (x *LoginResponse) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: TokenType
@@ -234,25 +239,29 @@ func (x *LoginResponse) Redact() string {
 	// Safe field: RefreshExpiresIn
 
 	// Safe field: IdToken
-	return x.String()
 }
 
+// Ensure LogoutRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*LogoutRequest)(nil)
+
 // Redact method implementation for LogoutRequest
-func (x *LogoutRequest) Redact() string {
+func (x *LogoutRequest) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: UserId
 
 	// Safe field: ClientType
-	return x.String()
 }
 
+// Ensure ValidateTokenRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ValidateTokenRequest)(nil)
+
 // Redact method implementation for ValidateTokenRequest
-func (x *ValidateTokenRequest) Redact() string {
+func (x *ValidateTokenRequest) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: Token
@@ -266,13 +275,15 @@ func (x *ValidateTokenRequest) Redact() string {
 	// Safe field: SkipRedis
 
 	// Safe field: SkipBlacklist
-	return x.String()
 }
 
+// Ensure ValidateTokenResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ValidateTokenResponse)(nil)
+
 // Redact method implementation for ValidateTokenResponse
-func (x *ValidateTokenResponse) Redact() string {
+func (x *ValidateTokenResponse) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: Payload
@@ -280,13 +291,15 @@ func (x *ValidateTokenResponse) Redact() string {
 	// Safe field: IsValid
 
 	// Safe field: IsBlocked
-	return x.String()
 }
 
+// Ensure RegisterUserRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*RegisterUserRequest)(nil)
+
 // Redact method implementation for RegisterUserRequest
-func (x *RegisterUserRequest) Redact() string {
+func (x *RegisterUserRequest) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: Username
@@ -298,57 +311,67 @@ func (x *RegisterUserRequest) Redact() string {
 	// Safe field: Email
 
 	// Safe field: ClientType
-	return x.String()
 }
 
+// Ensure RegisterUserResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*RegisterUserResponse)(nil)
+
 // Redact method implementation for RegisterUserResponse
-func (x *RegisterUserResponse) Redact() string {
+func (x *RegisterUserResponse) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: UserId
-	return x.String()
 }
 
+// Ensure WhoAmIResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*WhoAmIResponse)(nil)
+
 // Redact method implementation for WhoAmIResponse
-func (x *WhoAmIResponse) Redact() string {
+func (x *WhoAmIResponse) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: UserId
 
 	// Safe field: Username
-	return x.String()
 }
 
+// Ensure GetAccessTokensRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GetAccessTokensRequest)(nil)
+
 // Redact method implementation for GetAccessTokensRequest
-func (x *GetAccessTokensRequest) Redact() string {
+func (x *GetAccessTokensRequest) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: UserId
 
 	// Safe field: ClientType
-	return x.String()
 }
 
+// Ensure GetAccessTokensResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GetAccessTokensResponse)(nil)
+
 // Redact method implementation for GetAccessTokensResponse
-func (x *GetAccessTokensResponse) Redact() string {
+func (x *GetAccessTokensResponse) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: AccessTokens
-	return x.String()
 }
 
+// Ensure BlockTokenRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BlockTokenRequest)(nil)
+
 // Redact method implementation for BlockTokenRequest
-func (x *BlockTokenRequest) Redact() string {
+func (x *BlockTokenRequest) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: UserId
@@ -358,35 +381,41 @@ func (x *BlockTokenRequest) Redact() string {
 	// Safe field: Reason
 
 	// Safe field: Duration
-	return x.String()
 }
 
+// Ensure UnblockTokenRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*UnblockTokenRequest)(nil)
+
 // Redact method implementation for UnblockTokenRequest
-func (x *UnblockTokenRequest) Redact() string {
+func (x *UnblockTokenRequest) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: UserId
 
 	// Safe field: ClientType
-	return x.String()
 }
 
+// Ensure BlockTokenResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BlockTokenResponse)(nil)
+
 // Redact method implementation for BlockTokenResponse
-func (x *BlockTokenResponse) Redact() string {
+func (x *BlockTokenResponse) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: BlockedUntil
-	return x.String()
 }
 
+// Ensure RevokeTokenByIdRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*RevokeTokenByIdRequest)(nil)
+
 // Redact method implementation for RevokeTokenByIdRequest
-func (x *RevokeTokenByIdRequest) Redact() string {
+func (x *RevokeTokenByIdRequest) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: Jti
@@ -396,39 +425,44 @@ func (x *RevokeTokenByIdRequest) Redact() string {
 	// Safe field: Reason
 
 	// Safe field: UserId
-	return x.String()
 }
 
+// Ensure GenerateCaptchaResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GenerateCaptchaResponse)(nil)
+
 // Redact method implementation for GenerateCaptchaResponse
-func (x *GenerateCaptchaResponse) Redact() string {
+func (x *GenerateCaptchaResponse) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: CaptchaId
 
 	// Safe field: ImageBase64
-	return x.String()
 }
 
+// Ensure VerifyCaptchaRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*VerifyCaptchaRequest)(nil)
+
 // Redact method implementation for VerifyCaptchaRequest
-func (x *VerifyCaptchaRequest) Redact() string {
+func (x *VerifyCaptchaRequest) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: CaptchaId
 
 	// Safe field: UserInput
-	return x.String()
 }
 
+// Ensure VerifyCaptchaResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*VerifyCaptchaResponse)(nil)
+
 // Redact method implementation for VerifyCaptchaResponse
-func (x *VerifyCaptchaResponse) Redact() string {
+func (x *VerifyCaptchaResponse) Redact() {
 	if x == nil {
-		return ""
+		return
 	}
 
 	// Safe field: Valid
-	return x.String()
 }

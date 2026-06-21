@@ -681,8 +681,6 @@ github.com/mattn/go-sqlite3 v1.14.44 h1:3VSe+xafpbzsLbdr2AWlAZk9yRHiBhTBakioXaCK
 github.com/mattn/go-sqlite3 v1.14.44/go.mod h1:pjEuOr8IwzLJP2MfGeTb0A35jauH+C2kbHKBr7yXKVQ=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/matttproud/golang_protobuf_extensions v1.0.4/go.mod h1:BSXmuO+STAnVfrANrmjBb36TMTDstsz7MSK+HVaYKv4=
-github.com/menta2k/protoc-gen-redact/v3 v3.0.0-20260213125431-7688a38967d4 h1:+Cicx1O8bVpkJILiIxuMJ7Kh0ughfkC8Pa0ucpedZpA=
-github.com/menta2k/protoc-gen-redact/v3 v3.0.0-20260213125431-7688a38967d4/go.mod h1:OGHWYC2YBsdFicilB+WJmMPFKzQhb/kApNODeu0vgEU=
 github.com/microsoft/go-mssqldb v1.8.2/go.mod h1:vp38dT33FGfVotRiTmDo3bFyaHq+p3LektQrjTULowo=
 github.com/microsoft/go-mssqldb v1.10.0 h1:pHEt+Qz6YFPWqREq10mqSE524QQo+/QremwTCQht7TY=
 github.com/microsoft/go-mssqldb v1.10.0/go.mod h1:mnG7lGa9iYJbzJqGCXyuQCegStKMr3kogDLD6+bmggg=
@@ -925,6 +923,8 @@ github.com/tx7do/go-utils/mapper v0.0.3 h1:Z7YoPVsa6I3lfWGSUoa9atujHWeF3kP+yKfS6
 github.com/tx7do/go-utils/mapper v0.0.3/go.mod h1:zziBbtoqCt8pRw+jmK9Ic9sRD7a2yCLWG40Hy2UCSCs=
 github.com/tx7do/go-utils/password v0.0.2 h1:9zQhPgLefoZQjc8VCevY11rZAVzXCBuXBwf/1GR3yP4=
 github.com/tx7do/go-utils/password v0.0.2/go.mod h1:w5i/vuy8QYtqQGXkweltzjrvJxtUH7rEBzvwj59Lx8o=
+github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260621120016-637dde6cd5d7 h1:VM5fSUEq1unuecqWgBlJwXJYS8iCU8y/sM/mCEW5AGU=
+github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260621120016-637dde6cd5d7/go.mod h1:6pZHTHo8t6GjYu8fEAJr/OTSEUCVn7ai6oCvVjRC+tY=
 github.com/tx7do/kratos-authn v1.1.10 h1:vbMwMbAf+a9QeyqNvTBqJhCm0L/Uu3lb4rULcAi2Lb8=
 github.com/tx7do/kratos-authn v1.1.10/go.mod h1:LkcDHt87Hep8rxns7fwoHnKuOAuUyT8XZ4bVGAGbXF8=
 github.com/tx7do/kratos-authn/engine/jwt v1.1.10 h1:Qwriauesdm5MjRdM4U/RtndYI50YA0POFHWqa+sn+Hw=

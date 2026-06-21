@@ -5,8 +5,8 @@ package adminpb
 
 import (
 	context "context"
-	redact "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	pagination "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+	redact "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
 	identitypb "go-wind-admin/api/gen/go/identity/service/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -48,72 +48,56 @@ type redactedUserServiceServer struct {
 // List is the redacted wrapper for the actual UserServiceServer.List method
 // Unary RPC
 func (s *redactedUserServiceServer) List(ctx context.Context, in *pagination.PagingRequest) (*identitypb.ListUserResponse, error) {
-	if s.bypass.CheckInternal(ctx) {
-		return s.srv.List(ctx, in)
+	res, err := s.srv.List(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
 	}
-	return nil, status.Error(codes.PermissionDenied, `Permission Denied. Method: "UserServiceServer.List" has been redacted`)
+	return res, err
 }
 
 // Get is the redacted wrapper for the actual UserServiceServer.Get method
 // Unary RPC
 func (s *redactedUserServiceServer) Get(ctx context.Context, in *identitypb.GetUserRequest) (*identitypb.User, error) {
-	if s.bypass.CheckInternal(ctx) {
-		return s.srv.Get(ctx, in)
+	res, err := s.srv.Get(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
 	}
-	return nil, status.Error(codes.PermissionDenied, `Permission Denied. Method: "UserServiceServer.Get" has been redacted`)
+	return res, err
 }
 
 // Create is the redacted wrapper for the actual UserServiceServer.Create method
 // Unary RPC
 func (s *redactedUserServiceServer) Create(ctx context.Context, in *identitypb.CreateUserRequest) (*emptypb.Empty, error) {
-	res, err := s.srv.Create(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
+	// Redaction skipped
+	return s.srv.Create(ctx, in)
 }
 
 // Update is the redacted wrapper for the actual UserServiceServer.Update method
 // Unary RPC
 func (s *redactedUserServiceServer) Update(ctx context.Context, in *identitypb.UpdateUserRequest) (*emptypb.Empty, error) {
-	res, err := s.srv.Update(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
+	// Redaction skipped
+	return s.srv.Update(ctx, in)
 }
 
 // Delete is the redacted wrapper for the actual UserServiceServer.Delete method
 // Unary RPC
 func (s *redactedUserServiceServer) Delete(ctx context.Context, in *identitypb.DeleteUserRequest) (*emptypb.Empty, error) {
-	res, err := s.srv.Delete(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
+	// Redaction skipped
+	return s.srv.Delete(ctx, in)
 }
 
 // UserExists is the redacted wrapper for the actual UserServiceServer.UserExists method
 // Unary RPC
 func (s *redactedUserServiceServer) UserExists(ctx context.Context, in *identitypb.UserExistsRequest) (*identitypb.UserExistsResponse, error) {
-	res, err := s.srv.UserExists(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
+	// Redaction skipped
+	return s.srv.UserExists(ctx, in)
 }
 
 // EditUserPassword is the redacted wrapper for the actual UserServiceServer.EditUserPassword method
 // Unary RPC
 func (s *redactedUserServiceServer) EditUserPassword(ctx context.Context, in *identitypb.EditUserPasswordRequest) (*emptypb.Empty, error) {
-	res, err := s.srv.EditUserPassword(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
+	// Redaction skipped
+	return s.srv.EditUserPassword(ctx, in)
 }

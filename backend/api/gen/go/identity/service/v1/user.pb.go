@@ -8,8 +8,8 @@ package identitypb
 
 import (
 	_ "github.com/google/gnostic/openapiv3"
-	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	v1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+	_ "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1750,7 +1750,7 @@ var File_identity_service_v1_user_proto protoreflect.FileDescriptor
 
 const file_identity_service_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1eidentity/service/v1/user.proto\x12\x13identity.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x16redact/v3/redact.proto\x1a\x1epagination/v1/pagination.proto\"\xb9\x15\n" +
+	"\x1eidentity/service/v1/user.proto\x12\x13identity.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x16redact/v1/redact.proto\x1a\x1epagination/v1/pagination.proto\"\xbf\x15\n" +
 	"\x04User\x12#\n" +
 	"\x02id\x18\x01 \x01(\rB\x0e\xbaG\v\x92\x02\b用户IDH\x00R\x02id\x88\x01\x01\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\rB\x0e\xbaG\v\x92\x02\b租户IDH\x01R\btenantId\x88\x01\x01\x128\n" +
@@ -1776,10 +1776,9 @@ const file_identity_service_v1_user_proto_rawDesc = "" +
 	"\bnickname\x18\x15 \x01(\tB\f\xbaG\t\x92\x02\x06昵称H\tR\bnickname\x88\x01\x01\x123\n" +
 	"\brealname\x18\x16 \x01(\tB\x12\xbaG\x0f\x92\x02\f真实姓名H\n" +
 	"R\brealname\x88\x01\x01\x12)\n" +
-	"\x06avatar\x18\x17 \x01(\tB\f\xbaG\t\x92\x02\x06头像H\vR\x06avatar\x88\x01\x01\x125\n" +
-	"\x05email\x18\x18 \x01(\tB\x1a\xbaG\t\x92\x02\x06邮箱ڶ\x1a\n" +
-	"z\br*d@ct*dH\fR\x05email\x88\x01\x01\x12,\n" +
-	"\x06mobile\x18\x19 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号H\rR\x06mobile\x88\x01\x01\x122\n" +
+	"\x06avatar\x18\x17 \x01(\tB\f\xbaG\t\x92\x02\x06头像H\vR\x06avatar\x88\x01\x01\x120\n" +
+	"\x05email\x18\x18 \x01(\tB\x15\xbaG\t\x92\x02\x06邮箱ڶ\x1a\x05\xc2\x01\x02\b\x02H\fR\x05email\x88\x01\x01\x127\n" +
+	"\x06mobile\x18\x19 \x01(\tB\x1a\xbaG\f\x92\x02\t手机号ڶ\x1a\a\xb2\x01\x04\b\x03\x10\x04H\rR\x06mobile\x88\x01\x01\x122\n" +
 	"\ttelephone\x18\x1a \x01(\tB\x0f\xbaG\f\x92\x02\t座机号H\x0eR\ttelephone\x88\x01\x01\x12K\n" +
 	"\x06gender\x18\x1b \x01(\x0e2 .identity.service.v1.User.GenderB\f\xbaG\t\x92\x02\x06性别H\x0fR\x06gender\x88\x01\x01\x12+\n" +
 	"\aaddress\x18\x1c \x01(\tB\f\xbaG\t\x92\x02\x06住址H\x10R\aaddress\x88\x01\x01\x12/\n" +
@@ -1851,9 +1850,9 @@ const file_identity_service_v1_user_proto_rawDesc = "" +
 	"\v_deleted_byB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
-	"\v_deleted_at\"Y\n" +
-	"\x10ListUserResponse\x12/\n" +
-	"\x05items\x18\x01 \x03(\v2\x19.identity.service.v1.UserR\x05items\x12\x14\n" +
+	"\v_deleted_at\"d\n" +
+	"\x10ListUserResponse\x12:\n" +
+	"\x05items\x18\x01 \x03(\v2\x19.identity.service.v1.UserB\tڶ\x1a\x05\xa2\x01\x02\x10\x01R\x05items\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x04R\x05total\"\xfe\x01\n" +
 	"\x0eGetUserRequest\x12\"\n" +
 	"\x02id\x18\x01 \x01(\rB\x10\xbaG\r\x18\x01\x92\x02\b用户IDH\x00R\x02id\x125\n" +
