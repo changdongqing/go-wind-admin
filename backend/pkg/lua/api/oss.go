@@ -14,8 +14,18 @@ import (
 
 // RegisterOSS registers the OSS (Object Storage Service) API for Lua as a requireable module
 func RegisterOSS(L *lua.LState, ossClient *oss.MinIOClient, logger *log.Helper) {
-	// Create loader function that returns the module
-	loader := func(L *lua.LState) int {
+	// Register in package.preload so it can be required
+	L.PreloadModule("kratos_oss", LoaderOSS(ossClient, logger))
+}
+
+// LoaderOSS 返回 oss 模块（kratos_oss）的 loader，供 go-scripts 引擎 RegisterModule 使用。
+// ossClient 为 nil 时返回空模块。
+func LoaderOSS(ossClient *oss.MinIOClient, logger *log.Helper) lua.LGFunction {
+	return func(L *lua.LState) int {
+		if ossClient == nil {
+			L.Push(L.NewTable())
+			return 1
+		}
 		// Create oss module
 		ossModule := L.NewTable()
 
@@ -216,7 +226,4 @@ func RegisterOSS(L *lua.LState, ossClient *oss.MinIOClient, logger *log.Helper) 
 		L.Push(ossModule)
 		return 1
 	}
-
-	// Register in package.preload so it can be required
-	L.PreloadModule("kratos_oss", loader)
 }

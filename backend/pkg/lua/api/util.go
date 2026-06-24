@@ -10,8 +10,17 @@ import (
 // RegisterUtilAPI registers utility functions for Lua scripts
 // Provides common utilities like sleep, time, etc.
 func RegisterUtilAPI(L *lua.LState, logger *log.Helper) {
-	// Create loader function that returns the module
-	loader := func(L *lua.LState) int {
+	// Register as requireable module
+	L.PreloadModule("kratos_util", LoaderUtil(logger))
+
+	if logger != nil {
+		logger.Debug("Registered Lua util API")
+	}
+}
+
+// LoaderUtil 返回 util 模块（kratos_util）的 loader，供 go-scripts 引擎 RegisterModule 使用。
+func LoaderUtil(logger *log.Helper) lua.LGFunction {
+	return func(L *lua.LState) int {
 		// Create util module
 		utilModule := L.NewTable()
 
@@ -53,12 +62,5 @@ func RegisterUtilAPI(L *lua.LState, logger *log.Helper) {
 
 		L.Push(utilModule)
 		return 1
-	}
-
-	// Register as requireable module
-	L.PreloadModule("kratos_util", loader)
-
-	if logger != nil {
-		logger.Debug("Registered Lua util API")
 	}
 }

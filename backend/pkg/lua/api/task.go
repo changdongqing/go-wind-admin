@@ -19,15 +19,15 @@ type VMManager interface {
 
 // LuaTaskHandler represents a task handler registered from Lua
 type LuaTaskHandler struct {
-	Name         string
-	Description  string
-	Function     *lua.LFunction
-	L            *lua.LState
-	Required     []string
-	Optional     map[string]interface{}
-	TimeoutSecs  int // Timeout in seconds (default: 30)
-	MaxRetries   int // Max retry attempts (default: 2)
-	Priority     int // Task priority (default: 5 = normal)
+	Name        string
+	Description string
+	Function    *lua.LFunction
+	L           *lua.LState
+	Required    []string
+	Optional    map[string]interface{}
+	TimeoutSecs int // Timeout in seconds (default: 30)
+	MaxRetries  int // Max retry attempts (default: 2)
+	Priority    int // Task priority (default: 5 = normal)
 }
 
 var globalTaskRegistry = &TaskHandlerRegistry{
@@ -35,17 +35,13 @@ var globalTaskRegistry = &TaskHandlerRegistry{
 }
 
 // RegisterTask registers the task API for Lua scripts
+// RegisterTask registers the task API for Lua scripts (direct LState style).
 func RegisterTask(L *lua.LState, engine VMManager, logger *log.Helper) {
 	globalTaskRegistry.logger = logger
 	globalTaskRegistry.engine = engine
 
-	logger.Info("🔧 Registering task API for Lua scripts")
-
-	// Create task module
-	taskModule := L.NewTable()
-
-	// task.register_handler(name, description, handler_func, options)
-	taskModule.RawSetString("register_handler", L.NewFunction(registerTaskHandler))
+	loader := LoaderTask(engine, logger)
+	taskModule := buildTaskModule(L, loader)
 
 	// Register module
 	L.SetGlobal("task", taskModule)
@@ -59,15 +55,40 @@ func RegisterTask(L *lua.LState, engine VMManager, logger *log.Helper) {
 	logger.Info("✅ Task API registered, task.register_handler() is now available")
 }
 
+// LoaderTask 返回 task 模块的 loader，供 go-scripts 引擎 RegisterModule 使用。
+// engine 为 nil 时返回空模块。
+func LoaderTask(engine VMManager, logger *log.Helper) lua.LGFunction {
+	globalTaskRegistry.logger = logger
+	globalTaskRegistry.engine = engine
+
+	return func(L *lua.LState) int {
+		if engine == nil {
+			L.Push(L.NewTable())
+			return 1
+		}
+		buildTaskModule(L, nil)
+		return 1
+	}
+}
+
+// buildTaskModule 构建 task 模块并压入栈顶。
+// secondLoader 为 nil 时仅构建模块；非 nil 时用于 require 注册（兼容旧 SetGlobal 路径）。
+func buildTaskModule(L *lua.LState, secondLoader lua.LGFunction) *lua.LTable {
+	taskModule := L.NewTable()
+	taskModule.RawSetString("register_handler", L.NewFunction(registerTaskHandler))
+	return taskModule
+}
+
 // registerTaskHandler is the Lua API function to register a task handler
 // Usage:
-//   task.register_handler("my_handler", "Description", function(ctx)
-//     -- handler logic
-//     return true
-//   end, {
-//     required = {"field1", "field2"},
-//     optional = {field3 = "default", field4 = 123}
-//   })
+//
+//	task.register_handler("my_handler", "Description", function(ctx)
+//	  -- handler logic
+//	  return true
+//	end, {
+//	  required = {"field1", "field2"},
+//	  optional = {field3 = "default", field4 = 123}
+//	})
 func registerTaskHandler(L *lua.LState) int {
 	// Get arguments
 	name := L.CheckString(1)

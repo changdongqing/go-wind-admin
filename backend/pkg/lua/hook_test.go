@@ -79,8 +79,9 @@ func TestHookAPI_AddScript(t *testing.T) {
 			name = "dynamic_script",
 			source = [[
 				local log = require "kratos_logger"
-				function execute(ctx)
+				function execute()
 					log.info("Dynamic script executed!")
+					local ctx = __get_ctx()
 					ctx.set("executed", true)
 					return true
 				end
@@ -144,16 +145,17 @@ func TestHookAPI_SelfRegistration(t *testing.T) {
 		-- Register this script to the hook
 		hook.add_script(HOOK_NAME, {
 			name = SCRIPT_NAME,
-			source = [[
-				local log = require "kratos_logger"
-				function execute(ctx)
-					local user_id = ctx.get("user_id")
-					local email = ctx.get("email")
-					log.info("Sending welcome email to: " .. email)
-					ctx.set("email_sent", true)
-					return true
-				end
-			]],
+				source = [[
+					local log = require "kratos_logger"
+					function execute()
+						local ctx = __get_ctx()
+						local user_id = ctx.get("user_id")
+						local email = ctx.get("email")
+						log.info("Sending welcome email to: " .. email)
+						ctx.set("email_sent", true)
+						return true
+					end
+				]],
 			enabled = true,
 			priority = 5,
 			description = "Sends welcome email to new users"
@@ -264,19 +266,20 @@ func TestHookAPI_ComplexWorkflow(t *testing.T) {
 		-- 2. Add validation script
 		hook.add_script("before_save", {
 			name = "validate_data",
-			source = [[
-				local log = require "kratos_logger"
-				function execute(ctx)
-					local data = ctx.get("data")
-					if not data or data == "" then
-						log.error("Validation failed: data is empty")
-						ctx.stop("Validation failed")
-						return false
+				source = [[
+					local log = require "kratos_logger"
+					function execute()
+						local ctx = __get_ctx()
+						local data = ctx.get("data")
+						if not data or data == "" then
+							log.error("Validation failed: data is empty")
+							ctx.stop("Validation failed")
+							return false
+						end
+						log.info("Validation passed")
+						return true
 					end
-					log.info("Validation passed")
-					return true
-				end
-			]],
+				]],
 			priority = 1,  -- Run first
 			enabled = true
 		})
@@ -284,15 +287,16 @@ func TestHookAPI_ComplexWorkflow(t *testing.T) {
 		-- 3. Add notification script
 		hook.add_script("after_save", {
 			name = "send_notification",
-			source = [[
-				local log = require "kratos_logger"
-				function execute(ctx)
-					local data = ctx.get("data")
-					log.info("Notification sent for: " .. data)
-					ctx.set("notified", true)
-					return true
-				end
-			]],
+				source = [[
+					local log = require "kratos_logger"
+					function execute()
+						local ctx = __get_ctx()
+						local data = ctx.get("data")
+						log.info("Notification sent for: " .. data)
+						ctx.set("notified", true)
+						return true
+					end
+				]],
 			priority = 10,
 			enabled = true
 		})
@@ -300,15 +304,16 @@ func TestHookAPI_ComplexWorkflow(t *testing.T) {
 		-- 4. Add error handler
 		hook.add_script("on_error", {
 			name = "log_error",
-			source = [[
-				local log = require "kratos_logger"
-				function execute(ctx)
-					local error = ctx.get("error")
-					log.error("Error logged: " .. error)
-					ctx.set("error_logged", true)
-					return true
-				end
-			]],
+				source = [[
+					local log = require "kratos_logger"
+					function execute()
+						local ctx = __get_ctx()
+						local error = ctx.get("error")
+						log.error("Error logged: " .. error)
+						ctx.set("error_logged", true)
+						return true
+					end
+				]],
 			enabled = true
 		})
 
@@ -495,15 +500,16 @@ func TestHookAPI_MixedRegistrationMethods(t *testing.T) {
 		-- Add another script to the same hook using add_script
 		hook.add_script("mixed.test", {
 			name = "second_script",
-			source = [[
-				local log = require "kratos_logger"
-				function execute(ctx)
-					local count = ctx.get("count") or 0
-					ctx.set("count", count + 1)
-					log.info("Callback 2 executed")
-					return true
-				end
-			]],
+				source = [[
+					local log = require "kratos_logger"
+					function execute()
+						local ctx = __get_ctx()
+						local count = ctx.get("count") or 0
+						ctx.set("count", count + 1)
+						log.info("Callback 2 executed")
+						return true
+					end
+				]],
 			priority = 5,
 			enabled = true
 		})

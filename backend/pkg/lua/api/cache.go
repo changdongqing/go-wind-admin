@@ -14,8 +14,18 @@ import (
 
 // RegisterCache registers the Redis cache API for Lua as a requireable module
 func RegisterCache(L *lua.LState, rdb *redis.Client, logger *log.Helper) {
-	// Create loader function that returns the module
-	loader := func(L *lua.LState) int {
+	// Register in package.preload so it can be required
+	L.PreloadModule("kratos_cache", LoaderCache(rdb, logger))
+}
+
+// LoaderCache 返回 cache 模块（kratos_cache）的 loader，供 go-scripts 引擎 RegisterModule 使用。
+// rdb 为 nil 时返回空模块。
+func LoaderCache(rdb *redis.Client, logger *log.Helper) lua.LGFunction {
+	return func(L *lua.LState) int {
+		if rdb == nil {
+			L.Push(L.NewTable())
+			return 1
+		}
 		// Create cache module
 		cacheModule := L.NewTable()
 
@@ -299,7 +309,4 @@ func RegisterCache(L *lua.LState, rdb *redis.Client, logger *log.Helper) {
 		L.Push(cacheModule)
 		return 1
 	}
-
-	// Register in package.preload so it can be required
-	L.PreloadModule("kratos_cache", loader)
 }

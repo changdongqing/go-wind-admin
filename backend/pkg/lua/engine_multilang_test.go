@@ -10,146 +10,122 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-// TestLuaEngine_ImplementsGSEngine 验证 LuaEngine 实现 go-scripts.Engine 接口。
-// 这是多语言统一抽象的基础：未来 JSEngine/PythonEngine 实现同一接口即可替换。
-func TestLuaEngine_ImplementsGSEngine(t *testing.T) {
-	var _ gsEngine.Engine = (*LuaEngine)(nil)
-	t.Log("✓ LuaEngine satisfies gsEngine.Engine interface")
+// newTestEngine 创建一个带默认 Lua 引擎的编排器（禁用自动加载，避免依赖脚本目录）。
+func newTestEngine(t *testing.T) *Engine {
+	t.Helper()
+	cfg := DefaultConfig()
+	cfg.ScriptDir = "" // 测试不自动加载
+	e := NewEngine(cfg, log.DefaultLogger)
+	t.Cleanup(func() { e.Close() })
+	return e
 }
 
-// TestLuaEngine_Type 验证引擎类型标识。
-func TestLuaEngine_Type(t *testing.T) {
-	le := NewLuaEngine(DefaultConfig(), log.DefaultLogger)
-	if le.GetType() != gsEngine.LuaType {
-		t.Errorf("expected %s, got %s", gsEngine.LuaType, le.GetType())
+// TestEngine_DefaultLuaType 验证默认工厂创建的是 Lua 引擎类型。
+// 这是多语言统一抽象的基础：未来 NewScriptEngine(JavaScriptType) 即可切换。
+func TestEngine_DefaultLuaType(t *testing.T) {
+	e := newTestEngine(t)
+
+	se := e.ScriptEngine()
+	if se == nil {
+		t.Fatal("default factory should create an engine")
 	}
+	if se.GetType() != gsEngine.LuaType {
+		t.Errorf("expected lua type, got %s", se.GetType())
+	}
+	t.Log("✓ Default engine is go-scripts/lua")
 }
 
-// TestLuaEngine_Lifecycle 验证 Init/Close 生命周期。
-func TestLuaEngine_Lifecycle(t *testing.T) {
-	le := NewLuaEngine(DefaultConfig(), log.DefaultLogger)
+// TestEngine_ExecuteString 验证编排器执行内联脚本。
+func TestEngine_ExecuteString(t *testing.T) {
+	e := newTestEngine(t)
 
-	if le.IsInitialized() {
-		t.Fatal("engine should not be initialized before Init")
-	}
-
-	if err := le.Init(context.Background()); err != nil {
-		t.Fatalf("Init failed: %v", err)
-	}
-
-	if !le.IsInitialized() {
-		t.Fatal("engine should be initialized after Init")
-	}
-
-	// 重复 Init 应返回错误
-	if err := le.Init(context.Background()); err == nil {
-		t.Fatal("expected error on double Init")
-	}
-
-	if err := le.Close(); err != nil {
-		t.Fatalf("Close failed: %v", err)
-	}
-
-	if le.IsInitialized() {
-		t.Fatal("engine should not be initialized after Close")
-	}
-}
-
-// TestLuaEngine_ExecuteString 验证内联脚本执行。
-func TestLuaEngine_ExecuteString(t *testing.T) {
-	le := NewLuaEngine(DefaultConfig(), log.DefaultLogger)
-	if err := le.Init(context.Background()); err != nil {
-		t.Fatalf("Init failed: %v", err)
-	}
-	defer le.Close()
-
-	_, err := le.ExecuteString(context.Background(), "test", `local x = 1 + 1`)
+	err := e.LoadScriptString(context.Background(), "test", `local x = 1 + 1`)
 	if err != nil {
-		t.Fatalf("ExecuteString failed: %v", err)
+		t.Fatalf("LoadScriptString failed: %v", err)
 	}
 }
 
-// TestLuaEngine_CallFunction 验证调用脚本定义的函数。
-//
-// 注意：池化引擎下，脚本通过 ExecuteString 定义的函数是 per-VM 的瞬时态，
-// 跨 VM 不可见（与 go-scripts/lua 的单脚本语义一致）。
-// 因此本测试使用 ExecuteWithResult 在同一 VM 内定义并调用函数。
-func TestLuaEngine_CallFunction(t *testing.T) {
-	le := NewLuaEngine(DefaultConfig(), log.DefaultLogger)
-	if err := le.Init(context.Background()); err != nil {
-		t.Fatalf("Init failed: %v", err)
-	}
-	defer le.Close()
+// TestEngine_RuntimeHook_BusinessModule 验证 RuntimeHook 注入的业务模块可在脚本中 require。
+// 这是切换到 go-scripts/lua 后的核心：业务 API 经 RuntimeHook 注入，脚本可调用。
+func TestEngine_RuntimeHook_BusinessModule(t *testing.T) {
+	e := newTestEngine(t)
 
-	// 在单次执行中定义并调用（同一 VM）
-	result, err := le.ExecuteWithResult(context.Background(), "add_test", `
-		function add(a, b) return a + b end
+	// logger 模块经 RuntimeHook 注入，脚本可 require 并调用
+	err := e.LoadScriptString(context.Background(), "use_logger", `
+		local log = require "kratos_logger"
+		log.info("hello from lua")
+	`)
+	if err != nil {
+		t.Fatalf("require kratos_logger failed: %v", err)
+	}
+}
+
+// TestEngine_RuntimeHook_HookRegister 验证 hook.register 反向回调注册。
+// 脚本通过 require "kratos_hook" 调用 register，回调经适配器转发到编排器。
+func TestEngine_RuntimeHook_HookRegister(t *testing.T) {
+	e := newTestEngine(t)
+
+	// 脚本注册 hook 回调
+	err := e.LoadScriptString(context.Background(), "reg_hook", `
+		local hook = require "kratos_hook"
+		hook.register("test.event", "test callback", function(ctx)
+			return true
+		end)
+	`)
+	if err != nil {
+		t.Fatalf("hook.register failed: %v", err)
+	}
+
+	// 验证回调已注册到编排器
+	e.callbacksMu.RLock()
+	cbs := e.callbacks["test.event"]
+	e.callbacksMu.RUnlock()
+
+	if len(cbs) != 1 {
+		t.Fatalf("expected 1 callback for test.event, got %d", len(cbs))
+	}
+
+	// 执行 hook（应触发已注册的回调）
+	err = e.ExecuteHook(context.Background(), "test.event", NewContext("test.event"))
+	if err != nil {
+		t.Fatalf("ExecuteHook failed: %v", err)
+	}
+}
+
+// TestEngine_RuntimeHook_ContextFunctions 验证执行上下文函数注入。
+// 脚本通过 __get_ctx() 获取上下文表，调用 ctx.set/get。
+func TestEngine_RuntimeHook_ContextFunctions(t *testing.T) {
+	e := newTestEngine(t)
+
+	// 预注册一个 hook 脚本，使用 __get_ctx().set
+	err := e.AddScript("ctx.hook", &Script{
+		Name: "ctx_script",
+		Hook: "ctx.hook",
+		Source: `
 		function execute()
-			return add(3, 4)
+			local ctx = __get_ctx()
+			ctx.set("result", "from-lua")
+			return true
 		end
-	`, nil)
+		`,
+		Enabled: true,
+	})
 	if err != nil {
-		t.Fatalf("ExecuteWithResult failed: %v", err)
+		t.Fatalf("AddScript failed: %v", err)
 	}
 
-	// Lua 数字统一以 float64 返回（convert.ToGoValue 语义）
-	if n, ok := result.(float64); !ok || n != 7 {
-		t.Errorf("expected 7 (float64), got %v (%T)", result, result)
-	}
-}
-
-// TestLuaEngine_RegisterGlobalAndGet 验证全局变量注册与读取。
-func TestLuaEngine_RegisterGlobalAndGet(t *testing.T) {
-	le := NewLuaEngine(DefaultConfig(), log.DefaultLogger)
-	if err := le.Init(context.Background()); err != nil {
-		t.Fatalf("Init failed: %v", err)
-	}
-	defer le.Close()
-
-	if err := le.RegisterGlobal("my_var", "hello"); err != nil {
-		t.Fatalf("RegisterGlobal failed: %v", err)
-	}
-
-	val, err := le.GetGlobal("my_var")
+	ctx := NewContext("ctx.hook")
+	err = e.ExecuteHook(context.Background(), "ctx.hook", ctx)
 	if err != nil {
-		t.Fatalf("GetGlobal failed: %v", err)
+		t.Fatalf("ExecuteHook failed: %v", err)
 	}
 
-	if s, ok := val.(string); !ok || s != "hello" {
-		t.Errorf("expected 'hello', got %v", val)
+	val, ok := ctx.Data["result"]
+	if !ok {
+		t.Fatal("expected ctx.Data['result'] to be set by script")
 	}
-}
-
-// TestLuaEngine_RegisterFunction 验证宿主函数注册。
-// 注册的函数持久化到所有 VM（经 replay 机制），可在任意 VM 中调用。
-func TestLuaEngine_RegisterFunction(t *testing.T) {
-	le := NewLuaEngine(DefaultConfig(), log.DefaultLogger)
-	if err := le.Init(context.Background()); err != nil {
-		t.Fatalf("Init failed: %v", err)
-	}
-	defer le.Close()
-
-	// 注册一个宿主函数（类型必须为 lua.LGFunction，即命名类型）
-	var hostFn lua.LGFunction = func(L *lua.LState) int {
-		L.Push(lua.LString("from-go"))
-		return 1
-	}
-	if err := le.RegisterFunction("greet", hostFn); err != nil {
-		t.Fatalf("RegisterFunction failed: %v", err)
-	}
-
-	// 通过 ExecuteWithResult 在脚本中调用已注册的宿主函数
-	result, err := le.ExecuteWithResult(context.Background(), "call_greet", `
-		function execute()
-			return greet()
-		end
-	`, nil)
-	if err != nil {
-		t.Fatalf("ExecuteWithResult failed: %v", err)
-	}
-
-	if s, ok := result.(string); !ok || s != "from-go" {
-		t.Errorf("expected 'from-go', got %v (%T)", result, result)
+	if val != "from-lua" {
+		t.Errorf("expected 'from-lua', got %v", val)
 	}
 }
 
@@ -157,13 +133,15 @@ func TestLuaEngine_RegisterFunction(t *testing.T) {
 // 这是多语言切换的入口：替换工厂即可切换底层脚本语言。
 func TestEngineWithFactory_CustomEngine(t *testing.T) {
 	injected := false
-	customFactory := func(config *Config, logger log.Logger) (gsEngine.Engine, error) {
+	customFactory := func(config *Config, _ log.Logger) (gsEngine.Engine, error) {
 		injected = true
 		// 返回标准 Lua 引擎（验证工厂机制本身）
-		return NewLuaEngine(config, logger), nil
+		return gsEngine.NewScriptEngine(config.EngineType)
 	}
 
-	e := NewEngineWithFactory(DefaultConfig(), log.DefaultLogger, customFactory)
+	cfg := DefaultConfig()
+	cfg.ScriptDir = ""
+	e := NewEngineWithFactory(cfg, log.DefaultLogger, customFactory)
 	defer e.Close()
 
 	if !injected {
@@ -176,31 +154,15 @@ func TestEngineWithFactory_CustomEngine(t *testing.T) {
 	t.Log("✓ Custom engine factory injection works")
 }
 
-// TestEngineWithFactory_DefaultLua 验证默认工厂创建 Lua 引擎。
-func TestEngineWithFactory_DefaultLua(t *testing.T) {
-	e := NewEngineWithFactory(DefaultConfig(), log.DefaultLogger, nil)
-	defer e.Close()
+// TestEngine_RegisterModule 验证宿主模块注册（require 可用）。
+// go-scripts/lua 的 RegisterModule 调用 loader 时传入模块名，
+// loader 须执行 PreloadModule（preload 风格），而非直接构建模块。
+func TestEngine_RegisterModule(t *testing.T) {
+	e := newTestEngine(t)
+	eng := e.ScriptEngine()
 
-	se := e.ScriptEngine()
-	if se == nil {
-		t.Fatal("default factory should create an engine")
-	}
-	if se.GetType() != gsEngine.LuaType {
-		t.Errorf("expected lua type, got %s", se.GetType())
-	}
-}
-
-// TestLuaEngine_ModuleRegistrar 验证模块注册（require 可用）。
-// 注册的模块持久化到所有 VM（经 replay 机制），可在脚本中 require。
-func TestLuaEngine_ModuleRegistrar(t *testing.T) {
-	le := NewLuaEngine(DefaultConfig(), log.DefaultLogger)
-	if err := le.Init(context.Background()); err != nil {
-		t.Fatalf("Init failed: %v", err)
-	}
-	defer le.Close()
-
-	// 注册一个模块 loader（类型必须为 lua.LGFunction）
-	var modLoader lua.LGFunction = func(L *lua.LState) int {
+	// builder：构建模块并 push（require 时调用）
+	var builder lua.LGFunction = func(L *lua.LState) int {
 		mod := L.NewTable()
 		var ping lua.LGFunction = func(L *lua.LState) int {
 			L.Push(lua.LString("pong"))
@@ -211,22 +173,32 @@ func TestLuaEngine_ModuleRegistrar(t *testing.T) {
 		return 1
 	}
 
-	if err := le.RegisterModule("mymod", modLoader); err != nil {
+	// preload 风格 loader：读 name 参数，注册 PreloadModule
+	var preloadLoader lua.LGFunction = func(L *lua.LState) int {
+		name := L.CheckString(1)
+		L.PreloadModule(name, builder)
+		return 0
+	}
+
+	if err := eng.RegisterModule("mymod", preloadLoader); err != nil {
 		t.Fatalf("RegisterModule failed: %v", err)
 	}
 
 	// 在脚本中 require 并调用
-	result, err := le.ExecuteWithResult(context.Background(), "use_mod", `
-		function execute()
-			local m = require "mymod"
-			return m.ping()
-		end
-	`, nil)
+	err := e.LoadScriptString(context.Background(), "use_mod", `
+		local m = require "mymod"
+		result = m.ping()
+	`)
 	if err != nil {
-		t.Fatalf("ExecuteWithResult failed: %v", err)
+		t.Fatalf("script execution failed: %v", err)
 	}
 
-	if s, ok := result.(string); !ok || s != "pong" {
-		t.Errorf("expected 'pong', got %v (%T)", result, result)
+	// 验证模块返回值（通过 GetGlobal 读取脚本设置的全局）
+	val, err := eng.GetGlobal("result")
+	if err != nil {
+		t.Fatalf("GetGlobal failed: %v", err)
+	}
+	if s, ok := val.(string); !ok || s != "pong" {
+		t.Errorf("expected 'pong', got %v (%T)", val, val)
 	}
 }

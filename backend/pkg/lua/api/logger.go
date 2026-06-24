@@ -23,9 +23,15 @@ func convertForFormat(val interface{}) interface{} {
 }
 
 // RegisterLogger registers the logger API for Lua as a requireable module
+// RegisterLogger registers the logger API for Lua as a requireable module
 func RegisterLogger(L *lua.LState, logger *log.Helper) {
-	// Create loader function that returns the module
-	loader := func(L *lua.LState) int {
+	// Register in package.preload so it can be required
+	L.PreloadModule("kratos_logger", LoaderLogger(logger))
+}
+
+// LoaderLogger 返回 logger 模块（kratos_logger）的 loader，供 go-scripts 引擎 RegisterModule 使用。
+func LoaderLogger(logger *log.Helper) lua.LGFunction {
+	return func(L *lua.LState) int {
 		// Create log module
 		logModule := L.NewTable()
 
@@ -104,7 +110,4 @@ func RegisterLogger(L *lua.LState, logger *log.Helper) {
 		L.Push(logModule)
 		return 1
 	}
-
-	// Register in package.preload so it can be required
-	L.PreloadModule("kratos_logger", loader)
 }

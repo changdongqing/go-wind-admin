@@ -3,7 +3,10 @@ package lua
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 
@@ -14,27 +17,36 @@ import (
 	gsEngine "github.com/tx7do/go-scripts"
 	gsSource "github.com/tx7do/go-scripts/source"
 
+	// 空导入 go-scripts/lua：触发 init() 将 Lua 引擎工厂注册到全局注册表。
+	// AllowedLib* 常量在 engine_runtime.go 中引用（applySandbox）。
+	_ "github.com/tx7do/go-scripts/lua"
+
 	"go-wind-admin/pkg/eventbus"
+	"go-wind-admin/pkg/lua/api"
 	"go-wind-admin/pkg/lua/hook"
 	"go-wind-admin/pkg/lua/internal/convert"
 	"go-wind-admin/pkg/oss"
 )
 
 // CallbackInfo 存储已注册的回调信息。
+//
+// go-scripts/lua 引擎在生命周期内持有单个 VM（statePool.Borrow），
+// 故 callback.L 在引擎 Close 前持续有效。
 type CallbackInfo struct {
-	L        *lua.LState    // 回调所属 VM（专用 VM，不归还池）
+	L        *lua.LState    // 回调所属 VM（引擎单 VM，生命周期内稳定）
 	Function *lua.LFunction // 回调函数
 	HookName string         // hook 名称
 }
 
 // Engine 是 Hook 编排器，语言无关。
 //
-// 重构后的架构：
-//   - Engine（本结构）：负责 Hook 注册、脚本按优先级/链式执行、回调管理、执行上下文
-//   - gsEngine.Engine（脚本引擎）：负责 VM 生命周期、脚本编译/执行、沙箱、模块注册
+// 架构（基于 go-scripts）：
+//   - Engine（本结构）：Hook 注册、脚本按优先级/链式执行、回调管理、执行上下文
+//   - gsEngine.Engine（脚本引擎）：VM 生命周期、脚本编译/执行、模块注册、热更新
 //
-// 引擎通过 ScriptEngineFactory 创建，当前默认为 LuaEngine，
-// 未来可无缝替换为 JSEngine/PythonEngine 等（只需实现 go-scripts.Engine 接口）。
+// 引擎通过 go-scripts 工厂创建（当前 LuaType → go-scripts/lua），
+// 业务 API 与 hook.register 经 RuntimeHook 注入。
+// 未来切换语言只需 NewScriptEngine(JavaScriptType) 等，编排器零改动。
 type Engine struct {
 	config   *Config
 	logger   *log.Helper
@@ -43,16 +55,25 @@ type Engine struct {
 	// 脚本引擎（语言无关，实现 go-scripts.Engine 接口）
 	scriptEngine gsEngine.Engine
 
-	// 业务依赖（可选，按需注入到引擎）
+	// 业务依赖（可选，经 RuntimeHook 注入到 VM）
 	rdb             *redis.Client
 	eventbusManager *eventbus.Manager
 	ossClient       *oss.MinIOClient
 
-	// Hook 回调（hook 名称 -> 多个回调）
-	callbacks    map[string][]*CallbackInfo
-	callbacksMu  sync.RWMutex
-	dedicatedVMs map[*lua.LState]bool // 注册了回调/task handler 的专用 VM
-	mu           sync.RWMutex
+	// Hook 回调（hook 名称 -> 多个回调），由脚本 hook.register 注册
+	callbacks   map[string][]*CallbackInfo
+	callbacksMu sync.RWMutex
+
+	// 执行上下文持有器（执行期间 Set，执行后 Reset，供脚本 __get_ctx 等访问）
+	execCtx execCtxHolder
+
+	mu sync.RWMutex
+}
+
+// execCtxHolder 在执行期间持有当前执行上下文。
+type execCtxHolder struct {
+	current *Context
+	mu      sync.Mutex
 }
 
 // Config 定义引擎配置。
@@ -77,25 +98,20 @@ func DefaultConfig() *Config {
 		ScriptDir:      "scripts",
 		AllowedModules: []string{},
 		PoolSize:       5,
-		EngineType:     EngineTypeLua,
+		EngineType:     gsEngine.LuaType,
 	}
 }
 
+// EngineTypeLua 是 Lua 引擎类型标识（对齐 go-scripts）。
+const EngineTypeLua = gsEngine.LuaType
+
 // ScriptEngineFactory 创建脚本引擎实例。
-// 通过注入工厂实现多语言切换；默认使用 LuaEngine。
+// 通过注入工厂实现多语言切换；默认使用 go-scripts 注册的 Lua 引擎。
 type ScriptEngineFactory func(config *Config, logger log.Logger) (gsEngine.Engine, error)
 
-// 默认引擎工厂：按 config.EngineType 选择引擎实现。
-var defaultEngineFactory ScriptEngineFactory = func(config *Config, logger log.Logger) (gsEngine.Engine, error) {
-	switch config.EngineType {
-	case "", EngineTypeLua:
-		return newLuaEngineAsGS(config, logger)
-	// 未来扩展：
-	// case EngineTypeJavaScript:
-	//     return newJSEngineAsGS(config, logger)
-	default:
-		return nil, fmt.Errorf("unsupported engine type: %s", config.EngineType)
-	}
+// 默认引擎工厂：通过 go-scripts 全局工厂按 EngineType 创建。
+var defaultEngineFactory ScriptEngineFactory = func(config *Config, _ log.Logger) (gsEngine.Engine, error) {
+	return gsEngine.NewScriptEngine(config.EngineType)
 }
 
 // SetEngineFactory 覆盖默认引擎工厂（用于注入自定义引擎实现）。
@@ -103,15 +119,6 @@ func SetEngineFactory(f ScriptEngineFactory) {
 	if f != nil {
 		defaultEngineFactory = f
 	}
-}
-
-// newLuaEngineAsGS 创建 LuaEngine 并使其满足 gsEngine.Engine 接口。
-// 返回 (engine, orchestratorRef) 中的 orchestratorRef 在 NewEngine 中回填。
-// newLuaEngineAsGS 创建 LuaEngine（未初始化）。
-// 调用方需在注入 HookRegistrar/业务依赖后再调用 Init()，
-// 以确保 VM 池创建时 hook API 等已就绪。
-func newLuaEngineAsGS(config *Config, logger log.Logger) (gsEngine.Engine, error) {
-	return NewLuaEngine(config, logger), nil
 }
 
 // NewEngine 创建一个新的 Hook 编排器（默认 Lua 引擎）。
@@ -134,7 +141,7 @@ func NewEngineWithFactory(config *Config, logger log.Logger, factory ScriptEngin
 	if err != nil {
 		l.Errorf("Failed to create script engine (%s): %v", config.EngineType, err)
 		// 降级：使用默认 Lua 引擎
-		eng, err = newLuaEngineAsGS(config, logger)
+		eng, err = gsEngine.NewScriptEngine(gsEngine.LuaType)
 		if err != nil {
 			l.Errorf("Fallback Lua engine also failed: %v", err)
 		}
@@ -146,18 +153,20 @@ func NewEngineWithFactory(config *Config, logger log.Logger, factory ScriptEngin
 		registry:     hook.NewRegistry(),
 		scriptEngine: eng,
 		callbacks:    make(map[string][]*CallbackInfo),
-		dedicatedVMs: make(map[*lua.LState]bool),
 	}
 
-	// 注入业务依赖到引擎（在 Init 前注入，使 VM 池创建时业务 API 就绪）
-	e.injectDepsToEngine()
-
-	// 建立 Hook 编排器 ↔ 引擎的双向引用（在 Init 前绑定，
-	// 确保 VM 池创建时 hook API 已注册，脚本可调用 hook.register）
-	e.bindHookRegistrar()
-
-	// 初始化引擎（创建 VM 池）—— 必须在依赖注入与 HookRegistrar 绑定之后
+	// 注入 RuntimeHook（业务 API + hook.register + 执行上下文）。
+	// 必须在 Init 前注册，Init 会重放到 VM 上。
 	if eng != nil {
+		// 配置沙箱：仅开启安全的标准库，禁用 os/io/debug/load 等危险库。
+		// 依赖 go-scripts/lua v0.0.8+ 的 SetOpenLibs 能力。
+		e.applySandbox(eng)
+
+		if registrar := gsEngine.AsRuntimeHookRegistrar(eng); registrar != nil {
+			if err := registrar.AddRuntimeHook(e.buildRuntimeHook()); err != nil {
+				l.Errorf("Failed to add runtime hook: %v", err)
+			}
+		}
 		if err := eng.Init(context.Background()); err != nil {
 			l.Errorf("Failed to init script engine: %v", err)
 		}
@@ -170,38 +179,9 @@ func NewEngineWithFactory(config *Config, logger log.Logger, factory ScriptEngin
 		}
 	}
 
-	l.Infof("Engine initialized (type: %s, pool: %d, timeout: %s)",
-		config.EngineType, config.PoolSize, config.VMTimeout)
+	l.Infof("Engine initialized (type: %s, timeout: %s)", config.EngineType, config.VMTimeout)
 
 	return e
-}
-
-// injectDepsToEngine 将已注入的业务依赖转发给脚本引擎。
-func (e *Engine) injectDepsToEngine() {
-	if e.scriptEngine == nil {
-		return
-	}
-	le, ok := e.scriptEngine.(*LuaEngine)
-	if !ok {
-		return // 非 Lua 引擎暂不支持业务 API 注入
-	}
-	if e.rdb != nil {
-		le.SetRedis(e.rdb)
-	}
-	if e.eventbusManager != nil {
-		le.SetEventBus(e.eventbusManager)
-	}
-	if e.ossClient != nil {
-		le.SetOSS(e.ossClient)
-	}
-}
-
-// bindHookRegistrar 建立编排器 ↔ 引擎双向引用。
-// 引擎需感知编排器以便脚本调用 hook.register(name, fn) 时注册回调。
-func (e *Engine) bindHookRegistrar() {
-	if le, ok := e.scriptEngine.(*LuaEngine); ok {
-		le.SetHookRegistrar(e)
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -275,14 +255,12 @@ func extractScriptFields(script interface{}) (*hook.Script, bool) {
 	}
 
 	hookScript := &hook.Script{
-		ID:          0,
 		Name:        getStringField("Name"),
 		Hook:        getStringField("Hook"),
 		Source:      getStringField("Source"),
 		Enabled:     getBoolField("Enabled"),
 		Priority:    getIntField("Priority"),
 		Description: getStringField("Description"),
-		Version:     0,
 		Author:      getStringField("Author"),
 		Critical:    getBoolField("Critical"),
 	}
@@ -303,8 +281,19 @@ func (e *Engine) ListHooks() []string {
 	return e.registry.ListHooks()
 }
 
-// RegisterCallback 注册 Lua 回调函数到 hook（供脚本自注册调用）。
+// registerLuaCallback 注册 Lua 回调函数到 hook（供 hook 模块脚本自注册调用）。
+func (e *Engine) registerLuaCallback(hookName string, L *lua.LState, fn *lua.LFunction) {
+	e.doRegisterCallback(hookName, L, fn)
+}
+
+// RegisterCallback 注册 Lua 回调函数到 hook（公开方法，实现 api.HookEngine 接口）。
+// 供外部直接调用 api.RegisterHookAPI 时，Engine 可作为 HookEngine 传入。
 func (e *Engine) RegisterCallback(hookName string, L *lua.LState, fn *lua.LFunction) {
+	e.doRegisterCallback(hookName, L, fn)
+}
+
+// doRegisterCallback 是 RegisterCallback 的实际实现（共享给公开/非公开入口）。
+func (e *Engine) doRegisterCallback(hookName string, L *lua.LState, fn *lua.LFunction) {
 	e.callbacksMu.Lock()
 	defer e.callbacksMu.Unlock()
 
@@ -314,29 +303,8 @@ func (e *Engine) RegisterCallback(hookName string, L *lua.LState, fn *lua.LFunct
 		HookName: hookName,
 	})
 
-	// 标记 VM 为专用（不归还池），保证回调函数引用持续有效
-	e.mu.Lock()
-	e.dedicatedVMs[L] = true
-	e.mu.Unlock()
-
-	// 同步标记到引擎
-	if le, ok := e.scriptEngine.(*LuaEngine); ok {
-		le.MarkVMDedicated(L)
-	}
-
 	e.logger.Infof("Registered callback for hook: %s (total: %d callbacks)",
 		hookName, len(e.callbacks[hookName]))
-}
-
-// MarkVMDedicated 标记 VM 为专用（不归还池）。
-func (e *Engine) MarkVMDedicated(L *lua.LState) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-	e.dedicatedVMs[L] = true
-	if le, ok := e.scriptEngine.(*LuaEngine); ok {
-		le.MarkVMDedicated(L)
-	}
-	e.logger.Debugf("VM marked as dedicated")
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -344,33 +312,64 @@ func (e *Engine) MarkVMDedicated(L *lua.LState) {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Execute 执行单个脚本（带执行上下文）。
-// 语言无关：通过 scriptEngine.ExecuteWithResult 统一执行。
+// 语言无关：通过 scriptEngine.ExecuteString 执行脚本主体，
+// 若脚本定义了 execute() 函数则调用它。
+//
+// 执行上下文经 RuntimeHook 注入的 __get_ctx/__set_ctx/__stop 全局函数访问：
+//
+//	function execute()
+//	    local ctx = __get_ctx()
+//	    ctx.set("result", "ok")
+//	    local input = ctx.get("input")
+//	end
+//
+// 中止语义：
+//   - execute 返回 false 视为中止
+//   - __stop() 被调用时视为中止
 func (e *Engine) Execute(ctx context.Context, script *Script, execCtx *Context) error {
-	le, ok := e.scriptEngine.(*LuaEngine)
-	if !ok {
-		// 非 Lua 引擎：退化为 ExecuteString
-		_, err := e.scriptEngine.ExecuteString(ctx, script.Name, script.Source)
-		return err
+	if e.scriptEngine == nil {
+		return fmt.Errorf("no script engine available")
 	}
 
-	result, err := le.ExecuteWithResult(ctx, script.Name, script.Source, func(L *lua.LState) lua.LValue {
-		return e.contextToLuaTable(L, execCtx)
-	})
+	// 设置执行上下文（供脚本 __get_ctx 等访问）
+	prev := e.setExecCtx(execCtx)
+	defer e.resetExecCtx(prev)
 
+	// 执行脚本主体（定义函数、注册 hook 等）
+	_, err := e.scriptEngine.ExecuteString(ctx, script.Name, script.Source)
 	if err != nil {
 		return err
 	}
 
-	// 脚本返回 false 表示中止（保持原语义）
-	if b, isBool := result.(bool); isBool && !b {
-		return fmt.Errorf("script returned false")
+	// 若脚本定义了 execute() 函数，调用它（Lua 惯例：入口函数）
+	if result, callErr := e.scriptEngine.CallFunction(ctx, "execute"); callErr == nil {
+		// execute 返回 false 表示中止
+		if b, isBool := result.(bool); isBool && !b {
+			return fmt.Errorf("script returned false")
+		}
+	} else if !isMissingFunctionErr(callErr) {
+		// execute 存在但调用出错
+		return fmt.Errorf("execute function error: %w", callErr)
 	}
+	// execute 不存在时，仅执行脚本主体即可
 
-	// 检查 ctx.stop() 中止信号
+	// 检查 __stop() 中止信号
 	if execCtx != nil && execCtx.Stopped {
 		return fmt.Errorf("execution stopped: %s", execCtx.StopReason)
 	}
 	return nil
+}
+
+// isMissingFunctionErr 判断错误是否为「函数不存在」（即脚本未定义 execute）。
+func isMissingFunctionErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "not a function") ||
+		strings.Contains(msg, "nil") ||
+		strings.Contains(msg, "attempt to call") ||
+		strings.Contains(msg, "not found")
 }
 
 // ExecuteHook 执行挂载在某个 hook 上的所有脚本与回调（按优先级/链式）。
@@ -439,16 +438,22 @@ func (e *Engine) ExecuteHook(ctx context.Context, hookName string, execCtx *Cont
 }
 
 // executeCallback 执行已注册的回调函数。
-// 修复：超时后销毁损坏的专用 VM 并通知引擎（原实现未销毁，可能导致后续调用异常）。
+// go-scripts/lua 引擎生命周期内持有单个稳定 VM，callback.L 持续有效。
 func (e *Engine) executeCallback(ctx context.Context, callback *CallbackInfo, execCtx *Context) error {
 	L := callback.L
 
 	timeoutCtx, cancel := context.WithTimeout(ctx, e.config.VMTimeout)
 	defer cancel()
 
+	// 设置执行上下文
+	prev := e.setExecCtx(execCtx)
+	defer e.resetExecCtx(prev)
+
 	errChan := make(chan error, 1)
 	go func() {
 		L.SetContext(timeoutCtx)
+		defer L.SetContext(context.Background()) // 重置 context，避免 LState 残留已取消的 ctx
+
 		L.Push(callback.Function)
 		L.Push(e.contextToLuaTable(L, execCtx))
 
@@ -471,18 +476,24 @@ func (e *Engine) executeCallback(ctx context.Context, callback *CallbackInfo, ex
 	case err := <-errChan:
 		return err
 	case <-timeoutCtx.Done():
-		// 修复原 bug：超时后销毁损坏的专用 VM。
-		// 专用 VM 无法重建（回调函数引用绑定在此 VM），只能关闭，
-		// 后续对该回调的调用将返回错误（VM 已关闭），需调用方重新注册。
-		func() {
-			defer func() { recover() }()
-			L.Close()
-		}()
-		e.mu.Lock()
-		delete(e.dedicatedVMs, L)
-		e.mu.Unlock()
-		return fmt.Errorf("callback execution timeout after %s (VM destroyed)", e.config.VMTimeout)
+		return fmt.Errorf("callback execution timeout after %s", e.config.VMTimeout)
 	}
+}
+
+// setExecCtx 设置当前执行上下文，返回上一个（用于恢复）。
+func (e *Engine) setExecCtx(ctx *Context) *Context {
+	e.execCtx.mu.Lock()
+	defer e.execCtx.mu.Unlock()
+	prev := e.execCtx.current
+	e.execCtx.current = ctx
+	return prev
+}
+
+// resetExecCtx 恢复执行上下文。
+func (e *Engine) resetExecCtx(prev *Context) {
+	e.execCtx.mu.Lock()
+	defer e.execCtx.mu.Unlock()
+	e.execCtx.current = prev
 }
 
 // contextToLuaTable 将 Context 转为 Lua table（含 get/set/stop 方法）。
@@ -491,29 +502,40 @@ func (e *Engine) contextToLuaTable(L *lua.LState, ctx *Context) *lua.LTable {
 
 	table.RawSetString("get", L.NewFunction(func(L *lua.LState) int {
 		key := L.CheckString(1)
-		if val, ok := ctx.Data[key]; ok {
-			L.Push(convert.ToLuaValue(L, val))
-		} else {
-			L.Push(lua.LNil)
+		if ctx != nil {
+			if val, ok := ctx.Data[key]; ok {
+				L.Push(convert.ToLuaValue(L, val))
+				return 1
+			}
 		}
+		L.Push(lua.LNil)
 		return 1
 	}))
 
 	table.RawSetString("set", L.NewFunction(func(L *lua.LState) int {
 		key := L.CheckString(1)
 		val := L.Get(2)
-		ctx.Data[key] = convert.ToGoValue(val)
+		if ctx != nil {
+			ctx.Data[key] = convert.ToGoValue(val)
+		}
 		return 0
 	}))
 
 	table.RawSetString("stop", L.NewFunction(func(L *lua.LState) int {
-		reason := L.CheckString(1)
-		ctx.Stopped = true
-		ctx.StopReason = reason
+		reason := L.OptString(1, "stopped by script")
+		if ctx != nil {
+			ctx.Stopped = true
+			ctx.StopReason = reason
+		}
 		return 0
 	}))
 
 	return table
+}
+
+// apiToGoValue 将 Lua 值转为 Go 值（供 RuntimeHook 注册的 __set_ctx 使用）。
+func apiToGoValue(val lua.LValue) any {
+	return convert.ToGoValue(val)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -543,17 +565,23 @@ func (e *Engine) WatchScript(ctx context.Context, key string) error {
 	return e.scriptEngine.StartWatch(ctx, key)
 }
 
-// LoadScriptsFromDir 从目录加载所有 .lua 文件（向后兼容，内部转用 source 抽象）。
+// LoadScriptsFromDir 从目录加载所有 .lua 文件（向后兼容）。
 func (e *Engine) LoadScriptsFromDir(ctx context.Context, dir string) error {
 	e.logger.Infof("📂 Loading scripts from directory: %s", dir)
 
-	if _, err := osStat(dir); err != nil {
+	if _, err := os.Stat(dir); err != nil {
 		e.logger.Warnf("Scripts directory does not exist: %s", dir)
 		return nil
 	}
 
 	var loadedCount int
-	walkErr := walkLuaFiles(dir, func(path string) error {
+	walkErr := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() || !strings.HasSuffix(path, ".lua") {
+			return nil
+		}
 		e.logger.Infof("📄 Loading script: %s", path)
 		if err := e.LoadScriptFile(ctx, path); err != nil {
 			e.logger.Errorf("❌ Failed to load script %s: %v", path, err)
@@ -573,7 +601,6 @@ func (e *Engine) LoadScriptsFromDir(ctx context.Context, dir string) error {
 
 // LoadScriptFile 加载并预执行单个脚本文件（触发 hook.register 自注册）。
 func (e *Engine) LoadScriptFile(ctx context.Context, filePath string) error {
-	// filePath 已是完整路径，不传搜索路径以避免 resolveKey 再次拼接前缀
 	src := NewFileSource()
 	code, err := src.Load(ctx, filePath)
 	if err != nil {
@@ -582,26 +609,29 @@ func (e *Engine) LoadScriptFile(ctx context.Context, filePath string) error {
 	return e.LoadScriptString(ctx, filePath, code)
 }
 
-// LoadScriptString 加载并预执行脚本字符串。
+// LoadScriptString 加载并预执行脚本字符串（触发 hook.register 自注册与全局副作用）。
+//
+// 注意：go-scripts 的 LoadString 仅编译不执行，此处用 ExecuteString 以确保
+// 脚本立即运行（注册 hook 回调、设置全局变量等）。
 func (e *Engine) LoadScriptString(ctx context.Context, scriptName, source string) error {
 	if e.scriptEngine == nil {
 		return fmt.Errorf("no script engine available")
 	}
-	return e.scriptEngine.LoadString(ctx, scriptName, source)
+	_, err := e.scriptEngine.ExecuteString(ctx, scriptName, source)
+	return err
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// 业务依赖注入
+// 业务依赖注入（暂存于编排器，RuntimeHook 执行时注入到 VM）
 ////////////////////////////////////////////////////////////////////////////////
 
 // SetRedis 注入 Redis 客户端，启用 cache API。
+// 注意：需在 NewEngine 前调用（或之后重新注册 RuntimeHook）。
 func (e *Engine) SetRedis(rdb *redis.Client) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.rdb = rdb
-	if le, ok := e.scriptEngine.(*LuaEngine); ok {
-		le.SetRedis(rdb)
-	}
+	e.logger.Info("Redis client configured for Lua cache API")
 }
 
 // SetEventBus 注入 EventBus 管理器，启用 eventbus API。
@@ -609,9 +639,7 @@ func (e *Engine) SetEventBus(manager *eventbus.Manager) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.eventbusManager = manager
-	if le, ok := e.scriptEngine.(*LuaEngine); ok {
-		le.SetEventBus(manager)
-	}
+	e.logger.Info("EventBus manager configured for Lua eventbus API")
 }
 
 // SetOSS 注入 OSS 客户端，启用 oss API。
@@ -619,9 +647,7 @@ func (e *Engine) SetOSS(client *oss.MinIOClient) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.ossClient = client
-	if le, ok := e.scriptEngine.(*LuaEngine); ok {
-		le.SetOSS(client)
-	}
+	e.logger.Info("OSS client configured for Lua OSS API")
 }
 
 // ScriptEngine 返回底层脚本引擎（用于高级场景直接操作引擎）。
@@ -633,29 +659,27 @@ func (e *Engine) ScriptEngine() gsEngine.Engine {
 func (e *Engine) Close() error {
 	e.logger.Info("Closing engine...")
 
-	// 关闭专用 VM（Lua 引擎的 Close 会处理，此处兼容旧路径）
-	e.mu.Lock()
-	for vm := range e.dedicatedVMs {
-		if vm != nil {
-			func() {
-				defer func() {
-					if r := recover(); r != nil {
-						e.logger.Warnf("Recovered from panic while closing VM: %v", r)
-					}
-				}()
-				vm.Close()
-			}()
-		}
-	}
-	e.dedicatedVMs = make(map[*lua.LState]bool)
-	e.mu.Unlock()
-
-	// 关闭底层脚本引擎（含 VM 池、热更新 goroutine）
+	// 关闭底层脚本引擎（含 VM、热更新 goroutine）
 	if e.scriptEngine != nil {
 		if err := e.scriptEngine.Close(); err != nil {
 			e.logger.Errorf("Error closing script engine: %v", err)
 		}
 	}
 
+	e.callbacksMu.Lock()
+	e.callbacks = make(map[string][]*CallbackInfo)
+	e.callbacksMu.Unlock()
+
 	return nil
 }
+
+// MarkVMDedicated 标记 VM 为专用（向后兼容，go-scripts 池自动管理，此处 no-op）。
+func (e *Engine) MarkVMDedicated(L *lua.LState) {
+	// go-scripts/lua 引擎的 statePool 管理 VM 生命周期，此处无需处理。
+}
+
+// 确保 Engine 实现 api.VMManager（task API 兼容）与 api.HookEngine（hook API 兼容）。
+var (
+	_ api.VMManager  = (*Engine)(nil)
+	_ api.HookEngine = (*Engine)(nil)
+)

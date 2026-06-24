@@ -19,25 +19,41 @@
 └───────────────────────────────────────────────┘
 ```
 
-**关键点**：`LuaEngine` 实现了 [go-scripts](https://github.com/tx7do/go-scripts) 的 `Engine` 接口。
-未来添加 JS/Python 只需新增一个实现同一接口的引擎，编排器代码无需改动。
+**关键点**：直接采用 [go-scripts/lua](https://github.com/tx7do/go-scripts/tree/main/lua) 子模块作为脚本引擎实现。
+通过 `gsEngine.NewScriptEngine(LuaType)` 按类型创建，业务 API 与 hook.register 经 **RuntimeHook** 注入。
+未来添加 JS/Python 只需 `NewScriptEngine(JavaScriptType)` 等，编排器零改动。
 
-### 为什么不直接用 go-scripts/lua？
+### 为何现在能直接用 go-scripts/lua？
 
-不使用 `go-scripts/lua` 子模块有三层原因（按重要性排序）：
+go-scripts v0.0.7 新增了 **RuntimeHook** 机制，解决了之前阻碍直接采用的两个核心问题：
 
-| 原因 | 能否绕过 | 说明 |
-|------|---------|------|
-| **业务 API 无注入点** ⭐ | 难 | VM 创建（`virtualMachine.init()`）写死了加载哪些库，没有钩子点注入 Redis/EventBus/OSS/Crypto 等 8 个业务模块，且需每个 VM 都注册 |
-| **Hook 自注册** | 不可绕过 | 本项目脚本从 Lua 侧 `hook.register(name, fn)` 自注册回调，go-scripts 是 Go 单向注册，无此能力 |
-| **OpenLibs 安全** | 可（fork 改一行） | VM 全开 `os.execute`/`io`/`loadfile` 等，对插件系统是安全漏洞 |
+| 能力 | 机制 | 说明 |
+|------|------|------|
+| ✅ **业务 API 注入** | `AddRuntimeHook` | VM 创建后、Load/Execute 前运行，可注入 Redis/EventBus/OSS/Crypto 等 8 个业务模块 |
+| ✅ **池隔离** | `recordBusinessGlobal` + `ClearGlobals` | 业务全局变量被追踪，归还池前清除，引擎实例间不泄漏 |
+| ✅ **Hook 自注册** | RuntimeHook 注册 `hook.register` Go 函数 | 脚本可调用 `hook.register(name, fn)` 将回调交还 Go 侧 |
 
-> 另有次要因素：`go-scripts/lua` 的 go.mod 拖入 gopher-lua-libs（含 aws-sdk）、prometheus 等重依赖，
-> 会膨胀本项目 go.mod。
+**沙箱已启用**（go-scripts/lua v0.0.8+）：通过 `SetOpenLibs` 仅开启安全标准库，
+禁用 `os`/`io`/`debug`/`load` 等危险库（命令注入 / 文件系统 / 反射绕过防护）。
+安全库白名单：base / load / table / string / math / coroutine。详见 `applySandbox`。
 
-**结论**：业务 API 注入 + Hook 自注册的改造成本 ≈ 自研 LuaEngine。
-自研实现 go-scripts.Engine 接口，既拿到统一接口红利（多语言切换、source、热更新），
-又保留沙箱与业务集成的完全控制权。
+| 库 | 状态 | 原因 |
+|----|------|------|
+| base | ✅ 开启 | 基础函数（print/pairs/error/require） |
+| load (package) | ✅ 开启 | require / module loaders，模块系统必需 |
+| table | ✅ 开启 | 表操作 |
+| string | ✅ 开启 | 字符串处理 |
+| math | ✅ 开启 | 数学运算 |
+| coroutine | ✅ 开启 | 协程 |
+| **os** | ❌ 禁用 | `os.execute` 命令注入 / `os.remove` 文件删除 / `os.getenv` 环境泄漏 |
+| **io** | ❌ 禁用 | 读写任意文件 |
+| **debug** | ❌ 禁用 | 反射调试，可绕过元表保护 |
+
+### 架构关键点
+
+- **引擎单 VM**：go-scripts/lua 引擎生命周期内持有单个 VM（statePool.Borrow），回调引用在 Close 前持续有效
+- **LoadString vs ExecuteString**：go-scripts 的 `LoadString` 仅编译不执行；本项目 `LoadScriptString` 内部用 `ExecuteString` 以确保 `hook.register` 立即触发
+- **模块注册语义**：`engine.RegisterModule(name, loader)` 调用 loader 时传入 name 参数，loader 须执行 `PreloadModule`（见 `preloadAdapter`）
 
 ## 多语言切换
 
@@ -46,19 +62,38 @@
 ```go
 import gsEngine "github.com/tx7do/go-scripts"
 
-// 默认使用 Lua
+// 默认使用 go-scripts/lua（经 init() 自动注册工厂）
 engine := lua.NewEngine(lua.DefaultConfig(), logger)
 
 // 自定义引擎工厂（切换语言）
 lua.SetEngineFactory(func(config *lua.Config, logger log.Logger) (gsEngine.Engine, error) {
-    // 返回你的引擎实现（需满足 gsEngine.Engine 接口）
-    return myJSEngine.New(config, logger), nil
+    return gsEngine.NewScriptEngine(config.EngineType) // JavaScriptType 等
 })
 
 // 或单次指定
 config := lua.DefaultConfig()
-config.EngineType = lua.EngineTypeLua // 当前支持 lua，未来扩展 javascript 等
+config.EngineType = gsEngine.LuaType // 当前支持 lua，未来扩展 javascript 等
 ```
+
+### 脚本编写约定（适配 go-scripts）
+
+执行上下文通过 RuntimeHook 注入的全局函数访问（非参数）：
+
+```lua
+local log = require "kratos_logger"
+local hook = require "kratos_hook"
+
+-- 入口函数：execute() 无参数，上下文经 __get_ctx() 获取
+function execute()
+    local ctx = __get_ctx()
+    local input = ctx.get("input")
+    ctx.set("result", "processed: " .. input)
+    -- ctx.stop("reason")  -- 中止 hook 链
+    return true  -- 返回 false 也表示中止
+end
+```
+
+> 注：hook.register 注册的回调函数仍以 `function(ctx)` 形式接收上下文参数（回调路径直接传递 ctx 表）。
 
 ## 脚本来源 (Source)
 
@@ -134,43 +169,42 @@ engine.SetSource(cached)
 
 ## 引擎接口能力
 
-`LuaEngine` 实现 go-scripts 的完整 `Engine` 接口（7 个能力子接口）：
+go-scripts/lua 引擎实现完整的 `Engine` 接口（7 个能力子接口）：
 
 | 能力 | 方法 | 说明 |
 |------|------|------|
 | 生命周期 | `Init` / `Close` / `IsInitialized` | 引擎初始化与释放 |
-| 脚本加载 | `Load` / `LoadMulti` / `LoadString` | 从 Source 或内联加载 |
+| 脚本加载 | `Load` / `LoadMulti` / `LoadString` | 从 Source 或内联加载（仅编译） |
 | 脚本执行 | `Execute` / `ExecuteFromKey` / `ExecuteString` | 执行并返回结果 |
 | 全局访问 | `RegisterGlobal` / `GetGlobal` | 全局变量读写 |
 | 函数注册 | `RegisterFunction` / `CallFunction` | 宿主函数注册与调用 |
-| 模块注册 | `RegisterModule` | Lua 模块（require） |
+| 模块注册 | `RegisterModule` | Lua 模块（preload 风格 loader） |
 | 热更新 | `StartWatch` / `StopWatch` | 脚本变更自动重载 |
-
-> **池一致性**：`RegisterFunction` / `RegisterGlobal` / `RegisterModule` 会记录到全局注册表，
-> 新建 VM 自动重放，并应用到当前池中所有 VM，保证池内状态一致。
+| **RuntimeHook** | `AddRuntimeHook` | **业务 API / hook.register / 执行上下文注入** |
 
 ## 向后兼容
 
-原有 API 保持兼容：
-- `NewEngine(config, logger)` — 创建编排器（默认 Lua）
+编排器 API 保持兼容：
+- `NewEngine(config, logger)` — 创建编排器（默认 go-scripts/lua）
 - `ExecuteHook(ctx, hookName, execCtx)` — Hook 执行
 - `AddScript` / `RegisterHook` / `RegisterCallback` — Hook 管理
 - `LoadScriptsFromDir` / `LoadScriptFile` / `LoadScriptString` — 脚本加载
 - `SetRedis` / `SetEventBus` / `SetOSS` — 业务依赖注入
 
+**脚本 API 变更**：`execute()` 不再接收 ctx 参数，改用 `__get_ctx()` 获取上下文（适配 go-scripts 单 VM 架构）。
+
 ## 文件结构
 
 ```
 pkg/lua/
-├── engine.go              # Hook 编排器（语言无关）
-├── engine_lua.go          # LuaEngine（实现 go-scripts.Engine 接口）
-├── vm_pool.go             # VM 池（借鉴 go-scripts EnginePool 健壮性）
+├── engine.go              # Hook 编排器（语言无关，持有 gsEngine.Engine）
+├── engine_runtime.go      # RuntimeHook：注入 8 个业务 API + hook.register + 执行上下文
 ├── source_file.go         # FileSource（包装 go-scripts FileSource）
 ├── source_db.go           # DBSource（数据库 + 热更新）
-├── loader_compat.go       # 向后兼容的目录遍历辅助
-├── errors.go              # 哨兵错误 + 类型转换辅助
-├── script.go / context.go # 数据结构（不变）
-├── hook/registry.go       # Hook 系统（不变）
-├── api/                   # 8 个业务 API 模块（不变）
-└── internal/convert/      # Lua ↔ Go 转换（不变）
+├── errors.go              # 占位（引擎错误由 go-scripts 提供）
+├── script.go / context.go # 数据结构
+├── hook/registry.go       # Hook 系统
+├── api/                   # 8 个业务 API 模块（各含 Loader* 函数供 RuntimeHook 注入）
+└── internal/convert/      # Lua ↔ Go 转换
 ```
+

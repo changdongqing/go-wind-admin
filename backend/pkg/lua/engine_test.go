@@ -7,10 +7,15 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 )
 
+// 测试脚本约定（适配 go-scripts/lua 架构）：
+// execute() 不再接收 ctx 参数，而是通过 __get_ctx() 获取执行上下文。
+// 上下文提供 ctx.get(k) / ctx.set(k,v) / ctx.stop(reason) 方法。
+
 func TestEngine_BasicExecution(t *testing.T) {
 	// Create engine
 	config := DefaultConfig()
 	config.PoolSize = 2
+	config.ScriptDir = ""
 	engine := NewEngine(config, log.DefaultLogger)
 	defer engine.Close()
 
@@ -22,13 +27,14 @@ func TestEngine_BasicExecution(t *testing.T) {
 
 	// Create script
 	script := &Script{
-		Name:    "test_script",
-		Hook:    "test_hook",
-		Source:  `
+		Name: "test_script",
+		Hook: "test_hook",
+		Source: `
 local log = require "kratos_logger"
 
-function execute(ctx)
+function execute()
     log.info("Hello from Lua!")
+    local ctx = __get_ctx()
     ctx.set("result", "success")
     return true
 end
@@ -63,16 +69,19 @@ end
 }
 
 func TestEngine_ContextDataTransfer(t *testing.T) {
-	engine := NewEngine(nil, log.DefaultLogger)
+	config := DefaultConfig()
+	config.ScriptDir = ""
+	engine := NewEngine(config, log.DefaultLogger)
 	defer engine.Close()
 
 	engine.RegisterHook("data_transfer", "Test data transfer")
 
 	script := &Script{
-		Name:   "data_script",
-		Hook:   "data_transfer",
+		Name: "data_script",
+		Hook: "data_transfer",
 		Source: `
-function execute(ctx)
+function execute()
+    local ctx = __get_ctx()
     local input = ctx.get("number")
     local doubled = input * 2
     ctx.set("output", doubled)
@@ -102,18 +111,20 @@ end
 }
 
 func TestEngine_ScriptAbort(t *testing.T) {
-	engine := NewEngine(nil, log.DefaultLogger)
+	config := DefaultConfig()
+	config.ScriptDir = ""
+	engine := NewEngine(config, log.DefaultLogger)
 	defer engine.Close()
 
 	engine.RegisterHook("abort_test", "Test script abort")
 
 	script := &Script{
-		Name:   "abort_script",
-		Hook:   "abort_test",
+		Name: "abort_script",
+		Hook: "abort_test",
 		Source: `
 local log = require "kratos_logger"
 
-function execute(ctx)
+function execute()
     log.info("Script starting")
     return false  -- Return false to abort
 end
@@ -135,19 +146,22 @@ end
 }
 
 func TestEngine_MultipleScripts(t *testing.T) {
-	engine := NewEngine(nil, log.DefaultLogger)
+	config := DefaultConfig()
+	config.ScriptDir = ""
+	engine := NewEngine(config, log.DefaultLogger)
 	defer engine.Close()
 
 	engine.RegisterHook("multi_test", "Test multiple scripts")
 
 	// Script 1: Set initial value
 	script1 := &Script{
-		Name:   "script1",
-		Hook:   "multi_test",
+		Name: "script1",
+		Hook: "multi_test",
 		Source: `
 local log = require "kratos_logger"
 
-function execute(ctx)
+function execute()
+    local ctx = __get_ctx()
     ctx.set("value", 10)
     log.info("Script 1: value = 10")
     return true
@@ -159,12 +173,13 @@ end
 
 	// Script 2: Add to value
 	script2 := &Script{
-		Name:   "script2",
-		Hook:   "multi_test",
+		Name: "script2",
+		Hook: "multi_test",
 		Source: `
 local log = require "kratos_logger"
 
-function execute(ctx)
+function execute()
+    local ctx = __get_ctx()
     local val = ctx.get("value")
     ctx.set("value", val + 5)
     log.info("Script 2: value = " .. (val + 5))
@@ -177,12 +192,13 @@ end
 
 	// Script 3: Multiply value
 	script3 := &Script{
-		Name:   "script3",
-		Hook:   "multi_test",
+		Name: "script3",
+		Hook: "multi_test",
 		Source: `
 local log = require "kratos_logger"
 
-function execute(ctx)
+function execute()
+    local ctx = __get_ctx()
     local val = ctx.get("value")
     ctx.set("value", val * 2)
     log.info("Script 3: value = " .. (val * 2))

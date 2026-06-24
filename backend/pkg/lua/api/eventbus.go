@@ -65,8 +65,18 @@ func RegisterEventBus(L *lua.LState, manager *eventbus.Manager, logger *log.Help
 	// Store manager in registry for later access (kept as internal global)
 	L.SetGlobal("_eventbus_manager", lua.LString("internal"))
 
-	// Create loader function that returns the module
-	loader := func(L *lua.LState) int {
+	// Register in package.preload so it can be required
+	L.PreloadModule("kratos_eventbus", LoaderEventBus(manager, logger))
+}
+
+// LoaderEventBus 返回 eventbus 模块（kratos_eventbus）的 loader，供 go-scripts 引擎 RegisterModule 使用。
+// manager 为 nil 时返回空模块。
+func LoaderEventBus(manager *eventbus.Manager, logger *log.Helper) lua.LGFunction {
+	return func(L *lua.LState) int {
+		if manager == nil {
+			L.Push(L.NewTable())
+			return 1
+		}
 		// Create eventbus module
 		eventbusModule := L.NewTable()
 
@@ -279,7 +289,4 @@ func RegisterEventBus(L *lua.LState, manager *eventbus.Manager, logger *log.Help
 		L.Push(eventbusModule)
 		return 1
 	}
-
-	// Register in package.preload so it can be required
-	L.PreloadModule("kratos_eventbus", loader)
 }

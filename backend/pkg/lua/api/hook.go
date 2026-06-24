@@ -31,8 +31,18 @@ type Script struct {
 // RegisterHookAPI registers the hook management API for Lua as a requireable module
 // This allows Lua scripts to register themselves to hooks dynamically
 func RegisterHookAPI(L *lua.LState, engine HookEngine, logger *log.Helper) {
-	// Create loader function that returns the module
-	loader := func(L *lua.LState) int {
+	// Register in package.preload so it can be required
+	L.PreloadModule("kratos_hook", LoaderHook(engine, logger))
+}
+
+// LoaderHook 返回 hook 模块（kratos_hook）的 loader，供 go-scripts 引擎 RegisterModule 使用。
+// engine 为 nil 时返回空模块。
+func LoaderHook(engine HookEngine, logger *log.Helper) lua.LGFunction {
+	return func(L *lua.LState) int {
+		if engine == nil {
+			L.Push(L.NewTable())
+			return 1
+		}
 		// Create hook module
 		hookModule := L.NewTable()
 
@@ -137,7 +147,4 @@ func RegisterHookAPI(L *lua.LState, engine HookEngine, logger *log.Helper) {
 		L.Push(hookModule)
 		return 1
 	}
-
-	// Register in package.preload so it can be required
-	L.PreloadModule("kratos_hook", loader)
 }
