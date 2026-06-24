@@ -10,14 +10,9 @@ import { notification } from 'ant-design-vue';
 import CryptoJS from 'crypto-js';
 import { defineStore } from 'pinia';
 
-import {
-  fetchMyPermissionCode,
-  fetchUserProfile,
-  loginMutation,
-  logoutMutation,
-  refreshTokenMutation,
-} from '#/api/composables';
+import { fetchMyPermissionCode, fetchUserProfile, loginMutation, logoutMutation, refreshTokenMutation } from '#/api/composables';
 import { $t } from '#/locales';
+import { queryClient } from '#/plugins/vue-query';
 import { router } from '#/router';
 import { globalSSEClient } from '#/transport/sse';
 
@@ -206,6 +201,10 @@ export const useAuthStore = defineStore('auth', () => {
     accessStore.setAccessToken(null);
     accessStore.setRefreshToken(null);
     accessStore.setLoginExpired(false);
+
+    // 清除 queryClient 缓存，防止登出期间被缓存污染的查询结果
+    // （如 getMe 因 401 返回 null 被 fetchQuery 缓存）导致重新登录时命中脏数据
+    queryClient.clear();
 
     globalSSEClient.close();
 

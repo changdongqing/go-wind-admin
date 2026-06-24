@@ -12,6 +12,7 @@ import {
   registerMutation,
 } from '@/api';
 import { startRefreshTimer, stopRefreshTimer, disconnectSSEServer } from '@/hooks/useTokenRefresh';
+import { queryClient } from '@/core/query-client';
 
 /**
  * 令牌载荷
@@ -184,6 +185,10 @@ export const useAuthStore = create<AuthState>()(
         try {
           await logoutMutation.execute({}).catch(() => {}); // 忽略接口错误
         } finally {
+          // 清除 queryClient 缓存，防止登出期间被缓存污染的查询结果
+          // （如 getMe 因 401 返回 null 被 fetchQuery 缓存）导致重新登录时命中脏数据
+          queryClient.clear();
+
           // 清除 localStorage 中的持久化数据
           localStorage.removeItem('auth-storage');
           localStorage.removeItem('user-storage');
@@ -248,6 +253,8 @@ export const useAuthStore = create<AuthState>()(
         stopRefreshTimer();
         disconnectSSEServer();
         console.warn('Force logout: clearing auth state');
+        // 清除 queryClient 缓存，防止缓存污染导致重新登录失败
+        queryClient.clear();
         localStorage.removeItem('auth-storage');
         localStorage.removeItem('user-storage');
         set({
