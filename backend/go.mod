@@ -27,6 +27,7 @@ require (
 	github.com/tx7do/go-crud/pagination v0.0.14
 	github.com/tx7do/go-crud/viewer v0.0.6
 	github.com/tx7do/go-scripts v0.0.7
+	github.com/tx7do/go-scripts/javascript v0.0.7
 	github.com/tx7do/go-scripts/lua v0.0.8
 	github.com/tx7do/go-utils v1.1.40
 	github.com/tx7do/go-utils/aggregator v0.0.5
@@ -117,7 +118,6 @@ require (
 	github.com/glebarez/sqlite v1.11.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
-	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -232,7 +232,6 @@ require (
 	github.com/tklauser/numcpus v0.11.0 // indirect
 	github.com/tx7do/go-crud/audit v0.0.2 // indirect
 	github.com/tx7do/go-crud/cache v0.0.1 // indirect
-	github.com/tx7do/go-scripts/javascript v0.0.7 // indirect
 	github.com/tx7do/kratos-bootstrap/config v0.2.2 // indirect
 	github.com/tx7do/kratos-bootstrap/logger v0.1.2 // indirect
 	github.com/tx7do/kratos-bootstrap/registry v0.2.2 // indirect

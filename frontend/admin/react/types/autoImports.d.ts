@@ -116,6 +116,7 @@ declare global {
   const lazy: typeof import('react').lazy
   const memo: typeof import('react').memo
   const monacoLoader: typeof import('../src/components/common/Editor/src/monaco-loader').default
+  const reconnectSSEServer: typeof import('../src/hooks/useTokenRefresh').reconnectSSEServer
   const reducer: typeof import('../src/components/Table/utils/reducer').reducer
   const resetDictCache: typeof import('../src/hooks/useDictCache').resetDictCache
   const startRefreshTimer: typeof import('../src/hooks/useTokenRefresh').startRefreshTimer

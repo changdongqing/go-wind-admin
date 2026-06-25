@@ -1,6 +1,8 @@
-allowBuilds:
-  '@swc/core': false
-  core-js: false
-  esbuild: false
-  json-editor-vue: set this to true or false
-  vue-demi: set this to true or false
+# pnpm 配置 / pnpm configuration
+# 本项目为独立（非 monorepo）项目，仅用此文件承载 pnpm 配置。
+# This is a standalone (non-monorepo) project; this file only carries pnpm config.
+# 如需批准依赖的构建脚本，使用 onlyBuiltDependencies（数组），例如：
+# To approve a dependency's build script, use onlyBuiltDependencies (array), e.g.:
+#
+# onlyBuiltDependencies:
+#   - esbuild
