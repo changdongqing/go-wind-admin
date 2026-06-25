@@ -23,6 +23,9 @@ export const UserLayout = ({ requireAuth = false }: UserLayoutProps) => {
   const themeConfig = useThemeConfig();
   const { locale, toggleLocale } = useLocale();
   const { t } = useTranslation('auth');
+  // 登录页品牌文案：优先用运行时配置（public/app-config.js），便于部署后免编译修改；缺省回退到 i18n
+  const systemTitle = window.__APP_CONFIG__?.systemTitle || t('systemTitle');
+  const systemDescription = window.__APP_CONFIG__?.systemDescription || t('systemDescription');
 
   // 根据主题模式判断当前是否为亮色模式
   const isLightMode = React.useMemo(() => {
@@ -111,8 +114,8 @@ export const UserLayout = ({ requireAuth = false }: UserLayoutProps) => {
             <SloganIcon />
           </div>
 
-          <h2 className="user-brand-title">{t('systemTitle')}</h2>
-          <p className="user-brand-description">{t('systemDescription')}</p>
+          <h2 className="user-brand-title">{systemTitle}</h2>
+          <p className="user-brand-description">{systemDescription}</p>
         </div>
 
         {/* 右侧表单区 */}

@@ -19,7 +19,8 @@ const defaultPreferences: Preferences = {
         layout: "sidebar-nav",
         locale: "zh-CN",
         loginExpiredMode: "page",
-        name: "GoWind Admin",
+        // 站点名称默认值优先取运行时配置（public/app-config.js），便于部署后免编译修改
+        name: window.__APP_CONFIG__?.appName ?? "GoWind Admin",
         version: "0.0.0",
         preferencesButtonPosition: "auto",
         watermark: false,

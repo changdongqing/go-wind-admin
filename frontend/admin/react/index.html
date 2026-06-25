@@ -11,9 +11,11 @@
       name="viewport"
       content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=0"
     />
-    <!-- 由 vite 注入 VITE_APP_TITLE 变量，在 .env 文件内配置 -->
+    <!-- 由 vite 注入 VITE_APP_TITLE 变量，在 .env 文件内配置（运行时会被 app-config.js 覆盖） -->
     <title>%VITE_APP_TITLE%</title>
     <link rel="icon" href="/favicon.ico" />
+    <!-- 运行时配置：部署后实施人员可直接编辑 public/app-config.js 免编译修改站点名称，必须在应用脚本之前同步加载 -->
+    <script src="/app-config.js"></script>
   </head>
   <body>
     <div id="root"></div>
