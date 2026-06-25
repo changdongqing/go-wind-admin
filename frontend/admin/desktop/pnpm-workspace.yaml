@@ -1,0 +1,10 @@
+allowBuilds:
+  electron: true
+  electron-winstaller: true
+
+# 修复 app-builder-lib 26.15.3 的依赖声明错误：其 package.json 声明 "@electron/get": "^3.0.0"，
+# 但代码引用了仅 @electron/get@5.x 才导出的 ElectronDownloadCacheMode 枚举（否则报
+# "Cannot read properties of undefined (reading 'ReadWrite')"）。app-builder-lib 26.15.3
+# 本就是按 5.x 构建的；Node 22.12+ 支持 require() 同步加载 ESM，故 CJS 主进程可直接用 ESM 版。
+overrides:
+  "@electron/get": "^5.0.0"

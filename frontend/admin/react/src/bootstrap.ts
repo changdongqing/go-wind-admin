@@ -23,7 +23,9 @@ async function _initI18n() {
 
   // 注入 RequestClient 回调（业务层 → 基础设施层）
   // 必须在 initStores 之后，因为 getToken 依赖 accessStore
-  RequestClient.init(import.meta.env.VITE_API_URL, {
+  // API 地址优先取运行时配置（app-config.js 的 apiBaseUrl），桌面端/现场部署可免编译改地址；
+  // 缺省回退到构建期注入的 VITE_API_URL。B/S 不配 apiBaseUrl 时行为与原来完全一致。
+  RequestClient.init(window.__APP_CONFIG__?.apiBaseUrl ?? import.meta.env.VITE_API_URL, {
     getToken: () => useAuthStore.getState().accessToken,
     getLocale: () => i18n.language,
     refreshToken: async () => useAuthStore.getState().refreshToken(),
@@ -33,6 +35,15 @@ async function _initI18n() {
     onError: (msg) => console.error('[RequestClient]', msg),
     getErrorMsg: getErrorMsg,
   });
+
+  // 桌面端（P4）：若配置了自动更新源，启动时检查更新。
+  // B/S 下 window.desktop 为 undefined → 自动跳过；未配 updateServerUrl → 不检查。
+  const updateServerUrl = window.__APP_CONFIG__?.updateServerUrl;
+  if (updateServerUrl) {
+    window.desktop?.checkForUpdates(updateServerUrl).catch((e) =>
+      console.error('[bootstrap] update check failed', e),
+    );
+  }
 }
 
 /**

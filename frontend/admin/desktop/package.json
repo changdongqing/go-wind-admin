@@ -1,0 +1,29 @@
+{
+  "name": "gowind-admin-desktop",
+  "version": "1.0.0",
+  "description": "GoWind Admin 桌面客户端（Electron 壳）— 消费 react 构建产物，不内嵌业务逻辑",
+  "author": "GoWind",
+  "license": "MIT",
+  "main": "dist-electron/main/index.js",
+  "scripts": {
+    "dev": "tsc -p tsconfig.json && electron .",
+    "build:react": "pnpm --dir ../react run build -- --base=./",
+    "sync:react": "node scripts/sync-react-dist.mjs",
+    "build:electron": "tsc -p tsconfig.json",
+    "sync:all": "pnpm build:react && pnpm sync:react && pnpm build:electron",
+    "clean": "node -e \"['dist-electron','renderer-dist','release'].forEach(function(d){require('fs').rmSync(d,{recursive:true,force:true})})\"",
+    "build": "pnpm sync:all && electron-builder",
+    "build:win": "pnpm sync:all && electron-builder --win",
+    "build:mac": "pnpm sync:all && electron-builder --mac",
+    "build:linux": "pnpm sync:all && electron-builder --linux"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "electron": "^42.5.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "^6.0.3"
+  }
+}

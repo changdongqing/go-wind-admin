@@ -20,6 +20,14 @@ const SAFETY_BUFFER_MS = 5 * 60 * 1000;
 /** 最小刷新间隔（避免立即重试风暴） */
 const MIN_INTERVAL_MS = 3 * 1000;
 
+/**
+ * 解析 SSE 基址：优先运行时配置（app-config.js 的 sseUrl，桌面端/现场部署可免编译改地址），
+ * 回退链与改造前保持一致（VITE_APP_SSE_URL → /api/sse），确保 B/S 行为零变化。
+ */
+function getSseBaseUrl(): string {
+  return window.__APP_CONFIG__?.sseUrl ?? import.meta.env.VITE_APP_SSE_URL ?? '/api/sse';
+}
+
 // ==============================
 // 模块级状态（单例）
 // ==============================
@@ -146,7 +154,7 @@ export function reconnectSSEServer(): void {
     return;
   }
 
-  const sseUrl = `${import.meta.env.VITE_APP_SSE_URL ?? '/api/sse'}?stream=${encodeURIComponent(accessToken)}`;
+  const sseUrl = `${getSseBaseUrl()}?stream=${encodeURIComponent(accessToken)}`;
   globalSSEClient.setHeaders({ Authorization: `Bearer ${accessToken}` });
   globalSSEClient.reconnect(sseUrl);
   console.log('[TokenRefresh] SSE reconnected with new token');
@@ -164,7 +172,7 @@ export function connectSSEServer(): void {
     return;
   }
 
-  const sseUrl = `${import.meta.env.VITE_APP_SSE_URL ?? '/api/sse'}?stream=${encodeURIComponent(accessToken)}`;
+  const sseUrl = `${getSseBaseUrl()}?stream=${encodeURIComponent(accessToken)}`;
   globalSSEClient.setHeaders({ Authorization: `Bearer ${accessToken}` });
   globalSSEClient.connect(sseUrl);
 }

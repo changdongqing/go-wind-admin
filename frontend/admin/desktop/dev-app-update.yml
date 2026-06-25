@@ -1,0 +1,9 @@
+# 开发期自动更新自检配置 / Dev auto-update self-test config
+# ----------------------------------------------------------------------------
+# 仅在开发态（!app.isPackaged）被 electron-updater 读取；生产态读 resources/app-update.yml。
+# 用法：本地起一个静态文件服务托管「伪造的更新包 + latest.yml」，把 url 指过去，验证升级流程。
+#   示例：cd release && npx http-server -p 8080   →  url 填 http://localhost:8080/
+# 详见 docs/caozuo/desktop-optional-config.md 第二章。
+provider: generic
+url: http://localhost:8080/
+channel: latest

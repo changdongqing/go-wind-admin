@@ -52,6 +52,12 @@ interface AppRuntimeConfig {
     copyrightSiteLink?: string;
     /** ICP 备案号（中国大陆部署需填写，否则留空） */
     copyrightIcp?: string;
+    /** API 基础地址（如 https://api.customer-a.com）。留空则用构建期 VITE_API_URL；桌面端常配此项指向远程后端 */
+    apiBaseUrl?: string;
+    /** SSE 推送基础地址（如 https://sse.customer-a.com/events）。留空则用构建期 VITE_SSE_URL */
+    sseUrl?: string;
+    /** 桌面端自动更新源地址（如 https://updates.customer-a.com/desktop/）。留空则不检查更新；仅桌面端生效 */
+    updateServerUrl?: string;
 }
 
 interface Window {

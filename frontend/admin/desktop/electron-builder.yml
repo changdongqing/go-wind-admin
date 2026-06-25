@@ -1,0 +1,56 @@
+# Electron Builder 配置 / Electron Builder config
+# 可选项（签名 / 自动更新 / CI / 外设）见 docs/caozuo/desktop-optional-config.md
+
+appId: com.gowind.admin
+productName: GoWind Admin
+
+directories:
+  output: release
+  buildResources: build
+
+# 打包内容：编译后的主进程/preload + react 构建产物 + 生产依赖
+# node_modules：electron-builder 自动裁剪 devDependencies，仅保留 dependencies（如 electron-updater）
+files:
+  - dist-electron/**/*
+  - renderer-dist/**/*
+  - node_modules/**/*
+  - "!**/.DS_Store"
+
+extraMetadata:
+  main: dist-electron/main/index.js
+
+# ===== 目标平台 =====
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  # 代码签名（D-4）：默认不签。启用方式见操作手册第一章（CSC_LINK / CSC_KEY_PASSWORD 环境变量）
+  # signAndEditExecutable: false
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  # 公证（D-4）：默认不开启。启用方式见操作手册第一章（APPLE_ID 等环境变量）
+  notarize: false
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+
+# ===== Windows 安装器（NSIS）=====
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+
+# ===== 自动更新（D-5）=====
+# publish 配置：发布时生成 latest.yml + app-update.yml（electron-updater 依赖）。
+# 此处 url 仅写入产物元数据；运行时实际更新地址以 app-config.js 的 updateServerUrl 为准（主进程 setFeedURL 覆盖）。
+# 发布新版本时：用 -c.publish.url=<你的更新源> 覆盖，或直接改下方地址。
+publish:
+  provider: generic
+  url: "https://updates.example.com/desktop/"

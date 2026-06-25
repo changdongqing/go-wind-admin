@@ -1,0 +1,93 @@
+# 桌面客户端三平台构建 / Desktop client cross-platform build
+# ----------------------------------------------------------------------------
+# 仅在打 tag（v*）或手动触发时运行完整三平台构建发布；日常提交不跑（耗时）。
+# 不在本机交叉打包 —— 每平台一个 job（见 docs/caozuo/desktop-optional-config.md 第三章）。
+#
+# 凭据（D-4 签名 / D-5 更新源）全部走仓库 Secrets，不入库：
+#   CSC_LINK / CSC_KEY_PASSWORD            — Windows 代码签名证书
+#   APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID — macOS 签名 + 公证
+#   UPDATE_SERVER_URL                       — 自动更新源地址（写入产物元数据）
+# 未配置则对应能力自动跳过（不签名 / 不公证 / 用占位更新源）。
+
+name: desktop-build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            build_cmd: build:win
+            artifact_glob: 'GoWind Admin Setup *.exe'
+            artifact_name: desktop-windows
+          - os: macos-latest
+            build_cmd: build:mac
+            artifact_glob: 'GoWind Admin-*.dmg'
+            artifact_name: desktop-macos
+          - os: ubuntu-latest
+            build_cmd: build:linux
+            artifact_glob: 'GoWind Admin-*.AppImage'
+            artifact_name: desktop-linux
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: |
+            frontend/admin/react/pnpm-lock.yaml
+            frontend/admin/desktop/pnpm-lock.yaml
+
+      - name: Install Linux build deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils \
+            libatspi2.0-0 libdrm2 libgbm1 libasound2
+
+      - name: Install react deps
+        run: pnpm install --frozen-lockfile
+        working-directory: frontend/admin/react
+
+      - name: Install desktop deps
+        run: pnpm install --frozen-lockfile
+        working-directory: frontend/admin/desktop
+
+      - name: Build & package
+        working-directory: frontend/admin/desktop
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          UPDATE_SERVER_URL: ${{ secrets.UPDATE_SERVER_URL }}
+          # macOS 公证：默认关闭（builder.yml mac.notarize: false）。需要时将其改为 true 并配 APPLE_* secrets。
+          # GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # 如用 GitHub Releases 作为更新源则启用
+        run: pnpm ${{ matrix.build_cmd }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: frontend/admin/desktop/release/${{ matrix.artifact_glob }}
+          if-no-files-found: warn

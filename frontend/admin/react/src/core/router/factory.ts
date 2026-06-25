@@ -1,4 +1,4 @@
-import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import { createBrowserRouter, createHashRouter, type RouteObject } from 'react-router-dom';
 import { injectRedirects } from './utils/inject-redirect';
 import { sortRoutes } from './utils/sort-routes';
 import { transformRoutesWithHandle } from './utils/transform-meta-to-handle';
@@ -82,7 +82,11 @@ export const createAccessibleRouter = async (
   // 将 meta 转换为 handle，使 useMatches() 能获取路由元数据
   routes = transformRoutesWithHandle(routes);
 
-  return createBrowserRouter(routes as RouteObject[], {
+  // 桌面端（Electron，file:// 协议）走 hash 路由 —— browser 路由依赖 history API，
+  // 在 file:// 下无法正常工作；B/S 走 browser 路由。
+  // 通过 window.desktop 运行时判断，零构建分叉（解耦支点，见 docs/desktop/desktop-client-plan.md 第 4.4 / 6.1 节）。
+  const createRouter = window.desktop ? createHashRouter : createBrowserRouter;
+  return createRouter(routes as RouteObject[], {
     future: {
       v7_relativeSplatPath: true,
     },

@@ -35,6 +35,16 @@ window.__APP_CONFIG__ = {
   copyrightYear: "2026",
   copyrightSiteLink: "https://example.com",
   copyrightIcp: "",
+
+  /**
+   * 后端服务地址（可选）————————————————————————————————————————————
+   * 桌面客户端 / 现场部署可在此【免编译】指定后端地址；留空（或不写）则
+   * 使用打包时内置的默认地址（开发期见 .env.development，生产期见 .env.production）。
+   *
+   *   apiBaseUrl:      "https://api.customer-a.com",            // API 基础地址
+   *   sseUrl:          "https://sse.customer-a.com/events",     // SSE 推送地址
+   *   updateServerUrl: "https://updates.customer-a.com/desktop/", // 桌面端自动更新源（仅桌面端生效）
+   */
 };
 
 // 尽早设置浏览器页签标题，避免页面加载过程中短暂显示旧的默认标题
