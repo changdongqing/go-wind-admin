@@ -48,6 +48,12 @@ interface RequestClientCallbacks {
   onError?: (message: string) => void;
   /** 从错误对象中提取用户友好的错误消息（可接入 i18n） */
   getErrorMsg?: (error: unknown) => string;
+  /**
+   * 是否跳过 Authorization header 注入（免认证请求）。
+   * 用于刷新令牌等接口：此时 AT 可能已过期，注入过期的 AT 既无意义又可能
+   * 被网关/WAF 拦截。返回 true 时该请求不携带 Authorization 头。
+   */
+  shouldSkipAuth?: (url: string) => boolean;
 }
 
 export type {

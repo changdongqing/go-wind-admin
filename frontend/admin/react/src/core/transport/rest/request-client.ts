@@ -115,6 +115,11 @@ class RequestClient {
   private useTokenInterceptor(callbacks: RequestClientCallbacks) {
     this.addRequestInterceptor({
       fulfilled: (config) => {
+        // 免认证请求（如刷新令牌）不注入 Authorization header：
+        // 此时 AT 可能已过期，注入无意义，且可能被网关/WAF 拦截。
+        if (callbacks.shouldSkipAuth?.(config.url ?? '')) {
+          return config as never;
+        }
         if (callbacks.getToken) {
           const token = callbacks.getToken();
           config.headers.Authorization = this.formatToken(token);

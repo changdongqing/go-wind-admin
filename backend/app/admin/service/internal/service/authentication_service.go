@@ -387,20 +387,20 @@ func (s *AuthenticationService) doGrantTypePassword(ctx context.Context, req *au
 }
 
 // doGrantTypeRefreshToken 处理授权类型 - 刷新令牌
+// 用户身份信息（user_id、jti）由请求体提供，不依赖 auth 中间件注入的上下文，
+// 因此该接口可置于白名单中免认证访问。
 func (s *AuthenticationService) doGrantTypeRefreshToken(ctx context.Context, req *authenticationV1.LoginRequest) (*authenticationV1.LoginResponse, error) {
-	// 获取操作人信息
-	operator, err := auth.FromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// 重置上下文（绕过隐私保护中间件），与密码登录保持一致
+	ctx = s.resetContextForLogin(ctx)
 
-	// 获取用户信息
+	// 获取用户信息（使用请求体中的 user_id）
 	user, err := s.userRepo.Get(ctx, &identityV1.GetUserRequest{
 		QueryBy: &identityV1.GetUserRequest_Id{
-			Id: operator.UserId,
+			Id: req.GetUserId(),
 		},
 	})
 	if err != nil {
+		s.log.Errorf("get user by id [%d] failed [%s]", req.GetUserId(), err.Error())
 		return nil, err
 	}
 
@@ -419,8 +419,8 @@ func (s *AuthenticationService) doGrantTypeRefreshToken(ctx context.Context, req
 		return nil, err
 	}
 
-	// 验证刷新令牌
-	if err = s.authenticator.VerifyRefreshToken(ctx, req.GetClientType(), req.GetUserId(), operator.GetJti(), req.GetRefreshToken()); err != nil {
+	// 验证刷新令牌（使用请求体中的 user_id 和 jti）
+	if err = s.authenticator.VerifyRefreshToken(ctx, req.GetClientType(), req.GetUserId(), req.GetJti(), req.GetRefreshToken()); err != nil {
 		s.log.Errorf("verify refresh token failed for user [%d]: [%s]", req.GetUserId(), err)
 		return nil, authenticationV1.ErrorIncorrectRefreshToken("invalid refresh token")
 	}
@@ -461,20 +461,26 @@ func (s *AuthenticationService) Logout(ctx context.Context, _ *emptypb.Empty) (*
 }
 
 // RefreshToken 刷新令牌
+// 用户身份信息（user_id、jti、refresh_token）必须由客户端在请求体中提供，
+// 不依赖 auth 中间件注入的上下文，因此该接口已置于白名单中可免认证访问。
 func (s *AuthenticationService) RefreshToken(ctx context.Context, req *authenticationV1.LoginRequest) (*authenticationV1.LoginResponse, error) {
 	// 校验授权类型
 	if req.GetGrantType() != authenticationV1.GrantType_refresh_token {
 		return nil, authenticationV1.ErrorInvalidGrantType("invalid grant type")
 	}
 
-	operator, err := auth.FromContext(ctx)
-	if err != nil {
-		return nil, err
+	// 校验必要参数：refresh_token 和 user_id 必须由客户端提供
+	if req.GetRefreshToken() == "" {
+		return nil, authenticationV1.ErrorBadRequest("refresh_token is required")
+	}
+	if req.GetUserId() == 0 {
+		return nil, authenticationV1.ErrorBadRequest("user_id is required")
 	}
 
-	req.ClientType = trans.Ptr(authenticationV1.ClientType_admin)
-	req.UserId = trans.Ptr(operator.GetUserId())
-	req.Jti = operator.Jti
+	// 设置客户端类型
+	if req.GetClientType() == authenticationV1.ClientType(0) {
+		req.ClientType = trans.Ptr(authenticationV1.ClientType_admin)
+	}
 
 	return s.doGrantTypeRefreshToken(ctx, req)
 }

@@ -13,7 +13,6 @@ import {
 } from '@/api';
 import { startRefreshTimer, stopRefreshTimer, disconnectSSEServer } from '@/hooks/useTokenRefresh';
 import { queryClient } from '@/core/query-client';
-
 /**
  * 令牌载荷
  */
@@ -26,6 +25,40 @@ export interface TokenPayload {
    * 令牌过期时间
    */
   expiresAt?: number;
+}
+
+/**
+ * 从 JWT（Access Token）的 payload 中解码用户身份信息（user_id、jti）。
+ *
+ * 仅解码 payload，不验证签名——刷新令牌场景下 AT 可能已过期，但其 payload
+ * 仍可正常解码，且后端刷新流程不依赖 AT 的有效性（已置于白名单免认证）。
+ *
+ * 关键点：user_id 和 jti 都从这里取，**不依赖 userInfo**——因为 userInfo
+ * 不会被持久化（见下方 partialize），页面 F5 刷新后 userInfo 为 null，
+ * 若依赖它会导致刷新失败而被踢出。
+ *
+ * @returns 若无法解码则返回 null，调用方应据此 forceLogout。
+ */
+function decodeAccessTokenIdentity(token: string | null): { userId: number; jti: string } | null {
+  if (!token) return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    // 浏览器 atob 不支持 Unicode，用 Uint8Array 中转避免乱码
+    const json = decodeURIComponent(
+      atob(parts[1])
+        .split('')
+        .map((c) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
+        .join(''),
+    );
+    const payload = JSON.parse(json);
+    const userId = Number(payload.uid);
+    const jti = typeof payload.jti === 'string' ? payload.jti : '';
+    if (!Number.isFinite(userId) || userId <= 0 || !jti) return null;
+    return { userId, jti };
+  } catch {
+    return null;
+  }
 }
 
 export interface AuthState {
@@ -209,14 +242,28 @@ export const useAuthStore = create<AuthState>()(
 
       // 刷新 Token
       refreshToken: async () => {
-        const { refreshTokenValue: refreshVal } = get();
+        const { refreshTokenValue: refreshVal, accessToken } = get();
         if (!refreshVal) {
           get().forceLogout();
           return '';
         }
 
+        // 身份信息（user_id、jti）从当前 AT 的 payload 解码得到。
+        // AT 虽可能已过期，但 payload 仍可解码；后端刷新流程已免认证，不依赖 AT 有效性。
+        // 不从 userInfo 取——userInfo 不持久化，F5 刷新后为 null。
+        const identity = decodeAccessTokenIdentity(accessToken);
+        if (!identity) {
+          console.warn('Refresh token aborted: cannot decode identity from access token');
+          get().forceLogout();
+          return '';
+        }
+
         try {
-          const response = await refreshTokenMutation.execute(refreshVal);
+          const response = await refreshTokenMutation.execute({
+            refreshToken: refreshVal,
+            userId: identity.userId,
+            jti: identity.jti,
+          });
 
           const now = Date.now();
           set({
@@ -303,6 +350,47 @@ export const useAuthStore = create<AuthState>()(
           hasRefreshToken: !!persisted.refreshTokenValue,
         });
         return persisted;
+      },
+      // 页面刷新（F5）后 Zustand 从 localStorage 恢复数据后触发此回调。
+      // 模块级定时器（useTokenRefresh 中的 refreshTimer）在页面刷新后会丢失，
+      // 此处负责恢复定时器；若 AT 已过期则尝试用 RT 立即刷新。
+      // 注：userId/jti 从 AT payload 解码，不依赖 userInfo（userInfo 不持久化）。
+      onRehydrateStorage: () => {
+        return (state, error) => {
+          if (error) {
+            console.error('Auth store rehydration failed:', error);
+            return;
+          }
+          if (!state?.accessToken || !state?.refreshTokenValue) {
+            return;
+          }
+
+          const now = Date.now();
+          const atValid = !!state.accessTokenExpireAt && state.accessTokenExpireAt > now;
+          const rtValid = !!state.refreshTokenExpireAt && state.refreshTokenExpireAt > now;
+
+          if (atValid) {
+            // AT 未过期 → 启动定时刷新
+            console.log('🔁 Rehydrated: starting refresh timer');
+            startRefreshTimer();
+          } else if (rtValid) {
+            // AT 已过期但 RT 未过期 → 立即刷新后恢复定时器
+            console.log('🔁 AT expired but RT valid: refreshing immediately');
+            state.refreshToken()
+              .then((newToken) => {
+                if (newToken) {
+                  startRefreshTimer();
+                }
+              })
+              .catch(() => {
+                state.forceLogout();
+              });
+          } else {
+            // RT 也过期 → 清除状态
+            console.warn('🔁 Both tokens expired on rehydration');
+            state.forceLogout();
+          }
+        };
       },
     },
   ),

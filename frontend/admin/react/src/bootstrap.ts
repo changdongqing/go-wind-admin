@@ -34,6 +34,8 @@ async function _initI18n() {
     },
     onError: (msg) => console.error('[RequestClient]', msg),
     getErrorMsg: getErrorMsg,
+    // 刷新令牌接口已置于后端白名单免认证，且此时 AT 可能已过期，故跳过 Authorization 注入。
+    shouldSkipAuth: (url) => url?.includes('/refresh-token') ?? false,
   });
 
   // 桌面端（P4）：若配置了自动更新源，启动时检查更新。

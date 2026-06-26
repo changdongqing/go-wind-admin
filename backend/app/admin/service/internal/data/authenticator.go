@@ -20,10 +20,10 @@ import (
 )
 
 const (
-	// DefaultAccessTokenExpires  默认访问令牌过期时间
-	DefaultAccessTokenExpires = time.Minute * 15
+	// DefaultAccessTokenExpires  默认访问令牌过期时间：2 小时
+	DefaultAccessTokenExpires = time.Hour * 2
 
-	// DefaultRefreshTokenExpires 默认刷新令牌过期时间
+	// DefaultRefreshTokenExpires 默认刷新令牌过期时间：7 天
 	DefaultRefreshTokenExpires = time.Hour * 24 * 7
 )
 

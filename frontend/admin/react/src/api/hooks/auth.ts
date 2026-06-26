@@ -106,12 +106,16 @@ export function useRefreshToken(
 // ------------------------------
 // 刷新 Token（Mutation - GET）
 // ------------------------------
+// 后端 RefreshToken 接口已加入白名单免认证，故身份信息（user_id、jti）
+// 必须由客户端在请求体中提供，不再依赖 auth 中间件注入。
 export const refreshTokenMutation = queryClient.getMutationCache().build(queryClient, {
   mutationKey: ['refreshToken'],
-  mutationFn: (token: string) =>
+  mutationFn: (params: { refreshToken: string; userId: number; jti: string }) =>
     apiClient.authenticationService.RefreshToken({
       grant_type: 'refresh_token',
-      refresh_token: token ?? '',
+      refresh_token: params.refreshToken ?? '',
+      user_id: params.userId,
+      jti: params.jti,
     }),
   retry: 0,
 });

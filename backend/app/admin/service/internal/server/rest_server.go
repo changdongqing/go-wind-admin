@@ -56,6 +56,7 @@ func NewRestMiddleware(
 		adminV1.OperationAuthenticationServiceLogin,
 		adminV1.OperationAuthenticationServiceGenerateCaptcha,
 		adminV1.OperationAuthenticationServiceVerifyCaptcha,
+		adminV1.OperationAuthenticationServiceRefreshToken, // 刷新令牌接口免认证，否则 AT 过期后刷新请求自身无法通过认证形成死锁
 		//OperationFileTransferServiceDownloadFile,
 		//OperationFileTransferServicePostUploadFile,
 		//OperationFileTransferServicePutUploadFile,
