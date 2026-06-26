@@ -29,6 +29,9 @@ var ProviderSet = wire.NewSet(
 	service.NewDictTypeService,
 	service.NewDictEntryService,
 	service.NewLanguageService,
+
+	service.NewUnitCategoryService,
+	service.NewUnitService,
 	service.NewLoginAuditLogService,
 	service.NewApiAuditLogService,
 	service.NewFileService,

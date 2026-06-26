@@ -47,3 +47,6 @@ export * from './policy-evaluation-log';
 
 // 内部消息
 export * from './internal-message';
+
+// 物模型 / Thing model
+export * from './unit';

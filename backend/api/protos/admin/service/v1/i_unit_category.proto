@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+import "thingmodel/service/v1/unit_category.proto";
+
+// 物理量分类管理服务（BFF 层 REST）/ Unit category admin service
+service UnitCategoryService {
+  // 分页查询物理量分类列表 / List unit categories
+  rpc List (pagination.PagingRequest) returns (thingmodel.service.v1.ListUnitCategoryResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/unit-categories"
+    };
+  }
+
+  // 查询物理量分类详情 / Get unit category
+  rpc Get (thingmodel.service.v1.GetUnitCategoryRequest) returns (thingmodel.service.v1.UnitCategory) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/unit-categories/{id}"
+      additional_bindings {
+        get: "/admin/v1/thingmodel/unit-categories/code/{code}"
+      }
+    };
+  }
+
+  // 创建物理量分类 / Create unit category
+  rpc Create (thingmodel.service.v1.CreateUnitCategoryRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/unit-categories"
+      body: "*"
+    };
+  }
+
+  // 更新物理量分类 / Update unit category
+  rpc Update (thingmodel.service.v1.UpdateUnitCategoryRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/thingmodel/unit-categories/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除物理量分类 / Delete unit category
+  rpc Delete (thingmodel.service.v1.DeleteUnitCategoryRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/thingmodel/unit-categories"
+    };
+  }
+}

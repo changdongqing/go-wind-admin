@@ -404,6 +404,30 @@ func (f TenantFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TenantMutation", m)
 }
 
+// The UnitFunc type is an adapter to allow the use of ordinary
+// function as Unit mutator.
+type UnitFunc func(context.Context, *ent.UnitMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UnitFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UnitMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UnitMutation", m)
+}
+
+// The UnitCategoryFunc type is an adapter to allow the use of ordinary
+// function as UnitCategory mutator.
+type UnitCategoryFunc func(context.Context, *ent.UnitCategoryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UnitCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UnitCategoryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UnitCategoryMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)

@@ -96,6 +96,9 @@ func NewRestServer(
 	dictEntryService *service.DictEntryService,
 	languageService *service.LanguageService,
 
+	unitCategoryService *service.UnitCategoryService,
+	unitService *service.UnitService,
+
 	tenantService *service.TenantService,
 	userService *service.UserService,
 	userProfileService *service.UserProfileService,
@@ -146,6 +149,9 @@ func NewRestServer(
 	adminV1.RegisterDictTypeServiceHTTPServer(srv, dictTypeService)
 	adminV1.RegisterDictEntryServiceHTTPServer(srv, dictEntryService)
 	adminV1.RegisterLanguageServiceHTTPServer(srv, languageService)
+
+	adminV1.RegisterUnitCategoryServiceHTTPServer(srv, unitCategoryService)
+	adminV1.RegisterUnitServiceHTTPServer(srv, unitService)
 
 	adminV1.RegisterApiServiceHTTPServer(srv, apiService)
 	adminV1.RegisterMenuServiceHTTPServer(srv, menuService)

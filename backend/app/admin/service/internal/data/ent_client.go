@@ -17,6 +17,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/migrate"
 	_ "go-wind-admin/app/admin/service/internal/data/ent/runtime"
+	"go-wind-admin/app/admin/service/internal/data/seed"
 )
 
 // NewEntClient 创建Ent ORM数据库客户端
@@ -45,6 +46,19 @@ func NewEntClient(ctx *bootstrap.Context) (*entCrud.EntClient[*ent.Client], func
 		if cfg.Data.Database.GetMigrate() {
 			if err := client.Schema.Create(ctx.Context(), migrate.WithForeignKeys(true)); err != nil {
 				l.Fatalf("[ENT] failed creating schema resources: %v", err)
+			}
+
+			// 物模型-单位模块的附加迁移与种子（幂等）
+			// Thing-model unit module extra migration & seed (idempotent).
+			//   1) partial unique index：每分类仅一个基准单位（Ent schema 难以表达）
+			//   2) 出厂预置 42 分类 + ~225 单位（tenant_id=0，按 code upsert）
+			// 失败仅记录日志，不阻断服务启动，便于线上回滚。
+			// On failure we log only and continue, so service startup is not blocked.
+			if seedErr := seed.EnsurePartialIndexes(ctx.Context(), drv, l); seedErr != nil {
+				l.Warnf("[ENT] ensure thingmodel partial indexes failed: %v", seedErr)
+			}
+			if seedErr := seed.SeedThingmodelUnits(ctx.Context(), client, l); seedErr != nil {
+				l.Warnf("[ENT] seed thingmodel units failed: %v", seedErr)
 			}
 		}
 

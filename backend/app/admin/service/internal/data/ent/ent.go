@@ -39,6 +39,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
 	"go-wind-admin/app/admin/service/internal/data/ent/task"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+	"go-wind-admin/app/admin/service/internal/data/ent/unit"
+	"go-wind-admin/app/admin/service/internal/data/ent/unitcategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/user"
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
 	"go-wind-admin/app/admin/service/internal/data/ent/userorgunit"
@@ -143,6 +145,8 @@ func checkColumn(t, c string) error {
 			rolepermission.Table:           rolepermission.ValidColumn,
 			task.Table:                     task.ValidColumn,
 			tenant.Table:                   tenant.ValidColumn,
+			unit.Table:                     unit.ValidColumn,
+			unitcategory.Table:             unitcategory.ValidColumn,
 			user.Table:                     user.ValidColumn,
 			usercredential.Table:           usercredential.ValidColumn,
 			userorgunit.Table:              userorgunit.ValidColumn,

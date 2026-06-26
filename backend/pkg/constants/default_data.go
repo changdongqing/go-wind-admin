@@ -98,6 +98,7 @@ var DefaultPermissions = []*permissionV1.Permission{
 			40, 41, 42,
 			50, 51, 52, 53, 54, 55,
 			60, 61, 62, 63, 64, 65,
+			70, 71,
 		},
 		ApiIds: []uint32{
 			1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -130,6 +131,7 @@ var DefaultPermissions = []*permissionV1.Permission{
 			40, 41,
 			50, 51,
 			60, 61, 62, 63,
+			70, 71,
 		},
 		ApiIds: []uint32{
 			1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -783,6 +785,46 @@ var DefaultMenus = []*permissionV1.Menu{
 			Icon:      trans.Ptr("lucide:globe"),
 			Order:     trans.Ptr(int32(7)),
 			Authority: []string{"sys:platform_admin"},
+		},
+	},
+
+	// ========== 物模型 / Thing model ==========
+	// 物模型为未来的大模块，目前包含"单位管理"子项；
+	// 后续将扩展属性、物模型实例、设备数据归一化等子菜单。
+	// 权限码由 SyncPermissions 按 menu.path 自动派生：
+	//   /thingmodel/unit (MENU)  → unit:view
+	//   /admin/v1/thingmodel/units/* (API) → thingmodel:view
+	// 平台管理员/租户管理员通过 sys:platform_admin / sys:tenant_manager 角色码取得菜单访问权限。
+	{
+		Id:        trans.Ptr(uint32(70)),
+		ParentId:  nil,
+		Type:      permissionV1.Menu_CATALOG.Enum(),
+		Name:      trans.Ptr("ThingModel"),
+		Path:      trans.Ptr("/thingmodel"),
+		Redirect:  trans.Ptr("/thingmodel/unit"),
+		Component: trans.Ptr("BasicLayout"),
+		CreatedAt: timeutil.TimeToTimestamppb(trans.Ptr(time.Now())),
+		Meta: &permissionV1.MenuMeta{
+			Order:     trans.Ptr(int32(1500)),
+			Title:     trans.Ptr("menu.thingmodel.moduleName"),
+			Icon:      trans.Ptr("lucide:cpu"),
+			KeepAlive: trans.Ptr(true),
+			Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
+		},
+	},
+	{
+		Id:        trans.Ptr(uint32(71)),
+		ParentId:  trans.Ptr(uint32(70)),
+		Type:      permissionV1.Menu_MENU.Enum(),
+		Name:      trans.Ptr("ThingModelUnitManagement"),
+		Path:      trans.Ptr("unit"),
+		Component: trans.Ptr("app/thingmodel/unit/index.vue"),
+		CreatedAt: timeutil.TimeToTimestamppb(trans.Ptr(time.Now())),
+		Meta: &permissionV1.MenuMeta{
+			Title:     trans.Ptr("menu.thingmodel.unit"),
+			Icon:      trans.Ptr("lucide:ruler"),
+			Order:     trans.Ptr(int32(1)),
+			Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
 		},
 	},
 }

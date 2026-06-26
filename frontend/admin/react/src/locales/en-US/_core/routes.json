@@ -29,6 +29,8 @@
   "tasks": "Task Management",
   "login-policies": "Login Policies",
   "languages": "Language Management",
+  "thingmodel": "Thing Model",
+  "thingmodelUnit": "Unit Management",
   "auth": "Authentication",
   "login": "Login",
   "register": "Register",

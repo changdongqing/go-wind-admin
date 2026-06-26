@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package thingmodel.service.v1;
+
+import "errors/errors.proto";
+
+// 物模型系统错误定义 / Thing Model system error definitions
+enum ThingModelErrorReason {
+    option (errors.default_code) = 500;
+
+    // 400
+    BAD_REQUEST = 0 [(errors.code) = 400]; // 错误请求 / Bad request
+
+    // 401
+    UNAUTHORIZED = 100 [(errors.code) = 401]; // 未授权 / Unauthorized
+
+    // 402
+    PAYMENT_REQUIRED = 200 [(errors.code) = 402]; // 需要支付 / Payment required
+
+    // 403
+    FORBIDDEN = 300 [(errors.code) = 403]; // 禁止访问 / Forbidden
+
+    // 404
+    NOT_FOUND = 400 [(errors.code) = 404]; // 找不到资源 / Not found
+
+    // 405
+    METHOD_NOT_ALLOWED = 500 [(errors.code) = 405]; // 方法不允许 / Method not allowed
+
+    // 406
+    NOT_ACCEPTABLE = 600 [(errors.code) = 406]; // 不可接受的请求 / Not acceptable
+
+    // 407
+    PROXY_AUTHENTICATION_REQUIRED = 700 [(errors.code) = 407]; // 代理身份验证需要 / Proxy auth required
+
+    // 408
+    REQUEST_TIMEOUT = 800 [(errors.code) = 408]; // 请求超时 / Request timeout
+
+    // 409
+    CONFLICT = 900 [(errors.code) = 409]; // 冲突 / Conflict
+
+    // 410
+    GONE = 1000 [(errors.code) = 410]; // 已删除 / Gone
+
+    // 411
+    LENGTH_REQUIRED = 1010 [(errors.code) = 411]; // 需要Content-Length / Length required
+
+    // 412
+    PRECONDITION_FAILED = 1020 [(errors.code) = 412]; // 前置条件失败 / Precondition failed
+
+    // 413
+    PAYLOAD_TOO_LARGE = 1030 [(errors.code) = 413]; // 负载过大 / Payload too large
+
+    // 414
+    URI_TOO_LONG = 1040 [(errors.code) = 414]; // URI过长 / URI too long
+
+    // 415
+    UNSUPPORTED_MEDIA_TYPE = 1050 [(errors.code) = 415]; // 不支持的媒体类型 / Unsupported media type
+
+    // 416
+    RANGE_NOT_SATISFIABLE = 1060 [(errors.code) = 416]; // 请求范围无法满足 / Range not satisfiable
+
+    // 417
+    EXPECTATION_FAILED = 1070 [(errors.code) = 417]; // 期望失败 / Expectation failed
+
+    // 418
+    IM_A_TEAPOT = 1080 [(errors.code) = 418]; // 我是茶壶 (RFC 2324) / I'm a teapot
+
+    // 421
+    MISDIRECTED_REQUEST = 1090 [(errors.code) = 421]; // 错误的请求 / Misdirected request
+
+    // 422
+    UNPROCESSABLE_ENTITY = 1100 [(errors.code) = 422]; // 不可处理的实体 / Unprocessable entity
+
+    // 423
+    LOCKED = 1110 [(errors.code) = 423]; // 已锁定 / Locked
+
+    // 424
+    FAILED_DEPENDENCY = 1120 [(errors.code) = 424]; // 依赖失败 / Failed dependency
+
+    // 425
+    TOO_EARLY = 1130 [(errors.code) = 425]; // 请求过早 / Too early
+
+    // 426
+    UPGRADE_REQUIRED = 1140 [(errors.code) = 426]; // 需要升级 / Upgrade required
+
+    // 428
+    PRECONDITION_REQUIRED = 1150 [(errors.code) = 428]; // 需要前置条件 / Precondition required
+
+    // 429
+    TOO_MANY_REQUESTS = 1160 [(errors.code) = 429]; // 请求过多 / Too many requests
+
+    // 431
+    REQUEST_HEADER_FIELDS_TOO_LARGE = 1170 [(errors.code) = 431]; // 请求头字段过大 / Header fields too large
+
+    // 451
+    UNAVAILABLE_FOR_LEGAL_REASONS = 1180 [(errors.code) = 451]; // 因法律原因不可用 / Unavailable for legal reasons
+
+    // 500
+    INTERNAL_SERVER_ERROR = 2000 [(errors.code) = 500]; // 内部服务器错误 / Internal server error
+
+    // 501
+    NOT_IMPLEMENTED = 2100 [(errors.code) = 501]; // 未实现 / Not implemented
+
+    // 502
+    BAD_GATEWAY = 2200 [(errors.code) = 502]; // 错误网关 / Bad gateway
+
+    // 503
+    SERVICE_UNAVAILABLE = 2300 [(errors.code) = 503]; // 服务不可用 / Service unavailable
+
+    // 504
+    GATEWAY_TIMEOUT = 2400 [(errors.code) = 504]; // 网关超时 / Gateway timeout
+
+    // 505
+    HTTP_VERSION_NOT_SUPPORTED = 2500 [(errors.code) = 505]; // HTTP版本不支持 / HTTP version not supported
+
+    // 506
+    VARIANT_ALSO_NEGOTIATES = 2600 [(errors.code) = 506]; // 变体也协商 / Variant also negotiates
+
+    // 507
+    INSUFFICIENT_STORAGE = 2700 [(errors.code) = 507]; // 存储空间不足 / Insufficient storage
+
+    // 508
+    LOOP_DETECTED = 2800 [(errors.code) = 508]; // 检测到循环 / Loop detected
+
+    // 510
+    NOT_EXTENDED = 2900 [(errors.code) = 510]; // 未扩展 / Not extended
+
+    // 511
+    NETWORK_AUTHENTICATION_REQUIRED = 3000 [(errors.code) = 511]; // 需要网络认证 / Network auth required
+
+    // 598
+    NETWORK_READ_TIMEOUT_ERROR = 3100 [(errors.code) = 598]; // 网络读取超时 / Network read timeout
+
+    // 599
+    NETWORK_CONNECT_TIMEOUT_ERROR = 3200 [(errors.code) = 599]; // 网络连接超时 / Network connect timeout
+
+    // ===== 单位管理业务错误码 / Unit management business reasons =====
+    UNIT_NOT_FOUND = 40010 [(errors.code) = 404];                    // 单位不存在 / Unit not found
+    UNIT_CATEGORY_NOT_FOUND = 40011 [(errors.code) = 404];           // 物理量分类不存在 / Category not found
+    UNIT_DIFFERENT_CATEGORY = 40020 [(errors.code) = 400];           // 源/目标单位不属于同一物理量分类 / Different category
+    UNIT_NOT_CONVERTIBLE = 40021 [(errors.code) = 400];              // 单位不可换算 / Not convertible
+    UNIT_LOGARITHMIC_NOT_CONVERTIBLE = 40022 [(errors.code) = 400];  // 对数单位不可线性换算 / Logarithmic not convertible
+    UNIT_CONDITIONAL_REQUIRES_PARAMS = 40023 [(errors.code) = 400];  // 条件换算缺失外部参数 / Conditional needs params
+    UNIT_OVERFLOW = 40024 [(errors.code) = 400];                     // 换算结果溢出/非数值 / Overflow
+    UNIT_INVALID_FACTOR = 40030 [(errors.code) = 400];               // 系数异常 / Invalid factor
+    UNIT_BASE_FACTOR_INVALID = 40031 [(errors.code) = 400];          // 基准单位系数必须为 1/0 / Base factor invalid
+    UNIT_LINEAR_OFFSET_MUST_BE_ZERO = 40032 [(errors.code) = 400];  // 线性单位偏移必须为 0 / Linear offset must be zero
+    UNIT_FACTOR_ZERO = 40033 [(errors.code) = 400];                  // 系数不可为 0 / Factor zero
+    UNIT_BASE_ALREADY_EXISTS = 40034 [(errors.code) = 409];          // 该分类已存在基准单位 / Base already exists
+    UNIT_IN_USE_CANNOT_DELETE = 40040 [(errors.code) = 409];         // 单位被引用，不可删除 / In use cannot delete
+    UNIT_CODE_DUPLICATED = 40041 [(errors.code) = 409];              // 单位编码重复 / Unit code duplicated
+    UNIT_CATEGORY_CODE_DUPLICATED = 40042 [(errors.code) = 409];     // 分类编码重复 / Category code duplicated
+}

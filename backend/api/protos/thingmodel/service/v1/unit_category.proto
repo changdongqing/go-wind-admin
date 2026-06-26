@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package thingmodel.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+
+// 物理量分类服务 / Unit category service (源领域层，无 HTTP 注解)
+service UnitCategoryService {
+  // 分页查询物理量分类列表 / List unit categories with paging
+  rpc List (pagination.PagingRequest) returns (ListUnitCategoryResponse) {}
+
+  // 统计物理量分类数量 / Count unit categories
+  rpc Count (pagination.PagingRequest) returns (CountUnitCategoryResponse) {}
+
+  // 查询物理量分类详情 / Get unit category detail
+  rpc Get (GetUnitCategoryRequest) returns (UnitCategory) {}
+
+  // 创建物理量分类 / Create unit category
+  rpc Create (CreateUnitCategoryRequest) returns (google.protobuf.Empty) {}
+
+  // 更新物理量分类 / Update unit category
+  rpc Update (UpdateUnitCategoryRequest) returns (google.protobuf.Empty) {}
+
+  // 删除物理量分类 / Delete unit category
+  rpc Delete (DeleteUnitCategoryRequest) returns (google.protobuf.Empty) {}
+}
+
+// 物理量分类 / Unit category
+message UnitCategory {
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {
+      description: "物理量分类ID / Unit category ID"
+    }
+  ];
+
+  optional string code = 2 [
+    json_name = "code",
+    (gnostic.openapi.v3.property) = {description: "物理量编码，如 temperature/pressure（不可变）/ Category code, immutable"}
+  ]; // 物理量编码
+
+  optional string name = 3 [
+    json_name = "name",
+    (gnostic.openapi.v3.property) = {description: "中文名，如 温度 / Category name (zh)"}
+  ]; // 中文名
+
+  optional string name_en = 4 [
+    json_name = "nameEn",
+    (gnostic.openapi.v3.property) = {description: "英文名，如 Temperature / Category name (en)"}
+  ]; // 英文名
+
+  optional string quantity = 5 [
+    json_name = "quantity",
+    (gnostic.openapi.v3.property) = {description: "量纲/物理量名，如 热力学温度 / Quantity name"}
+  ]; // 量纲
+
+  optional string base_unit_symbol = 6 [
+    json_name = "baseUnitSymbol",
+    (gnostic.openapi.v3.property) = {description: "基准单位符号（冗余展示，如 K）/ Base unit symbol (display only)"}
+  ]; // 基准单位符号
+
+  optional string icon = 7 [
+    json_name = "icon",
+    (gnostic.openapi.v3.property) = {description: "Iconify 图标名 / Iconify icon name"}
+  ]; // 图标
+
+  optional string description = 8 [
+    json_name = "description",
+    (gnostic.openapi.v3.property) = {description: "描述 / Description"}
+  ]; // 描述
+
+  optional bool is_enabled = 9 [
+    json_name = "isEnabled",
+    (gnostic.openapi.v3.property) = {description: "是否启用 / Is enabled"}
+  ]; // 是否启用
+
+  optional uint32 sort_order = 10 [
+    json_name = "sortOrder",
+    (gnostic.openapi.v3.property) = {description: "排序号，越小越靠前 / Sort order"}
+  ]; // 排序号
+
+  optional uint32 tenant_id = 100 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "租户ID，0代表系统全局 / Tenant ID, 0=system global"}
+  ]; // 租户ID
+  optional string tenant_name = 101 [
+    json_name = "tenantName",
+    (gnostic.openapi.v3.property) = {description: "租户名称 / Tenant name"}
+  ]; // 租户名称
+
+  optional uint32 created_by = 200 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "创建者用户ID / Created by"}]; // 创建者
+  optional uint32 updated_by = 201 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "更新者用户ID / Updated by"}]; // 更新者
+  optional uint32 deleted_by = 202 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "删除者用户ID / Deleted by"}]; // 删除者
+
+  optional google.protobuf.Timestamp created_at = 300 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "创建时间 / Created at"}]; // 创建时间
+  optional google.protobuf.Timestamp updated_at = 301 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "更新时间 / Updated at"}]; // 更新时间
+  optional google.protobuf.Timestamp deleted_at = 302 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "删除时间 / Deleted at"}]; // 删除时间
+}
+
+// 查询物理量分类列表 - 回应 / List response
+message ListUnitCategoryResponse {
+  repeated UnitCategory items = 1;
+  uint64 total = 2;
+}
+
+// 统计物理量分类数量 - 回应 / Count response
+message CountUnitCategoryResponse {
+  uint64 count = 1;
+}
+
+// 查询物理量分类详情 - 请求 / Get request
+message GetUnitCategoryRequest {
+  oneof query_by {
+    uint32 id = 1;
+    string code = 2;
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {
+      description: "视图字段过滤器 / View field mask"
+    }
+  ]; // 视图字段过滤器
+}
+
+// 创建物理量分类 - 请求 / Create request
+message CreateUnitCategoryRequest {
+  UnitCategory data = 1;
+}
+
+// 更新物理量分类 - 请求 / Update request
+message UpdateUnitCategoryRequest {
+  uint32 id = 1;
+
+  UnitCategory data = 2;
+
+  google.protobuf.FieldMask update_mask = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "要更新的字段列表 / Fields to update",
+      example: {yaml: "code,name,isEnabled"}
+    },
+    json_name = "updateMask"
+  ]; // 要更新的字段列表
+
+  optional bool allow_missing = 4 [
+    (gnostic.openapi.v3.property) = {description: "若为 true，资源不存在则新增（此时 updateMask 被忽略）/ If true, insert when missing"},
+    json_name = "allowMissing"
+  ]; // 不存在则新增
+}
+
+// 删除物理量分类 - 请求 / Delete request
+message DeleteUnitCategoryRequest {
+  repeated uint32 ids = 1; // 要删除的ID列表 / IDs to delete
+}

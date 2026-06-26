@@ -39,6 +39,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/schema"
 	"go-wind-admin/app/admin/service/internal/data/ent/task"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+	"go-wind-admin/app/admin/service/internal/data/ent/unit"
+	"go-wind-admin/app/admin/service/internal/data/ent/unitcategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/user"
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
 	"go-wind-admin/app/admin/service/internal/data/ent/userorgunit"
@@ -974,6 +976,126 @@ func init() {
 	tenantDescID := tenantMixinFields0[0].Descriptor()
 	// tenant.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	tenant.IDValidator = tenantDescID.Validators[0].(func(uint32) error)
+	unitMixin := schema.Unit{}.Mixin()
+	unit.Policy = privacy.NewPolicies(unitMixin[5], schema.Unit{})
+	unit.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := unit.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	unitMixinFields0 := unitMixin[0].Fields()
+	_ = unitMixinFields0
+	unitMixinFields3 := unitMixin[3].Fields()
+	_ = unitMixinFields3
+	unitMixinFields4 := unitMixin[4].Fields()
+	_ = unitMixinFields4
+	unitMixinFields5 := unitMixin[5].Fields()
+	_ = unitMixinFields5
+	unitFields := schema.Unit{}.Fields()
+	_ = unitFields
+	// unitDescSortOrder is the schema descriptor for sort_order field.
+	unitDescSortOrder := unitMixinFields3[0].Descriptor()
+	// unit.DefaultSortOrder holds the default value on creation for the sort_order field.
+	unit.DefaultSortOrder = unitDescSortOrder.Default.(uint32)
+	// unitDescIsEnabled is the schema descriptor for is_enabled field.
+	unitDescIsEnabled := unitMixinFields4[0].Descriptor()
+	// unit.DefaultIsEnabled holds the default value on creation for the is_enabled field.
+	unit.DefaultIsEnabled = unitDescIsEnabled.Default.(bool)
+	// unitDescTenantID is the schema descriptor for tenant_id field.
+	unitDescTenantID := unitMixinFields5[0].Descriptor()
+	// unit.DefaultTenantID holds the default value on creation for the tenant_id field.
+	unit.DefaultTenantID = unitDescTenantID.Default.(uint32)
+	// unitDescCode is the schema descriptor for code field.
+	unitDescCode := unitFields[1].Descriptor()
+	// unit.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	unit.CodeValidator = unitDescCode.Validators[0].(func(string) error)
+	// unitDescSymbol is the schema descriptor for symbol field.
+	unitDescSymbol := unitFields[2].Descriptor()
+	// unit.SymbolValidator is a validator for the "symbol" field. It is called by the builders before save.
+	unit.SymbolValidator = unitDescSymbol.Validators[0].(func(string) error)
+	// unitDescName is the schema descriptor for name field.
+	unitDescName := unitFields[3].Descriptor()
+	// unit.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	unit.NameValidator = unitDescName.Validators[0].(func(string) error)
+	// unitDescIsBase is the schema descriptor for is_base field.
+	unitDescIsBase := unitFields[5].Descriptor()
+	// unit.DefaultIsBase holds the default value on creation for the is_base field.
+	unit.DefaultIsBase = unitDescIsBase.Default.(bool)
+	// unitDescFactor is the schema descriptor for factor field.
+	unitDescFactor := unitFields[7].Descriptor()
+	// unit.DefaultFactor holds the default value on creation for the factor field.
+	unit.DefaultFactor = unitDescFactor.Default.(float64)
+	// unitDescOffset is the schema descriptor for offset field.
+	unitDescOffset := unitFields[8].Descriptor()
+	// unit.DefaultOffset holds the default value on creation for the offset field.
+	unit.DefaultOffset = unitDescOffset.Default.(float64)
+	// unitDescPrecision is the schema descriptor for precision field.
+	unitDescPrecision := unitFields[10].Descriptor()
+	// unit.DefaultPrecision holds the default value on creation for the precision field.
+	unit.DefaultPrecision = unitDescPrecision.Default.(int32)
+	// unitDescIsSiUnit is the schema descriptor for is_si_unit field.
+	unitDescIsSiUnit := unitFields[11].Descriptor()
+	// unit.DefaultIsSiUnit holds the default value on creation for the is_si_unit field.
+	unit.DefaultIsSiUnit = unitDescIsSiUnit.Default.(bool)
+	// unitDescIsLegalUnit is the schema descriptor for is_legal_unit field.
+	unitDescIsLegalUnit := unitFields[12].Descriptor()
+	// unit.DefaultIsLegalUnit holds the default value on creation for the is_legal_unit field.
+	unit.DefaultIsLegalUnit = unitDescIsLegalUnit.Default.(bool)
+	// unitDescReferenceCount is the schema descriptor for reference_count field.
+	unitDescReferenceCount := unitFields[13].Descriptor()
+	// unit.DefaultReferenceCount holds the default value on creation for the reference_count field.
+	unit.DefaultReferenceCount = unitDescReferenceCount.Default.(uint32)
+	// unitDescID is the schema descriptor for id field.
+	unitDescID := unitMixinFields0[0].Descriptor()
+	// unit.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	unit.IDValidator = unitDescID.Validators[0].(func(uint32) error)
+	unitcategoryMixin := schema.UnitCategory{}.Mixin()
+	unitcategory.Policy = privacy.NewPolicies(unitcategoryMixin[5], schema.UnitCategory{})
+	unitcategory.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := unitcategory.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	unitcategoryMixinFields0 := unitcategoryMixin[0].Fields()
+	_ = unitcategoryMixinFields0
+	unitcategoryMixinFields3 := unitcategoryMixin[3].Fields()
+	_ = unitcategoryMixinFields3
+	unitcategoryMixinFields4 := unitcategoryMixin[4].Fields()
+	_ = unitcategoryMixinFields4
+	unitcategoryMixinFields5 := unitcategoryMixin[5].Fields()
+	_ = unitcategoryMixinFields5
+	unitcategoryFields := schema.UnitCategory{}.Fields()
+	_ = unitcategoryFields
+	// unitcategoryDescIsEnabled is the schema descriptor for is_enabled field.
+	unitcategoryDescIsEnabled := unitcategoryMixinFields3[0].Descriptor()
+	// unitcategory.DefaultIsEnabled holds the default value on creation for the is_enabled field.
+	unitcategory.DefaultIsEnabled = unitcategoryDescIsEnabled.Default.(bool)
+	// unitcategoryDescSortOrder is the schema descriptor for sort_order field.
+	unitcategoryDescSortOrder := unitcategoryMixinFields4[0].Descriptor()
+	// unitcategory.DefaultSortOrder holds the default value on creation for the sort_order field.
+	unitcategory.DefaultSortOrder = unitcategoryDescSortOrder.Default.(uint32)
+	// unitcategoryDescTenantID is the schema descriptor for tenant_id field.
+	unitcategoryDescTenantID := unitcategoryMixinFields5[0].Descriptor()
+	// unitcategory.DefaultTenantID holds the default value on creation for the tenant_id field.
+	unitcategory.DefaultTenantID = unitcategoryDescTenantID.Default.(uint32)
+	// unitcategoryDescCode is the schema descriptor for code field.
+	unitcategoryDescCode := unitcategoryFields[0].Descriptor()
+	// unitcategory.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	unitcategory.CodeValidator = unitcategoryDescCode.Validators[0].(func(string) error)
+	// unitcategoryDescName is the schema descriptor for name field.
+	unitcategoryDescName := unitcategoryFields[1].Descriptor()
+	// unitcategory.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	unitcategory.NameValidator = unitcategoryDescName.Validators[0].(func(string) error)
+	// unitcategoryDescID is the schema descriptor for id field.
+	unitcategoryDescID := unitcategoryMixinFields0[0].Descriptor()
+	// unitcategory.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	unitcategory.IDValidator = unitcategoryDescID.Validators[0].(func(uint32) error)
 	userMixin := schema.User{}.Mixin()
 	user.Policy = privacy.NewPolicies(userMixin[4], schema.User{})
 	user.Hooks[0] = func(next ent.Mutator) ent.Mutator {
@@ -1161,6 +1283,6 @@ func init() {
 }
 
 const (
-	Version = "v0.14.5"                                         // Version of ent codegen.
-	Sum     = "h1:Rj2WOYJtCkWyFo6a+5wB3EfBRP0rnx1fMk6gGA0UUe4=" // Sum of ent codegen.
+	Version = "v0.14.6"                                         // Version of ent codegen.
+	Sum     = "h1:/f2696BpwuWAEEG6PVGWflg6+Inrpq4pRWuNlWz/Skk=" // Sum of ent codegen.
 )

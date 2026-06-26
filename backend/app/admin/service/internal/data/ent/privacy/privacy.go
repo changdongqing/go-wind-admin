@@ -903,6 +903,54 @@ func (f TenantMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.TenantMutation", m)
 }
 
+// The UnitQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type UnitQueryRuleFunc func(context.Context, *ent.UnitQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f UnitQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.UnitQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.UnitQuery", q)
+}
+
+// The UnitMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type UnitMutationRuleFunc func(context.Context, *ent.UnitMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f UnitMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.UnitMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.UnitMutation", m)
+}
+
+// The UnitCategoryQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type UnitCategoryQueryRuleFunc func(context.Context, *ent.UnitCategoryQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f UnitCategoryQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.UnitCategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.UnitCategoryQuery", q)
+}
+
+// The UnitCategoryMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type UnitCategoryMutationRuleFunc func(context.Context, *ent.UnitCategoryMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f UnitCategoryMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.UnitCategoryMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.UnitCategoryMutation", m)
+}
+
 // The UserQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type UserQueryRuleFunc func(context.Context, *ent.UserQuery) error
@@ -1124,6 +1172,10 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.TenantQuery:
 		return q.Filter(), nil
+	case *ent.UnitQuery:
+		return q.Filter(), nil
+	case *ent.UnitCategoryQuery:
+		return q.Filter(), nil
 	case *ent.UserQuery:
 		return q.Filter(), nil
 	case *ent.UserCredentialQuery:
@@ -1206,6 +1258,10 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.TaskMutation:
 		return m.Filter(), nil
 	case *ent.TenantMutation:
+		return m.Filter(), nil
+	case *ent.UnitMutation:
+		return m.Filter(), nil
+	case *ent.UnitCategoryMutation:
 		return m.Filter(), nil
 	case *ent.UserMutation:
 		return m.Filter(), nil

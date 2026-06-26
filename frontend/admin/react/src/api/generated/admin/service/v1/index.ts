@@ -6831,6 +6831,622 @@ export type identityservicev1_TenantExistsResponse = {
   exist: boolean | undefined;
 };
 
+// 单位管理服务（BFF 层 REST）/ Unit admin service
+export interface UnitService {
+  // 分页查询单位列表 / List units
+  List(
+    request: pagination_PagingRequest,
+  ): Promise<thingmodelservicev1_ListUnitResponse>;
+  // 查询单位详情 / Get unit
+  Get(
+    request: thingmodelservicev1_GetUnitRequest,
+  ): Promise<thingmodelservicev1_Unit>;
+  // 创建单位 / Create unit
+  Create(
+    request: thingmodelservicev1_CreateUnitRequest,
+  ): Promise<wellKnownEmpty>;
+  // 更新单位 / Update unit
+  Update(
+    request: thingmodelservicev1_UpdateUnitRequest,
+  ): Promise<wellKnownEmpty>;
+  // 删除单位 / Delete unit
+  Delete(
+    request: thingmodelservicev1_DeleteUnitRequest,
+  ): Promise<wellKnownEmpty>;
+  // 按物理量分类查询单位（属性选单位下拉框用）/ List units by category
+  ListByCategory(
+    request: thingmodelservicev1_ListUnitByCategoryRequest,
+  ): Promise<thingmodelservicev1_ListUnitResponse>;
+  // 单位换算 / Convert unit value
+  Convert(
+    request: thingmodelservicev1_ConvertUnitRequest,
+  ): Promise<thingmodelservicev1_ConvertUnitResponse>;
+}
+
+export function createUnitServiceClient(
+  transport: ClientTransport,
+): UnitService {
+  return {
+    List(request) {
+      const path = `admin/v1/thingmodel/units`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.page) {
+        queryParams.push(
+          `page=${encodeURIComponent(request.page.toString())}`,
+        );
+      }
+      if (request.pageSize) {
+        queryParams.push(
+          `pageSize=${encodeURIComponent(request.pageSize.toString())}`,
+        );
+      }
+      if (request.offset) {
+        queryParams.push(
+          `offset=${encodeURIComponent(request.offset.toString())}`,
+        );
+      }
+      if (request.limit) {
+        queryParams.push(
+          `limit=${encodeURIComponent(request.limit.toString())}`,
+        );
+      }
+      if (request.token) {
+        queryParams.push(
+          `token=${encodeURIComponent(request.token.toString())}`,
+        );
+      }
+      if (request.noPaging) {
+        queryParams.push(
+          `noPaging=${encodeURIComponent(request.noPaging.toString())}`,
+        );
+      }
+      if (request.query) {
+        queryParams.push(
+          `query=${encodeURIComponent(request.query.toString())}`,
+        );
+      }
+      if (request.filter) {
+        queryParams.push(
+          `filter=${encodeURIComponent(request.filter.toString())}`,
+        );
+      }
+      if (request.filterExpr?.type) {
+        queryParams.push(
+          `filterExpr.type=${encodeURIComponent(request.filterExpr.type.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.field) {
+        queryParams.push(
+          `filterExpr.conditions.field=${encodeURIComponent(request.filterExpr.conditions.field.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.op) {
+        queryParams.push(
+          `filterExpr.conditions.op=${encodeURIComponent(request.filterExpr.conditions.op.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.value) {
+        queryParams.push(
+          `filterExpr.conditions.value=${encodeURIComponent(request.filterExpr.conditions.value.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonValue) {
+        queryParams.push(
+          `filterExpr.conditions.jsonValue=${encodeURIComponent(request.filterExpr.conditions.jsonValue.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.values) {
+        request.filterExpr.conditions.values.forEach((x) => {
+          queryParams.push(
+            `filterExpr.conditions.values=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      if (request.filterExpr?.conditions?.datePart) {
+        queryParams.push(
+          `filterExpr.conditions.datePart=${encodeURIComponent(request.filterExpr.conditions.datePart.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonPath) {
+        queryParams.push(
+          `filterExpr.conditions.jsonPath=${encodeURIComponent(request.filterExpr.conditions.jsonPath.toString())}`,
+        );
+      }
+      if (request.orderBy) {
+        queryParams.push(
+          `orderBy=${encodeURIComponent(request.orderBy.toString())}`,
+        );
+      }
+      if (request.sorting?.field) {
+        queryParams.push(
+          `sorting.field=${encodeURIComponent(request.sorting.field.toString())}`,
+        );
+      }
+      if (request.sorting?.direction) {
+        queryParams.push(
+          `sorting.direction=${encodeURIComponent(request.sorting.direction.toString())}`,
+        );
+      }
+      if (request.fieldMask) {
+        queryParams.push(
+          `fieldMask=${encodeURIComponent(request.fieldMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'UnitService',
+        method: 'List',
+      }) as Promise<thingmodelservicev1_ListUnitResponse>;
+    },
+    Get(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/units/${request.id}`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.code) {
+        queryParams.push(
+          `code=${encodeURIComponent(request.code.toString())}`,
+        );
+      }
+      if (request.viewMask) {
+        queryParams.push(
+          `viewMask=${encodeURIComponent(request.viewMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'UnitService',
+        method: 'Get',
+      }) as Promise<thingmodelservicev1_Unit>;
+    },
+    Create(request) {
+      const path = `admin/v1/thingmodel/units`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'UnitService',
+        method: 'Create',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Update(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/units/${request.id}`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'PUT', body, {
+        service: 'UnitService',
+        method: 'Update',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Delete(request) {
+      const path = `admin/v1/thingmodel/units`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.ids) {
+        request.ids.forEach((x) => {
+          queryParams.push(
+            `ids=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'DELETE', body, {
+        service: 'UnitService',
+        method: 'Delete',
+      }) as Promise<wellKnownEmpty>;
+    },
+    ListByCategory(request) {
+      if (request.categoryId === undefined || request.categoryId === null) {
+        throw new Error('missing required field request.category_id');
+      }
+      const path = `admin/v1/thingmodel/unit-categories/${request.categoryId}/units`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.categoryCode) {
+        queryParams.push(
+          `categoryCode=${encodeURIComponent(request.categoryCode.toString())}`,
+        );
+      }
+      if (request.onlyEnabled) {
+        queryParams.push(
+          `onlyEnabled=${encodeURIComponent(request.onlyEnabled.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'UnitService',
+        method: 'ListByCategory',
+      }) as Promise<thingmodelservicev1_ListUnitResponse>;
+    },
+    Convert(request) {
+      const path = `admin/v1/thingmodel/units:convert`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'UnitService',
+        method: 'Convert',
+      }) as Promise<thingmodelservicev1_ConvertUnitResponse>;
+    },
+  };
+}
+// 查询单位列表 - 回应 / List response
+export type thingmodelservicev1_ListUnitResponse = {
+  items: thingmodelservicev1_Unit[] | undefined;
+  total: number | undefined;
+};
+
+// 单位 / Unit
+export type thingmodelservicev1_Unit = {
+  categoryId?: number;
+  code?: string;
+  conversionType?: thingmodelservicev1_ConversionType;
+  createdAt?: wellKnownTimestamp;
+  createdBy?: number;
+  deletedAt?: wellKnownTimestamp;
+  deletedBy?: number;
+  factor?: number;
+  formulaExpr?: string;
+  id?: number;
+  isBase?: boolean;
+  isEnabled?: boolean;
+  isLegalUnit?: boolean;
+  isSiUnit?: boolean;
+  name?: string;
+  nameEn?: string;
+  offset?: number;
+  precision?: number;
+  referenceCount?: number;
+  sortOrder?: number;
+  symbol?: string;
+  tenantId?: number;
+  tenantName?: string;
+  updatedAt?: wellKnownTimestamp;
+  updatedBy?: number;
+};
+
+// 换算类型 / Conversion type
+export type thingmodelservicev1_ConversionType =
+  | 'AFFINE'
+  | 'CONDITIONAL'
+  | 'CONVERSION_TYPE_UNSPECIFIED'
+  | 'LINEAR'
+  | 'LOGARITHMIC'
+  | 'NONE';
+// 查询单位详情 - 请求 / Get request
+export type thingmodelservicev1_GetUnitRequest = {
+  code?: string;
+  id?: number;
+  viewMask?: wellKnownFieldMask;
+};
+
+// 创建单位 - 请求 / Create request
+export type thingmodelservicev1_CreateUnitRequest = {
+  data: thingmodelservicev1_Unit | undefined;
+};
+
+// 更新单位 - 请求 / Update request
+export type thingmodelservicev1_UpdateUnitRequest = {
+  allowMissing?: boolean;
+  data: thingmodelservicev1_Unit | undefined;
+  id: number | undefined;
+  updateMask: undefined | wellKnownFieldMask;
+};
+
+// 删除单位 - 请求 / Delete request
+export type thingmodelservicev1_DeleteUnitRequest = {
+  ids: number[] | undefined;
+};
+
+// 按物理量分类查询 - 请求 / List by category request
+export type thingmodelservicev1_ListUnitByCategoryRequest = {
+  categoryCode?: string;
+  categoryId?: number;
+  onlyEnabled?: boolean;
+};
+
+// 单位换算 - 请求 / Convert request
+export type thingmodelservicev1_ConvertUnitRequest = {
+  precision?: number;
+  sourceUnitCode?: string;
+  sourceUnitId?: number;
+  targetUnitCode?: string;
+  targetUnitId?: number;
+  value: number | undefined;
+};
+
+// 单位换算 - 回应 / Convert response
+export type thingmodelservicev1_ConvertUnitResponse = {
+  baseValue?: number;
+  formula: string | undefined;
+  message: string | undefined;
+  result: number | undefined;
+  status: thingmodelservicev1_ConvertUnitStatus | undefined;
+};
+
+// 换算状态 / Convert status
+export type thingmodelservicev1_ConvertUnitStatus =
+  | 'CONVERT_DIFFERENT_CATEGORY'
+  | 'CONVERT_NOT_CONVERTIBLE'
+  | 'CONVERT_NOT_FOUND'
+  | 'CONVERT_OK'
+  | 'CONVERT_STATUS_UNSPECIFIED';
+// 物理量分类管理服务（BFF 层 REST）/ Unit category admin service
+export interface UnitCategoryService {
+  // 分页查询物理量分类列表 / List unit categories
+  List(
+    request: pagination_PagingRequest,
+  ): Promise<thingmodelservicev1_ListUnitCategoryResponse>;
+  // 查询物理量分类详情 / Get unit category
+  Get(
+    request: thingmodelservicev1_GetUnitCategoryRequest,
+  ): Promise<thingmodelservicev1_UnitCategory>;
+  // 创建物理量分类 / Create unit category
+  Create(
+    request: thingmodelservicev1_CreateUnitCategoryRequest,
+  ): Promise<wellKnownEmpty>;
+  // 更新物理量分类 / Update unit category
+  Update(
+    request: thingmodelservicev1_UpdateUnitCategoryRequest,
+  ): Promise<wellKnownEmpty>;
+  // 删除物理量分类 / Delete unit category
+  Delete(
+    request: thingmodelservicev1_DeleteUnitCategoryRequest,
+  ): Promise<wellKnownEmpty>;
+}
+
+export function createUnitCategoryServiceClient(
+  transport: ClientTransport,
+): UnitCategoryService {
+  return {
+    List(request) {
+      const path = `admin/v1/thingmodel/unit-categories`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.page) {
+        queryParams.push(
+          `page=${encodeURIComponent(request.page.toString())}`,
+        );
+      }
+      if (request.pageSize) {
+        queryParams.push(
+          `pageSize=${encodeURIComponent(request.pageSize.toString())}`,
+        );
+      }
+      if (request.offset) {
+        queryParams.push(
+          `offset=${encodeURIComponent(request.offset.toString())}`,
+        );
+      }
+      if (request.limit) {
+        queryParams.push(
+          `limit=${encodeURIComponent(request.limit.toString())}`,
+        );
+      }
+      if (request.token) {
+        queryParams.push(
+          `token=${encodeURIComponent(request.token.toString())}`,
+        );
+      }
+      if (request.noPaging) {
+        queryParams.push(
+          `noPaging=${encodeURIComponent(request.noPaging.toString())}`,
+        );
+      }
+      if (request.query) {
+        queryParams.push(
+          `query=${encodeURIComponent(request.query.toString())}`,
+        );
+      }
+      if (request.filter) {
+        queryParams.push(
+          `filter=${encodeURIComponent(request.filter.toString())}`,
+        );
+      }
+      if (request.filterExpr?.type) {
+        queryParams.push(
+          `filterExpr.type=${encodeURIComponent(request.filterExpr.type.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.field) {
+        queryParams.push(
+          `filterExpr.conditions.field=${encodeURIComponent(request.filterExpr.conditions.field.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.op) {
+        queryParams.push(
+          `filterExpr.conditions.op=${encodeURIComponent(request.filterExpr.conditions.op.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.value) {
+        queryParams.push(
+          `filterExpr.conditions.value=${encodeURIComponent(request.filterExpr.conditions.value.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonValue) {
+        queryParams.push(
+          `filterExpr.conditions.jsonValue=${encodeURIComponent(request.filterExpr.conditions.jsonValue.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.values) {
+        request.filterExpr.conditions.values.forEach((x) => {
+          queryParams.push(
+            `filterExpr.conditions.values=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      if (request.filterExpr?.conditions?.datePart) {
+        queryParams.push(
+          `filterExpr.conditions.datePart=${encodeURIComponent(request.filterExpr.conditions.datePart.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonPath) {
+        queryParams.push(
+          `filterExpr.conditions.jsonPath=${encodeURIComponent(request.filterExpr.conditions.jsonPath.toString())}`,
+        );
+      }
+      if (request.orderBy) {
+        queryParams.push(
+          `orderBy=${encodeURIComponent(request.orderBy.toString())}`,
+        );
+      }
+      if (request.sorting?.field) {
+        queryParams.push(
+          `sorting.field=${encodeURIComponent(request.sorting.field.toString())}`,
+        );
+      }
+      if (request.sorting?.direction) {
+        queryParams.push(
+          `sorting.direction=${encodeURIComponent(request.sorting.direction.toString())}`,
+        );
+      }
+      if (request.fieldMask) {
+        queryParams.push(
+          `fieldMask=${encodeURIComponent(request.fieldMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'UnitCategoryService',
+        method: 'List',
+      }) as Promise<thingmodelservicev1_ListUnitCategoryResponse>;
+    },
+    Get(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/unit-categories/${request.id}`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.code) {
+        queryParams.push(
+          `code=${encodeURIComponent(request.code.toString())}`,
+        );
+      }
+      if (request.viewMask) {
+        queryParams.push(
+          `viewMask=${encodeURIComponent(request.viewMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'UnitCategoryService',
+        method: 'Get',
+      }) as Promise<thingmodelservicev1_UnitCategory>;
+    },
+    Create(request) {
+      const path = `admin/v1/thingmodel/unit-categories`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'UnitCategoryService',
+        method: 'Create',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Update(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/unit-categories/${request.id}`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'PUT', body, {
+        service: 'UnitCategoryService',
+        method: 'Update',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Delete(request) {
+      const path = `admin/v1/thingmodel/unit-categories`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.ids) {
+        request.ids.forEach((x) => {
+          queryParams.push(
+            `ids=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'DELETE', body, {
+        service: 'UnitCategoryService',
+        method: 'Delete',
+      }) as Promise<wellKnownEmpty>;
+    },
+  };
+}
+// 查询物理量分类列表 - 回应 / List response
+export type thingmodelservicev1_ListUnitCategoryResponse = {
+  items: thingmodelservicev1_UnitCategory[] | undefined;
+  total: number | undefined;
+};
+
+// 物理量分类 / Unit category
+export type thingmodelservicev1_UnitCategory = {
+  baseUnitSymbol?: string;
+  code?: string;
+  createdAt?: wellKnownTimestamp;
+  createdBy?: number;
+  deletedAt?: wellKnownTimestamp;
+  deletedBy?: number;
+  description?: string;
+  icon?: string;
+  id?: number;
+  isEnabled?: boolean;
+  name?: string;
+  nameEn?: string;
+  quantity?: string;
+  sortOrder?: number;
+  tenantId?: number;
+  tenantName?: string;
+  updatedAt?: wellKnownTimestamp;
+  updatedBy?: number;
+};
+
+// 查询物理量分类详情 - 请求 / Get request
+export type thingmodelservicev1_GetUnitCategoryRequest = {
+  code?: string;
+  id?: number;
+  viewMask?: wellKnownFieldMask;
+};
+
+// 创建物理量分类 - 请求 / Create request
+export type thingmodelservicev1_CreateUnitCategoryRequest = {
+  data: thingmodelservicev1_UnitCategory | undefined;
+};
+
+// 更新物理量分类 - 请求 / Update request
+export type thingmodelservicev1_UpdateUnitCategoryRequest = {
+  allowMissing?: boolean;
+  data: thingmodelservicev1_UnitCategory | undefined;
+  id: number | undefined;
+  updateMask: undefined | wellKnownFieldMask;
+};
+
+// 删除物理量分类 - 请求 / Delete request
+export type thingmodelservicev1_DeleteUnitCategoryRequest = {
+  ids: number[] | undefined;
+};
+
 // 用户管理服务
 export interface UserService {
   // 获取用户列表
@@ -7312,6 +7928,8 @@ export class ApiClient {
   private _taskService?: TaskService;
   private _tenantService?: TenantService;
   private readonly _transport: ClientTransport;
+  private _unitCategoryService?: UnitCategoryService;
+  private _unitService?: UnitService;
   private _userProfileService?: UserProfileService;
   private _userService?: UserService;
 
@@ -7421,6 +8039,14 @@ export class ApiClient {
 
   get tenantService(): TenantService {
     return this._tenantService ??= createTenantServiceClient(this._transport);
+  }
+
+  get unitCategoryService(): UnitCategoryService {
+    return this._unitCategoryService ??= createUnitCategoryServiceClient(this._transport);
+  }
+
+  get unitService(): UnitService {
+    return this._unitService ??= createUnitServiceClient(this._transport);
   }
 
   get userProfileService(): UserProfileService {

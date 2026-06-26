@@ -1,0 +1,252 @@
+syntax = "proto3";
+
+package thingmodel.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+
+// 换算类型 / Conversion type
+enum ConversionType {
+  CONVERSION_TYPE_UNSPECIFIED = 0;
+  LINEAR = 1;       // 线性 y = x·k / Linear
+  AFFINE = 2;       // 仿射 y = x·k + b（温度等）/ Affine (temperature etc.)
+  LOGARITHMIC = 3;  // 对数（dB/dBm，不可线性换算）/ Logarithmic
+  CONDITIONAL = 4;  // 条件换算（依赖外部参数）/ Conditional
+  NONE = 5;         // 不可换算（无量纲/计数）/ Non-convertible
+}
+
+// 单位服务 / Unit service (源领域层)
+service UnitService {
+  // 分页查询单位列表 / List units with paging
+  rpc List (pagination.PagingRequest) returns (ListUnitResponse) {}
+
+  // 统计单位数量 / Count units
+  rpc Count (pagination.PagingRequest) returns (CountUnitResponse) {}
+
+  // 查询单位详情 / Get unit detail
+  rpc Get (GetUnitRequest) returns (Unit) {}
+
+  // 创建单位 / Create unit
+  rpc Create (CreateUnitRequest) returns (google.protobuf.Empty) {}
+
+  // 更新单位 / Update unit
+  rpc Update (UpdateUnitRequest) returns (google.protobuf.Empty) {}
+
+  // 删除单位 / Delete unit
+  rpc Delete (DeleteUnitRequest) returns (google.protobuf.Empty) {}
+
+  // 按物理量分类查询单位（属性选单位时高频调用）/ List units by category
+  rpc ListByCategory (ListUnitByCategoryRequest) returns (ListUnitResponse) {}
+
+  // 单位换算 / Convert unit value
+  rpc Convert (ConvertUnitRequest) returns (ConvertUnitResponse) {}
+}
+
+// 单位 / Unit
+message Unit {
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {
+      description: "单位ID / Unit ID"
+    }
+  ];
+
+  optional uint32 category_id = 2 [
+    json_name = "categoryId",
+    (gnostic.openapi.v3.property) = {description: "所属物理量分类ID / Category ID"}
+  ]; // 所属物理量分类ID
+
+  optional string code = 3 [
+    json_name = "code",
+    (gnostic.openapi.v3.property) = {description: "单位编码，如 celsius（不可变）/ Unit code, immutable"}
+  ]; // 单位编码
+
+  optional string symbol = 4 [
+    json_name = "symbol",
+    (gnostic.openapi.v3.property) = {description: "单位符号，如 ℃ / Unit symbol"}
+  ]; // 单位符号
+
+  optional string name = 5 [
+    json_name = "name",
+    (gnostic.openapi.v3.property) = {description: "中文名 / Unit name (zh)"}
+  ]; // 中文名
+
+  optional string name_en = 6 [
+    json_name = "nameEn",
+    (gnostic.openapi.v3.property) = {description: "英文名 / Unit name (en)"}
+  ]; // 英文名
+
+  optional bool is_base = 10 [
+    json_name = "isBase",
+    (gnostic.openapi.v3.property) = {description: "是否基准单位（每分类唯一）/ Is base unit (unique per category)"}
+  ]; // 是否基准单位
+
+  optional ConversionType conversion_type = 11 [
+    json_name = "conversionType",
+    (gnostic.openapi.v3.property) = {description: "换算类型 / Conversion type"}
+  ]; // 换算类型
+
+  optional double factor = 12 [
+    json_name = "factor",
+    (gnostic.openapi.v3.property) = {description: "线性系数 k（基准=原值·k+offset）/ Linear factor k"}
+  ]; // 线性系数
+
+  optional double offset = 13 [
+    json_name = "offset",
+    (gnostic.openapi.v3.property) = {description: "偏移量 b（仅仿射非0）/ Offset b (affine only)"}
+  ]; // 偏移量
+
+  optional string formula_expr = 14 [
+    json_name = "formulaExpr",
+    (gnostic.openapi.v3.property) = {description: "公式说明（仅展示）/ Formula description (display only)"}
+  ]; // 公式说明
+
+  optional int32 precision = 15 [
+    json_name = "precision",
+    (gnostic.openapi.v3.property) = {description: "建议显示精度（小数位）/ Display precision"}
+  ]; // 显示精度
+
+  optional bool is_si_unit = 16 [
+    json_name = "isSiUnit",
+    (gnostic.openapi.v3.property) = {description: "是否 SI 单位 / Is SI unit"}
+  ]; // 是否 SI 单位
+
+  optional bool is_legal_unit = 17 [
+    json_name = "isLegalUnit",
+    (gnostic.openapi.v3.property) = {description: "是否中国法定计量单位 / Is PRC legal unit"}
+  ]; // 是否法定单位
+
+  optional uint32 reference_count = 18 [
+    json_name = "referenceCount",
+    (gnostic.openapi.v3.property) = {description: "被物模型属性引用次数（预留）/ Reference count (reserved)"}
+  ]; // 引用计数（预留）
+
+  optional bool is_enabled = 19 [
+    json_name = "isEnabled",
+    (gnostic.openapi.v3.property) = {description: "是否启用 / Is enabled"}
+  ]; // 是否启用
+
+  optional uint32 sort_order = 20 [
+    json_name = "sortOrder",
+    (gnostic.openapi.v3.property) = {description: "排序号 / Sort order"}
+  ]; // 排序号
+
+  optional uint32 tenant_id = 100 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "租户ID，0代表系统全局 / Tenant ID, 0=system global"}
+  ]; // 租户ID
+  optional string tenant_name = 101 [
+    json_name = "tenantName",
+    (gnostic.openapi.v3.property) = {description: "租户名称 / Tenant name"}
+  ]; // 租户名称
+
+  optional uint32 created_by = 200 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "创建者用户ID / Created by"}]; // 创建者
+  optional uint32 updated_by = 201 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "更新者用户ID / Updated by"}]; // 更新者
+  optional uint32 deleted_by = 202 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "删除者用户ID / Deleted by"}]; // 删除者
+
+  optional google.protobuf.Timestamp created_at = 300 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "创建时间 / Created at"}]; // 创建时间
+  optional google.protobuf.Timestamp updated_at = 301 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "更新时间 / Updated at"}]; // 更新时间
+  optional google.protobuf.Timestamp deleted_at = 302 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "删除时间 / Deleted at"}]; // 删除时间
+}
+
+// 查询单位列表 - 回应 / List response
+message ListUnitResponse {
+  repeated Unit items = 1;
+  uint64 total = 2;
+}
+
+// 统计单位数量 - 回应 / Count response
+message CountUnitResponse {
+  uint64 count = 1;
+}
+
+// 查询单位详情 - 请求 / Get request
+message GetUnitRequest {
+  oneof query_by {
+    uint32 id = 1;
+    string code = 2;
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {
+      description: "视图字段过滤器 / View field mask"
+    }
+  ]; // 视图字段过滤器
+}
+
+// 创建单位 - 请求 / Create request
+message CreateUnitRequest {
+  Unit data = 1;
+}
+
+// 更新单位 - 请求 / Update request
+message UpdateUnitRequest {
+  uint32 id = 1;
+
+  Unit data = 2;
+
+  google.protobuf.FieldMask update_mask = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "要更新的字段列表 / Fields to update",
+      example: {yaml: "symbol,name,factor,offset"}
+    },
+    json_name = "updateMask"
+  ]; // 要更新的字段列表
+
+  optional bool allow_missing = 4 [
+    (gnostic.openapi.v3.property) = {description: "若为 true，资源不存在则新增（此时 updateMask 被忽略）/ If true, insert when missing"},
+    json_name = "allowMissing"
+  ]; // 不存在则新增
+}
+
+// 删除单位 - 请求 / Delete request
+message DeleteUnitRequest {
+  repeated uint32 ids = 1; // 要删除的ID列表 / IDs to delete
+}
+
+// 按物理量分类查询 - 请求 / List by category request
+message ListUnitByCategoryRequest {
+  oneof category_by {
+    uint32 category_id = 1 [json_name = "categoryId"];
+    string category_code = 2 [json_name = "categoryCode"];
+  }
+  optional bool only_enabled = 3 [json_name = "onlyEnabled", (gnostic.openapi.v3.property) = {description: "仅返回启用单位 / Only enabled"}];
+}
+
+// 换算状态 / Convert status
+enum ConvertUnitStatus {
+  CONVERT_STATUS_UNSPECIFIED = 0;
+  CONVERT_OK = 1;                 // 换算成功 / OK
+  CONVERT_NOT_FOUND = 2;          // 单位不存在 / Not found
+  CONVERT_DIFFERENT_CATEGORY = 3; // 不同分类 / Different category
+  CONVERT_NOT_CONVERTIBLE = 4;    // 不可换算 / Not convertible
+}
+
+// 单位换算 - 请求 / Convert request
+message ConvertUnitRequest {
+  oneof source_by {
+    uint32 source_unit_id = 1 [json_name = "sourceUnitId"];
+    string source_unit_code = 2 [json_name = "sourceUnitCode"];
+  }
+  oneof target_by {
+    uint32 target_unit_id = 3 [json_name = "targetUnitId"];
+    string target_unit_code = 4 [json_name = "targetUnitCode"];
+  }
+  double value = 5 [(gnostic.openapi.v3.property) = {description: "待换算的数值 / Value to convert"}];
+  optional int32 precision = 6 [json_name = "precision", (gnostic.openapi.v3.property) = {description: "结果精度（小数位），缺省用目标单位 precision / Precision"}];
+}
+
+// 单位换算 - 回应 / Convert response
+message ConvertUnitResponse {
+  double result = 1 [json_name = "result", (gnostic.openapi.v3.property) = {description: "换算结果 / Result"}];
+  string formula = 2 [json_name = "formula", (gnostic.openapi.v3.property) = {description: "人类可读换算链 / Human-readable chain"}];
+  ConvertUnitStatus status = 3 [json_name = "status", (gnostic.openapi.v3.property) = {description: "换算状态 / Status"}];
+  string message = 4 [json_name = "message", (gnostic.openapi.v3.property) = {description: "非 OK 时的说明 / Message when not OK"}];
+  optional double base_value = 5 [json_name = "baseValue", (gnostic.openapi.v3.property) = {description: "经基准单位的中转值 / Base value"}];
+}

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	auditpb "go-wind-admin/api/gen/go/audit/service/v1"
 	permissionpb "go-wind-admin/api/gen/go/permission/service/v1"
-	resourcepb "go-wind-admin/api/gen/go/permission/service/v1"
 	taskpb "go-wind-admin/api/gen/go/task/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
@@ -44,6 +43,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
 	"go-wind-admin/app/admin/service/internal/data/ent/task"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+	"go-wind-admin/app/admin/service/internal/data/ent/unit"
+	"go-wind-admin/app/admin/service/internal/data/ent/unitcategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/user"
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
 	"go-wind-admin/app/admin/service/internal/data/ent/userorgunit"
@@ -98,6 +99,8 @@ const (
 	TypeRolePermission           = "RolePermission"
 	TypeTask                     = "Task"
 	TypeTenant                   = "Tenant"
+	TypeUnit                     = "Unit"
+	TypeUnitCategory             = "UnitCategory"
 	TypeUser                     = "User"
 	TypeUserCredential           = "UserCredential"
 	TypeUserOrgUnit              = "UserOrgUnit"
@@ -27470,7 +27473,7 @@ type MenuMutation struct {
 	alias           *string
 	name            *string
 	component       *string
-	meta            **resourcepb.MenuMeta
+	meta            **permissionpb.MenuMeta
 	clearedFields   map[string]struct{}
 	parent          *uint32
 	clearedparent   bool
@@ -28372,12 +28375,12 @@ func (m *MenuMutation) ResetComponent() {
 }
 
 // SetMeta sets the "meta" field.
-func (m *MenuMutation) SetMeta(rm *resourcepb.MenuMeta) {
-	m.meta = &rm
+func (m *MenuMutation) SetMeta(pm *permissionpb.MenuMeta) {
+	m.meta = &pm
 }
 
 // Meta returns the value of the "meta" field in the mutation.
-func (m *MenuMutation) Meta() (r *resourcepb.MenuMeta, exists bool) {
+func (m *MenuMutation) Meta() (r *permissionpb.MenuMeta, exists bool) {
 	v := m.meta
 	if v == nil {
 		return
@@ -28388,7 +28391,7 @@ func (m *MenuMutation) Meta() (r *resourcepb.MenuMeta, exists bool) {
 // OldMeta returns the old "meta" field's value of the Menu entity.
 // If the Menu object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MenuMutation) OldMeta(ctx context.Context) (v *resourcepb.MenuMeta, err error) {
+func (m *MenuMutation) OldMeta(ctx context.Context) (v *permissionpb.MenuMeta, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMeta is only allowed on UpdateOne operations")
 	}
@@ -28780,7 +28783,7 @@ func (m *MenuMutation) SetField(name string, value ent.Value) error {
 		m.SetComponent(v)
 		return nil
 	case menu.FieldMeta:
-		v, ok := value.(*resourcepb.MenuMeta)
+		v, ok := value.(*permissionpb.MenuMeta)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -52810,6 +52813,3908 @@ func (m *TenantMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *TenantMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Tenant edge %s", name)
+}
+
+// UnitMutation represents an operation that mutates the Unit nodes in the graph.
+type UnitMutation struct {
+	config
+	op                 Op
+	typ                string
+	id                 *uint32
+	created_at         *time.Time
+	updated_at         *time.Time
+	deleted_at         *time.Time
+	created_by         *uint32
+	addcreated_by      *int32
+	updated_by         *uint32
+	addupdated_by      *int32
+	deleted_by         *uint32
+	adddeleted_by      *int32
+	sort_order         *uint32
+	addsort_order      *int32
+	is_enabled         *bool
+	tenant_id          *uint32
+	addtenant_id       *int32
+	code               *string
+	symbol             *string
+	name               *string
+	name_en            *string
+	is_base            *bool
+	conversion_type    *unit.ConversionType
+	factor             *float64
+	addfactor          *float64
+	_offset            *float64
+	add_offset         *float64
+	formula_expr       *string
+	precision          *int32
+	addprecision       *int32
+	is_si_unit         *bool
+	is_legal_unit      *bool
+	reference_count    *uint32
+	addreference_count *int32
+	clearedFields      map[string]struct{}
+	category           *uint32
+	clearedcategory    bool
+	done               bool
+	oldValue           func(context.Context) (*Unit, error)
+	predicates         []predicate.Unit
+}
+
+var _ ent.Mutation = (*UnitMutation)(nil)
+
+// unitOption allows management of the mutation configuration using functional options.
+type unitOption func(*UnitMutation)
+
+// newUnitMutation creates new mutation for the Unit entity.
+func newUnitMutation(c config, op Op, opts ...unitOption) *UnitMutation {
+	m := &UnitMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUnit,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUnitID sets the ID field of the mutation.
+func withUnitID(id uint32) unitOption {
+	return func(m *UnitMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Unit
+		)
+		m.oldValue = func(ctx context.Context) (*Unit, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Unit.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUnit sets the old Unit of the mutation.
+func withUnit(node *Unit) unitOption {
+	return func(m *UnitMutation) {
+		m.oldValue = func(context.Context) (*Unit, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UnitMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UnitMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Unit entities.
+func (m *UnitMutation) SetID(id uint32) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UnitMutation) ID() (id uint32, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UnitMutation) IDs(ctx context.Context) ([]uint32, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint32{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Unit.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UnitMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UnitMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldCreatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ClearCreatedAt clears the value of the "created_at" field.
+func (m *UnitMutation) ClearCreatedAt() {
+	m.created_at = nil
+	m.clearedFields[unit.FieldCreatedAt] = struct{}{}
+}
+
+// CreatedAtCleared returns if the "created_at" field was cleared in this mutation.
+func (m *UnitMutation) CreatedAtCleared() bool {
+	_, ok := m.clearedFields[unit.FieldCreatedAt]
+	return ok
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UnitMutation) ResetCreatedAt() {
+	m.created_at = nil
+	delete(m.clearedFields, unit.FieldCreatedAt)
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *UnitMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *UnitMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldUpdatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (m *UnitMutation) ClearUpdatedAt() {
+	m.updated_at = nil
+	m.clearedFields[unit.FieldUpdatedAt] = struct{}{}
+}
+
+// UpdatedAtCleared returns if the "updated_at" field was cleared in this mutation.
+func (m *UnitMutation) UpdatedAtCleared() bool {
+	_, ok := m.clearedFields[unit.FieldUpdatedAt]
+	return ok
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *UnitMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	delete(m.clearedFields, unit.FieldUpdatedAt)
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *UnitMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *UnitMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *UnitMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[unit.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *UnitMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[unit.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *UnitMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, unit.FieldDeletedAt)
+}
+
+// SetCreatedBy sets the "created_by" field.
+func (m *UnitMutation) SetCreatedBy(u uint32) {
+	m.created_by = &u
+	m.addcreated_by = nil
+}
+
+// CreatedBy returns the value of the "created_by" field in the mutation.
+func (m *UnitMutation) CreatedBy() (r uint32, exists bool) {
+	v := m.created_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedBy returns the old "created_by" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldCreatedBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedBy: %w", err)
+	}
+	return oldValue.CreatedBy, nil
+}
+
+// AddCreatedBy adds u to the "created_by" field.
+func (m *UnitMutation) AddCreatedBy(u int32) {
+	if m.addcreated_by != nil {
+		*m.addcreated_by += u
+	} else {
+		m.addcreated_by = &u
+	}
+}
+
+// AddedCreatedBy returns the value that was added to the "created_by" field in this mutation.
+func (m *UnitMutation) AddedCreatedBy() (r int32, exists bool) {
+	v := m.addcreated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCreatedBy clears the value of the "created_by" field.
+func (m *UnitMutation) ClearCreatedBy() {
+	m.created_by = nil
+	m.addcreated_by = nil
+	m.clearedFields[unit.FieldCreatedBy] = struct{}{}
+}
+
+// CreatedByCleared returns if the "created_by" field was cleared in this mutation.
+func (m *UnitMutation) CreatedByCleared() bool {
+	_, ok := m.clearedFields[unit.FieldCreatedBy]
+	return ok
+}
+
+// ResetCreatedBy resets all changes to the "created_by" field.
+func (m *UnitMutation) ResetCreatedBy() {
+	m.created_by = nil
+	m.addcreated_by = nil
+	delete(m.clearedFields, unit.FieldCreatedBy)
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (m *UnitMutation) SetUpdatedBy(u uint32) {
+	m.updated_by = &u
+	m.addupdated_by = nil
+}
+
+// UpdatedBy returns the value of the "updated_by" field in the mutation.
+func (m *UnitMutation) UpdatedBy() (r uint32, exists bool) {
+	v := m.updated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedBy returns the old "updated_by" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldUpdatedBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedBy: %w", err)
+	}
+	return oldValue.UpdatedBy, nil
+}
+
+// AddUpdatedBy adds u to the "updated_by" field.
+func (m *UnitMutation) AddUpdatedBy(u int32) {
+	if m.addupdated_by != nil {
+		*m.addupdated_by += u
+	} else {
+		m.addupdated_by = &u
+	}
+}
+
+// AddedUpdatedBy returns the value that was added to the "updated_by" field in this mutation.
+func (m *UnitMutation) AddedUpdatedBy() (r int32, exists bool) {
+	v := m.addupdated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUpdatedBy clears the value of the "updated_by" field.
+func (m *UnitMutation) ClearUpdatedBy() {
+	m.updated_by = nil
+	m.addupdated_by = nil
+	m.clearedFields[unit.FieldUpdatedBy] = struct{}{}
+}
+
+// UpdatedByCleared returns if the "updated_by" field was cleared in this mutation.
+func (m *UnitMutation) UpdatedByCleared() bool {
+	_, ok := m.clearedFields[unit.FieldUpdatedBy]
+	return ok
+}
+
+// ResetUpdatedBy resets all changes to the "updated_by" field.
+func (m *UnitMutation) ResetUpdatedBy() {
+	m.updated_by = nil
+	m.addupdated_by = nil
+	delete(m.clearedFields, unit.FieldUpdatedBy)
+}
+
+// SetDeletedBy sets the "deleted_by" field.
+func (m *UnitMutation) SetDeletedBy(u uint32) {
+	m.deleted_by = &u
+	m.adddeleted_by = nil
+}
+
+// DeletedBy returns the value of the "deleted_by" field in the mutation.
+func (m *UnitMutation) DeletedBy() (r uint32, exists bool) {
+	v := m.deleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedBy returns the old "deleted_by" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldDeletedBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedBy: %w", err)
+	}
+	return oldValue.DeletedBy, nil
+}
+
+// AddDeletedBy adds u to the "deleted_by" field.
+func (m *UnitMutation) AddDeletedBy(u int32) {
+	if m.adddeleted_by != nil {
+		*m.adddeleted_by += u
+	} else {
+		m.adddeleted_by = &u
+	}
+}
+
+// AddedDeletedBy returns the value that was added to the "deleted_by" field in this mutation.
+func (m *UnitMutation) AddedDeletedBy() (r int32, exists bool) {
+	v := m.adddeleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeletedBy clears the value of the "deleted_by" field.
+func (m *UnitMutation) ClearDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	m.clearedFields[unit.FieldDeletedBy] = struct{}{}
+}
+
+// DeletedByCleared returns if the "deleted_by" field was cleared in this mutation.
+func (m *UnitMutation) DeletedByCleared() bool {
+	_, ok := m.clearedFields[unit.FieldDeletedBy]
+	return ok
+}
+
+// ResetDeletedBy resets all changes to the "deleted_by" field.
+func (m *UnitMutation) ResetDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	delete(m.clearedFields, unit.FieldDeletedBy)
+}
+
+// SetSortOrder sets the "sort_order" field.
+func (m *UnitMutation) SetSortOrder(u uint32) {
+	m.sort_order = &u
+	m.addsort_order = nil
+}
+
+// SortOrder returns the value of the "sort_order" field in the mutation.
+func (m *UnitMutation) SortOrder() (r uint32, exists bool) {
+	v := m.sort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSortOrder returns the old "sort_order" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldSortOrder(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSortOrder is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSortOrder requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSortOrder: %w", err)
+	}
+	return oldValue.SortOrder, nil
+}
+
+// AddSortOrder adds u to the "sort_order" field.
+func (m *UnitMutation) AddSortOrder(u int32) {
+	if m.addsort_order != nil {
+		*m.addsort_order += u
+	} else {
+		m.addsort_order = &u
+	}
+}
+
+// AddedSortOrder returns the value that was added to the "sort_order" field in this mutation.
+func (m *UnitMutation) AddedSortOrder() (r int32, exists bool) {
+	v := m.addsort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSortOrder clears the value of the "sort_order" field.
+func (m *UnitMutation) ClearSortOrder() {
+	m.sort_order = nil
+	m.addsort_order = nil
+	m.clearedFields[unit.FieldSortOrder] = struct{}{}
+}
+
+// SortOrderCleared returns if the "sort_order" field was cleared in this mutation.
+func (m *UnitMutation) SortOrderCleared() bool {
+	_, ok := m.clearedFields[unit.FieldSortOrder]
+	return ok
+}
+
+// ResetSortOrder resets all changes to the "sort_order" field.
+func (m *UnitMutation) ResetSortOrder() {
+	m.sort_order = nil
+	m.addsort_order = nil
+	delete(m.clearedFields, unit.FieldSortOrder)
+}
+
+// SetIsEnabled sets the "is_enabled" field.
+func (m *UnitMutation) SetIsEnabled(b bool) {
+	m.is_enabled = &b
+}
+
+// IsEnabled returns the value of the "is_enabled" field in the mutation.
+func (m *UnitMutation) IsEnabled() (r bool, exists bool) {
+	v := m.is_enabled
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsEnabled returns the old "is_enabled" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldIsEnabled(ctx context.Context) (v *bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsEnabled is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsEnabled requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsEnabled: %w", err)
+	}
+	return oldValue.IsEnabled, nil
+}
+
+// ClearIsEnabled clears the value of the "is_enabled" field.
+func (m *UnitMutation) ClearIsEnabled() {
+	m.is_enabled = nil
+	m.clearedFields[unit.FieldIsEnabled] = struct{}{}
+}
+
+// IsEnabledCleared returns if the "is_enabled" field was cleared in this mutation.
+func (m *UnitMutation) IsEnabledCleared() bool {
+	_, ok := m.clearedFields[unit.FieldIsEnabled]
+	return ok
+}
+
+// ResetIsEnabled resets all changes to the "is_enabled" field.
+func (m *UnitMutation) ResetIsEnabled() {
+	m.is_enabled = nil
+	delete(m.clearedFields, unit.FieldIsEnabled)
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *UnitMutation) SetTenantID(u uint32) {
+	m.tenant_id = &u
+	m.addtenant_id = nil
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *UnitMutation) TenantID() (r uint32, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldTenantID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// AddTenantID adds u to the "tenant_id" field.
+func (m *UnitMutation) AddTenantID(u int32) {
+	if m.addtenant_id != nil {
+		*m.addtenant_id += u
+	} else {
+		m.addtenant_id = &u
+	}
+}
+
+// AddedTenantID returns the value that was added to the "tenant_id" field in this mutation.
+func (m *UnitMutation) AddedTenantID() (r int32, exists bool) {
+	v := m.addtenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (m *UnitMutation) ClearTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+	m.clearedFields[unit.FieldTenantID] = struct{}{}
+}
+
+// TenantIDCleared returns if the "tenant_id" field was cleared in this mutation.
+func (m *UnitMutation) TenantIDCleared() bool {
+	_, ok := m.clearedFields[unit.FieldTenantID]
+	return ok
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *UnitMutation) ResetTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+	delete(m.clearedFields, unit.FieldTenantID)
+}
+
+// SetCategoryID sets the "category_id" field.
+func (m *UnitMutation) SetCategoryID(u uint32) {
+	m.category = &u
+}
+
+// CategoryID returns the value of the "category_id" field in the mutation.
+func (m *UnitMutation) CategoryID() (r uint32, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategoryID returns the old "category_id" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldCategoryID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategoryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategoryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategoryID: %w", err)
+	}
+	return oldValue.CategoryID, nil
+}
+
+// ResetCategoryID resets all changes to the "category_id" field.
+func (m *UnitMutation) ResetCategoryID() {
+	m.category = nil
+}
+
+// SetCode sets the "code" field.
+func (m *UnitMutation) SetCode(s string) {
+	m.code = &s
+}
+
+// Code returns the value of the "code" field in the mutation.
+func (m *UnitMutation) Code() (r string, exists bool) {
+	v := m.code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCode returns the old "code" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldCode(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCode: %w", err)
+	}
+	return oldValue.Code, nil
+}
+
+// ClearCode clears the value of the "code" field.
+func (m *UnitMutation) ClearCode() {
+	m.code = nil
+	m.clearedFields[unit.FieldCode] = struct{}{}
+}
+
+// CodeCleared returns if the "code" field was cleared in this mutation.
+func (m *UnitMutation) CodeCleared() bool {
+	_, ok := m.clearedFields[unit.FieldCode]
+	return ok
+}
+
+// ResetCode resets all changes to the "code" field.
+func (m *UnitMutation) ResetCode() {
+	m.code = nil
+	delete(m.clearedFields, unit.FieldCode)
+}
+
+// SetSymbol sets the "symbol" field.
+func (m *UnitMutation) SetSymbol(s string) {
+	m.symbol = &s
+}
+
+// Symbol returns the value of the "symbol" field in the mutation.
+func (m *UnitMutation) Symbol() (r string, exists bool) {
+	v := m.symbol
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSymbol returns the old "symbol" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldSymbol(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSymbol is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSymbol requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSymbol: %w", err)
+	}
+	return oldValue.Symbol, nil
+}
+
+// ClearSymbol clears the value of the "symbol" field.
+func (m *UnitMutation) ClearSymbol() {
+	m.symbol = nil
+	m.clearedFields[unit.FieldSymbol] = struct{}{}
+}
+
+// SymbolCleared returns if the "symbol" field was cleared in this mutation.
+func (m *UnitMutation) SymbolCleared() bool {
+	_, ok := m.clearedFields[unit.FieldSymbol]
+	return ok
+}
+
+// ResetSymbol resets all changes to the "symbol" field.
+func (m *UnitMutation) ResetSymbol() {
+	m.symbol = nil
+	delete(m.clearedFields, unit.FieldSymbol)
+}
+
+// SetName sets the "name" field.
+func (m *UnitMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *UnitMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldName(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ClearName clears the value of the "name" field.
+func (m *UnitMutation) ClearName() {
+	m.name = nil
+	m.clearedFields[unit.FieldName] = struct{}{}
+}
+
+// NameCleared returns if the "name" field was cleared in this mutation.
+func (m *UnitMutation) NameCleared() bool {
+	_, ok := m.clearedFields[unit.FieldName]
+	return ok
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *UnitMutation) ResetName() {
+	m.name = nil
+	delete(m.clearedFields, unit.FieldName)
+}
+
+// SetNameEn sets the "name_en" field.
+func (m *UnitMutation) SetNameEn(s string) {
+	m.name_en = &s
+}
+
+// NameEn returns the value of the "name_en" field in the mutation.
+func (m *UnitMutation) NameEn() (r string, exists bool) {
+	v := m.name_en
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNameEn returns the old "name_en" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldNameEn(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNameEn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNameEn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNameEn: %w", err)
+	}
+	return oldValue.NameEn, nil
+}
+
+// ClearNameEn clears the value of the "name_en" field.
+func (m *UnitMutation) ClearNameEn() {
+	m.name_en = nil
+	m.clearedFields[unit.FieldNameEn] = struct{}{}
+}
+
+// NameEnCleared returns if the "name_en" field was cleared in this mutation.
+func (m *UnitMutation) NameEnCleared() bool {
+	_, ok := m.clearedFields[unit.FieldNameEn]
+	return ok
+}
+
+// ResetNameEn resets all changes to the "name_en" field.
+func (m *UnitMutation) ResetNameEn() {
+	m.name_en = nil
+	delete(m.clearedFields, unit.FieldNameEn)
+}
+
+// SetIsBase sets the "is_base" field.
+func (m *UnitMutation) SetIsBase(b bool) {
+	m.is_base = &b
+}
+
+// IsBase returns the value of the "is_base" field in the mutation.
+func (m *UnitMutation) IsBase() (r bool, exists bool) {
+	v := m.is_base
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsBase returns the old "is_base" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldIsBase(ctx context.Context) (v *bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsBase is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsBase requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsBase: %w", err)
+	}
+	return oldValue.IsBase, nil
+}
+
+// ResetIsBase resets all changes to the "is_base" field.
+func (m *UnitMutation) ResetIsBase() {
+	m.is_base = nil
+}
+
+// SetConversionType sets the "conversion_type" field.
+func (m *UnitMutation) SetConversionType(ut unit.ConversionType) {
+	m.conversion_type = &ut
+}
+
+// ConversionType returns the value of the "conversion_type" field in the mutation.
+func (m *UnitMutation) ConversionType() (r unit.ConversionType, exists bool) {
+	v := m.conversion_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConversionType returns the old "conversion_type" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldConversionType(ctx context.Context) (v *unit.ConversionType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConversionType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConversionType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConversionType: %w", err)
+	}
+	return oldValue.ConversionType, nil
+}
+
+// ClearConversionType clears the value of the "conversion_type" field.
+func (m *UnitMutation) ClearConversionType() {
+	m.conversion_type = nil
+	m.clearedFields[unit.FieldConversionType] = struct{}{}
+}
+
+// ConversionTypeCleared returns if the "conversion_type" field was cleared in this mutation.
+func (m *UnitMutation) ConversionTypeCleared() bool {
+	_, ok := m.clearedFields[unit.FieldConversionType]
+	return ok
+}
+
+// ResetConversionType resets all changes to the "conversion_type" field.
+func (m *UnitMutation) ResetConversionType() {
+	m.conversion_type = nil
+	delete(m.clearedFields, unit.FieldConversionType)
+}
+
+// SetFactor sets the "factor" field.
+func (m *UnitMutation) SetFactor(f float64) {
+	m.factor = &f
+	m.addfactor = nil
+}
+
+// Factor returns the value of the "factor" field in the mutation.
+func (m *UnitMutation) Factor() (r float64, exists bool) {
+	v := m.factor
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFactor returns the old "factor" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldFactor(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFactor is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFactor requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFactor: %w", err)
+	}
+	return oldValue.Factor, nil
+}
+
+// AddFactor adds f to the "factor" field.
+func (m *UnitMutation) AddFactor(f float64) {
+	if m.addfactor != nil {
+		*m.addfactor += f
+	} else {
+		m.addfactor = &f
+	}
+}
+
+// AddedFactor returns the value that was added to the "factor" field in this mutation.
+func (m *UnitMutation) AddedFactor() (r float64, exists bool) {
+	v := m.addfactor
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetFactor resets all changes to the "factor" field.
+func (m *UnitMutation) ResetFactor() {
+	m.factor = nil
+	m.addfactor = nil
+}
+
+// SetOffset sets the "offset" field.
+func (m *UnitMutation) SetOffset(f float64) {
+	m._offset = &f
+	m.add_offset = nil
+}
+
+// Offset returns the value of the "offset" field in the mutation.
+func (m *UnitMutation) Offset() (r float64, exists bool) {
+	v := m._offset
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOffset returns the old "offset" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldOffset(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOffset is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOffset requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOffset: %w", err)
+	}
+	return oldValue.Offset, nil
+}
+
+// AddOffset adds f to the "offset" field.
+func (m *UnitMutation) AddOffset(f float64) {
+	if m.add_offset != nil {
+		*m.add_offset += f
+	} else {
+		m.add_offset = &f
+	}
+}
+
+// AddedOffset returns the value that was added to the "offset" field in this mutation.
+func (m *UnitMutation) AddedOffset() (r float64, exists bool) {
+	v := m.add_offset
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOffset resets all changes to the "offset" field.
+func (m *UnitMutation) ResetOffset() {
+	m._offset = nil
+	m.add_offset = nil
+}
+
+// SetFormulaExpr sets the "formula_expr" field.
+func (m *UnitMutation) SetFormulaExpr(s string) {
+	m.formula_expr = &s
+}
+
+// FormulaExpr returns the value of the "formula_expr" field in the mutation.
+func (m *UnitMutation) FormulaExpr() (r string, exists bool) {
+	v := m.formula_expr
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFormulaExpr returns the old "formula_expr" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldFormulaExpr(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFormulaExpr is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFormulaExpr requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFormulaExpr: %w", err)
+	}
+	return oldValue.FormulaExpr, nil
+}
+
+// ClearFormulaExpr clears the value of the "formula_expr" field.
+func (m *UnitMutation) ClearFormulaExpr() {
+	m.formula_expr = nil
+	m.clearedFields[unit.FieldFormulaExpr] = struct{}{}
+}
+
+// FormulaExprCleared returns if the "formula_expr" field was cleared in this mutation.
+func (m *UnitMutation) FormulaExprCleared() bool {
+	_, ok := m.clearedFields[unit.FieldFormulaExpr]
+	return ok
+}
+
+// ResetFormulaExpr resets all changes to the "formula_expr" field.
+func (m *UnitMutation) ResetFormulaExpr() {
+	m.formula_expr = nil
+	delete(m.clearedFields, unit.FieldFormulaExpr)
+}
+
+// SetPrecision sets the "precision" field.
+func (m *UnitMutation) SetPrecision(i int32) {
+	m.precision = &i
+	m.addprecision = nil
+}
+
+// Precision returns the value of the "precision" field in the mutation.
+func (m *UnitMutation) Precision() (r int32, exists bool) {
+	v := m.precision
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPrecision returns the old "precision" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldPrecision(ctx context.Context) (v *int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPrecision is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPrecision requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPrecision: %w", err)
+	}
+	return oldValue.Precision, nil
+}
+
+// AddPrecision adds i to the "precision" field.
+func (m *UnitMutation) AddPrecision(i int32) {
+	if m.addprecision != nil {
+		*m.addprecision += i
+	} else {
+		m.addprecision = &i
+	}
+}
+
+// AddedPrecision returns the value that was added to the "precision" field in this mutation.
+func (m *UnitMutation) AddedPrecision() (r int32, exists bool) {
+	v := m.addprecision
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearPrecision clears the value of the "precision" field.
+func (m *UnitMutation) ClearPrecision() {
+	m.precision = nil
+	m.addprecision = nil
+	m.clearedFields[unit.FieldPrecision] = struct{}{}
+}
+
+// PrecisionCleared returns if the "precision" field was cleared in this mutation.
+func (m *UnitMutation) PrecisionCleared() bool {
+	_, ok := m.clearedFields[unit.FieldPrecision]
+	return ok
+}
+
+// ResetPrecision resets all changes to the "precision" field.
+func (m *UnitMutation) ResetPrecision() {
+	m.precision = nil
+	m.addprecision = nil
+	delete(m.clearedFields, unit.FieldPrecision)
+}
+
+// SetIsSiUnit sets the "is_si_unit" field.
+func (m *UnitMutation) SetIsSiUnit(b bool) {
+	m.is_si_unit = &b
+}
+
+// IsSiUnit returns the value of the "is_si_unit" field in the mutation.
+func (m *UnitMutation) IsSiUnit() (r bool, exists bool) {
+	v := m.is_si_unit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsSiUnit returns the old "is_si_unit" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldIsSiUnit(ctx context.Context) (v *bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsSiUnit is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsSiUnit requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsSiUnit: %w", err)
+	}
+	return oldValue.IsSiUnit, nil
+}
+
+// ResetIsSiUnit resets all changes to the "is_si_unit" field.
+func (m *UnitMutation) ResetIsSiUnit() {
+	m.is_si_unit = nil
+}
+
+// SetIsLegalUnit sets the "is_legal_unit" field.
+func (m *UnitMutation) SetIsLegalUnit(b bool) {
+	m.is_legal_unit = &b
+}
+
+// IsLegalUnit returns the value of the "is_legal_unit" field in the mutation.
+func (m *UnitMutation) IsLegalUnit() (r bool, exists bool) {
+	v := m.is_legal_unit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsLegalUnit returns the old "is_legal_unit" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldIsLegalUnit(ctx context.Context) (v *bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsLegalUnit is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsLegalUnit requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsLegalUnit: %w", err)
+	}
+	return oldValue.IsLegalUnit, nil
+}
+
+// ResetIsLegalUnit resets all changes to the "is_legal_unit" field.
+func (m *UnitMutation) ResetIsLegalUnit() {
+	m.is_legal_unit = nil
+}
+
+// SetReferenceCount sets the "reference_count" field.
+func (m *UnitMutation) SetReferenceCount(u uint32) {
+	m.reference_count = &u
+	m.addreference_count = nil
+}
+
+// ReferenceCount returns the value of the "reference_count" field in the mutation.
+func (m *UnitMutation) ReferenceCount() (r uint32, exists bool) {
+	v := m.reference_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReferenceCount returns the old "reference_count" field's value of the Unit entity.
+// If the Unit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitMutation) OldReferenceCount(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReferenceCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReferenceCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReferenceCount: %w", err)
+	}
+	return oldValue.ReferenceCount, nil
+}
+
+// AddReferenceCount adds u to the "reference_count" field.
+func (m *UnitMutation) AddReferenceCount(u int32) {
+	if m.addreference_count != nil {
+		*m.addreference_count += u
+	} else {
+		m.addreference_count = &u
+	}
+}
+
+// AddedReferenceCount returns the value that was added to the "reference_count" field in this mutation.
+func (m *UnitMutation) AddedReferenceCount() (r int32, exists bool) {
+	v := m.addreference_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetReferenceCount resets all changes to the "reference_count" field.
+func (m *UnitMutation) ResetReferenceCount() {
+	m.reference_count = nil
+	m.addreference_count = nil
+}
+
+// ClearCategory clears the "category" edge to the UnitCategory entity.
+func (m *UnitMutation) ClearCategory() {
+	m.clearedcategory = true
+	m.clearedFields[unit.FieldCategoryID] = struct{}{}
+}
+
+// CategoryCleared reports if the "category" edge to the UnitCategory entity was cleared.
+func (m *UnitMutation) CategoryCleared() bool {
+	return m.clearedcategory
+}
+
+// CategoryIDs returns the "category" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CategoryID instead. It exists only for internal usage by the builders.
+func (m *UnitMutation) CategoryIDs() (ids []uint32) {
+	if id := m.category; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCategory resets all changes to the "category" edge.
+func (m *UnitMutation) ResetCategory() {
+	m.category = nil
+	m.clearedcategory = false
+}
+
+// Where appends a list predicates to the UnitMutation builder.
+func (m *UnitMutation) Where(ps ...predicate.Unit) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the UnitMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *UnitMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Unit, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *UnitMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *UnitMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Unit).
+func (m *UnitMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UnitMutation) Fields() []string {
+	fields := make([]string, 0, 23)
+	if m.created_at != nil {
+		fields = append(fields, unit.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, unit.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, unit.FieldDeletedAt)
+	}
+	if m.created_by != nil {
+		fields = append(fields, unit.FieldCreatedBy)
+	}
+	if m.updated_by != nil {
+		fields = append(fields, unit.FieldUpdatedBy)
+	}
+	if m.deleted_by != nil {
+		fields = append(fields, unit.FieldDeletedBy)
+	}
+	if m.sort_order != nil {
+		fields = append(fields, unit.FieldSortOrder)
+	}
+	if m.is_enabled != nil {
+		fields = append(fields, unit.FieldIsEnabled)
+	}
+	if m.tenant_id != nil {
+		fields = append(fields, unit.FieldTenantID)
+	}
+	if m.category != nil {
+		fields = append(fields, unit.FieldCategoryID)
+	}
+	if m.code != nil {
+		fields = append(fields, unit.FieldCode)
+	}
+	if m.symbol != nil {
+		fields = append(fields, unit.FieldSymbol)
+	}
+	if m.name != nil {
+		fields = append(fields, unit.FieldName)
+	}
+	if m.name_en != nil {
+		fields = append(fields, unit.FieldNameEn)
+	}
+	if m.is_base != nil {
+		fields = append(fields, unit.FieldIsBase)
+	}
+	if m.conversion_type != nil {
+		fields = append(fields, unit.FieldConversionType)
+	}
+	if m.factor != nil {
+		fields = append(fields, unit.FieldFactor)
+	}
+	if m._offset != nil {
+		fields = append(fields, unit.FieldOffset)
+	}
+	if m.formula_expr != nil {
+		fields = append(fields, unit.FieldFormulaExpr)
+	}
+	if m.precision != nil {
+		fields = append(fields, unit.FieldPrecision)
+	}
+	if m.is_si_unit != nil {
+		fields = append(fields, unit.FieldIsSiUnit)
+	}
+	if m.is_legal_unit != nil {
+		fields = append(fields, unit.FieldIsLegalUnit)
+	}
+	if m.reference_count != nil {
+		fields = append(fields, unit.FieldReferenceCount)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UnitMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case unit.FieldCreatedAt:
+		return m.CreatedAt()
+	case unit.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case unit.FieldDeletedAt:
+		return m.DeletedAt()
+	case unit.FieldCreatedBy:
+		return m.CreatedBy()
+	case unit.FieldUpdatedBy:
+		return m.UpdatedBy()
+	case unit.FieldDeletedBy:
+		return m.DeletedBy()
+	case unit.FieldSortOrder:
+		return m.SortOrder()
+	case unit.FieldIsEnabled:
+		return m.IsEnabled()
+	case unit.FieldTenantID:
+		return m.TenantID()
+	case unit.FieldCategoryID:
+		return m.CategoryID()
+	case unit.FieldCode:
+		return m.Code()
+	case unit.FieldSymbol:
+		return m.Symbol()
+	case unit.FieldName:
+		return m.Name()
+	case unit.FieldNameEn:
+		return m.NameEn()
+	case unit.FieldIsBase:
+		return m.IsBase()
+	case unit.FieldConversionType:
+		return m.ConversionType()
+	case unit.FieldFactor:
+		return m.Factor()
+	case unit.FieldOffset:
+		return m.Offset()
+	case unit.FieldFormulaExpr:
+		return m.FormulaExpr()
+	case unit.FieldPrecision:
+		return m.Precision()
+	case unit.FieldIsSiUnit:
+		return m.IsSiUnit()
+	case unit.FieldIsLegalUnit:
+		return m.IsLegalUnit()
+	case unit.FieldReferenceCount:
+		return m.ReferenceCount()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UnitMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case unit.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case unit.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case unit.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case unit.FieldCreatedBy:
+		return m.OldCreatedBy(ctx)
+	case unit.FieldUpdatedBy:
+		return m.OldUpdatedBy(ctx)
+	case unit.FieldDeletedBy:
+		return m.OldDeletedBy(ctx)
+	case unit.FieldSortOrder:
+		return m.OldSortOrder(ctx)
+	case unit.FieldIsEnabled:
+		return m.OldIsEnabled(ctx)
+	case unit.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case unit.FieldCategoryID:
+		return m.OldCategoryID(ctx)
+	case unit.FieldCode:
+		return m.OldCode(ctx)
+	case unit.FieldSymbol:
+		return m.OldSymbol(ctx)
+	case unit.FieldName:
+		return m.OldName(ctx)
+	case unit.FieldNameEn:
+		return m.OldNameEn(ctx)
+	case unit.FieldIsBase:
+		return m.OldIsBase(ctx)
+	case unit.FieldConversionType:
+		return m.OldConversionType(ctx)
+	case unit.FieldFactor:
+		return m.OldFactor(ctx)
+	case unit.FieldOffset:
+		return m.OldOffset(ctx)
+	case unit.FieldFormulaExpr:
+		return m.OldFormulaExpr(ctx)
+	case unit.FieldPrecision:
+		return m.OldPrecision(ctx)
+	case unit.FieldIsSiUnit:
+		return m.OldIsSiUnit(ctx)
+	case unit.FieldIsLegalUnit:
+		return m.OldIsLegalUnit(ctx)
+	case unit.FieldReferenceCount:
+		return m.OldReferenceCount(ctx)
+	}
+	return nil, fmt.Errorf("unknown Unit field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UnitMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case unit.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case unit.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case unit.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case unit.FieldCreatedBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedBy(v)
+		return nil
+	case unit.FieldUpdatedBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedBy(v)
+		return nil
+	case unit.FieldDeletedBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedBy(v)
+		return nil
+	case unit.FieldSortOrder:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSortOrder(v)
+		return nil
+	case unit.FieldIsEnabled:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsEnabled(v)
+		return nil
+	case unit.FieldTenantID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case unit.FieldCategoryID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategoryID(v)
+		return nil
+	case unit.FieldCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCode(v)
+		return nil
+	case unit.FieldSymbol:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSymbol(v)
+		return nil
+	case unit.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case unit.FieldNameEn:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNameEn(v)
+		return nil
+	case unit.FieldIsBase:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsBase(v)
+		return nil
+	case unit.FieldConversionType:
+		v, ok := value.(unit.ConversionType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConversionType(v)
+		return nil
+	case unit.FieldFactor:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFactor(v)
+		return nil
+	case unit.FieldOffset:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOffset(v)
+		return nil
+	case unit.FieldFormulaExpr:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFormulaExpr(v)
+		return nil
+	case unit.FieldPrecision:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPrecision(v)
+		return nil
+	case unit.FieldIsSiUnit:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsSiUnit(v)
+		return nil
+	case unit.FieldIsLegalUnit:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsLegalUnit(v)
+		return nil
+	case unit.FieldReferenceCount:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReferenceCount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Unit field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UnitMutation) AddedFields() []string {
+	var fields []string
+	if m.addcreated_by != nil {
+		fields = append(fields, unit.FieldCreatedBy)
+	}
+	if m.addupdated_by != nil {
+		fields = append(fields, unit.FieldUpdatedBy)
+	}
+	if m.adddeleted_by != nil {
+		fields = append(fields, unit.FieldDeletedBy)
+	}
+	if m.addsort_order != nil {
+		fields = append(fields, unit.FieldSortOrder)
+	}
+	if m.addtenant_id != nil {
+		fields = append(fields, unit.FieldTenantID)
+	}
+	if m.addfactor != nil {
+		fields = append(fields, unit.FieldFactor)
+	}
+	if m.add_offset != nil {
+		fields = append(fields, unit.FieldOffset)
+	}
+	if m.addprecision != nil {
+		fields = append(fields, unit.FieldPrecision)
+	}
+	if m.addreference_count != nil {
+		fields = append(fields, unit.FieldReferenceCount)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UnitMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case unit.FieldCreatedBy:
+		return m.AddedCreatedBy()
+	case unit.FieldUpdatedBy:
+		return m.AddedUpdatedBy()
+	case unit.FieldDeletedBy:
+		return m.AddedDeletedBy()
+	case unit.FieldSortOrder:
+		return m.AddedSortOrder()
+	case unit.FieldTenantID:
+		return m.AddedTenantID()
+	case unit.FieldFactor:
+		return m.AddedFactor()
+	case unit.FieldOffset:
+		return m.AddedOffset()
+	case unit.FieldPrecision:
+		return m.AddedPrecision()
+	case unit.FieldReferenceCount:
+		return m.AddedReferenceCount()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UnitMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case unit.FieldCreatedBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreatedBy(v)
+		return nil
+	case unit.FieldUpdatedBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdatedBy(v)
+		return nil
+	case unit.FieldDeletedBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedBy(v)
+		return nil
+	case unit.FieldSortOrder:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSortOrder(v)
+		return nil
+	case unit.FieldTenantID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTenantID(v)
+		return nil
+	case unit.FieldFactor:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFactor(v)
+		return nil
+	case unit.FieldOffset:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOffset(v)
+		return nil
+	case unit.FieldPrecision:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPrecision(v)
+		return nil
+	case unit.FieldReferenceCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddReferenceCount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Unit numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UnitMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(unit.FieldCreatedAt) {
+		fields = append(fields, unit.FieldCreatedAt)
+	}
+	if m.FieldCleared(unit.FieldUpdatedAt) {
+		fields = append(fields, unit.FieldUpdatedAt)
+	}
+	if m.FieldCleared(unit.FieldDeletedAt) {
+		fields = append(fields, unit.FieldDeletedAt)
+	}
+	if m.FieldCleared(unit.FieldCreatedBy) {
+		fields = append(fields, unit.FieldCreatedBy)
+	}
+	if m.FieldCleared(unit.FieldUpdatedBy) {
+		fields = append(fields, unit.FieldUpdatedBy)
+	}
+	if m.FieldCleared(unit.FieldDeletedBy) {
+		fields = append(fields, unit.FieldDeletedBy)
+	}
+	if m.FieldCleared(unit.FieldSortOrder) {
+		fields = append(fields, unit.FieldSortOrder)
+	}
+	if m.FieldCleared(unit.FieldIsEnabled) {
+		fields = append(fields, unit.FieldIsEnabled)
+	}
+	if m.FieldCleared(unit.FieldTenantID) {
+		fields = append(fields, unit.FieldTenantID)
+	}
+	if m.FieldCleared(unit.FieldCode) {
+		fields = append(fields, unit.FieldCode)
+	}
+	if m.FieldCleared(unit.FieldSymbol) {
+		fields = append(fields, unit.FieldSymbol)
+	}
+	if m.FieldCleared(unit.FieldName) {
+		fields = append(fields, unit.FieldName)
+	}
+	if m.FieldCleared(unit.FieldNameEn) {
+		fields = append(fields, unit.FieldNameEn)
+	}
+	if m.FieldCleared(unit.FieldConversionType) {
+		fields = append(fields, unit.FieldConversionType)
+	}
+	if m.FieldCleared(unit.FieldFormulaExpr) {
+		fields = append(fields, unit.FieldFormulaExpr)
+	}
+	if m.FieldCleared(unit.FieldPrecision) {
+		fields = append(fields, unit.FieldPrecision)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UnitMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UnitMutation) ClearField(name string) error {
+	switch name {
+	case unit.FieldCreatedAt:
+		m.ClearCreatedAt()
+		return nil
+	case unit.FieldUpdatedAt:
+		m.ClearUpdatedAt()
+		return nil
+	case unit.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case unit.FieldCreatedBy:
+		m.ClearCreatedBy()
+		return nil
+	case unit.FieldUpdatedBy:
+		m.ClearUpdatedBy()
+		return nil
+	case unit.FieldDeletedBy:
+		m.ClearDeletedBy()
+		return nil
+	case unit.FieldSortOrder:
+		m.ClearSortOrder()
+		return nil
+	case unit.FieldIsEnabled:
+		m.ClearIsEnabled()
+		return nil
+	case unit.FieldTenantID:
+		m.ClearTenantID()
+		return nil
+	case unit.FieldCode:
+		m.ClearCode()
+		return nil
+	case unit.FieldSymbol:
+		m.ClearSymbol()
+		return nil
+	case unit.FieldName:
+		m.ClearName()
+		return nil
+	case unit.FieldNameEn:
+		m.ClearNameEn()
+		return nil
+	case unit.FieldConversionType:
+		m.ClearConversionType()
+		return nil
+	case unit.FieldFormulaExpr:
+		m.ClearFormulaExpr()
+		return nil
+	case unit.FieldPrecision:
+		m.ClearPrecision()
+		return nil
+	}
+	return fmt.Errorf("unknown Unit nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UnitMutation) ResetField(name string) error {
+	switch name {
+	case unit.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case unit.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case unit.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case unit.FieldCreatedBy:
+		m.ResetCreatedBy()
+		return nil
+	case unit.FieldUpdatedBy:
+		m.ResetUpdatedBy()
+		return nil
+	case unit.FieldDeletedBy:
+		m.ResetDeletedBy()
+		return nil
+	case unit.FieldSortOrder:
+		m.ResetSortOrder()
+		return nil
+	case unit.FieldIsEnabled:
+		m.ResetIsEnabled()
+		return nil
+	case unit.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case unit.FieldCategoryID:
+		m.ResetCategoryID()
+		return nil
+	case unit.FieldCode:
+		m.ResetCode()
+		return nil
+	case unit.FieldSymbol:
+		m.ResetSymbol()
+		return nil
+	case unit.FieldName:
+		m.ResetName()
+		return nil
+	case unit.FieldNameEn:
+		m.ResetNameEn()
+		return nil
+	case unit.FieldIsBase:
+		m.ResetIsBase()
+		return nil
+	case unit.FieldConversionType:
+		m.ResetConversionType()
+		return nil
+	case unit.FieldFactor:
+		m.ResetFactor()
+		return nil
+	case unit.FieldOffset:
+		m.ResetOffset()
+		return nil
+	case unit.FieldFormulaExpr:
+		m.ResetFormulaExpr()
+		return nil
+	case unit.FieldPrecision:
+		m.ResetPrecision()
+		return nil
+	case unit.FieldIsSiUnit:
+		m.ResetIsSiUnit()
+		return nil
+	case unit.FieldIsLegalUnit:
+		m.ResetIsLegalUnit()
+		return nil
+	case unit.FieldReferenceCount:
+		m.ResetReferenceCount()
+		return nil
+	}
+	return fmt.Errorf("unknown Unit field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UnitMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.category != nil {
+		edges = append(edges, unit.EdgeCategory)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UnitMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case unit.EdgeCategory:
+		if id := m.category; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UnitMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UnitMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UnitMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedcategory {
+		edges = append(edges, unit.EdgeCategory)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UnitMutation) EdgeCleared(name string) bool {
+	switch name {
+	case unit.EdgeCategory:
+		return m.clearedcategory
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UnitMutation) ClearEdge(name string) error {
+	switch name {
+	case unit.EdgeCategory:
+		m.ClearCategory()
+		return nil
+	}
+	return fmt.Errorf("unknown Unit unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UnitMutation) ResetEdge(name string) error {
+	switch name {
+	case unit.EdgeCategory:
+		m.ResetCategory()
+		return nil
+	}
+	return fmt.Errorf("unknown Unit edge %s", name)
+}
+
+// UnitCategoryMutation represents an operation that mutates the UnitCategory nodes in the graph.
+type UnitCategoryMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uint32
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *time.Time
+	created_by       *uint32
+	addcreated_by    *int32
+	updated_by       *uint32
+	addupdated_by    *int32
+	deleted_by       *uint32
+	adddeleted_by    *int32
+	is_enabled       *bool
+	sort_order       *uint32
+	addsort_order    *int32
+	tenant_id        *uint32
+	addtenant_id     *int32
+	code             *string
+	name             *string
+	name_en          *string
+	quantity         *string
+	base_unit_symbol *string
+	icon             *string
+	description      *string
+	clearedFields    map[string]struct{}
+	units            map[uint32]struct{}
+	removedunits     map[uint32]struct{}
+	clearedunits     bool
+	done             bool
+	oldValue         func(context.Context) (*UnitCategory, error)
+	predicates       []predicate.UnitCategory
+}
+
+var _ ent.Mutation = (*UnitCategoryMutation)(nil)
+
+// unitcategoryOption allows management of the mutation configuration using functional options.
+type unitcategoryOption func(*UnitCategoryMutation)
+
+// newUnitCategoryMutation creates new mutation for the UnitCategory entity.
+func newUnitCategoryMutation(c config, op Op, opts ...unitcategoryOption) *UnitCategoryMutation {
+	m := &UnitCategoryMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUnitCategory,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUnitCategoryID sets the ID field of the mutation.
+func withUnitCategoryID(id uint32) unitcategoryOption {
+	return func(m *UnitCategoryMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *UnitCategory
+		)
+		m.oldValue = func(ctx context.Context) (*UnitCategory, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().UnitCategory.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUnitCategory sets the old UnitCategory of the mutation.
+func withUnitCategory(node *UnitCategory) unitcategoryOption {
+	return func(m *UnitCategoryMutation) {
+		m.oldValue = func(context.Context) (*UnitCategory, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UnitCategoryMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UnitCategoryMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of UnitCategory entities.
+func (m *UnitCategoryMutation) SetID(id uint32) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UnitCategoryMutation) ID() (id uint32, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UnitCategoryMutation) IDs(ctx context.Context) ([]uint32, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint32{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().UnitCategory.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UnitCategoryMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UnitCategoryMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldCreatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ClearCreatedAt clears the value of the "created_at" field.
+func (m *UnitCategoryMutation) ClearCreatedAt() {
+	m.created_at = nil
+	m.clearedFields[unitcategory.FieldCreatedAt] = struct{}{}
+}
+
+// CreatedAtCleared returns if the "created_at" field was cleared in this mutation.
+func (m *UnitCategoryMutation) CreatedAtCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldCreatedAt]
+	return ok
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UnitCategoryMutation) ResetCreatedAt() {
+	m.created_at = nil
+	delete(m.clearedFields, unitcategory.FieldCreatedAt)
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *UnitCategoryMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *UnitCategoryMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldUpdatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (m *UnitCategoryMutation) ClearUpdatedAt() {
+	m.updated_at = nil
+	m.clearedFields[unitcategory.FieldUpdatedAt] = struct{}{}
+}
+
+// UpdatedAtCleared returns if the "updated_at" field was cleared in this mutation.
+func (m *UnitCategoryMutation) UpdatedAtCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldUpdatedAt]
+	return ok
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *UnitCategoryMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	delete(m.clearedFields, unitcategory.FieldUpdatedAt)
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *UnitCategoryMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *UnitCategoryMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *UnitCategoryMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[unitcategory.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *UnitCategoryMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *UnitCategoryMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, unitcategory.FieldDeletedAt)
+}
+
+// SetCreatedBy sets the "created_by" field.
+func (m *UnitCategoryMutation) SetCreatedBy(u uint32) {
+	m.created_by = &u
+	m.addcreated_by = nil
+}
+
+// CreatedBy returns the value of the "created_by" field in the mutation.
+func (m *UnitCategoryMutation) CreatedBy() (r uint32, exists bool) {
+	v := m.created_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedBy returns the old "created_by" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldCreatedBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedBy: %w", err)
+	}
+	return oldValue.CreatedBy, nil
+}
+
+// AddCreatedBy adds u to the "created_by" field.
+func (m *UnitCategoryMutation) AddCreatedBy(u int32) {
+	if m.addcreated_by != nil {
+		*m.addcreated_by += u
+	} else {
+		m.addcreated_by = &u
+	}
+}
+
+// AddedCreatedBy returns the value that was added to the "created_by" field in this mutation.
+func (m *UnitCategoryMutation) AddedCreatedBy() (r int32, exists bool) {
+	v := m.addcreated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCreatedBy clears the value of the "created_by" field.
+func (m *UnitCategoryMutation) ClearCreatedBy() {
+	m.created_by = nil
+	m.addcreated_by = nil
+	m.clearedFields[unitcategory.FieldCreatedBy] = struct{}{}
+}
+
+// CreatedByCleared returns if the "created_by" field was cleared in this mutation.
+func (m *UnitCategoryMutation) CreatedByCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldCreatedBy]
+	return ok
+}
+
+// ResetCreatedBy resets all changes to the "created_by" field.
+func (m *UnitCategoryMutation) ResetCreatedBy() {
+	m.created_by = nil
+	m.addcreated_by = nil
+	delete(m.clearedFields, unitcategory.FieldCreatedBy)
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (m *UnitCategoryMutation) SetUpdatedBy(u uint32) {
+	m.updated_by = &u
+	m.addupdated_by = nil
+}
+
+// UpdatedBy returns the value of the "updated_by" field in the mutation.
+func (m *UnitCategoryMutation) UpdatedBy() (r uint32, exists bool) {
+	v := m.updated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedBy returns the old "updated_by" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldUpdatedBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedBy: %w", err)
+	}
+	return oldValue.UpdatedBy, nil
+}
+
+// AddUpdatedBy adds u to the "updated_by" field.
+func (m *UnitCategoryMutation) AddUpdatedBy(u int32) {
+	if m.addupdated_by != nil {
+		*m.addupdated_by += u
+	} else {
+		m.addupdated_by = &u
+	}
+}
+
+// AddedUpdatedBy returns the value that was added to the "updated_by" field in this mutation.
+func (m *UnitCategoryMutation) AddedUpdatedBy() (r int32, exists bool) {
+	v := m.addupdated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUpdatedBy clears the value of the "updated_by" field.
+func (m *UnitCategoryMutation) ClearUpdatedBy() {
+	m.updated_by = nil
+	m.addupdated_by = nil
+	m.clearedFields[unitcategory.FieldUpdatedBy] = struct{}{}
+}
+
+// UpdatedByCleared returns if the "updated_by" field was cleared in this mutation.
+func (m *UnitCategoryMutation) UpdatedByCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldUpdatedBy]
+	return ok
+}
+
+// ResetUpdatedBy resets all changes to the "updated_by" field.
+func (m *UnitCategoryMutation) ResetUpdatedBy() {
+	m.updated_by = nil
+	m.addupdated_by = nil
+	delete(m.clearedFields, unitcategory.FieldUpdatedBy)
+}
+
+// SetDeletedBy sets the "deleted_by" field.
+func (m *UnitCategoryMutation) SetDeletedBy(u uint32) {
+	m.deleted_by = &u
+	m.adddeleted_by = nil
+}
+
+// DeletedBy returns the value of the "deleted_by" field in the mutation.
+func (m *UnitCategoryMutation) DeletedBy() (r uint32, exists bool) {
+	v := m.deleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedBy returns the old "deleted_by" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldDeletedBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedBy: %w", err)
+	}
+	return oldValue.DeletedBy, nil
+}
+
+// AddDeletedBy adds u to the "deleted_by" field.
+func (m *UnitCategoryMutation) AddDeletedBy(u int32) {
+	if m.adddeleted_by != nil {
+		*m.adddeleted_by += u
+	} else {
+		m.adddeleted_by = &u
+	}
+}
+
+// AddedDeletedBy returns the value that was added to the "deleted_by" field in this mutation.
+func (m *UnitCategoryMutation) AddedDeletedBy() (r int32, exists bool) {
+	v := m.adddeleted_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeletedBy clears the value of the "deleted_by" field.
+func (m *UnitCategoryMutation) ClearDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	m.clearedFields[unitcategory.FieldDeletedBy] = struct{}{}
+}
+
+// DeletedByCleared returns if the "deleted_by" field was cleared in this mutation.
+func (m *UnitCategoryMutation) DeletedByCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldDeletedBy]
+	return ok
+}
+
+// ResetDeletedBy resets all changes to the "deleted_by" field.
+func (m *UnitCategoryMutation) ResetDeletedBy() {
+	m.deleted_by = nil
+	m.adddeleted_by = nil
+	delete(m.clearedFields, unitcategory.FieldDeletedBy)
+}
+
+// SetIsEnabled sets the "is_enabled" field.
+func (m *UnitCategoryMutation) SetIsEnabled(b bool) {
+	m.is_enabled = &b
+}
+
+// IsEnabled returns the value of the "is_enabled" field in the mutation.
+func (m *UnitCategoryMutation) IsEnabled() (r bool, exists bool) {
+	v := m.is_enabled
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsEnabled returns the old "is_enabled" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldIsEnabled(ctx context.Context) (v *bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsEnabled is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsEnabled requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsEnabled: %w", err)
+	}
+	return oldValue.IsEnabled, nil
+}
+
+// ClearIsEnabled clears the value of the "is_enabled" field.
+func (m *UnitCategoryMutation) ClearIsEnabled() {
+	m.is_enabled = nil
+	m.clearedFields[unitcategory.FieldIsEnabled] = struct{}{}
+}
+
+// IsEnabledCleared returns if the "is_enabled" field was cleared in this mutation.
+func (m *UnitCategoryMutation) IsEnabledCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldIsEnabled]
+	return ok
+}
+
+// ResetIsEnabled resets all changes to the "is_enabled" field.
+func (m *UnitCategoryMutation) ResetIsEnabled() {
+	m.is_enabled = nil
+	delete(m.clearedFields, unitcategory.FieldIsEnabled)
+}
+
+// SetSortOrder sets the "sort_order" field.
+func (m *UnitCategoryMutation) SetSortOrder(u uint32) {
+	m.sort_order = &u
+	m.addsort_order = nil
+}
+
+// SortOrder returns the value of the "sort_order" field in the mutation.
+func (m *UnitCategoryMutation) SortOrder() (r uint32, exists bool) {
+	v := m.sort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSortOrder returns the old "sort_order" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldSortOrder(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSortOrder is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSortOrder requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSortOrder: %w", err)
+	}
+	return oldValue.SortOrder, nil
+}
+
+// AddSortOrder adds u to the "sort_order" field.
+func (m *UnitCategoryMutation) AddSortOrder(u int32) {
+	if m.addsort_order != nil {
+		*m.addsort_order += u
+	} else {
+		m.addsort_order = &u
+	}
+}
+
+// AddedSortOrder returns the value that was added to the "sort_order" field in this mutation.
+func (m *UnitCategoryMutation) AddedSortOrder() (r int32, exists bool) {
+	v := m.addsort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSortOrder clears the value of the "sort_order" field.
+func (m *UnitCategoryMutation) ClearSortOrder() {
+	m.sort_order = nil
+	m.addsort_order = nil
+	m.clearedFields[unitcategory.FieldSortOrder] = struct{}{}
+}
+
+// SortOrderCleared returns if the "sort_order" field was cleared in this mutation.
+func (m *UnitCategoryMutation) SortOrderCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldSortOrder]
+	return ok
+}
+
+// ResetSortOrder resets all changes to the "sort_order" field.
+func (m *UnitCategoryMutation) ResetSortOrder() {
+	m.sort_order = nil
+	m.addsort_order = nil
+	delete(m.clearedFields, unitcategory.FieldSortOrder)
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *UnitCategoryMutation) SetTenantID(u uint32) {
+	m.tenant_id = &u
+	m.addtenant_id = nil
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *UnitCategoryMutation) TenantID() (r uint32, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldTenantID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// AddTenantID adds u to the "tenant_id" field.
+func (m *UnitCategoryMutation) AddTenantID(u int32) {
+	if m.addtenant_id != nil {
+		*m.addtenant_id += u
+	} else {
+		m.addtenant_id = &u
+	}
+}
+
+// AddedTenantID returns the value that was added to the "tenant_id" field in this mutation.
+func (m *UnitCategoryMutation) AddedTenantID() (r int32, exists bool) {
+	v := m.addtenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (m *UnitCategoryMutation) ClearTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+	m.clearedFields[unitcategory.FieldTenantID] = struct{}{}
+}
+
+// TenantIDCleared returns if the "tenant_id" field was cleared in this mutation.
+func (m *UnitCategoryMutation) TenantIDCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldTenantID]
+	return ok
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *UnitCategoryMutation) ResetTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+	delete(m.clearedFields, unitcategory.FieldTenantID)
+}
+
+// SetCode sets the "code" field.
+func (m *UnitCategoryMutation) SetCode(s string) {
+	m.code = &s
+}
+
+// Code returns the value of the "code" field in the mutation.
+func (m *UnitCategoryMutation) Code() (r string, exists bool) {
+	v := m.code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCode returns the old "code" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldCode(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCode: %w", err)
+	}
+	return oldValue.Code, nil
+}
+
+// ClearCode clears the value of the "code" field.
+func (m *UnitCategoryMutation) ClearCode() {
+	m.code = nil
+	m.clearedFields[unitcategory.FieldCode] = struct{}{}
+}
+
+// CodeCleared returns if the "code" field was cleared in this mutation.
+func (m *UnitCategoryMutation) CodeCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldCode]
+	return ok
+}
+
+// ResetCode resets all changes to the "code" field.
+func (m *UnitCategoryMutation) ResetCode() {
+	m.code = nil
+	delete(m.clearedFields, unitcategory.FieldCode)
+}
+
+// SetName sets the "name" field.
+func (m *UnitCategoryMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *UnitCategoryMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldName(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ClearName clears the value of the "name" field.
+func (m *UnitCategoryMutation) ClearName() {
+	m.name = nil
+	m.clearedFields[unitcategory.FieldName] = struct{}{}
+}
+
+// NameCleared returns if the "name" field was cleared in this mutation.
+func (m *UnitCategoryMutation) NameCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldName]
+	return ok
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *UnitCategoryMutation) ResetName() {
+	m.name = nil
+	delete(m.clearedFields, unitcategory.FieldName)
+}
+
+// SetNameEn sets the "name_en" field.
+func (m *UnitCategoryMutation) SetNameEn(s string) {
+	m.name_en = &s
+}
+
+// NameEn returns the value of the "name_en" field in the mutation.
+func (m *UnitCategoryMutation) NameEn() (r string, exists bool) {
+	v := m.name_en
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNameEn returns the old "name_en" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldNameEn(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNameEn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNameEn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNameEn: %w", err)
+	}
+	return oldValue.NameEn, nil
+}
+
+// ClearNameEn clears the value of the "name_en" field.
+func (m *UnitCategoryMutation) ClearNameEn() {
+	m.name_en = nil
+	m.clearedFields[unitcategory.FieldNameEn] = struct{}{}
+}
+
+// NameEnCleared returns if the "name_en" field was cleared in this mutation.
+func (m *UnitCategoryMutation) NameEnCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldNameEn]
+	return ok
+}
+
+// ResetNameEn resets all changes to the "name_en" field.
+func (m *UnitCategoryMutation) ResetNameEn() {
+	m.name_en = nil
+	delete(m.clearedFields, unitcategory.FieldNameEn)
+}
+
+// SetQuantity sets the "quantity" field.
+func (m *UnitCategoryMutation) SetQuantity(s string) {
+	m.quantity = &s
+}
+
+// Quantity returns the value of the "quantity" field in the mutation.
+func (m *UnitCategoryMutation) Quantity() (r string, exists bool) {
+	v := m.quantity
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldQuantity returns the old "quantity" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldQuantity(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldQuantity is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldQuantity requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldQuantity: %w", err)
+	}
+	return oldValue.Quantity, nil
+}
+
+// ClearQuantity clears the value of the "quantity" field.
+func (m *UnitCategoryMutation) ClearQuantity() {
+	m.quantity = nil
+	m.clearedFields[unitcategory.FieldQuantity] = struct{}{}
+}
+
+// QuantityCleared returns if the "quantity" field was cleared in this mutation.
+func (m *UnitCategoryMutation) QuantityCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldQuantity]
+	return ok
+}
+
+// ResetQuantity resets all changes to the "quantity" field.
+func (m *UnitCategoryMutation) ResetQuantity() {
+	m.quantity = nil
+	delete(m.clearedFields, unitcategory.FieldQuantity)
+}
+
+// SetBaseUnitSymbol sets the "base_unit_symbol" field.
+func (m *UnitCategoryMutation) SetBaseUnitSymbol(s string) {
+	m.base_unit_symbol = &s
+}
+
+// BaseUnitSymbol returns the value of the "base_unit_symbol" field in the mutation.
+func (m *UnitCategoryMutation) BaseUnitSymbol() (r string, exists bool) {
+	v := m.base_unit_symbol
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBaseUnitSymbol returns the old "base_unit_symbol" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldBaseUnitSymbol(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBaseUnitSymbol is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBaseUnitSymbol requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBaseUnitSymbol: %w", err)
+	}
+	return oldValue.BaseUnitSymbol, nil
+}
+
+// ClearBaseUnitSymbol clears the value of the "base_unit_symbol" field.
+func (m *UnitCategoryMutation) ClearBaseUnitSymbol() {
+	m.base_unit_symbol = nil
+	m.clearedFields[unitcategory.FieldBaseUnitSymbol] = struct{}{}
+}
+
+// BaseUnitSymbolCleared returns if the "base_unit_symbol" field was cleared in this mutation.
+func (m *UnitCategoryMutation) BaseUnitSymbolCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldBaseUnitSymbol]
+	return ok
+}
+
+// ResetBaseUnitSymbol resets all changes to the "base_unit_symbol" field.
+func (m *UnitCategoryMutation) ResetBaseUnitSymbol() {
+	m.base_unit_symbol = nil
+	delete(m.clearedFields, unitcategory.FieldBaseUnitSymbol)
+}
+
+// SetIcon sets the "icon" field.
+func (m *UnitCategoryMutation) SetIcon(s string) {
+	m.icon = &s
+}
+
+// Icon returns the value of the "icon" field in the mutation.
+func (m *UnitCategoryMutation) Icon() (r string, exists bool) {
+	v := m.icon
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIcon returns the old "icon" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldIcon(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIcon is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIcon requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIcon: %w", err)
+	}
+	return oldValue.Icon, nil
+}
+
+// ClearIcon clears the value of the "icon" field.
+func (m *UnitCategoryMutation) ClearIcon() {
+	m.icon = nil
+	m.clearedFields[unitcategory.FieldIcon] = struct{}{}
+}
+
+// IconCleared returns if the "icon" field was cleared in this mutation.
+func (m *UnitCategoryMutation) IconCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldIcon]
+	return ok
+}
+
+// ResetIcon resets all changes to the "icon" field.
+func (m *UnitCategoryMutation) ResetIcon() {
+	m.icon = nil
+	delete(m.clearedFields, unitcategory.FieldIcon)
+}
+
+// SetDescription sets the "description" field.
+func (m *UnitCategoryMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *UnitCategoryMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the UnitCategory entity.
+// If the UnitCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UnitCategoryMutation) OldDescription(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *UnitCategoryMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[unitcategory.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *UnitCategoryMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[unitcategory.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *UnitCategoryMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, unitcategory.FieldDescription)
+}
+
+// AddUnitIDs adds the "units" edge to the Unit entity by ids.
+func (m *UnitCategoryMutation) AddUnitIDs(ids ...uint32) {
+	if m.units == nil {
+		m.units = make(map[uint32]struct{})
+	}
+	for i := range ids {
+		m.units[ids[i]] = struct{}{}
+	}
+}
+
+// ClearUnits clears the "units" edge to the Unit entity.
+func (m *UnitCategoryMutation) ClearUnits() {
+	m.clearedunits = true
+}
+
+// UnitsCleared reports if the "units" edge to the Unit entity was cleared.
+func (m *UnitCategoryMutation) UnitsCleared() bool {
+	return m.clearedunits
+}
+
+// RemoveUnitIDs removes the "units" edge to the Unit entity by IDs.
+func (m *UnitCategoryMutation) RemoveUnitIDs(ids ...uint32) {
+	if m.removedunits == nil {
+		m.removedunits = make(map[uint32]struct{})
+	}
+	for i := range ids {
+		delete(m.units, ids[i])
+		m.removedunits[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedUnits returns the removed IDs of the "units" edge to the Unit entity.
+func (m *UnitCategoryMutation) RemovedUnitsIDs() (ids []uint32) {
+	for id := range m.removedunits {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// UnitsIDs returns the "units" edge IDs in the mutation.
+func (m *UnitCategoryMutation) UnitsIDs() (ids []uint32) {
+	for id := range m.units {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetUnits resets all changes to the "units" edge.
+func (m *UnitCategoryMutation) ResetUnits() {
+	m.units = nil
+	m.clearedunits = false
+	m.removedunits = nil
+}
+
+// Where appends a list predicates to the UnitCategoryMutation builder.
+func (m *UnitCategoryMutation) Where(ps ...predicate.UnitCategory) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the UnitCategoryMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *UnitCategoryMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.UnitCategory, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *UnitCategoryMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *UnitCategoryMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (UnitCategory).
+func (m *UnitCategoryMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UnitCategoryMutation) Fields() []string {
+	fields := make([]string, 0, 16)
+	if m.created_at != nil {
+		fields = append(fields, unitcategory.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, unitcategory.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, unitcategory.FieldDeletedAt)
+	}
+	if m.created_by != nil {
+		fields = append(fields, unitcategory.FieldCreatedBy)
+	}
+	if m.updated_by != nil {
+		fields = append(fields, unitcategory.FieldUpdatedBy)
+	}
+	if m.deleted_by != nil {
+		fields = append(fields, unitcategory.FieldDeletedBy)
+	}
+	if m.is_enabled != nil {
+		fields = append(fields, unitcategory.FieldIsEnabled)
+	}
+	if m.sort_order != nil {
+		fields = append(fields, unitcategory.FieldSortOrder)
+	}
+	if m.tenant_id != nil {
+		fields = append(fields, unitcategory.FieldTenantID)
+	}
+	if m.code != nil {
+		fields = append(fields, unitcategory.FieldCode)
+	}
+	if m.name != nil {
+		fields = append(fields, unitcategory.FieldName)
+	}
+	if m.name_en != nil {
+		fields = append(fields, unitcategory.FieldNameEn)
+	}
+	if m.quantity != nil {
+		fields = append(fields, unitcategory.FieldQuantity)
+	}
+	if m.base_unit_symbol != nil {
+		fields = append(fields, unitcategory.FieldBaseUnitSymbol)
+	}
+	if m.icon != nil {
+		fields = append(fields, unitcategory.FieldIcon)
+	}
+	if m.description != nil {
+		fields = append(fields, unitcategory.FieldDescription)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UnitCategoryMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case unitcategory.FieldCreatedAt:
+		return m.CreatedAt()
+	case unitcategory.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case unitcategory.FieldDeletedAt:
+		return m.DeletedAt()
+	case unitcategory.FieldCreatedBy:
+		return m.CreatedBy()
+	case unitcategory.FieldUpdatedBy:
+		return m.UpdatedBy()
+	case unitcategory.FieldDeletedBy:
+		return m.DeletedBy()
+	case unitcategory.FieldIsEnabled:
+		return m.IsEnabled()
+	case unitcategory.FieldSortOrder:
+		return m.SortOrder()
+	case unitcategory.FieldTenantID:
+		return m.TenantID()
+	case unitcategory.FieldCode:
+		return m.Code()
+	case unitcategory.FieldName:
+		return m.Name()
+	case unitcategory.FieldNameEn:
+		return m.NameEn()
+	case unitcategory.FieldQuantity:
+		return m.Quantity()
+	case unitcategory.FieldBaseUnitSymbol:
+		return m.BaseUnitSymbol()
+	case unitcategory.FieldIcon:
+		return m.Icon()
+	case unitcategory.FieldDescription:
+		return m.Description()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UnitCategoryMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case unitcategory.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case unitcategory.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case unitcategory.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case unitcategory.FieldCreatedBy:
+		return m.OldCreatedBy(ctx)
+	case unitcategory.FieldUpdatedBy:
+		return m.OldUpdatedBy(ctx)
+	case unitcategory.FieldDeletedBy:
+		return m.OldDeletedBy(ctx)
+	case unitcategory.FieldIsEnabled:
+		return m.OldIsEnabled(ctx)
+	case unitcategory.FieldSortOrder:
+		return m.OldSortOrder(ctx)
+	case unitcategory.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case unitcategory.FieldCode:
+		return m.OldCode(ctx)
+	case unitcategory.FieldName:
+		return m.OldName(ctx)
+	case unitcategory.FieldNameEn:
+		return m.OldNameEn(ctx)
+	case unitcategory.FieldQuantity:
+		return m.OldQuantity(ctx)
+	case unitcategory.FieldBaseUnitSymbol:
+		return m.OldBaseUnitSymbol(ctx)
+	case unitcategory.FieldIcon:
+		return m.OldIcon(ctx)
+	case unitcategory.FieldDescription:
+		return m.OldDescription(ctx)
+	}
+	return nil, fmt.Errorf("unknown UnitCategory field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UnitCategoryMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case unitcategory.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case unitcategory.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case unitcategory.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case unitcategory.FieldCreatedBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedBy(v)
+		return nil
+	case unitcategory.FieldUpdatedBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedBy(v)
+		return nil
+	case unitcategory.FieldDeletedBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedBy(v)
+		return nil
+	case unitcategory.FieldIsEnabled:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsEnabled(v)
+		return nil
+	case unitcategory.FieldSortOrder:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSortOrder(v)
+		return nil
+	case unitcategory.FieldTenantID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case unitcategory.FieldCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCode(v)
+		return nil
+	case unitcategory.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case unitcategory.FieldNameEn:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNameEn(v)
+		return nil
+	case unitcategory.FieldQuantity:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetQuantity(v)
+		return nil
+	case unitcategory.FieldBaseUnitSymbol:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBaseUnitSymbol(v)
+		return nil
+	case unitcategory.FieldIcon:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIcon(v)
+		return nil
+	case unitcategory.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UnitCategory field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UnitCategoryMutation) AddedFields() []string {
+	var fields []string
+	if m.addcreated_by != nil {
+		fields = append(fields, unitcategory.FieldCreatedBy)
+	}
+	if m.addupdated_by != nil {
+		fields = append(fields, unitcategory.FieldUpdatedBy)
+	}
+	if m.adddeleted_by != nil {
+		fields = append(fields, unitcategory.FieldDeletedBy)
+	}
+	if m.addsort_order != nil {
+		fields = append(fields, unitcategory.FieldSortOrder)
+	}
+	if m.addtenant_id != nil {
+		fields = append(fields, unitcategory.FieldTenantID)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UnitCategoryMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case unitcategory.FieldCreatedBy:
+		return m.AddedCreatedBy()
+	case unitcategory.FieldUpdatedBy:
+		return m.AddedUpdatedBy()
+	case unitcategory.FieldDeletedBy:
+		return m.AddedDeletedBy()
+	case unitcategory.FieldSortOrder:
+		return m.AddedSortOrder()
+	case unitcategory.FieldTenantID:
+		return m.AddedTenantID()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UnitCategoryMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case unitcategory.FieldCreatedBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreatedBy(v)
+		return nil
+	case unitcategory.FieldUpdatedBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdatedBy(v)
+		return nil
+	case unitcategory.FieldDeletedBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedBy(v)
+		return nil
+	case unitcategory.FieldSortOrder:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSortOrder(v)
+		return nil
+	case unitcategory.FieldTenantID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTenantID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UnitCategory numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UnitCategoryMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(unitcategory.FieldCreatedAt) {
+		fields = append(fields, unitcategory.FieldCreatedAt)
+	}
+	if m.FieldCleared(unitcategory.FieldUpdatedAt) {
+		fields = append(fields, unitcategory.FieldUpdatedAt)
+	}
+	if m.FieldCleared(unitcategory.FieldDeletedAt) {
+		fields = append(fields, unitcategory.FieldDeletedAt)
+	}
+	if m.FieldCleared(unitcategory.FieldCreatedBy) {
+		fields = append(fields, unitcategory.FieldCreatedBy)
+	}
+	if m.FieldCleared(unitcategory.FieldUpdatedBy) {
+		fields = append(fields, unitcategory.FieldUpdatedBy)
+	}
+	if m.FieldCleared(unitcategory.FieldDeletedBy) {
+		fields = append(fields, unitcategory.FieldDeletedBy)
+	}
+	if m.FieldCleared(unitcategory.FieldIsEnabled) {
+		fields = append(fields, unitcategory.FieldIsEnabled)
+	}
+	if m.FieldCleared(unitcategory.FieldSortOrder) {
+		fields = append(fields, unitcategory.FieldSortOrder)
+	}
+	if m.FieldCleared(unitcategory.FieldTenantID) {
+		fields = append(fields, unitcategory.FieldTenantID)
+	}
+	if m.FieldCleared(unitcategory.FieldCode) {
+		fields = append(fields, unitcategory.FieldCode)
+	}
+	if m.FieldCleared(unitcategory.FieldName) {
+		fields = append(fields, unitcategory.FieldName)
+	}
+	if m.FieldCleared(unitcategory.FieldNameEn) {
+		fields = append(fields, unitcategory.FieldNameEn)
+	}
+	if m.FieldCleared(unitcategory.FieldQuantity) {
+		fields = append(fields, unitcategory.FieldQuantity)
+	}
+	if m.FieldCleared(unitcategory.FieldBaseUnitSymbol) {
+		fields = append(fields, unitcategory.FieldBaseUnitSymbol)
+	}
+	if m.FieldCleared(unitcategory.FieldIcon) {
+		fields = append(fields, unitcategory.FieldIcon)
+	}
+	if m.FieldCleared(unitcategory.FieldDescription) {
+		fields = append(fields, unitcategory.FieldDescription)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UnitCategoryMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UnitCategoryMutation) ClearField(name string) error {
+	switch name {
+	case unitcategory.FieldCreatedAt:
+		m.ClearCreatedAt()
+		return nil
+	case unitcategory.FieldUpdatedAt:
+		m.ClearUpdatedAt()
+		return nil
+	case unitcategory.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case unitcategory.FieldCreatedBy:
+		m.ClearCreatedBy()
+		return nil
+	case unitcategory.FieldUpdatedBy:
+		m.ClearUpdatedBy()
+		return nil
+	case unitcategory.FieldDeletedBy:
+		m.ClearDeletedBy()
+		return nil
+	case unitcategory.FieldIsEnabled:
+		m.ClearIsEnabled()
+		return nil
+	case unitcategory.FieldSortOrder:
+		m.ClearSortOrder()
+		return nil
+	case unitcategory.FieldTenantID:
+		m.ClearTenantID()
+		return nil
+	case unitcategory.FieldCode:
+		m.ClearCode()
+		return nil
+	case unitcategory.FieldName:
+		m.ClearName()
+		return nil
+	case unitcategory.FieldNameEn:
+		m.ClearNameEn()
+		return nil
+	case unitcategory.FieldQuantity:
+		m.ClearQuantity()
+		return nil
+	case unitcategory.FieldBaseUnitSymbol:
+		m.ClearBaseUnitSymbol()
+		return nil
+	case unitcategory.FieldIcon:
+		m.ClearIcon()
+		return nil
+	case unitcategory.FieldDescription:
+		m.ClearDescription()
+		return nil
+	}
+	return fmt.Errorf("unknown UnitCategory nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UnitCategoryMutation) ResetField(name string) error {
+	switch name {
+	case unitcategory.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case unitcategory.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case unitcategory.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case unitcategory.FieldCreatedBy:
+		m.ResetCreatedBy()
+		return nil
+	case unitcategory.FieldUpdatedBy:
+		m.ResetUpdatedBy()
+		return nil
+	case unitcategory.FieldDeletedBy:
+		m.ResetDeletedBy()
+		return nil
+	case unitcategory.FieldIsEnabled:
+		m.ResetIsEnabled()
+		return nil
+	case unitcategory.FieldSortOrder:
+		m.ResetSortOrder()
+		return nil
+	case unitcategory.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case unitcategory.FieldCode:
+		m.ResetCode()
+		return nil
+	case unitcategory.FieldName:
+		m.ResetName()
+		return nil
+	case unitcategory.FieldNameEn:
+		m.ResetNameEn()
+		return nil
+	case unitcategory.FieldQuantity:
+		m.ResetQuantity()
+		return nil
+	case unitcategory.FieldBaseUnitSymbol:
+		m.ResetBaseUnitSymbol()
+		return nil
+	case unitcategory.FieldIcon:
+		m.ResetIcon()
+		return nil
+	case unitcategory.FieldDescription:
+		m.ResetDescription()
+		return nil
+	}
+	return fmt.Errorf("unknown UnitCategory field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UnitCategoryMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.units != nil {
+		edges = append(edges, unitcategory.EdgeUnits)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UnitCategoryMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case unitcategory.EdgeUnits:
+		ids := make([]ent.Value, 0, len(m.units))
+		for id := range m.units {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UnitCategoryMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedunits != nil {
+		edges = append(edges, unitcategory.EdgeUnits)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UnitCategoryMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case unitcategory.EdgeUnits:
+		ids := make([]ent.Value, 0, len(m.removedunits))
+		for id := range m.removedunits {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UnitCategoryMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedunits {
+		edges = append(edges, unitcategory.EdgeUnits)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UnitCategoryMutation) EdgeCleared(name string) bool {
+	switch name {
+	case unitcategory.EdgeUnits:
+		return m.clearedunits
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UnitCategoryMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown UnitCategory unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UnitCategoryMutation) ResetEdge(name string) error {
+	switch name {
+	case unitcategory.EdgeUnits:
+		m.ResetUnits()
+		return nil
+	}
+	return fmt.Errorf("unknown UnitCategory edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.

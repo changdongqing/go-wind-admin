@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+import "thingmodel/service/v1/unit.proto";
+
+// 单位管理服务（BFF 层 REST）/ Unit admin service
+service UnitService {
+  // 分页查询单位列表 / List units
+  rpc List (pagination.PagingRequest) returns (thingmodel.service.v1.ListUnitResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/units"
+    };
+  }
+
+  // 查询单位详情 / Get unit
+  rpc Get (thingmodel.service.v1.GetUnitRequest) returns (thingmodel.service.v1.Unit) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/units/{id}"
+      additional_bindings {
+        get: "/admin/v1/thingmodel/units/code/{code}"
+      }
+    };
+  }
+
+  // 创建单位 / Create unit
+  rpc Create (thingmodel.service.v1.CreateUnitRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/units"
+      body: "*"
+    };
+  }
+
+  // 更新单位 / Update unit
+  rpc Update (thingmodel.service.v1.UpdateUnitRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/thingmodel/units/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除单位 / Delete unit
+  rpc Delete (thingmodel.service.v1.DeleteUnitRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/thingmodel/units"
+    };
+  }
+
+  // 按物理量分类查询单位（属性选单位下拉框用）/ List units by category
+  rpc ListByCategory (thingmodel.service.v1.ListUnitByCategoryRequest) returns (thingmodel.service.v1.ListUnitResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/unit-categories/{category_id}/units"
+    };
+  }
+
+  // 单位换算 / Convert unit value
+  rpc Convert (thingmodel.service.v1.ConvertUnitRequest) returns (thingmodel.service.v1.ConvertUnitResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/units:convert"
+      body: "*"
+    };
+  }
+}

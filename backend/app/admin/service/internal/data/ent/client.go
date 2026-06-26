@@ -44,6 +44,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
 	"go-wind-admin/app/admin/service/internal/data/ent/task"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+	"go-wind-admin/app/admin/service/internal/data/ent/unit"
+	"go-wind-admin/app/admin/service/internal/data/ent/unitcategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/user"
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
 	"go-wind-admin/app/admin/service/internal/data/ent/userorgunit"
@@ -127,6 +129,10 @@ type Client struct {
 	Task *TaskClient
 	// Tenant is the client for interacting with the Tenant builders.
 	Tenant *TenantClient
+	// Unit is the client for interacting with the Unit builders.
+	Unit *UnitClient
+	// UnitCategory is the client for interacting with the UnitCategory builders.
+	UnitCategory *UnitCategoryClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// UserCredential is the client for interacting with the UserCredential builders.
@@ -181,6 +187,8 @@ func (c *Client) init() {
 	c.RolePermission = NewRolePermissionClient(c.config)
 	c.Task = NewTaskClient(c.config)
 	c.Tenant = NewTenantClient(c.config)
+	c.Unit = NewUnitClient(c.config)
+	c.UnitCategory = NewUnitCategoryClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserCredential = NewUserCredentialClient(c.config)
 	c.UserOrgUnit = NewUserOrgUnitClient(c.config)
@@ -311,6 +319,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		RolePermission:           NewRolePermissionClient(cfg),
 		Task:                     NewTaskClient(cfg),
 		Tenant:                   NewTenantClient(cfg),
+		Unit:                     NewUnitClient(cfg),
+		UnitCategory:             NewUnitCategoryClient(cfg),
 		User:                     NewUserClient(cfg),
 		UserCredential:           NewUserCredentialClient(cfg),
 		UserOrgUnit:              NewUserOrgUnitClient(cfg),
@@ -368,6 +378,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		RolePermission:           NewRolePermissionClient(cfg),
 		Task:                     NewTaskClient(cfg),
 		Tenant:                   NewTenantClient(cfg),
+		Unit:                     NewUnitClient(cfg),
+		UnitCategory:             NewUnitCategoryClient(cfg),
 		User:                     NewUserClient(cfg),
 		UserCredential:           NewUserCredentialClient(cfg),
 		UserOrgUnit:              NewUserOrgUnitClient(cfg),
@@ -409,8 +421,8 @@ func (c *Client) Use(hooks ...Hook) {
 		c.Menu, c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
 		c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy,
 		c.PolicyEvaluationLog, c.Position, c.Role, c.RoleMetadata, c.RolePermission,
-		c.Task, c.Tenant, c.User, c.UserCredential, c.UserOrgUnit, c.UserPosition,
-		c.UserRole,
+		c.Task, c.Tenant, c.Unit, c.UnitCategory, c.User, c.UserCredential,
+		c.UserOrgUnit, c.UserPosition, c.UserRole,
 	} {
 		n.Use(hooks...)
 	}
@@ -427,8 +439,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.Menu, c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
 		c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy,
 		c.PolicyEvaluationLog, c.Position, c.Role, c.RoleMetadata, c.RolePermission,
-		c.Task, c.Tenant, c.User, c.UserCredential, c.UserOrgUnit, c.UserPosition,
-		c.UserRole,
+		c.Task, c.Tenant, c.Unit, c.UnitCategory, c.User, c.UserCredential,
+		c.UserOrgUnit, c.UserPosition, c.UserRole,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -503,6 +515,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Task.mutate(ctx, m)
 	case *TenantMutation:
 		return c.Tenant.mutate(ctx, m)
+	case *UnitMutation:
+		return c.Unit.mutate(ctx, m)
+	case *UnitCategoryMutation:
+		return c.UnitCategory.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	case *UserCredentialMutation:
@@ -5091,6 +5107,306 @@ func (c *TenantClient) mutate(ctx context.Context, m *TenantMutation) (Value, er
 	}
 }
 
+// UnitClient is a client for the Unit schema.
+type UnitClient struct {
+	config
+}
+
+// NewUnitClient returns a client for the Unit from the given config.
+func NewUnitClient(c config) *UnitClient {
+	return &UnitClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `unit.Hooks(f(g(h())))`.
+func (c *UnitClient) Use(hooks ...Hook) {
+	c.hooks.Unit = append(c.hooks.Unit, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `unit.Intercept(f(g(h())))`.
+func (c *UnitClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Unit = append(c.inters.Unit, interceptors...)
+}
+
+// Create returns a builder for creating a Unit entity.
+func (c *UnitClient) Create() *UnitCreate {
+	mutation := newUnitMutation(c.config, OpCreate)
+	return &UnitCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Unit entities.
+func (c *UnitClient) CreateBulk(builders ...*UnitCreate) *UnitCreateBulk {
+	return &UnitCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UnitClient) MapCreateBulk(slice any, setFunc func(*UnitCreate, int)) *UnitCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UnitCreateBulk{err: fmt.Errorf("calling to UnitClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UnitCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UnitCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Unit.
+func (c *UnitClient) Update() *UnitUpdate {
+	mutation := newUnitMutation(c.config, OpUpdate)
+	return &UnitUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UnitClient) UpdateOne(_m *Unit) *UnitUpdateOne {
+	mutation := newUnitMutation(c.config, OpUpdateOne, withUnit(_m))
+	return &UnitUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UnitClient) UpdateOneID(id uint32) *UnitUpdateOne {
+	mutation := newUnitMutation(c.config, OpUpdateOne, withUnitID(id))
+	return &UnitUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Unit.
+func (c *UnitClient) Delete() *UnitDelete {
+	mutation := newUnitMutation(c.config, OpDelete)
+	return &UnitDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UnitClient) DeleteOne(_m *Unit) *UnitDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UnitClient) DeleteOneID(id uint32) *UnitDeleteOne {
+	builder := c.Delete().Where(unit.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UnitDeleteOne{builder}
+}
+
+// Query returns a query builder for Unit.
+func (c *UnitClient) Query() *UnitQuery {
+	return &UnitQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUnit},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Unit entity by its id.
+func (c *UnitClient) Get(ctx context.Context, id uint32) (*Unit, error) {
+	return c.Query().Where(unit.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UnitClient) GetX(ctx context.Context, id uint32) *Unit {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCategory queries the category edge of a Unit.
+func (c *UnitClient) QueryCategory(_m *Unit) *UnitCategoryQuery {
+	query := (&UnitCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(unit.Table, unit.FieldID, id),
+			sqlgraph.To(unitcategory.Table, unitcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, unit.CategoryTable, unit.CategoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UnitClient) Hooks() []Hook {
+	hooks := c.hooks.Unit
+	return append(hooks[:len(hooks):len(hooks)], unit.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *UnitClient) Interceptors() []Interceptor {
+	return c.inters.Unit
+}
+
+func (c *UnitClient) mutate(ctx context.Context, m *UnitMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UnitCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UnitUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UnitUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UnitDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Unit mutation op: %q", m.Op())
+	}
+}
+
+// UnitCategoryClient is a client for the UnitCategory schema.
+type UnitCategoryClient struct {
+	config
+}
+
+// NewUnitCategoryClient returns a client for the UnitCategory from the given config.
+func NewUnitCategoryClient(c config) *UnitCategoryClient {
+	return &UnitCategoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `unitcategory.Hooks(f(g(h())))`.
+func (c *UnitCategoryClient) Use(hooks ...Hook) {
+	c.hooks.UnitCategory = append(c.hooks.UnitCategory, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `unitcategory.Intercept(f(g(h())))`.
+func (c *UnitCategoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UnitCategory = append(c.inters.UnitCategory, interceptors...)
+}
+
+// Create returns a builder for creating a UnitCategory entity.
+func (c *UnitCategoryClient) Create() *UnitCategoryCreate {
+	mutation := newUnitCategoryMutation(c.config, OpCreate)
+	return &UnitCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UnitCategory entities.
+func (c *UnitCategoryClient) CreateBulk(builders ...*UnitCategoryCreate) *UnitCategoryCreateBulk {
+	return &UnitCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UnitCategoryClient) MapCreateBulk(slice any, setFunc func(*UnitCategoryCreate, int)) *UnitCategoryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UnitCategoryCreateBulk{err: fmt.Errorf("calling to UnitCategoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UnitCategoryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UnitCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UnitCategory.
+func (c *UnitCategoryClient) Update() *UnitCategoryUpdate {
+	mutation := newUnitCategoryMutation(c.config, OpUpdate)
+	return &UnitCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UnitCategoryClient) UpdateOne(_m *UnitCategory) *UnitCategoryUpdateOne {
+	mutation := newUnitCategoryMutation(c.config, OpUpdateOne, withUnitCategory(_m))
+	return &UnitCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UnitCategoryClient) UpdateOneID(id uint32) *UnitCategoryUpdateOne {
+	mutation := newUnitCategoryMutation(c.config, OpUpdateOne, withUnitCategoryID(id))
+	return &UnitCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UnitCategory.
+func (c *UnitCategoryClient) Delete() *UnitCategoryDelete {
+	mutation := newUnitCategoryMutation(c.config, OpDelete)
+	return &UnitCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UnitCategoryClient) DeleteOne(_m *UnitCategory) *UnitCategoryDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UnitCategoryClient) DeleteOneID(id uint32) *UnitCategoryDeleteOne {
+	builder := c.Delete().Where(unitcategory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UnitCategoryDeleteOne{builder}
+}
+
+// Query returns a query builder for UnitCategory.
+func (c *UnitCategoryClient) Query() *UnitCategoryQuery {
+	return &UnitCategoryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUnitCategory},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UnitCategory entity by its id.
+func (c *UnitCategoryClient) Get(ctx context.Context, id uint32) (*UnitCategory, error) {
+	return c.Query().Where(unitcategory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UnitCategoryClient) GetX(ctx context.Context, id uint32) *UnitCategory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUnits queries the units edge of a UnitCategory.
+func (c *UnitCategoryClient) QueryUnits(_m *UnitCategory) *UnitQuery {
+	query := (&UnitClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(unitcategory.Table, unitcategory.FieldID, id),
+			sqlgraph.To(unit.Table, unit.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, unitcategory.UnitsTable, unitcategory.UnitsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UnitCategoryClient) Hooks() []Hook {
+	hooks := c.hooks.UnitCategory
+	return append(hooks[:len(hooks):len(hooks)], unitcategory.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *UnitCategoryClient) Interceptors() []Interceptor {
+	return c.inters.UnitCategory
+}
+
+func (c *UnitCategoryClient) mutate(ctx context.Context, m *UnitCategoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UnitCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UnitCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UnitCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UnitCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UnitCategory mutation op: %q", m.Op())
+	}
+}
+
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -5770,7 +6086,8 @@ type (
 		MembershipRole, Menu, OperationAuditLog, OrgUnit, Permission, PermissionApi,
 		PermissionAuditLog, PermissionGroup, PermissionMenu, PermissionPolicy,
 		PolicyEvaluationLog, Position, Role, RoleMetadata, RolePermission, Task,
-		Tenant, User, UserCredential, UserOrgUnit, UserPosition, UserRole []ent.Hook
+		Tenant, Unit, UnitCategory, User, UserCredential, UserOrgUnit, UserPosition,
+		UserRole []ent.Hook
 	}
 	inters struct {
 		Api, ApiAuditLog, DataAccessAuditLog, DictEntry, DictEntryI18n, DictType, File,
@@ -5779,7 +6096,7 @@ type (
 		MembershipRole, Menu, OperationAuditLog, OrgUnit, Permission, PermissionApi,
 		PermissionAuditLog, PermissionGroup, PermissionMenu, PermissionPolicy,
 		PolicyEvaluationLog, Position, Role, RoleMetadata, RolePermission, Task,
-		Tenant, User, UserCredential, UserOrgUnit, UserPosition,
+		Tenant, Unit, UnitCategory, User, UserCredential, UserOrgUnit, UserPosition,
 		UserRole []ent.Interceptor
 	}
 )

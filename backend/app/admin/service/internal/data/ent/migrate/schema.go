@@ -2377,6 +2377,139 @@ var (
 			},
 		},
 	}
+	// ThingmodelUnitsColumns holds the columns for the "thingmodel_units" table.
+	ThingmodelUnitsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
+		{Name: "sort_order", Type: field.TypeUint32, Nullable: true, Comment: "排序值（越小越靠前）", Default: 0},
+		{Name: "is_enabled", Type: field.TypeBool, Nullable: true, Comment: "是否启用", Default: true},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "code", Type: field.TypeString, Nullable: true, Comment: "单位编码，如 celsius（不可变）/ Unit code, immutable"},
+		{Name: "symbol", Type: field.TypeString, Nullable: true, Comment: "单位符号，如 ℃ / Unit symbol"},
+		{Name: "name", Type: field.TypeString, Nullable: true, Comment: "中文名 / Unit name (zh)"},
+		{Name: "name_en", Type: field.TypeString, Nullable: true, Comment: "英文名 / Unit name (en)"},
+		{Name: "is_base", Type: field.TypeBool, Comment: "是否基准单位（每分类唯一）/ Is base unit", Default: false},
+		{Name: "conversion_type", Type: field.TypeEnum, Nullable: true, Comment: "换算类型 / Conversion type", Enums: []string{"LINEAR", "AFFINE", "LOGARITHMIC", "CONDITIONAL", "NONE"}, Default: "LINEAR"},
+		{Name: "factor", Type: field.TypeFloat64, Comment: "线性系数 k（基准=原值·k+offset）/ Linear factor k", Default: 1},
+		{Name: "offset", Type: field.TypeFloat64, Comment: "偏移量 b（仅仿射非0）/ Offset b (affine only)", Default: 0},
+		{Name: "formula_expr", Type: field.TypeString, Nullable: true, Comment: "公式说明（仅展示）/ Formula description (display only)"},
+		{Name: "precision", Type: field.TypeInt32, Nullable: true, Comment: "建议显示精度（小数位）/ Display precision", Default: 2},
+		{Name: "is_si_unit", Type: field.TypeBool, Comment: "是否 SI 单位 / Is SI unit", Default: false},
+		{Name: "is_legal_unit", Type: field.TypeBool, Comment: "是否中国法定计量单位 / Is PRC legal unit", Default: false},
+		{Name: "reference_count", Type: field.TypeUint32, Comment: "被物模型属性引用次数（预留）/ Reference count (reserved)", Default: 0},
+		{Name: "category_id", Type: field.TypeUint32, Comment: "所属物理量分类ID / Category ID"},
+	}
+	// ThingmodelUnitsTable holds the schema information for the "thingmodel_units" table.
+	ThingmodelUnitsTable = &schema.Table{
+		Name:       "thingmodel_units",
+		Comment:    "物模型-单位表 / Thing model unit",
+		Columns:    ThingmodelUnitsColumns,
+		PrimaryKey: []*schema.Column{ThingmodelUnitsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "thingmodel_units_thingmodel_unit_categories_units",
+				Columns:    []*schema.Column{ThingmodelUnitsColumns[23]},
+				RefColumns: []*schema.Column{ThingmodelUnitCategoriesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_thingmodel_unit_tenant_code",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelUnitsColumns[9], ThingmodelUnitsColumns[10]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_tenant_category",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitsColumns[9], ThingmodelUnitsColumns[23]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_category_id",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitsColumns[23]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_category_base",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitsColumns[23], ThingmodelUnitsColumns[14]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_is_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitsColumns[8]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_conversion_type",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitsColumns[15]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitsColumns[9]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_symbol",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitsColumns[11]},
+			},
+		},
+	}
+	// ThingmodelUnitCategoriesColumns holds the columns for the "thingmodel_unit_categories" table.
+	ThingmodelUnitCategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
+		{Name: "is_enabled", Type: field.TypeBool, Nullable: true, Comment: "是否启用", Default: true},
+		{Name: "sort_order", Type: field.TypeUint32, Nullable: true, Comment: "排序值（越小越靠前）", Default: 0},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "code", Type: field.TypeString, Nullable: true, Comment: "物理量编码，如 temperature/pressure（不可变）/ Category code, immutable"},
+		{Name: "name", Type: field.TypeString, Nullable: true, Comment: "中文名，如 温度 / Category name (zh)"},
+		{Name: "name_en", Type: field.TypeString, Nullable: true, Comment: "英文名，如 Temperature / Category name (en)"},
+		{Name: "quantity", Type: field.TypeString, Nullable: true, Comment: "量纲/物理量名，如 热力学温度 / Quantity"},
+		{Name: "base_unit_symbol", Type: field.TypeString, Nullable: true, Comment: "基准单位符号（冗余展示，如 K）/ Base unit symbol (display only)"},
+		{Name: "icon", Type: field.TypeString, Nullable: true, Comment: "Iconify 图标名 / Iconify icon name"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "描述 / Description"},
+	}
+	// ThingmodelUnitCategoriesTable holds the schema information for the "thingmodel_unit_categories" table.
+	ThingmodelUnitCategoriesTable = &schema.Table{
+		Name:       "thingmodel_unit_categories",
+		Comment:    "物模型-物理量分类表 / Thing model unit category",
+		Columns:    ThingmodelUnitCategoriesColumns,
+		PrimaryKey: []*schema.Column{ThingmodelUnitCategoriesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_thingmodel_unit_cat_tenant_code",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelUnitCategoriesColumns[9], ThingmodelUnitCategoriesColumns[10]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_cat_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitCategoriesColumns[9]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_cat_is_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitCategoriesColumns[7]},
+			},
+			{
+				Name:    "idx_thingmodel_unit_cat_sort_order",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelUnitCategoriesColumns[8]},
+			},
+		},
+	}
 	// SysUsersColumns holds the columns for the "sys_users" table.
 	SysUsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -2833,6 +2966,8 @@ var (
 		SysRolePermissionsTable,
 		SysTasksTable,
 		SysTenantsTable,
+		ThingmodelUnitsTable,
+		ThingmodelUnitCategoriesTable,
 		SysUsersTable,
 		SysUserCredentialsTable,
 		SysUserOrgUnitsTable,
@@ -3009,6 +3144,17 @@ func init() {
 	}
 	SysTenantsTable.Annotation = &entsql.Annotation{
 		Table:     "sys_tenants",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	ThingmodelUnitsTable.ForeignKeys[0].RefTable = ThingmodelUnitCategoriesTable
+	ThingmodelUnitsTable.Annotation = &entsql.Annotation{
+		Table:     "thingmodel_units",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	ThingmodelUnitCategoriesTable.Annotation = &entsql.Annotation{
+		Table:     "thingmodel_unit_categories",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
 	}

@@ -37,6 +37,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
 	"go-wind-admin/app/admin/service/internal/data/ent/task"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+	"go-wind-admin/app/admin/service/internal/data/ent/unit"
+	"go-wind-admin/app/admin/service/internal/data/ent/unitcategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/user"
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
 	"go-wind-admin/app/admin/service/internal/data/ent/userorgunit"
@@ -51,7 +53,7 @@ import (
 
 // schemaGraph holds a representation of ent/schema at runtime.
 var schemaGraph = func() *sqlgraph.Schema {
-	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 38)}
+	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 40)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   api.Table,
@@ -1000,6 +1002,71 @@ var schemaGraph = func() *sqlgraph.Schema {
 	}
 	graph.Nodes[33] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
+			Table:   unit.Table,
+			Columns: unit.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUint32,
+				Column: unit.FieldID,
+			},
+		},
+		Type: "Unit",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			unit.FieldCreatedAt:      {Type: field.TypeTime, Column: unit.FieldCreatedAt},
+			unit.FieldUpdatedAt:      {Type: field.TypeTime, Column: unit.FieldUpdatedAt},
+			unit.FieldDeletedAt:      {Type: field.TypeTime, Column: unit.FieldDeletedAt},
+			unit.FieldCreatedBy:      {Type: field.TypeUint32, Column: unit.FieldCreatedBy},
+			unit.FieldUpdatedBy:      {Type: field.TypeUint32, Column: unit.FieldUpdatedBy},
+			unit.FieldDeletedBy:      {Type: field.TypeUint32, Column: unit.FieldDeletedBy},
+			unit.FieldSortOrder:      {Type: field.TypeUint32, Column: unit.FieldSortOrder},
+			unit.FieldIsEnabled:      {Type: field.TypeBool, Column: unit.FieldIsEnabled},
+			unit.FieldTenantID:       {Type: field.TypeUint32, Column: unit.FieldTenantID},
+			unit.FieldCategoryID:     {Type: field.TypeUint32, Column: unit.FieldCategoryID},
+			unit.FieldCode:           {Type: field.TypeString, Column: unit.FieldCode},
+			unit.FieldSymbol:         {Type: field.TypeString, Column: unit.FieldSymbol},
+			unit.FieldName:           {Type: field.TypeString, Column: unit.FieldName},
+			unit.FieldNameEn:         {Type: field.TypeString, Column: unit.FieldNameEn},
+			unit.FieldIsBase:         {Type: field.TypeBool, Column: unit.FieldIsBase},
+			unit.FieldConversionType: {Type: field.TypeEnum, Column: unit.FieldConversionType},
+			unit.FieldFactor:         {Type: field.TypeFloat64, Column: unit.FieldFactor},
+			unit.FieldOffset:         {Type: field.TypeFloat64, Column: unit.FieldOffset},
+			unit.FieldFormulaExpr:    {Type: field.TypeString, Column: unit.FieldFormulaExpr},
+			unit.FieldPrecision:      {Type: field.TypeInt32, Column: unit.FieldPrecision},
+			unit.FieldIsSiUnit:       {Type: field.TypeBool, Column: unit.FieldIsSiUnit},
+			unit.FieldIsLegalUnit:    {Type: field.TypeBool, Column: unit.FieldIsLegalUnit},
+			unit.FieldReferenceCount: {Type: field.TypeUint32, Column: unit.FieldReferenceCount},
+		},
+	}
+	graph.Nodes[34] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   unitcategory.Table,
+			Columns: unitcategory.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUint32,
+				Column: unitcategory.FieldID,
+			},
+		},
+		Type: "UnitCategory",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			unitcategory.FieldCreatedAt:      {Type: field.TypeTime, Column: unitcategory.FieldCreatedAt},
+			unitcategory.FieldUpdatedAt:      {Type: field.TypeTime, Column: unitcategory.FieldUpdatedAt},
+			unitcategory.FieldDeletedAt:      {Type: field.TypeTime, Column: unitcategory.FieldDeletedAt},
+			unitcategory.FieldCreatedBy:      {Type: field.TypeUint32, Column: unitcategory.FieldCreatedBy},
+			unitcategory.FieldUpdatedBy:      {Type: field.TypeUint32, Column: unitcategory.FieldUpdatedBy},
+			unitcategory.FieldDeletedBy:      {Type: field.TypeUint32, Column: unitcategory.FieldDeletedBy},
+			unitcategory.FieldIsEnabled:      {Type: field.TypeBool, Column: unitcategory.FieldIsEnabled},
+			unitcategory.FieldSortOrder:      {Type: field.TypeUint32, Column: unitcategory.FieldSortOrder},
+			unitcategory.FieldTenantID:       {Type: field.TypeUint32, Column: unitcategory.FieldTenantID},
+			unitcategory.FieldCode:           {Type: field.TypeString, Column: unitcategory.FieldCode},
+			unitcategory.FieldName:           {Type: field.TypeString, Column: unitcategory.FieldName},
+			unitcategory.FieldNameEn:         {Type: field.TypeString, Column: unitcategory.FieldNameEn},
+			unitcategory.FieldQuantity:       {Type: field.TypeString, Column: unitcategory.FieldQuantity},
+			unitcategory.FieldBaseUnitSymbol: {Type: field.TypeString, Column: unitcategory.FieldBaseUnitSymbol},
+			unitcategory.FieldIcon:           {Type: field.TypeString, Column: unitcategory.FieldIcon},
+			unitcategory.FieldDescription:    {Type: field.TypeString, Column: unitcategory.FieldDescription},
+		},
+	}
+	graph.Nodes[35] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
 			Table:   user.Table,
 			Columns: user.Columns,
 			ID: &sqlgraph.FieldSpec{
@@ -1034,7 +1101,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			user.FieldStatus:      {Type: field.TypeEnum, Column: user.FieldStatus},
 		},
 	}
-	graph.Nodes[34] = &sqlgraph.Node{
+	graph.Nodes[36] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   usercredential.Table,
 			Columns: usercredential.Columns,
@@ -1067,7 +1134,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			usercredential.FieldResetTokenUsedAt:       {Type: field.TypeTime, Column: usercredential.FieldResetTokenUsedAt},
 		},
 	}
-	graph.Nodes[35] = &sqlgraph.Node{
+	graph.Nodes[37] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   userorgunit.Table,
 			Columns: userorgunit.Columns,
@@ -1097,7 +1164,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			userorgunit.FieldStatus:     {Type: field.TypeEnum, Column: userorgunit.FieldStatus},
 		},
 	}
-	graph.Nodes[36] = &sqlgraph.Node{
+	graph.Nodes[38] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   userposition.Table,
 			Columns: userposition.Columns,
@@ -1126,7 +1193,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			userposition.FieldStatus:     {Type: field.TypeEnum, Column: userposition.FieldStatus},
 		},
 	}
-	graph.Nodes[37] = &sqlgraph.Node{
+	graph.Nodes[39] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   userrole.Table,
 			Columns: userrole.Columns,
@@ -1273,6 +1340,30 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		"PermissionGroup",
 		"PermissionGroup",
+	)
+	graph.MustAddE(
+		"category",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   unit.CategoryTable,
+			Columns: []string{unit.CategoryColumn},
+			Bidi:    false,
+		},
+		"Unit",
+		"UnitCategory",
+	)
+	graph.MustAddE(
+		"units",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   unitcategory.UnitsTable,
+			Columns: []string{unitcategory.UnitsColumn},
+			Bidi:    false,
+		},
+		"UnitCategory",
+		"Unit",
 	)
 	return graph
 }()
@@ -5329,6 +5420,309 @@ func (f *TenantFilter) WhereExpiredAt(p entql.TimeP) {
 }
 
 // addPredicate implements the predicateAdder interface.
+func (_q *UnitQuery) addPredicate(pred func(s *sql.Selector)) {
+	_q.predicates = append(_q.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the UnitQuery builder.
+func (_q *UnitQuery) Filter() *UnitFilter {
+	return &UnitFilter{config: _q.config, predicateAdder: _q}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *UnitMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the UnitMutation builder.
+func (m *UnitMutation) Filter() *UnitFilter {
+	return &UnitFilter{config: m.config, predicateAdder: m}
+}
+
+// UnitFilter provides a generic filtering capability at runtime for UnitQuery.
+type UnitFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *UnitFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[33].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *UnitFilter) WhereID(p entql.Uint32P) {
+	f.Where(p.Field(unit.FieldID))
+}
+
+// WhereCreatedAt applies the entql time.Time predicate on the created_at field.
+func (f *UnitFilter) WhereCreatedAt(p entql.TimeP) {
+	f.Where(p.Field(unit.FieldCreatedAt))
+}
+
+// WhereUpdatedAt applies the entql time.Time predicate on the updated_at field.
+func (f *UnitFilter) WhereUpdatedAt(p entql.TimeP) {
+	f.Where(p.Field(unit.FieldUpdatedAt))
+}
+
+// WhereDeletedAt applies the entql time.Time predicate on the deleted_at field.
+func (f *UnitFilter) WhereDeletedAt(p entql.TimeP) {
+	f.Where(p.Field(unit.FieldDeletedAt))
+}
+
+// WhereCreatedBy applies the entql uint32 predicate on the created_by field.
+func (f *UnitFilter) WhereCreatedBy(p entql.Uint32P) {
+	f.Where(p.Field(unit.FieldCreatedBy))
+}
+
+// WhereUpdatedBy applies the entql uint32 predicate on the updated_by field.
+func (f *UnitFilter) WhereUpdatedBy(p entql.Uint32P) {
+	f.Where(p.Field(unit.FieldUpdatedBy))
+}
+
+// WhereDeletedBy applies the entql uint32 predicate on the deleted_by field.
+func (f *UnitFilter) WhereDeletedBy(p entql.Uint32P) {
+	f.Where(p.Field(unit.FieldDeletedBy))
+}
+
+// WhereSortOrder applies the entql uint32 predicate on the sort_order field.
+func (f *UnitFilter) WhereSortOrder(p entql.Uint32P) {
+	f.Where(p.Field(unit.FieldSortOrder))
+}
+
+// WhereIsEnabled applies the entql bool predicate on the is_enabled field.
+func (f *UnitFilter) WhereIsEnabled(p entql.BoolP) {
+	f.Where(p.Field(unit.FieldIsEnabled))
+}
+
+// WhereTenantID applies the entql uint32 predicate on the tenant_id field.
+func (f *UnitFilter) WhereTenantID(p entql.Uint32P) {
+	f.Where(p.Field(unit.FieldTenantID))
+}
+
+// WhereCategoryID applies the entql uint32 predicate on the category_id field.
+func (f *UnitFilter) WhereCategoryID(p entql.Uint32P) {
+	f.Where(p.Field(unit.FieldCategoryID))
+}
+
+// WhereCode applies the entql string predicate on the code field.
+func (f *UnitFilter) WhereCode(p entql.StringP) {
+	f.Where(p.Field(unit.FieldCode))
+}
+
+// WhereSymbol applies the entql string predicate on the symbol field.
+func (f *UnitFilter) WhereSymbol(p entql.StringP) {
+	f.Where(p.Field(unit.FieldSymbol))
+}
+
+// WhereName applies the entql string predicate on the name field.
+func (f *UnitFilter) WhereName(p entql.StringP) {
+	f.Where(p.Field(unit.FieldName))
+}
+
+// WhereNameEn applies the entql string predicate on the name_en field.
+func (f *UnitFilter) WhereNameEn(p entql.StringP) {
+	f.Where(p.Field(unit.FieldNameEn))
+}
+
+// WhereIsBase applies the entql bool predicate on the is_base field.
+func (f *UnitFilter) WhereIsBase(p entql.BoolP) {
+	f.Where(p.Field(unit.FieldIsBase))
+}
+
+// WhereConversionType applies the entql string predicate on the conversion_type field.
+func (f *UnitFilter) WhereConversionType(p entql.StringP) {
+	f.Where(p.Field(unit.FieldConversionType))
+}
+
+// WhereFactor applies the entql float64 predicate on the factor field.
+func (f *UnitFilter) WhereFactor(p entql.Float64P) {
+	f.Where(p.Field(unit.FieldFactor))
+}
+
+// WhereOffset applies the entql float64 predicate on the offset field.
+func (f *UnitFilter) WhereOffset(p entql.Float64P) {
+	f.Where(p.Field(unit.FieldOffset))
+}
+
+// WhereFormulaExpr applies the entql string predicate on the formula_expr field.
+func (f *UnitFilter) WhereFormulaExpr(p entql.StringP) {
+	f.Where(p.Field(unit.FieldFormulaExpr))
+}
+
+// WherePrecision applies the entql int32 predicate on the precision field.
+func (f *UnitFilter) WherePrecision(p entql.Int32P) {
+	f.Where(p.Field(unit.FieldPrecision))
+}
+
+// WhereIsSiUnit applies the entql bool predicate on the is_si_unit field.
+func (f *UnitFilter) WhereIsSiUnit(p entql.BoolP) {
+	f.Where(p.Field(unit.FieldIsSiUnit))
+}
+
+// WhereIsLegalUnit applies the entql bool predicate on the is_legal_unit field.
+func (f *UnitFilter) WhereIsLegalUnit(p entql.BoolP) {
+	f.Where(p.Field(unit.FieldIsLegalUnit))
+}
+
+// WhereReferenceCount applies the entql uint32 predicate on the reference_count field.
+func (f *UnitFilter) WhereReferenceCount(p entql.Uint32P) {
+	f.Where(p.Field(unit.FieldReferenceCount))
+}
+
+// WhereHasCategory applies a predicate to check if query has an edge category.
+func (f *UnitFilter) WhereHasCategory() {
+	f.Where(entql.HasEdge("category"))
+}
+
+// WhereHasCategoryWith applies a predicate to check if query has an edge category with a given conditions (other predicates).
+func (f *UnitFilter) WhereHasCategoryWith(preds ...predicate.UnitCategory) {
+	f.Where(entql.HasEdgeWith("category", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (_q *UnitCategoryQuery) addPredicate(pred func(s *sql.Selector)) {
+	_q.predicates = append(_q.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the UnitCategoryQuery builder.
+func (_q *UnitCategoryQuery) Filter() *UnitCategoryFilter {
+	return &UnitCategoryFilter{config: _q.config, predicateAdder: _q}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *UnitCategoryMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the UnitCategoryMutation builder.
+func (m *UnitCategoryMutation) Filter() *UnitCategoryFilter {
+	return &UnitCategoryFilter{config: m.config, predicateAdder: m}
+}
+
+// UnitCategoryFilter provides a generic filtering capability at runtime for UnitCategoryQuery.
+type UnitCategoryFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *UnitCategoryFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[34].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *UnitCategoryFilter) WhereID(p entql.Uint32P) {
+	f.Where(p.Field(unitcategory.FieldID))
+}
+
+// WhereCreatedAt applies the entql time.Time predicate on the created_at field.
+func (f *UnitCategoryFilter) WhereCreatedAt(p entql.TimeP) {
+	f.Where(p.Field(unitcategory.FieldCreatedAt))
+}
+
+// WhereUpdatedAt applies the entql time.Time predicate on the updated_at field.
+func (f *UnitCategoryFilter) WhereUpdatedAt(p entql.TimeP) {
+	f.Where(p.Field(unitcategory.FieldUpdatedAt))
+}
+
+// WhereDeletedAt applies the entql time.Time predicate on the deleted_at field.
+func (f *UnitCategoryFilter) WhereDeletedAt(p entql.TimeP) {
+	f.Where(p.Field(unitcategory.FieldDeletedAt))
+}
+
+// WhereCreatedBy applies the entql uint32 predicate on the created_by field.
+func (f *UnitCategoryFilter) WhereCreatedBy(p entql.Uint32P) {
+	f.Where(p.Field(unitcategory.FieldCreatedBy))
+}
+
+// WhereUpdatedBy applies the entql uint32 predicate on the updated_by field.
+func (f *UnitCategoryFilter) WhereUpdatedBy(p entql.Uint32P) {
+	f.Where(p.Field(unitcategory.FieldUpdatedBy))
+}
+
+// WhereDeletedBy applies the entql uint32 predicate on the deleted_by field.
+func (f *UnitCategoryFilter) WhereDeletedBy(p entql.Uint32P) {
+	f.Where(p.Field(unitcategory.FieldDeletedBy))
+}
+
+// WhereIsEnabled applies the entql bool predicate on the is_enabled field.
+func (f *UnitCategoryFilter) WhereIsEnabled(p entql.BoolP) {
+	f.Where(p.Field(unitcategory.FieldIsEnabled))
+}
+
+// WhereSortOrder applies the entql uint32 predicate on the sort_order field.
+func (f *UnitCategoryFilter) WhereSortOrder(p entql.Uint32P) {
+	f.Where(p.Field(unitcategory.FieldSortOrder))
+}
+
+// WhereTenantID applies the entql uint32 predicate on the tenant_id field.
+func (f *UnitCategoryFilter) WhereTenantID(p entql.Uint32P) {
+	f.Where(p.Field(unitcategory.FieldTenantID))
+}
+
+// WhereCode applies the entql string predicate on the code field.
+func (f *UnitCategoryFilter) WhereCode(p entql.StringP) {
+	f.Where(p.Field(unitcategory.FieldCode))
+}
+
+// WhereName applies the entql string predicate on the name field.
+func (f *UnitCategoryFilter) WhereName(p entql.StringP) {
+	f.Where(p.Field(unitcategory.FieldName))
+}
+
+// WhereNameEn applies the entql string predicate on the name_en field.
+func (f *UnitCategoryFilter) WhereNameEn(p entql.StringP) {
+	f.Where(p.Field(unitcategory.FieldNameEn))
+}
+
+// WhereQuantity applies the entql string predicate on the quantity field.
+func (f *UnitCategoryFilter) WhereQuantity(p entql.StringP) {
+	f.Where(p.Field(unitcategory.FieldQuantity))
+}
+
+// WhereBaseUnitSymbol applies the entql string predicate on the base_unit_symbol field.
+func (f *UnitCategoryFilter) WhereBaseUnitSymbol(p entql.StringP) {
+	f.Where(p.Field(unitcategory.FieldBaseUnitSymbol))
+}
+
+// WhereIcon applies the entql string predicate on the icon field.
+func (f *UnitCategoryFilter) WhereIcon(p entql.StringP) {
+	f.Where(p.Field(unitcategory.FieldIcon))
+}
+
+// WhereDescription applies the entql string predicate on the description field.
+func (f *UnitCategoryFilter) WhereDescription(p entql.StringP) {
+	f.Where(p.Field(unitcategory.FieldDescription))
+}
+
+// WhereHasUnits applies a predicate to check if query has an edge units.
+func (f *UnitCategoryFilter) WhereHasUnits() {
+	f.Where(entql.HasEdge("units"))
+}
+
+// WhereHasUnitsWith applies a predicate to check if query has an edge units with a given conditions (other predicates).
+func (f *UnitCategoryFilter) WhereHasUnitsWith(preds ...predicate.Unit) {
+	f.Where(entql.HasEdgeWith("units", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// addPredicate implements the predicateAdder interface.
 func (_q *UserQuery) addPredicate(pred func(s *sql.Selector)) {
 	_q.predicates = append(_q.predicates, pred)
 }
@@ -5357,7 +5751,7 @@ type UserFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[33].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[35].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -5512,7 +5906,7 @@ type UserCredentialFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserCredentialFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[34].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[36].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -5652,7 +6046,7 @@ type UserOrgUnitFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserOrgUnitFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[35].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[37].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -5777,7 +6171,7 @@ type UserPositionFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserPositionFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[36].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[38].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -5897,7 +6291,7 @@ type UserRoleFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserRoleFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[37].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[39].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})

@@ -52,6 +52,9 @@ managed:
     - file_option: go_package
       path: resource/service/v1
       value: go-wind-admin/api/gen/go/permission/service/v1;resourcepb
+    - file_option: go_package
+      path: thingmodel/service/v1
+      value: go-wind-admin/api/gen/go/thingmodel/service/v1;thingmodelpb
 
 plugins:
   # generate go code

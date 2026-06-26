@@ -105,6 +105,12 @@ type Task func(*sql.Selector)
 // Tenant is the predicate function for tenant builders.
 type Tenant func(*sql.Selector)
 
+// Unit is the predicate function for unit builders.
+type Unit func(*sql.Selector)
+
+// UnitCategory is the predicate function for unitcategory builders.
+type UnitCategory func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
 
