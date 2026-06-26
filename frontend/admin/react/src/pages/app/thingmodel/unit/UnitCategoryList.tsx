@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import type { ProColumns, ActionType } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import { Button, Popconfirm, Tag, App } from 'antd';
+import { Button, Popconfirm, Tag, App, theme } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +28,7 @@ const UnitCategoryList: React.FC<UnitCategoryListProps> = ({
   onCategorySelect,
 }) => {
   const { t } = useTranslation('unit-category');
+  const { token } = theme.useToken();
   const actionRef = useRef<ActionType>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const tableScrollY = useProTableScrollY(containerRef);
@@ -185,17 +186,22 @@ const UnitCategoryList: React.FC<UnitCategoryListProps> = ({
           bordered
           cardBordered={false}
           scroll={{ y: tableScrollY, x: 500 }}
-          onRow={(record) => ({
-            onClick: () => onCategorySelect(record.id, record.name),
-            style: {
-              cursor: 'pointer',
-              outline:
-                record.id === currentCategoryId
-                  ? '2px solid var(--ant-color-primary)'
-                  : undefined,
-              outlineOffset: '-2px',
-            },
-          })}
+          rowClassName={(record) =>
+            record.id === currentCategoryId ? 'unit-category-row-selected' : ''
+          }
+          onRow={(record) => {
+            const isSelected = record.id === currentCategoryId;
+            return {
+              onClick: () => onCategorySelect(record.id, record.name),
+              style: {
+                cursor: 'pointer',
+                // 通过 CSS 自定义属性把 antd token 颜色值注入到 <tr>，
+                // Less 中用 var(--unit-selected-bg) 读取，确保主题切换时颜色正确
+                '--unit-selected-bg': isSelected ? token.colorPrimaryBgHover : undefined,
+                '--unit-selected-bg-hover': isSelected ? token.colorPrimaryActive : undefined,
+              } as React.CSSProperties,
+            };
+          }}
         />
       </div>
 

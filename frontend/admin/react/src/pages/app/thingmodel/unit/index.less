@@ -1,0 +1,30 @@
+/**
+ * 单位管理页面样式 / Unit management page styles.
+ *
+ * 行选中高亮：左侧物理量分类列表点击行后保持选中态，与右侧单位列表形成视觉对应。
+ * Row-selected highlight: persists the clicked-row indicator on the left list so
+ * the right-side unit panel obviously corresponds.
+ *
+ * 通过 onRow style 将 antd token 颜色值以 CSS 自定义属性（--unit-selected-bg）注入到 <tr>，
+ * Less 中用 var() 读取，确保深浅色模式与全局主题切换都正确响应。
+ */
+// 选中行样式：
+// - 通过 onRow style 的 CSS 自定义属性（--unit-selected-bg / --unit-selected-bg-hover）
+//   将 antd token 颜色值注入到 <tr>，Less 中用 var() 读取
+// - 直接在 td 上设置 background-color（不依赖 inherit），用 !important 覆盖 antd CSS-in-JS
+// - 左侧蓝色竖条通过 box-shadow 实现
+// 使用 .ant-table-row 双 class 提权，确保覆盖 antd CSS-in-JS
+.ant-table-row.unit-category-row-selected {
+  > td {
+    background-color: var(--unit-selected-bg) !important;
+  }
+
+  &:hover > td {
+    background-color: var(--unit-selected-bg-hover) !important;
+  }
+
+  // 左侧强调条（4px 主色），扫一眼就知道选中的是哪一行
+  > td:first-child {
+    box-shadow: inset 4px 0 0 0 var(--ant-color-primary, #1677ff);
+  }
+}

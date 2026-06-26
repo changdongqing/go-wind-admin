@@ -5,6 +5,8 @@ import ContentContainer from '@/layouts/components/PageContainer/ContentContaine
 import UnitCategoryList from './UnitCategoryList';
 import UnitList from './UnitList';
 
+import './index.less';
+
 /**
  * 单位管理页面 / Unit management page.
  *
