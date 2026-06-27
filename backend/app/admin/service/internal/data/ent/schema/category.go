@@ -116,12 +116,25 @@ func (Category) Mixin() []ent.Mixin {
 }
 
 // Edges of the Category. 自引用（父 → 多子）；删除受限（RESTRICT）。
+// 反向 edges:
+//   - default_features ← CategoryDefaultFeature.category（一对多；删除分类受限于条目存在）
+//   - products         ← Product.category（一对多；删除分类受限于产品存在）
 func (Category) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("children", Category.Type).
 			From("parent").
 			Field("parent_id").
 			Unique().
+			Annotations(entsql.Annotation{
+				OnDelete: entsql.Restrict,
+			}),
+
+		// ===== 模型管理新增的反向 edges / Reverse edges for model management =====
+		edge.To("default_features", CategoryDefaultFeature.Type).
+			Annotations(entsql.Annotation{
+				OnDelete: entsql.Restrict,
+			}),
+		edge.To("products", Product.Type).
 			Annotations(entsql.Annotation{
 				OnDelete: entsql.Restrict,
 			}),

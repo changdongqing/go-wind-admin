@@ -18,6 +18,8 @@ type Tx struct {
 	ApiAuditLog *ApiAuditLogClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
+	// CategoryDefaultFeature is the client for interacting with the CategoryDefaultFeature builders.
+	CategoryDefaultFeature *CategoryDefaultFeatureClient
 	// DataAccessAuditLog is the client for interacting with the DataAccessAuditLog builders.
 	DataAccessAuditLog *DataAccessAuditLogClient
 	// DictEntry is the client for interacting with the DictEntry builders.
@@ -72,6 +74,10 @@ type Tx struct {
 	PolicyEvaluationLog *PolicyEvaluationLogClient
 	// Position is the client for interacting with the Position builders.
 	Position *PositionClient
+	// Product is the client for interacting with the Product builders.
+	Product *ProductClient
+	// ProductFeature is the client for interacting with the ProductFeature builders.
+	ProductFeature *ProductFeatureClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// RoleMetadata is the client for interacting with the RoleMetadata builders.
@@ -230,6 +236,7 @@ func (tx *Tx) init() {
 	tx.Api = NewAPIClient(tx.config)
 	tx.ApiAuditLog = NewApiAuditLogClient(tx.config)
 	tx.Category = NewCategoryClient(tx.config)
+	tx.CategoryDefaultFeature = NewCategoryDefaultFeatureClient(tx.config)
 	tx.DataAccessAuditLog = NewDataAccessAuditLogClient(tx.config)
 	tx.DictEntry = NewDictEntryClient(tx.config)
 	tx.DictEntryI18n = NewDictEntryI18nClient(tx.config)
@@ -257,6 +264,8 @@ func (tx *Tx) init() {
 	tx.PermissionPolicy = NewPermissionPolicyClient(tx.config)
 	tx.PolicyEvaluationLog = NewPolicyEvaluationLogClient(tx.config)
 	tx.Position = NewPositionClient(tx.config)
+	tx.Product = NewProductClient(tx.config)
+	tx.ProductFeature = NewProductFeatureClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.RoleMetadata = NewRoleMetadataClient(tx.config)
 	tx.RolePermission = NewRolePermissionClient(tx.config)

@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"go-wind-admin/app/admin/service/internal/data/ent/category"
+	"go-wind-admin/app/admin/service/internal/data/ent/categorydefaultfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
+	"go-wind-admin/app/admin/service/internal/data/ent/product"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -371,6 +373,36 @@ func (_u *CategoryUpdate) AddChildren(v ...*Category) *CategoryUpdate {
 	return _u.AddChildIDs(ids...)
 }
 
+// AddDefaultFeatureIDs adds the "default_features" edge to the CategoryDefaultFeature entity by IDs.
+func (_u *CategoryUpdate) AddDefaultFeatureIDs(ids ...uint32) *CategoryUpdate {
+	_u.mutation.AddDefaultFeatureIDs(ids...)
+	return _u
+}
+
+// AddDefaultFeatures adds the "default_features" edges to the CategoryDefaultFeature entity.
+func (_u *CategoryUpdate) AddDefaultFeatures(v ...*CategoryDefaultFeature) *CategoryUpdate {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDefaultFeatureIDs(ids...)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (_u *CategoryUpdate) AddProductIDs(ids ...uint32) *CategoryUpdate {
+	_u.mutation.AddProductIDs(ids...)
+	return _u
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (_u *CategoryUpdate) AddProducts(v ...*Product) *CategoryUpdate {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddProductIDs(ids...)
+}
+
 // Mutation returns the CategoryMutation object of the builder.
 func (_u *CategoryUpdate) Mutation() *CategoryMutation {
 	return _u.mutation
@@ -401,6 +433,48 @@ func (_u *CategoryUpdate) RemoveChildren(v ...*Category) *CategoryUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveChildIDs(ids...)
+}
+
+// ClearDefaultFeatures clears all "default_features" edges to the CategoryDefaultFeature entity.
+func (_u *CategoryUpdate) ClearDefaultFeatures() *CategoryUpdate {
+	_u.mutation.ClearDefaultFeatures()
+	return _u
+}
+
+// RemoveDefaultFeatureIDs removes the "default_features" edge to CategoryDefaultFeature entities by IDs.
+func (_u *CategoryUpdate) RemoveDefaultFeatureIDs(ids ...uint32) *CategoryUpdate {
+	_u.mutation.RemoveDefaultFeatureIDs(ids...)
+	return _u
+}
+
+// RemoveDefaultFeatures removes "default_features" edges to CategoryDefaultFeature entities.
+func (_u *CategoryUpdate) RemoveDefaultFeatures(v ...*CategoryDefaultFeature) *CategoryUpdate {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDefaultFeatureIDs(ids...)
+}
+
+// ClearProducts clears all "products" edges to the Product entity.
+func (_u *CategoryUpdate) ClearProducts() *CategoryUpdate {
+	_u.mutation.ClearProducts()
+	return _u
+}
+
+// RemoveProductIDs removes the "products" edge to Product entities by IDs.
+func (_u *CategoryUpdate) RemoveProductIDs(ids ...uint32) *CategoryUpdate {
+	_u.mutation.RemoveProductIDs(ids...)
+	return _u
+}
+
+// RemoveProducts removes "products" edges to Product entities.
+func (_u *CategoryUpdate) RemoveProducts(v ...*Product) *CategoryUpdate {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveProductIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -638,6 +712,96 @@ func (_u *CategoryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DefaultFeaturesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.DefaultFeaturesTable,
+			Columns: []string{category.DefaultFeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDefaultFeaturesIDs(); len(nodes) > 0 && !_u.mutation.DefaultFeaturesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.DefaultFeaturesTable,
+			Columns: []string{category.DefaultFeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DefaultFeaturesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.DefaultFeaturesTable,
+			Columns: []string{category.DefaultFeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.ProductsTable,
+			Columns: []string{category.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedProductsIDs(); len(nodes) > 0 && !_u.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.ProductsTable,
+			Columns: []string{category.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.ProductsTable,
+			Columns: []string{category.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {
@@ -1009,6 +1173,36 @@ func (_u *CategoryUpdateOne) AddChildren(v ...*Category) *CategoryUpdateOne {
 	return _u.AddChildIDs(ids...)
 }
 
+// AddDefaultFeatureIDs adds the "default_features" edge to the CategoryDefaultFeature entity by IDs.
+func (_u *CategoryUpdateOne) AddDefaultFeatureIDs(ids ...uint32) *CategoryUpdateOne {
+	_u.mutation.AddDefaultFeatureIDs(ids...)
+	return _u
+}
+
+// AddDefaultFeatures adds the "default_features" edges to the CategoryDefaultFeature entity.
+func (_u *CategoryUpdateOne) AddDefaultFeatures(v ...*CategoryDefaultFeature) *CategoryUpdateOne {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDefaultFeatureIDs(ids...)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (_u *CategoryUpdateOne) AddProductIDs(ids ...uint32) *CategoryUpdateOne {
+	_u.mutation.AddProductIDs(ids...)
+	return _u
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (_u *CategoryUpdateOne) AddProducts(v ...*Product) *CategoryUpdateOne {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddProductIDs(ids...)
+}
+
 // Mutation returns the CategoryMutation object of the builder.
 func (_u *CategoryUpdateOne) Mutation() *CategoryMutation {
 	return _u.mutation
@@ -1039,6 +1233,48 @@ func (_u *CategoryUpdateOne) RemoveChildren(v ...*Category) *CategoryUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveChildIDs(ids...)
+}
+
+// ClearDefaultFeatures clears all "default_features" edges to the CategoryDefaultFeature entity.
+func (_u *CategoryUpdateOne) ClearDefaultFeatures() *CategoryUpdateOne {
+	_u.mutation.ClearDefaultFeatures()
+	return _u
+}
+
+// RemoveDefaultFeatureIDs removes the "default_features" edge to CategoryDefaultFeature entities by IDs.
+func (_u *CategoryUpdateOne) RemoveDefaultFeatureIDs(ids ...uint32) *CategoryUpdateOne {
+	_u.mutation.RemoveDefaultFeatureIDs(ids...)
+	return _u
+}
+
+// RemoveDefaultFeatures removes "default_features" edges to CategoryDefaultFeature entities.
+func (_u *CategoryUpdateOne) RemoveDefaultFeatures(v ...*CategoryDefaultFeature) *CategoryUpdateOne {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDefaultFeatureIDs(ids...)
+}
+
+// ClearProducts clears all "products" edges to the Product entity.
+func (_u *CategoryUpdateOne) ClearProducts() *CategoryUpdateOne {
+	_u.mutation.ClearProducts()
+	return _u
+}
+
+// RemoveProductIDs removes the "products" edge to Product entities by IDs.
+func (_u *CategoryUpdateOne) RemoveProductIDs(ids ...uint32) *CategoryUpdateOne {
+	_u.mutation.RemoveProductIDs(ids...)
+	return _u
+}
+
+// RemoveProducts removes "products" edges to Product entities.
+func (_u *CategoryUpdateOne) RemoveProducts(v ...*Product) *CategoryUpdateOne {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveProductIDs(ids...)
 }
 
 // Where appends a list predicates to the CategoryUpdate builder.
@@ -1306,6 +1542,96 @@ func (_u *CategoryUpdateOne) sqlSave(ctx context.Context) (_node *Category, err 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DefaultFeaturesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.DefaultFeaturesTable,
+			Columns: []string{category.DefaultFeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDefaultFeaturesIDs(); len(nodes) > 0 && !_u.mutation.DefaultFeaturesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.DefaultFeaturesTable,
+			Columns: []string{category.DefaultFeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DefaultFeaturesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.DefaultFeaturesTable,
+			Columns: []string{category.DefaultFeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.ProductsTable,
+			Columns: []string{category.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedProductsIDs(); len(nodes) > 0 && !_u.mutation.ProductsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.ProductsTable,
+			Columns: []string{category.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.ProductsTable,
+			Columns: []string{category.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeUint32),
 			},
 		}
 		for _, k := range nodes {

@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"go-wind-admin/app/admin/service/internal/data/ent/categorydefaultfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/feature"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
 	"go-wind-admin/app/admin/service/internal/data/ent/schema"
@@ -430,9 +431,45 @@ func (_u *FeatureUpdate) ClearSpec() *FeatureUpdate {
 	return _u
 }
 
+// AddCategoryDefaultEntryIDs adds the "category_default_entries" edge to the CategoryDefaultFeature entity by IDs.
+func (_u *FeatureUpdate) AddCategoryDefaultEntryIDs(ids ...uint32) *FeatureUpdate {
+	_u.mutation.AddCategoryDefaultEntryIDs(ids...)
+	return _u
+}
+
+// AddCategoryDefaultEntries adds the "category_default_entries" edges to the CategoryDefaultFeature entity.
+func (_u *FeatureUpdate) AddCategoryDefaultEntries(v ...*CategoryDefaultFeature) *FeatureUpdate {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddCategoryDefaultEntryIDs(ids...)
+}
+
 // Mutation returns the FeatureMutation object of the builder.
 func (_u *FeatureUpdate) Mutation() *FeatureMutation {
 	return _u.mutation
+}
+
+// ClearCategoryDefaultEntries clears all "category_default_entries" edges to the CategoryDefaultFeature entity.
+func (_u *FeatureUpdate) ClearCategoryDefaultEntries() *FeatureUpdate {
+	_u.mutation.ClearCategoryDefaultEntries()
+	return _u
+}
+
+// RemoveCategoryDefaultEntryIDs removes the "category_default_entries" edge to CategoryDefaultFeature entities by IDs.
+func (_u *FeatureUpdate) RemoveCategoryDefaultEntryIDs(ids ...uint32) *FeatureUpdate {
+	_u.mutation.RemoveCategoryDefaultEntryIDs(ids...)
+	return _u
+}
+
+// RemoveCategoryDefaultEntries removes "category_default_entries" edges to CategoryDefaultFeature entities.
+func (_u *FeatureUpdate) RemoveCategoryDefaultEntries(v ...*CategoryDefaultFeature) *FeatureUpdate {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveCategoryDefaultEntryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -659,6 +696,51 @@ func (_u *FeatureUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.SpecCleared() {
 		_spec.ClearField(feature.FieldSpec, field.TypeJSON)
+	}
+	if _u.mutation.CategoryDefaultEntriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feature.CategoryDefaultEntriesTable,
+			Columns: []string{feature.CategoryDefaultEntriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedCategoryDefaultEntriesIDs(); len(nodes) > 0 && !_u.mutation.CategoryDefaultEntriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feature.CategoryDefaultEntriesTable,
+			Columns: []string{feature.CategoryDefaultEntriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CategoryDefaultEntriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feature.CategoryDefaultEntriesTable,
+			Columns: []string{feature.CategoryDefaultEntriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -1082,9 +1164,45 @@ func (_u *FeatureUpdateOne) ClearSpec() *FeatureUpdateOne {
 	return _u
 }
 
+// AddCategoryDefaultEntryIDs adds the "category_default_entries" edge to the CategoryDefaultFeature entity by IDs.
+func (_u *FeatureUpdateOne) AddCategoryDefaultEntryIDs(ids ...uint32) *FeatureUpdateOne {
+	_u.mutation.AddCategoryDefaultEntryIDs(ids...)
+	return _u
+}
+
+// AddCategoryDefaultEntries adds the "category_default_entries" edges to the CategoryDefaultFeature entity.
+func (_u *FeatureUpdateOne) AddCategoryDefaultEntries(v ...*CategoryDefaultFeature) *FeatureUpdateOne {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddCategoryDefaultEntryIDs(ids...)
+}
+
 // Mutation returns the FeatureMutation object of the builder.
 func (_u *FeatureUpdateOne) Mutation() *FeatureMutation {
 	return _u.mutation
+}
+
+// ClearCategoryDefaultEntries clears all "category_default_entries" edges to the CategoryDefaultFeature entity.
+func (_u *FeatureUpdateOne) ClearCategoryDefaultEntries() *FeatureUpdateOne {
+	_u.mutation.ClearCategoryDefaultEntries()
+	return _u
+}
+
+// RemoveCategoryDefaultEntryIDs removes the "category_default_entries" edge to CategoryDefaultFeature entities by IDs.
+func (_u *FeatureUpdateOne) RemoveCategoryDefaultEntryIDs(ids ...uint32) *FeatureUpdateOne {
+	_u.mutation.RemoveCategoryDefaultEntryIDs(ids...)
+	return _u
+}
+
+// RemoveCategoryDefaultEntries removes "category_default_entries" edges to CategoryDefaultFeature entities.
+func (_u *FeatureUpdateOne) RemoveCategoryDefaultEntries(v ...*CategoryDefaultFeature) *FeatureUpdateOne {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveCategoryDefaultEntryIDs(ids...)
 }
 
 // Where appends a list predicates to the FeatureUpdate builder.
@@ -1341,6 +1459,51 @@ func (_u *FeatureUpdateOne) sqlSave(ctx context.Context) (_node *Feature, err er
 	}
 	if _u.mutation.SpecCleared() {
 		_spec.ClearField(feature.FieldSpec, field.TypeJSON)
+	}
+	if _u.mutation.CategoryDefaultEntriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feature.CategoryDefaultEntriesTable,
+			Columns: []string{feature.CategoryDefaultEntriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedCategoryDefaultEntriesIDs(); len(nodes) > 0 && !_u.mutation.CategoryDefaultEntriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feature.CategoryDefaultEntriesTable,
+			Columns: []string{feature.CategoryDefaultEntriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CategoryDefaultEntriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feature.CategoryDefaultEntriesTable,
+			Columns: []string{feature.CategoryDefaultEntriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Feature{config: _u.config}

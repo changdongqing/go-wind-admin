@@ -183,6 +183,30 @@ func (f CategoryMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutati
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.CategoryMutation", m)
 }
 
+// The CategoryDefaultFeatureQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type CategoryDefaultFeatureQueryRuleFunc func(context.Context, *ent.CategoryDefaultFeatureQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f CategoryDefaultFeatureQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.CategoryDefaultFeatureQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.CategoryDefaultFeatureQuery", q)
+}
+
+// The CategoryDefaultFeatureMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type CategoryDefaultFeatureMutationRuleFunc func(context.Context, *ent.CategoryDefaultFeatureMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f CategoryDefaultFeatureMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.CategoryDefaultFeatureMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.CategoryDefaultFeatureMutation", m)
+}
+
 // The DataAccessAuditLogQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type DataAccessAuditLogQueryRuleFunc func(context.Context, *ent.DataAccessAuditLogQuery) error
@@ -831,6 +855,54 @@ func (f PositionMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutati
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.PositionMutation", m)
 }
 
+// The ProductQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type ProductQueryRuleFunc func(context.Context, *ent.ProductQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f ProductQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ProductQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.ProductQuery", q)
+}
+
+// The ProductMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type ProductMutationRuleFunc func(context.Context, *ent.ProductMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f ProductMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.ProductMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.ProductMutation", m)
+}
+
+// The ProductFeatureQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type ProductFeatureQueryRuleFunc func(context.Context, *ent.ProductFeatureQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f ProductFeatureQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ProductFeatureQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.ProductFeatureQuery", q)
+}
+
+// The ProductFeatureMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type ProductFeatureMutationRuleFunc func(context.Context, *ent.ProductFeatureMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f ProductFeatureMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.ProductFeatureMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.ProductFeatureMutation", m)
+}
+
 // The RoleQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type RoleQueryRuleFunc func(context.Context, *ent.RoleQuery) error
@@ -1160,6 +1232,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.CategoryQuery:
 		return q.Filter(), nil
+	case *ent.CategoryDefaultFeatureQuery:
+		return q.Filter(), nil
 	case *ent.DataAccessAuditLogQuery:
 		return q.Filter(), nil
 	case *ent.DictEntryQuery:
@@ -1214,6 +1288,10 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.PositionQuery:
 		return q.Filter(), nil
+	case *ent.ProductQuery:
+		return q.Filter(), nil
+	case *ent.ProductFeatureQuery:
+		return q.Filter(), nil
 	case *ent.RoleQuery:
 		return q.Filter(), nil
 	case *ent.RoleMetadataQuery:
@@ -1250,6 +1328,8 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.ApiAuditLogMutation:
 		return m.Filter(), nil
 	case *ent.CategoryMutation:
+		return m.Filter(), nil
+	case *ent.CategoryDefaultFeatureMutation:
 		return m.Filter(), nil
 	case *ent.DataAccessAuditLogMutation:
 		return m.Filter(), nil
@@ -1304,6 +1384,10 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.PolicyEvaluationLogMutation:
 		return m.Filter(), nil
 	case *ent.PositionMutation:
+		return m.Filter(), nil
+	case *ent.ProductMutation:
+		return m.Filter(), nil
+	case *ent.ProductFeatureMutation:
 		return m.Filter(), nil
 	case *ent.RoleMutation:
 		return m.Filter(), nil

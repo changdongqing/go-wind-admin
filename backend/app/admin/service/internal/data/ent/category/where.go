@@ -1141,6 +1141,52 @@ func HasChildrenWith(preds ...predicate.Category) predicate.Category {
 	})
 }
 
+// HasDefaultFeatures applies the HasEdge predicate on the "default_features" edge.
+func HasDefaultFeatures() predicate.Category {
+	return predicate.Category(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DefaultFeaturesTable, DefaultFeaturesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDefaultFeaturesWith applies the HasEdge predicate on the "default_features" edge with a given conditions (other predicates).
+func HasDefaultFeaturesWith(preds ...predicate.CategoryDefaultFeature) predicate.Category {
+	return predicate.Category(func(s *sql.Selector) {
+		step := newDefaultFeaturesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasProducts applies the HasEdge predicate on the "products" edge.
+func HasProducts() predicate.Category {
+	return predicate.Category(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ProductsTable, ProductsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProductsWith applies the HasEdge predicate on the "products" edge with a given conditions (other predicates).
+func HasProductsWith(preds ...predicate.Product) predicate.Category {
+	return predicate.Category(func(s *sql.Selector) {
+		step := newProductsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Category) predicate.Category {
 	return predicate.Category(sql.AndPredicates(predicates...))

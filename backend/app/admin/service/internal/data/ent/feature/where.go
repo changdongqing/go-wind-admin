@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -1237,6 +1238,29 @@ func SpecIsNil() predicate.Feature {
 // SpecNotNil applies the NotNil predicate on the "spec" field.
 func SpecNotNil() predicate.Feature {
 	return predicate.Feature(sql.FieldNotNull(FieldSpec))
+}
+
+// HasCategoryDefaultEntries applies the HasEdge predicate on the "category_default_entries" edge.
+func HasCategoryDefaultEntries() predicate.Feature {
+	return predicate.Feature(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CategoryDefaultEntriesTable, CategoryDefaultEntriesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCategoryDefaultEntriesWith applies the HasEdge predicate on the "category_default_entries" edge with a given conditions (other predicates).
+func HasCategoryDefaultEntriesWith(preds ...predicate.CategoryDefaultFeature) predicate.Feature {
+	return predicate.Feature(func(s *sql.Selector) {
+		step := newCategoryDefaultEntriesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

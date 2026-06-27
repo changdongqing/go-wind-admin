@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"go-wind-admin/app/admin/service/internal/data/ent/category"
+	"go-wind-admin/app/admin/service/internal/data/ent/product"
 	"strings"
 	"time"
 
@@ -12,8 +13,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// 物模型-分类表 / Thing model category
-type Category struct {
+// 物模型-产品表 / Thing model product
+type Product struct {
 	config `json:"-"`
 	// ID of the ent.
 	// id
@@ -36,95 +37,75 @@ type Category struct {
 	SortOrder *uint32 `json:"sort_order,omitempty"`
 	// 租户ID
 	TenantID *uint32 `json:"tenant_id,omitempty"`
-	// 分类种类（不可变）/ Category kind, immutable
-	Kind *category.Kind `json:"kind,omitempty"`
-	// 分类编码（变长 2/4/6/8 位纯数字，按 level 决定长度，不可变）/ Variable-length numeric code, immutable
+	// 产品编码（程序标识符，租户内唯一，不可变）/ Product code, immutable
 	Code *string `json:"code,omitempty"`
-	// 层级：1=大类 2=中类 3=小类 4=细类 / Hierarchy level (1..4)
-	Level *uint8 `json:"level,omitempty"`
-	// 父节点 ID（level=1 时为空）/ Parent category id (nullable when level=1)
-	ParentID *uint32 `json:"parent_id,omitempty"`
-	// 中文名 / Category name (zh)
+	// 产品中文名 / Name (zh)
 	Name *string `json:"name,omitempty"`
-	// 英文名 / Category name (en)
+	// 产品英文名 / Name (en)
 	NameEn *string `json:"name_en,omitempty"`
-	// Iconify 图标名 / Iconify icon name
+	// 分类 ID（必须 level=4，不可变）/ Category id, must be level=4
+	CategoryID uint32 `json:"category_id,omitempty"`
+	// 制造商/品牌 / Manufacturer
+	Manufacturer *string `json:"manufacturer,omitempty"`
+	// 型号 / Model number
+	ModelNo *string `json:"model_no,omitempty"`
+	// Iconify 图标名 / Icon
 	Icon *string `json:"icon,omitempty"`
 	// 描述 / Description
 	Description *string `json:"description,omitempty"`
-	// 被物模型/实例引用次数（预留，本期恒 0）/ Reference count (reserved)
+	// 发布状态 / Lifecycle status
+	Status product.Status `json:"status,omitempty"`
+	// 被设备实例引用次数（预留）/ Reference count (reserved)
 	ReferenceCount *uint32 `json:"reference_count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the CategoryQuery when eager-loading is set.
-	Edges        CategoryEdges `json:"edges"`
+	// The values are being populated by the ProductQuery when eager-loading is set.
+	Edges        ProductEdges `json:"edges"`
 	selectValues sql.SelectValues
 }
 
-// CategoryEdges holds the relations/edges for other nodes in the graph.
-type CategoryEdges struct {
-	// Parent holds the value of the parent edge.
-	Parent *Category `json:"parent,omitempty"`
-	// Children holds the value of the children edge.
-	Children []*Category `json:"children,omitempty"`
-	// DefaultFeatures holds the value of the default_features edge.
-	DefaultFeatures []*CategoryDefaultFeature `json:"default_features,omitempty"`
-	// Products holds the value of the products edge.
-	Products []*Product `json:"products,omitempty"`
+// ProductEdges holds the relations/edges for other nodes in the graph.
+type ProductEdges struct {
+	// Category holds the value of the category edge.
+	Category *Category `json:"category,omitempty"`
+	// Features holds the value of the features edge.
+	Features []*ProductFeature `json:"features,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [2]bool
 }
 
-// ParentOrErr returns the Parent value or an error if the edge
+// CategoryOrErr returns the Category value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e CategoryEdges) ParentOrErr() (*Category, error) {
-	if e.Parent != nil {
-		return e.Parent, nil
+func (e ProductEdges) CategoryOrErr() (*Category, error) {
+	if e.Category != nil {
+		return e.Category, nil
 	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: category.Label}
 	}
-	return nil, &NotLoadedError{edge: "parent"}
+	return nil, &NotLoadedError{edge: "category"}
 }
 
-// ChildrenOrErr returns the Children value or an error if the edge
+// FeaturesOrErr returns the Features value or an error if the edge
 // was not loaded in eager-loading.
-func (e CategoryEdges) ChildrenOrErr() ([]*Category, error) {
+func (e ProductEdges) FeaturesOrErr() ([]*ProductFeature, error) {
 	if e.loadedTypes[1] {
-		return e.Children, nil
+		return e.Features, nil
 	}
-	return nil, &NotLoadedError{edge: "children"}
-}
-
-// DefaultFeaturesOrErr returns the DefaultFeatures value or an error if the edge
-// was not loaded in eager-loading.
-func (e CategoryEdges) DefaultFeaturesOrErr() ([]*CategoryDefaultFeature, error) {
-	if e.loadedTypes[2] {
-		return e.DefaultFeatures, nil
-	}
-	return nil, &NotLoadedError{edge: "default_features"}
-}
-
-// ProductsOrErr returns the Products value or an error if the edge
-// was not loaded in eager-loading.
-func (e CategoryEdges) ProductsOrErr() ([]*Product, error) {
-	if e.loadedTypes[3] {
-		return e.Products, nil
-	}
-	return nil, &NotLoadedError{edge: "products"}
+	return nil, &NotLoadedError{edge: "features"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Category) scanValues(columns []string) ([]any, error) {
+func (*Product) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case category.FieldIsEnabled:
+		case product.FieldIsEnabled:
 			values[i] = new(sql.NullBool)
-		case category.FieldID, category.FieldCreatedBy, category.FieldUpdatedBy, category.FieldDeletedBy, category.FieldSortOrder, category.FieldTenantID, category.FieldLevel, category.FieldParentID, category.FieldReferenceCount:
+		case product.FieldID, product.FieldCreatedBy, product.FieldUpdatedBy, product.FieldDeletedBy, product.FieldSortOrder, product.FieldTenantID, product.FieldCategoryID, product.FieldReferenceCount:
 			values[i] = new(sql.NullInt64)
-		case category.FieldKind, category.FieldCode, category.FieldName, category.FieldNameEn, category.FieldIcon, category.FieldDescription:
+		case product.FieldCode, product.FieldName, product.FieldNameEn, product.FieldManufacturer, product.FieldModelNo, product.FieldIcon, product.FieldDescription, product.FieldStatus:
 			values[i] = new(sql.NullString)
-		case category.FieldCreatedAt, category.FieldUpdatedAt, category.FieldDeletedAt:
+		case product.FieldCreatedAt, product.FieldUpdatedAt, product.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -134,139 +115,144 @@ func (*Category) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Category fields.
-func (_m *Category) assignValues(columns []string, values []any) error {
+// to the Product fields.
+func (_m *Product) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case category.FieldID:
+		case product.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = uint32(value.Int64)
-		case category.FieldCreatedAt:
+		case product.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				_m.CreatedAt = new(time.Time)
 				*_m.CreatedAt = value.Time
 			}
-		case category.FieldUpdatedAt:
+		case product.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = new(time.Time)
 				*_m.UpdatedAt = value.Time
 			}
-		case category.FieldDeletedAt:
+		case product.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
 			}
-		case category.FieldCreatedBy:
+		case product.FieldCreatedBy:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field created_by", values[i])
 			} else if value.Valid {
 				_m.CreatedBy = new(uint32)
 				*_m.CreatedBy = uint32(value.Int64)
 			}
-		case category.FieldUpdatedBy:
+		case product.FieldUpdatedBy:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_by", values[i])
 			} else if value.Valid {
 				_m.UpdatedBy = new(uint32)
 				*_m.UpdatedBy = uint32(value.Int64)
 			}
-		case category.FieldDeletedBy:
+		case product.FieldDeletedBy:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
 				_m.DeletedBy = new(uint32)
 				*_m.DeletedBy = uint32(value.Int64)
 			}
-		case category.FieldIsEnabled:
+		case product.FieldIsEnabled:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_enabled", values[i])
 			} else if value.Valid {
 				_m.IsEnabled = new(bool)
 				*_m.IsEnabled = value.Bool
 			}
-		case category.FieldSortOrder:
+		case product.FieldSortOrder:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field sort_order", values[i])
 			} else if value.Valid {
 				_m.SortOrder = new(uint32)
 				*_m.SortOrder = uint32(value.Int64)
 			}
-		case category.FieldTenantID:
+		case product.FieldTenantID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value.Valid {
 				_m.TenantID = new(uint32)
 				*_m.TenantID = uint32(value.Int64)
 			}
-		case category.FieldKind:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field kind", values[i])
-			} else if value.Valid {
-				_m.Kind = new(category.Kind)
-				*_m.Kind = category.Kind(value.String)
-			}
-		case category.FieldCode:
+		case product.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field code", values[i])
 			} else if value.Valid {
 				_m.Code = new(string)
 				*_m.Code = value.String
 			}
-		case category.FieldLevel:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field level", values[i])
-			} else if value.Valid {
-				_m.Level = new(uint8)
-				*_m.Level = uint8(value.Int64)
-			}
-		case category.FieldParentID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
-			} else if value.Valid {
-				_m.ParentID = new(uint32)
-				*_m.ParentID = uint32(value.Int64)
-			}
-		case category.FieldName:
+		case product.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = new(string)
 				*_m.Name = value.String
 			}
-		case category.FieldNameEn:
+		case product.FieldNameEn:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name_en", values[i])
 			} else if value.Valid {
 				_m.NameEn = new(string)
 				*_m.NameEn = value.String
 			}
-		case category.FieldIcon:
+		case product.FieldCategoryID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field category_id", values[i])
+			} else if value.Valid {
+				_m.CategoryID = uint32(value.Int64)
+			}
+		case product.FieldManufacturer:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field manufacturer", values[i])
+			} else if value.Valid {
+				_m.Manufacturer = new(string)
+				*_m.Manufacturer = value.String
+			}
+		case product.FieldModelNo:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field model_no", values[i])
+			} else if value.Valid {
+				_m.ModelNo = new(string)
+				*_m.ModelNo = value.String
+			}
+		case product.FieldIcon:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field icon", values[i])
 			} else if value.Valid {
 				_m.Icon = new(string)
 				*_m.Icon = value.String
 			}
-		case category.FieldDescription:
+		case product.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
 				_m.Description = new(string)
 				*_m.Description = value.String
 			}
-		case category.FieldReferenceCount:
+		case product.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				_m.Status = product.Status(value.String)
+			}
+		case product.FieldReferenceCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field reference_count", values[i])
 			} else if value.Valid {
@@ -280,54 +266,44 @@ func (_m *Category) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Category.
+// Value returns the ent.Value that was dynamically selected and assigned to the Product.
 // This includes values selected through modifiers, order, etc.
-func (_m *Category) Value(name string) (ent.Value, error) {
+func (_m *Product) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryParent queries the "parent" edge of the Category entity.
-func (_m *Category) QueryParent() *CategoryQuery {
-	return NewCategoryClient(_m.config).QueryParent(_m)
+// QueryCategory queries the "category" edge of the Product entity.
+func (_m *Product) QueryCategory() *CategoryQuery {
+	return NewProductClient(_m.config).QueryCategory(_m)
 }
 
-// QueryChildren queries the "children" edge of the Category entity.
-func (_m *Category) QueryChildren() *CategoryQuery {
-	return NewCategoryClient(_m.config).QueryChildren(_m)
+// QueryFeatures queries the "features" edge of the Product entity.
+func (_m *Product) QueryFeatures() *ProductFeatureQuery {
+	return NewProductClient(_m.config).QueryFeatures(_m)
 }
 
-// QueryDefaultFeatures queries the "default_features" edge of the Category entity.
-func (_m *Category) QueryDefaultFeatures() *CategoryDefaultFeatureQuery {
-	return NewCategoryClient(_m.config).QueryDefaultFeatures(_m)
-}
-
-// QueryProducts queries the "products" edge of the Category entity.
-func (_m *Category) QueryProducts() *ProductQuery {
-	return NewCategoryClient(_m.config).QueryProducts(_m)
-}
-
-// Update returns a builder for updating this Category.
-// Note that you need to call Category.Unwrap() before calling this method if this Category
+// Update returns a builder for updating this Product.
+// Note that you need to call Product.Unwrap() before calling this method if this Product
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *Category) Update() *CategoryUpdateOne {
-	return NewCategoryClient(_m.config).UpdateOne(_m)
+func (_m *Product) Update() *ProductUpdateOne {
+	return NewProductClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the Category entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Product entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *Category) Unwrap() *Category {
+func (_m *Product) Unwrap() *Product {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Category is not a transactional entity")
+		panic("ent: Product is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *Category) String() string {
+func (_m *Product) String() string {
 	var builder strings.Builder
-	builder.WriteString("Category(")
+	builder.WriteString("Product(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	if v := _m.CreatedAt; v != nil {
 		builder.WriteString("created_at=")
@@ -374,24 +350,9 @@ func (_m *Category) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := _m.Kind; v != nil {
-		builder.WriteString("kind=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
 	if v := _m.Code; v != nil {
 		builder.WriteString("code=")
 		builder.WriteString(*v)
-	}
-	builder.WriteString(", ")
-	if v := _m.Level; v != nil {
-		builder.WriteString("level=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.ParentID; v != nil {
-		builder.WriteString("parent_id=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	if v := _m.Name; v != nil {
@@ -401,6 +362,19 @@ func (_m *Category) String() string {
 	builder.WriteString(", ")
 	if v := _m.NameEn; v != nil {
 		builder.WriteString("name_en=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("category_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CategoryID))
+	builder.WriteString(", ")
+	if v := _m.Manufacturer; v != nil {
+		builder.WriteString("manufacturer=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.ModelNo; v != nil {
+		builder.WriteString("model_no=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
@@ -414,6 +388,9 @@ func (_m *Category) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
 	if v := _m.ReferenceCount; v != nil {
 		builder.WriteString("reference_count=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
@@ -422,5 +399,5 @@ func (_m *Category) String() string {
 	return builder.String()
 }
 
-// Categories is a parsable slice of Category.
-type Categories []*Category
+// Products is a parsable slice of Product.
+type Products []*Product

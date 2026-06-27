@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
@@ -161,10 +162,22 @@ func (Feature) Mixin() []ent.Mixin {
 }
 
 // Edges of the Feature.
+// 反向 edges:
+//   - category_default_entries ← CategoryDefaultFeature.feature
+//     （一对多；某分类把该特征列为默认。删除特征时受限于条目存在，避免悬挂引用）
+//
+// 说明：product_features 不在此建反向 edge——它通过 ref_feature_id 弱关联，
+// 应用层维护一致性（reference_count），避免 schema 循环依赖。
 func (Feature) Edges() []ent.Edge {
 	return []ent.Edge{
 		// 多对一：property 引用单位（弱关联，spec.unit_id 指向 unit.id，不建强外键避免循环）
 		// 关系：relation 自引用不建 edge（source/target 在 spec 内，应用层解析）
+
+		// ===== 模型管理新增的反向 edge / Reverse edge for model management =====
+		edge.To("category_default_entries", CategoryDefaultFeature.Type).
+			Annotations(entsql.Annotation{
+				OnDelete: entsql.Restrict,
+			}),
 	}
 }
 

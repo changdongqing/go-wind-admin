@@ -8,7 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"go-wind-admin/app/admin/service/internal/data/ent/category"
+	"go-wind-admin/app/admin/service/internal/data/ent/categorydefaultfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
+	"go-wind-admin/app/admin/service/internal/data/ent/product"
 	"math"
 
 	"entgo.io/ent"
@@ -21,13 +23,15 @@ import (
 // CategoryQuery is the builder for querying Category entities.
 type CategoryQuery struct {
 	config
-	ctx          *QueryContext
-	order        []category.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Category
-	withParent   *CategoryQuery
-	withChildren *CategoryQuery
-	modifiers    []func(*sql.Selector)
+	ctx                 *QueryContext
+	order               []category.OrderOption
+	inters              []Interceptor
+	predicates          []predicate.Category
+	withParent          *CategoryQuery
+	withChildren        *CategoryQuery
+	withDefaultFeatures *CategoryDefaultFeatureQuery
+	withProducts        *ProductQuery
+	modifiers           []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -101,6 +105,50 @@ func (_q *CategoryQuery) QueryChildren() *CategoryQuery {
 			sqlgraph.From(category.Table, category.FieldID, selector),
 			sqlgraph.To(category.Table, category.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, category.ChildrenTable, category.ChildrenColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDefaultFeatures chains the current query on the "default_features" edge.
+func (_q *CategoryQuery) QueryDefaultFeatures() *CategoryDefaultFeatureQuery {
+	query := (&CategoryDefaultFeatureClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, selector),
+			sqlgraph.To(categorydefaultfeature.Table, categorydefaultfeature.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, category.DefaultFeaturesTable, category.DefaultFeaturesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProducts chains the current query on the "products" edge.
+func (_q *CategoryQuery) QueryProducts() *ProductQuery {
+	query := (&ProductClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, selector),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, category.ProductsTable, category.ProductsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -295,13 +343,15 @@ func (_q *CategoryQuery) Clone() *CategoryQuery {
 		return nil
 	}
 	return &CategoryQuery{
-		config:       _q.config,
-		ctx:          _q.ctx.Clone(),
-		order:        append([]category.OrderOption{}, _q.order...),
-		inters:       append([]Interceptor{}, _q.inters...),
-		predicates:   append([]predicate.Category{}, _q.predicates...),
-		withParent:   _q.withParent.Clone(),
-		withChildren: _q.withChildren.Clone(),
+		config:              _q.config,
+		ctx:                 _q.ctx.Clone(),
+		order:               append([]category.OrderOption{}, _q.order...),
+		inters:              append([]Interceptor{}, _q.inters...),
+		predicates:          append([]predicate.Category{}, _q.predicates...),
+		withParent:          _q.withParent.Clone(),
+		withChildren:        _q.withChildren.Clone(),
+		withDefaultFeatures: _q.withDefaultFeatures.Clone(),
+		withProducts:        _q.withProducts.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -328,6 +378,28 @@ func (_q *CategoryQuery) WithChildren(opts ...func(*CategoryQuery)) *CategoryQue
 		opt(query)
 	}
 	_q.withChildren = query
+	return _q
+}
+
+// WithDefaultFeatures tells the query-builder to eager-load the nodes that are connected to
+// the "default_features" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *CategoryQuery) WithDefaultFeatures(opts ...func(*CategoryDefaultFeatureQuery)) *CategoryQuery {
+	query := (&CategoryDefaultFeatureClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDefaultFeatures = query
+	return _q
+}
+
+// WithProducts tells the query-builder to eager-load the nodes that are connected to
+// the "products" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *CategoryQuery) WithProducts(opts ...func(*ProductQuery)) *CategoryQuery {
+	query := (&ProductClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withProducts = query
 	return _q
 }
 
@@ -415,9 +487,11 @@ func (_q *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cat
 	var (
 		nodes       = []*Category{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [4]bool{
 			_q.withParent != nil,
 			_q.withChildren != nil,
+			_q.withDefaultFeatures != nil,
+			_q.withProducts != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -451,6 +525,22 @@ func (_q *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cat
 		if err := _q.loadChildren(ctx, query, nodes,
 			func(n *Category) { n.Edges.Children = []*Category{} },
 			func(n *Category, e *Category) { n.Edges.Children = append(n.Edges.Children, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDefaultFeatures; query != nil {
+		if err := _q.loadDefaultFeatures(ctx, query, nodes,
+			func(n *Category) { n.Edges.DefaultFeatures = []*CategoryDefaultFeature{} },
+			func(n *Category, e *CategoryDefaultFeature) {
+				n.Edges.DefaultFeatures = append(n.Edges.DefaultFeatures, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withProducts; query != nil {
+		if err := _q.loadProducts(ctx, query, nodes,
+			func(n *Category) { n.Edges.Products = []*Product{} },
+			func(n *Category, e *Product) { n.Edges.Products = append(n.Edges.Products, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -517,6 +607,66 @@ func (_q *CategoryQuery) loadChildren(ctx context.Context, query *CategoryQuery,
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "parent_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *CategoryQuery) loadDefaultFeatures(ctx context.Context, query *CategoryDefaultFeatureQuery, nodes []*Category, init func(*Category), assign func(*Category, *CategoryDefaultFeature)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uint32]*Category)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(categorydefaultfeature.FieldCategoryID)
+	}
+	query.Where(predicate.CategoryDefaultFeature(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(category.DefaultFeaturesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CategoryID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "category_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *CategoryQuery) loadProducts(ctx context.Context, query *ProductQuery, nodes []*Category, init func(*Category), assign func(*Category, *Product)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uint32]*Category)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(product.FieldCategoryID)
+	}
+	query.Where(predicate.Product(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(category.ProductsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CategoryID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "category_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

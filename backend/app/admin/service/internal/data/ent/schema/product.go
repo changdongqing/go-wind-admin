@@ -130,6 +130,7 @@ func (Product) Edges() []ent.Edge {
 			Field("category_id").
 			Required().
 			Unique().
+			Immutable().
 			Annotations(entsql.Annotation{
 				OnDelete: entsql.Restrict,
 			}),

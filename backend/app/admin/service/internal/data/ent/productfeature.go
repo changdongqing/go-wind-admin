@@ -5,7 +5,8 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
-	"go-wind-admin/app/admin/service/internal/data/ent/feature"
+	"go-wind-admin/app/admin/service/internal/data/ent/product"
+	"go-wind-admin/app/admin/service/internal/data/ent/productfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/schema"
 	"strings"
 	"time"
@@ -14,8 +15,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// 物模型-特征表（属性/事件/服务/关系统一）/ Thing model feature
-type Feature struct {
+// 产品下特征条目 / Product feature entry
+type ProductFeature struct {
 	config `json:"-"`
 	// ID of the ent.
 	// id
@@ -38,70 +39,78 @@ type Feature struct {
 	SortOrder *uint32 `json:"sort_order,omitempty"`
 	// 租户ID
 	TenantID *uint32 `json:"tenant_id,omitempty"`
-	// 特征类型 PROPERTY/EVENT/SERVICE/RELATION / Feature type
-	FeatureType *feature.FeatureType `json:"feature_type,omitempty"`
-	// 清单编码，如 P-RUN-0001（不可变）/ Code, immutable
+	// 父产品 ID / Product id
+	ProductID uint32 `json:"product_id,omitempty"`
+	// 来源 / Source
+	Source productfeature.Source `json:"source,omitempty"`
+	// 引用全局特征 ID（LOCAL 时为空）/ Referenced feature id
+	RefFeatureID *uint32 `json:"ref_feature_id,omitempty"`
+	// 特征类型 / Feature type
+	FeatureType productfeature.FeatureType `json:"feature_type,omitempty"`
+	// 产品内编码 / Code within product
 	Code *string `json:"code,omitempty"`
-	// 程序标识符，如 powerSwitch / Program identifier
+	// 产品内程序标识符 / Identifier within product
 	Identifier *string `json:"identifier,omitempty"`
-	// 中文名 / Name (zh)
+	// 名称 / Name (zh)
 	Name *string `json:"name,omitempty"`
 	// 英文名 / Name (en)
 	NameEn *string `json:"name_en,omitempty"`
-	// 说明 / Description
+	// 描述 / Description
 	Description *string `json:"description,omitempty"`
-	// 适用设备范围，如 冷机/锅炉 / Applicable device scope
-	ApplicableScope *string `json:"applicable_scope,omitempty"`
-	// property 数据类型 / Property data type
-	DataType *feature.DataType `json:"data_type,omitempty"`
-	// property 访问模式 R/RW / Property access mode
-	AccessMode *feature.AccessMode `json:"access_mode,omitempty"`
+	// 完整 FeatureSpec 快照（protojson 编码 oneof）/ Full feature spec snapshot
+	FeatureSnapshot *schema.FeatureSpecField `json:"feature_snapshot,omitempty"`
+	// 稀疏覆写（白名单字段，protojson 编码）/ Sparse override
+	OverrideSpec *schema.FeatureOverrideSpecField `json:"override_spec,omitempty"`
+	// property 数据类型（冗余）/ Property data type
+	DataType *productfeature.DataType `json:"data_type,omitempty"`
+	// property 访问模式 R/RW / Access mode
+	AccessMode *productfeature.AccessMode `json:"access_mode,omitempty"`
 	// event 级别 INFO/ALERT/ERROR / Event level
-	EventLevel *feature.EventLevel `json:"event_level,omitempty"`
-	// service 调用模式 ASYNC/SYNC / Service call mode
-	CallMode *feature.CallMode `json:"call_mode,omitempty"`
-	// relation 关系类型，如 derivedFrom/partOf / Relation type
+	EventLevel *productfeature.EventLevel `json:"event_level,omitempty"`
+	// service 调用模式 ASYNC/SYNC / Call mode
+	CallMode *productfeature.CallMode `json:"call_mode,omitempty"`
+	// relation 关系类型 / Relation type
 	RelationType *string `json:"relation_type,omitempty"`
-	// 特征结构化约束（按 feature_type 解读，protojson 编码）/ Structured spec by feature_type (protojson)
-	Spec *schema.FeatureSpecField `json:"spec,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the FeatureQuery when eager-loading is set.
-	Edges        FeatureEdges `json:"edges"`
+	// The values are being populated by the ProductFeatureQuery when eager-loading is set.
+	Edges        ProductFeatureEdges `json:"edges"`
 	selectValues sql.SelectValues
 }
 
-// FeatureEdges holds the relations/edges for other nodes in the graph.
-type FeatureEdges struct {
-	// CategoryDefaultEntries holds the value of the category_default_entries edge.
-	CategoryDefaultEntries []*CategoryDefaultFeature `json:"category_default_entries,omitempty"`
+// ProductFeatureEdges holds the relations/edges for other nodes in the graph.
+type ProductFeatureEdges struct {
+	// Product holds the value of the product edge.
+	Product *Product `json:"product,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// CategoryDefaultEntriesOrErr returns the CategoryDefaultEntries value or an error if the edge
-// was not loaded in eager-loading.
-func (e FeatureEdges) CategoryDefaultEntriesOrErr() ([]*CategoryDefaultFeature, error) {
-	if e.loadedTypes[0] {
-		return e.CategoryDefaultEntries, nil
+// ProductOrErr returns the Product value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProductFeatureEdges) ProductOrErr() (*Product, error) {
+	if e.Product != nil {
+		return e.Product, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: product.Label}
 	}
-	return nil, &NotLoadedError{edge: "category_default_entries"}
+	return nil, &NotLoadedError{edge: "product"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Feature) scanValues(columns []string) ([]any, error) {
+func (*ProductFeature) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case feature.FieldSpec:
+		case productfeature.FieldFeatureSnapshot, productfeature.FieldOverrideSpec:
 			values[i] = new([]byte)
-		case feature.FieldIsEnabled:
+		case productfeature.FieldIsEnabled:
 			values[i] = new(sql.NullBool)
-		case feature.FieldID, feature.FieldCreatedBy, feature.FieldUpdatedBy, feature.FieldDeletedBy, feature.FieldSortOrder, feature.FieldTenantID:
+		case productfeature.FieldID, productfeature.FieldCreatedBy, productfeature.FieldUpdatedBy, productfeature.FieldDeletedBy, productfeature.FieldSortOrder, productfeature.FieldTenantID, productfeature.FieldProductID, productfeature.FieldRefFeatureID:
 			values[i] = new(sql.NullInt64)
-		case feature.FieldFeatureType, feature.FieldCode, feature.FieldIdentifier, feature.FieldName, feature.FieldNameEn, feature.FieldDescription, feature.FieldApplicableScope, feature.FieldDataType, feature.FieldAccessMode, feature.FieldEventLevel, feature.FieldCallMode, feature.FieldRelationType:
+		case productfeature.FieldSource, productfeature.FieldFeatureType, productfeature.FieldCode, productfeature.FieldIdentifier, productfeature.FieldName, productfeature.FieldNameEn, productfeature.FieldDescription, productfeature.FieldDataType, productfeature.FieldAccessMode, productfeature.FieldEventLevel, productfeature.FieldCallMode, productfeature.FieldRelationType:
 			values[i] = new(sql.NullString)
-		case feature.FieldCreatedAt, feature.FieldUpdatedAt, feature.FieldDeletedAt:
+		case productfeature.FieldCreatedAt, productfeature.FieldUpdatedAt, productfeature.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -111,173 +120,192 @@ func (*Feature) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Feature fields.
-func (_m *Feature) assignValues(columns []string, values []any) error {
+// to the ProductFeature fields.
+func (_m *ProductFeature) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case feature.FieldID:
+		case productfeature.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = uint32(value.Int64)
-		case feature.FieldCreatedAt:
+		case productfeature.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				_m.CreatedAt = new(time.Time)
 				*_m.CreatedAt = value.Time
 			}
-		case feature.FieldUpdatedAt:
+		case productfeature.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = new(time.Time)
 				*_m.UpdatedAt = value.Time
 			}
-		case feature.FieldDeletedAt:
+		case productfeature.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
 			}
-		case feature.FieldCreatedBy:
+		case productfeature.FieldCreatedBy:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field created_by", values[i])
 			} else if value.Valid {
 				_m.CreatedBy = new(uint32)
 				*_m.CreatedBy = uint32(value.Int64)
 			}
-		case feature.FieldUpdatedBy:
+		case productfeature.FieldUpdatedBy:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_by", values[i])
 			} else if value.Valid {
 				_m.UpdatedBy = new(uint32)
 				*_m.UpdatedBy = uint32(value.Int64)
 			}
-		case feature.FieldDeletedBy:
+		case productfeature.FieldDeletedBy:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_by", values[i])
 			} else if value.Valid {
 				_m.DeletedBy = new(uint32)
 				*_m.DeletedBy = uint32(value.Int64)
 			}
-		case feature.FieldIsEnabled:
+		case productfeature.FieldIsEnabled:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_enabled", values[i])
 			} else if value.Valid {
 				_m.IsEnabled = new(bool)
 				*_m.IsEnabled = value.Bool
 			}
-		case feature.FieldSortOrder:
+		case productfeature.FieldSortOrder:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field sort_order", values[i])
 			} else if value.Valid {
 				_m.SortOrder = new(uint32)
 				*_m.SortOrder = uint32(value.Int64)
 			}
-		case feature.FieldTenantID:
+		case productfeature.FieldTenantID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value.Valid {
 				_m.TenantID = new(uint32)
 				*_m.TenantID = uint32(value.Int64)
 			}
-		case feature.FieldFeatureType:
+		case productfeature.FieldProductID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field product_id", values[i])
+			} else if value.Valid {
+				_m.ProductID = uint32(value.Int64)
+			}
+		case productfeature.FieldSource:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field source", values[i])
+			} else if value.Valid {
+				_m.Source = productfeature.Source(value.String)
+			}
+		case productfeature.FieldRefFeatureID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field ref_feature_id", values[i])
+			} else if value.Valid {
+				_m.RefFeatureID = new(uint32)
+				*_m.RefFeatureID = uint32(value.Int64)
+			}
+		case productfeature.FieldFeatureType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field feature_type", values[i])
 			} else if value.Valid {
-				_m.FeatureType = new(feature.FeatureType)
-				*_m.FeatureType = feature.FeatureType(value.String)
+				_m.FeatureType = productfeature.FeatureType(value.String)
 			}
-		case feature.FieldCode:
+		case productfeature.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field code", values[i])
 			} else if value.Valid {
 				_m.Code = new(string)
 				*_m.Code = value.String
 			}
-		case feature.FieldIdentifier:
+		case productfeature.FieldIdentifier:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field identifier", values[i])
 			} else if value.Valid {
 				_m.Identifier = new(string)
 				*_m.Identifier = value.String
 			}
-		case feature.FieldName:
+		case productfeature.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = new(string)
 				*_m.Name = value.String
 			}
-		case feature.FieldNameEn:
+		case productfeature.FieldNameEn:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name_en", values[i])
 			} else if value.Valid {
 				_m.NameEn = new(string)
 				*_m.NameEn = value.String
 			}
-		case feature.FieldDescription:
+		case productfeature.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
 				_m.Description = new(string)
 				*_m.Description = value.String
 			}
-		case feature.FieldApplicableScope:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field applicable_scope", values[i])
-			} else if value.Valid {
-				_m.ApplicableScope = new(string)
-				*_m.ApplicableScope = value.String
+		case productfeature.FieldFeatureSnapshot:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field feature_snapshot", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.FeatureSnapshot); err != nil {
+					return fmt.Errorf("unmarshal field feature_snapshot: %w", err)
+				}
 			}
-		case feature.FieldDataType:
+		case productfeature.FieldOverrideSpec:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field override_spec", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.OverrideSpec); err != nil {
+					return fmt.Errorf("unmarshal field override_spec: %w", err)
+				}
+			}
+		case productfeature.FieldDataType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field data_type", values[i])
 			} else if value.Valid {
-				_m.DataType = new(feature.DataType)
-				*_m.DataType = feature.DataType(value.String)
+				_m.DataType = new(productfeature.DataType)
+				*_m.DataType = productfeature.DataType(value.String)
 			}
-		case feature.FieldAccessMode:
+		case productfeature.FieldAccessMode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field access_mode", values[i])
 			} else if value.Valid {
-				_m.AccessMode = new(feature.AccessMode)
-				*_m.AccessMode = feature.AccessMode(value.String)
+				_m.AccessMode = new(productfeature.AccessMode)
+				*_m.AccessMode = productfeature.AccessMode(value.String)
 			}
-		case feature.FieldEventLevel:
+		case productfeature.FieldEventLevel:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field event_level", values[i])
 			} else if value.Valid {
-				_m.EventLevel = new(feature.EventLevel)
-				*_m.EventLevel = feature.EventLevel(value.String)
+				_m.EventLevel = new(productfeature.EventLevel)
+				*_m.EventLevel = productfeature.EventLevel(value.String)
 			}
-		case feature.FieldCallMode:
+		case productfeature.FieldCallMode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field call_mode", values[i])
 			} else if value.Valid {
-				_m.CallMode = new(feature.CallMode)
-				*_m.CallMode = feature.CallMode(value.String)
+				_m.CallMode = new(productfeature.CallMode)
+				*_m.CallMode = productfeature.CallMode(value.String)
 			}
-		case feature.FieldRelationType:
+		case productfeature.FieldRelationType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field relation_type", values[i])
 			} else if value.Valid {
 				_m.RelationType = new(string)
 				*_m.RelationType = value.String
-			}
-		case feature.FieldSpec:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field spec", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.Spec); err != nil {
-					return fmt.Errorf("unmarshal field spec: %w", err)
-				}
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -286,39 +314,39 @@ func (_m *Feature) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Feature.
+// Value returns the ent.Value that was dynamically selected and assigned to the ProductFeature.
 // This includes values selected through modifiers, order, etc.
-func (_m *Feature) Value(name string) (ent.Value, error) {
+func (_m *ProductFeature) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryCategoryDefaultEntries queries the "category_default_entries" edge of the Feature entity.
-func (_m *Feature) QueryCategoryDefaultEntries() *CategoryDefaultFeatureQuery {
-	return NewFeatureClient(_m.config).QueryCategoryDefaultEntries(_m)
+// QueryProduct queries the "product" edge of the ProductFeature entity.
+func (_m *ProductFeature) QueryProduct() *ProductQuery {
+	return NewProductFeatureClient(_m.config).QueryProduct(_m)
 }
 
-// Update returns a builder for updating this Feature.
-// Note that you need to call Feature.Unwrap() before calling this method if this Feature
+// Update returns a builder for updating this ProductFeature.
+// Note that you need to call ProductFeature.Unwrap() before calling this method if this ProductFeature
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *Feature) Update() *FeatureUpdateOne {
-	return NewFeatureClient(_m.config).UpdateOne(_m)
+func (_m *ProductFeature) Update() *ProductFeatureUpdateOne {
+	return NewProductFeatureClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the Feature entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the ProductFeature entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *Feature) Unwrap() *Feature {
+func (_m *ProductFeature) Unwrap() *ProductFeature {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Feature is not a transactional entity")
+		panic("ent: ProductFeature is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *Feature) String() string {
+func (_m *ProductFeature) String() string {
 	var builder strings.Builder
-	builder.WriteString("Feature(")
+	builder.WriteString("ProductFeature(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	if v := _m.CreatedAt; v != nil {
 		builder.WriteString("created_at=")
@@ -365,10 +393,19 @@ func (_m *Feature) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := _m.FeatureType; v != nil {
-		builder.WriteString("feature_type=")
+	builder.WriteString("product_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ProductID))
+	builder.WriteString(", ")
+	builder.WriteString("source=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Source))
+	builder.WriteString(", ")
+	if v := _m.RefFeatureID; v != nil {
+		builder.WriteString("ref_feature_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("feature_type=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FeatureType))
 	builder.WriteString(", ")
 	if v := _m.Code; v != nil {
 		builder.WriteString("code=")
@@ -395,10 +432,11 @@ func (_m *Feature) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := _m.ApplicableScope; v != nil {
-		builder.WriteString("applicable_scope=")
-		builder.WriteString(*v)
-	}
+	builder.WriteString("feature_snapshot=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FeatureSnapshot))
+	builder.WriteString(", ")
+	builder.WriteString("override_spec=")
+	builder.WriteString(fmt.Sprintf("%v", _m.OverrideSpec))
 	builder.WriteString(", ")
 	if v := _m.DataType; v != nil {
 		builder.WriteString("data_type=")
@@ -424,12 +462,9 @@ func (_m *Feature) String() string {
 		builder.WriteString("relation_type=")
 		builder.WriteString(*v)
 	}
-	builder.WriteString(", ")
-	builder.WriteString("spec=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Spec))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// Features is a parsable slice of Feature.
-type Features []*Feature
+// ProductFeatures is a parsable slice of ProductFeature.
+type ProductFeatures []*ProductFeature

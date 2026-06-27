@@ -235,6 +235,71 @@ var (
 			},
 		},
 	}
+	// ThingmodelCategoryDefaultFeaturesColumns holds the columns for the "thingmodel_category_default_features" table.
+	ThingmodelCategoryDefaultFeaturesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
+		{Name: "is_enabled", Type: field.TypeBool, Nullable: true, Comment: "是否启用", Default: true},
+		{Name: "sort_order", Type: field.TypeUint32, Nullable: true, Comment: "排序值（越小越靠前）", Default: 0},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "override_spec", Type: field.TypeJSON, Nullable: true, Comment: "稀疏覆写（白名单字段，protojson 编码）/ Sparse override (protojson)"},
+		{Name: "display_name", Type: field.TypeString, Nullable: true, Size: 128, Comment: "分类内展示别名 / Display alias within category"},
+		{Name: "category_id", Type: field.TypeUint32, Comment: "分类 ID（必须 level=4）/ Category id, must be level=4"},
+		{Name: "feature_id", Type: field.TypeUint32, Comment: "全局特征 ID / Global feature id"},
+	}
+	// ThingmodelCategoryDefaultFeaturesTable holds the schema information for the "thingmodel_category_default_features" table.
+	ThingmodelCategoryDefaultFeaturesTable = &schema.Table{
+		Name:       "thingmodel_category_default_features",
+		Comment:    "分类默认模型条目 / Category default model entry",
+		Columns:    ThingmodelCategoryDefaultFeaturesColumns,
+		PrimaryKey: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "thingmodel_category_default_features_thingmodel_categories_default_features",
+				Columns:    []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[12]},
+				RefColumns: []*schema.Column{ThingmodelCategoriesColumns[0]},
+				OnDelete:   schema.Restrict,
+			},
+			{
+				Symbol:     "thingmodel_category_default_features_thingmodel_features_category_default_entries",
+				Columns:    []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[13]},
+				RefColumns: []*schema.Column{ThingmodelFeaturesColumns[0]},
+				OnDelete:   schema.Restrict,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_tm_cat_default_features_tenant_cat_feat",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[9], ThingmodelCategoryDefaultFeaturesColumns[12], ThingmodelCategoryDefaultFeaturesColumns[13]},
+			},
+			{
+				Name:    "idx_tm_cat_default_features_tenant_cat_sort",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[9], ThingmodelCategoryDefaultFeaturesColumns[12], ThingmodelCategoryDefaultFeaturesColumns[8]},
+			},
+			{
+				Name:    "idx_tm_cat_default_features_feature",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[13]},
+			},
+			{
+				Name:    "idx_tm_cat_default_features_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[7]},
+			},
+			{
+				Name:    "idx_tm_cat_default_features_tenant",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[9]},
+			},
+		},
+	}
 	// SysDataAccessAuditLogsColumns holds the columns for the "sys_data_access_audit_logs" table.
 	SysDataAccessAuditLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -2204,6 +2269,182 @@ var (
 			},
 		},
 	}
+	// ThingmodelProductsColumns holds the columns for the "thingmodel_products" table.
+	ThingmodelProductsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
+		{Name: "is_enabled", Type: field.TypeBool, Nullable: true, Comment: "是否启用", Default: true},
+		{Name: "sort_order", Type: field.TypeUint32, Nullable: true, Comment: "排序值（越小越靠前）", Default: 0},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "code", Type: field.TypeString, Nullable: true, Size: 64, Comment: "产品编码（程序标识符，租户内唯一，不可变）/ Product code, immutable"},
+		{Name: "name", Type: field.TypeString, Nullable: true, Size: 128, Comment: "产品中文名 / Name (zh)"},
+		{Name: "name_en", Type: field.TypeString, Nullable: true, Size: 128, Comment: "产品英文名 / Name (en)"},
+		{Name: "manufacturer", Type: field.TypeString, Nullable: true, Size: 128, Comment: "制造商/品牌 / Manufacturer"},
+		{Name: "model_no", Type: field.TypeString, Nullable: true, Size: 64, Comment: "型号 / Model number"},
+		{Name: "icon", Type: field.TypeString, Nullable: true, Comment: "Iconify 图标名 / Icon"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "描述 / Description"},
+		{Name: "status", Type: field.TypeEnum, Comment: "发布状态 / Lifecycle status", Enums: []string{"DRAFT", "PUBLISHED"}, Default: "DRAFT"},
+		{Name: "reference_count", Type: field.TypeUint32, Comment: "被设备实例引用次数（预留）/ Reference count (reserved)", Default: 0},
+		{Name: "category_id", Type: field.TypeUint32, Comment: "分类 ID（必须 level=4，不可变）/ Category id, must be level=4"},
+	}
+	// ThingmodelProductsTable holds the schema information for the "thingmodel_products" table.
+	ThingmodelProductsTable = &schema.Table{
+		Name:       "thingmodel_products",
+		Comment:    "物模型-产品表 / Thing model product",
+		Columns:    ThingmodelProductsColumns,
+		PrimaryKey: []*schema.Column{ThingmodelProductsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "thingmodel_products_thingmodel_categories_products",
+				Columns:    []*schema.Column{ThingmodelProductsColumns[19]},
+				RefColumns: []*schema.Column{ThingmodelCategoriesColumns[0]},
+				OnDelete:   schema.Restrict,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_tm_products_tenant_code",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelProductsColumns[9], ThingmodelProductsColumns[10]},
+			},
+			{
+				Name:    "uix_tm_products_tenant_cat_name",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelProductsColumns[9], ThingmodelProductsColumns[19], ThingmodelProductsColumns[11]},
+			},
+			{
+				Name:    "idx_tm_products_tenant_cat",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductsColumns[9], ThingmodelProductsColumns[19]},
+			},
+			{
+				Name:    "idx_tm_products_tenant_status",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductsColumns[9], ThingmodelProductsColumns[17]},
+			},
+			{
+				Name:    "idx_tm_products_manufacturer",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductsColumns[13]},
+			},
+			{
+				Name:    "idx_tm_products_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductsColumns[7]},
+			},
+			{
+				Name:    "idx_tm_products_tenant",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductsColumns[9]},
+			},
+			{
+				Name:    "idx_tm_products_sort_order",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductsColumns[8]},
+			},
+		},
+	}
+	// ThingmodelProductFeaturesColumns holds the columns for the "thingmodel_product_features" table.
+	ThingmodelProductFeaturesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
+		{Name: "is_enabled", Type: field.TypeBool, Nullable: true, Comment: "是否启用", Default: true},
+		{Name: "sort_order", Type: field.TypeUint32, Nullable: true, Comment: "排序值（越小越靠前）", Default: 0},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "source", Type: field.TypeEnum, Comment: "来源 / Source", Enums: []string{"DEFAULT", "GLOBAL", "LOCAL"}},
+		{Name: "ref_feature_id", Type: field.TypeUint32, Nullable: true, Comment: "引用全局特征 ID（LOCAL 时为空）/ Referenced feature id"},
+		{Name: "feature_type", Type: field.TypeEnum, Comment: "特征类型 / Feature type", Enums: []string{"PROPERTY", "EVENT", "SERVICE", "RELATION"}},
+		{Name: "code", Type: field.TypeString, Nullable: true, Size: 128, Comment: "产品内编码 / Code within product"},
+		{Name: "identifier", Type: field.TypeString, Nullable: true, Size: 128, Comment: "产品内程序标识符 / Identifier within product"},
+		{Name: "name", Type: field.TypeString, Nullable: true, Size: 128, Comment: "名称 / Name (zh)"},
+		{Name: "name_en", Type: field.TypeString, Nullable: true, Size: 128, Comment: "英文名 / Name (en)"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "描述 / Description"},
+		{Name: "feature_snapshot", Type: field.TypeJSON, Comment: "完整 FeatureSpec 快照（protojson 编码 oneof）/ Full feature spec snapshot"},
+		{Name: "override_spec", Type: field.TypeJSON, Nullable: true, Comment: "稀疏覆写（白名单字段，protojson 编码）/ Sparse override"},
+		{Name: "data_type", Type: field.TypeEnum, Nullable: true, Comment: "property 数据类型（冗余）/ Property data type", Enums: []string{"INT", "FLOAT", "DOUBLE", "BOOL", "ENUM", "TEXT", "DATE", "STRUCT", "ARRAY"}},
+		{Name: "access_mode", Type: field.TypeEnum, Nullable: true, Comment: "property 访问模式 R/RW / Access mode", Enums: []string{"R", "RW"}},
+		{Name: "event_level", Type: field.TypeEnum, Nullable: true, Comment: "event 级别 INFO/ALERT/ERROR / Event level", Enums: []string{"INFO", "ALERT", "ERROR"}},
+		{Name: "call_mode", Type: field.TypeEnum, Nullable: true, Comment: "service 调用模式 ASYNC/SYNC / Call mode", Enums: []string{"ASYNC", "SYNC"}},
+		{Name: "relation_type", Type: field.TypeString, Nullable: true, Comment: "relation 关系类型 / Relation type"},
+		{Name: "product_id", Type: field.TypeUint32, Comment: "父产品 ID / Product id"},
+	}
+	// ThingmodelProductFeaturesTable holds the schema information for the "thingmodel_product_features" table.
+	ThingmodelProductFeaturesTable = &schema.Table{
+		Name:       "thingmodel_product_features",
+		Comment:    "产品下特征条目 / Product feature entry",
+		Columns:    ThingmodelProductFeaturesColumns,
+		PrimaryKey: []*schema.Column{ThingmodelProductFeaturesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "thingmodel_product_features_thingmodel_products_features",
+				Columns:    []*schema.Column{ThingmodelProductFeaturesColumns[25]},
+				RefColumns: []*schema.Column{ThingmodelProductsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_tm_pf_product_code",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[25], ThingmodelProductFeaturesColumns[13]},
+			},
+			{
+				Name:    "uix_tm_pf_product_identifier",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[25], ThingmodelProductFeaturesColumns[14]},
+			},
+			{
+				Name:    "idx_tm_pf_product_type_sort",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[25], ThingmodelProductFeaturesColumns[12], ThingmodelProductFeaturesColumns[8]},
+			},
+			{
+				Name:    "idx_tm_pf_ref_feature",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[11]},
+			},
+			{
+				Name:    "idx_tm_pf_source",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[10]},
+			},
+			{
+				Name:    "idx_tm_pf_tenant_product",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[9], ThingmodelProductFeaturesColumns[25]},
+			},
+			{
+				Name:    "idx_tm_pf_type_datatype",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[12], ThingmodelProductFeaturesColumns[20]},
+			},
+			{
+				Name:    "idx_tm_pf_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[7]},
+			},
+			{
+				Name:    "idx_tm_pf_tenant",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[9]},
+			},
+			{
+				Name:    "idx_tm_pf_sort_order",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[8]},
+			},
+		},
+	}
 	// SysRolesColumns holds the columns for the "sys_roles" table.
 	SysRolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -3100,6 +3341,7 @@ var (
 		SysApisTable,
 		SysAPIAuditLogsTable,
 		ThingmodelCategoriesTable,
+		ThingmodelCategoryDefaultFeaturesTable,
 		SysDataAccessAuditLogsTable,
 		SysDictEntriesTable,
 		SysDictEntryI18nTable,
@@ -3127,6 +3369,8 @@ var (
 		SysPermissionPoliciesTable,
 		SysPolicyEvaluationLogsTable,
 		SysPositionsTable,
+		ThingmodelProductsTable,
+		ThingmodelProductFeaturesTable,
 		SysRolesTable,
 		SysRoleMetadataTable,
 		SysRolePermissionsTable,
@@ -3156,6 +3400,13 @@ func init() {
 	ThingmodelCategoriesTable.ForeignKeys[0].RefTable = ThingmodelCategoriesTable
 	ThingmodelCategoriesTable.Annotation = &entsql.Annotation{
 		Table:     "thingmodel_categories",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	ThingmodelCategoryDefaultFeaturesTable.ForeignKeys[0].RefTable = ThingmodelCategoriesTable
+	ThingmodelCategoryDefaultFeaturesTable.ForeignKeys[1].RefTable = ThingmodelFeaturesTable
+	ThingmodelCategoryDefaultFeaturesTable.Annotation = &entsql.Annotation{
+		Table:     "thingmodel_category_default_features",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
 	}
@@ -3296,6 +3547,18 @@ func init() {
 	}
 	SysPositionsTable.Annotation = &entsql.Annotation{
 		Table:     "sys_positions",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	ThingmodelProductsTable.ForeignKeys[0].RefTable = ThingmodelCategoriesTable
+	ThingmodelProductsTable.Annotation = &entsql.Annotation{
+		Table:     "thingmodel_products",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	ThingmodelProductFeaturesTable.ForeignKeys[0].RefTable = ThingmodelProductsTable
+	ThingmodelProductFeaturesTable.Annotation = &entsql.Annotation{
+		Table:     "thingmodel_product_features",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
 	}

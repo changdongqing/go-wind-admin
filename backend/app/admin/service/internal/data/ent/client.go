@@ -14,6 +14,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/category"
+	"go-wind-admin/app/admin/service/internal/data/ent/categorydefaultfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/dataaccessauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
@@ -41,6 +42,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/permissionpolicy"
 	"go-wind-admin/app/admin/service/internal/data/ent/policyevaluationlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/position"
+	"go-wind-admin/app/admin/service/internal/data/ent/product"
+	"go-wind-admin/app/admin/service/internal/data/ent/productfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolemetadata"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
@@ -71,6 +74,8 @@ type Client struct {
 	ApiAuditLog *ApiAuditLogClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
+	// CategoryDefaultFeature is the client for interacting with the CategoryDefaultFeature builders.
+	CategoryDefaultFeature *CategoryDefaultFeatureClient
 	// DataAccessAuditLog is the client for interacting with the DataAccessAuditLog builders.
 	DataAccessAuditLog *DataAccessAuditLogClient
 	// DictEntry is the client for interacting with the DictEntry builders.
@@ -125,6 +130,10 @@ type Client struct {
 	PolicyEvaluationLog *PolicyEvaluationLogClient
 	// Position is the client for interacting with the Position builders.
 	Position *PositionClient
+	// Product is the client for interacting with the Product builders.
+	Product *ProductClient
+	// ProductFeature is the client for interacting with the ProductFeature builders.
+	ProductFeature *ProductFeatureClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// RoleMetadata is the client for interacting with the RoleMetadata builders.
@@ -163,6 +172,7 @@ func (c *Client) init() {
 	c.Api = NewAPIClient(c.config)
 	c.ApiAuditLog = NewApiAuditLogClient(c.config)
 	c.Category = NewCategoryClient(c.config)
+	c.CategoryDefaultFeature = NewCategoryDefaultFeatureClient(c.config)
 	c.DataAccessAuditLog = NewDataAccessAuditLogClient(c.config)
 	c.DictEntry = NewDictEntryClient(c.config)
 	c.DictEntryI18n = NewDictEntryI18nClient(c.config)
@@ -190,6 +200,8 @@ func (c *Client) init() {
 	c.PermissionPolicy = NewPermissionPolicyClient(c.config)
 	c.PolicyEvaluationLog = NewPolicyEvaluationLogClient(c.config)
 	c.Position = NewPositionClient(c.config)
+	c.Product = NewProductClient(c.config)
+	c.ProductFeature = NewProductFeatureClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.RoleMetadata = NewRoleMetadataClient(c.config)
 	c.RolePermission = NewRolePermissionClient(c.config)
@@ -297,6 +309,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Api:                      NewAPIClient(cfg),
 		ApiAuditLog:              NewApiAuditLogClient(cfg),
 		Category:                 NewCategoryClient(cfg),
+		CategoryDefaultFeature:   NewCategoryDefaultFeatureClient(cfg),
 		DataAccessAuditLog:       NewDataAccessAuditLogClient(cfg),
 		DictEntry:                NewDictEntryClient(cfg),
 		DictEntryI18n:            NewDictEntryI18nClient(cfg),
@@ -324,6 +337,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		PermissionPolicy:         NewPermissionPolicyClient(cfg),
 		PolicyEvaluationLog:      NewPolicyEvaluationLogClient(cfg),
 		Position:                 NewPositionClient(cfg),
+		Product:                  NewProductClient(cfg),
+		ProductFeature:           NewProductFeatureClient(cfg),
 		Role:                     NewRoleClient(cfg),
 		RoleMetadata:             NewRoleMetadataClient(cfg),
 		RolePermission:           NewRolePermissionClient(cfg),
@@ -358,6 +373,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Api:                      NewAPIClient(cfg),
 		ApiAuditLog:              NewApiAuditLogClient(cfg),
 		Category:                 NewCategoryClient(cfg),
+		CategoryDefaultFeature:   NewCategoryDefaultFeatureClient(cfg),
 		DataAccessAuditLog:       NewDataAccessAuditLogClient(cfg),
 		DictEntry:                NewDictEntryClient(cfg),
 		DictEntryI18n:            NewDictEntryI18nClient(cfg),
@@ -385,6 +401,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		PermissionPolicy:         NewPermissionPolicyClient(cfg),
 		PolicyEvaluationLog:      NewPolicyEvaluationLogClient(cfg),
 		Position:                 NewPositionClient(cfg),
+		Product:                  NewProductClient(cfg),
+		ProductFeature:           NewProductFeatureClient(cfg),
 		Role:                     NewRoleClient(cfg),
 		RoleMetadata:             NewRoleMetadataClient(cfg),
 		RolePermission:           NewRolePermissionClient(cfg),
@@ -426,16 +444,16 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Api, c.ApiAuditLog, c.Category, c.DataAccessAuditLog, c.DictEntry,
-		c.DictEntryI18n, c.DictType, c.Feature, c.File, c.InternalMessage,
-		c.InternalMessageCategory, c.InternalMessageRecipient, c.Language,
-		c.LoginAuditLog, c.LoginPolicy, c.Membership, c.MembershipOrgUnit,
-		c.MembershipPosition, c.MembershipRole, c.Menu, c.OperationAuditLog, c.OrgUnit,
-		c.Permission, c.PermissionApi, c.PermissionAuditLog, c.PermissionGroup,
-		c.PermissionMenu, c.PermissionPolicy, c.PolicyEvaluationLog, c.Position,
-		c.Role, c.RoleMetadata, c.RolePermission, c.Task, c.Tenant, c.Unit,
-		c.UnitCategory, c.User, c.UserCredential, c.UserOrgUnit, c.UserPosition,
-		c.UserRole,
+		c.Api, c.ApiAuditLog, c.Category, c.CategoryDefaultFeature,
+		c.DataAccessAuditLog, c.DictEntry, c.DictEntryI18n, c.DictType, c.Feature,
+		c.File, c.InternalMessage, c.InternalMessageCategory,
+		c.InternalMessageRecipient, c.Language, c.LoginAuditLog, c.LoginPolicy,
+		c.Membership, c.MembershipOrgUnit, c.MembershipPosition, c.MembershipRole,
+		c.Menu, c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
+		c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy,
+		c.PolicyEvaluationLog, c.Position, c.Product, c.ProductFeature, c.Role,
+		c.RoleMetadata, c.RolePermission, c.Task, c.Tenant, c.Unit, c.UnitCategory,
+		c.User, c.UserCredential, c.UserOrgUnit, c.UserPosition, c.UserRole,
 	} {
 		n.Use(hooks...)
 	}
@@ -445,16 +463,16 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Api, c.ApiAuditLog, c.Category, c.DataAccessAuditLog, c.DictEntry,
-		c.DictEntryI18n, c.DictType, c.Feature, c.File, c.InternalMessage,
-		c.InternalMessageCategory, c.InternalMessageRecipient, c.Language,
-		c.LoginAuditLog, c.LoginPolicy, c.Membership, c.MembershipOrgUnit,
-		c.MembershipPosition, c.MembershipRole, c.Menu, c.OperationAuditLog, c.OrgUnit,
-		c.Permission, c.PermissionApi, c.PermissionAuditLog, c.PermissionGroup,
-		c.PermissionMenu, c.PermissionPolicy, c.PolicyEvaluationLog, c.Position,
-		c.Role, c.RoleMetadata, c.RolePermission, c.Task, c.Tenant, c.Unit,
-		c.UnitCategory, c.User, c.UserCredential, c.UserOrgUnit, c.UserPosition,
-		c.UserRole,
+		c.Api, c.ApiAuditLog, c.Category, c.CategoryDefaultFeature,
+		c.DataAccessAuditLog, c.DictEntry, c.DictEntryI18n, c.DictType, c.Feature,
+		c.File, c.InternalMessage, c.InternalMessageCategory,
+		c.InternalMessageRecipient, c.Language, c.LoginAuditLog, c.LoginPolicy,
+		c.Membership, c.MembershipOrgUnit, c.MembershipPosition, c.MembershipRole,
+		c.Menu, c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
+		c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy,
+		c.PolicyEvaluationLog, c.Position, c.Product, c.ProductFeature, c.Role,
+		c.RoleMetadata, c.RolePermission, c.Task, c.Tenant, c.Unit, c.UnitCategory,
+		c.User, c.UserCredential, c.UserOrgUnit, c.UserPosition, c.UserRole,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -469,6 +487,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ApiAuditLog.mutate(ctx, m)
 	case *CategoryMutation:
 		return c.Category.mutate(ctx, m)
+	case *CategoryDefaultFeatureMutation:
+		return c.CategoryDefaultFeature.mutate(ctx, m)
 	case *DataAccessAuditLogMutation:
 		return c.DataAccessAuditLog.mutate(ctx, m)
 	case *DictEntryMutation:
@@ -523,6 +543,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.PolicyEvaluationLog.mutate(ctx, m)
 	case *PositionMutation:
 		return c.Position.mutate(ctx, m)
+	case *ProductMutation:
+		return c.Product.mutate(ctx, m)
+	case *ProductFeatureMutation:
+		return c.ProductFeature.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
 	case *RoleMetadataMutation:
@@ -959,6 +983,38 @@ func (c *CategoryClient) QueryChildren(_m *Category) *CategoryQuery {
 	return query
 }
 
+// QueryDefaultFeatures queries the default_features edge of a Category.
+func (c *CategoryClient) QueryDefaultFeatures(_m *Category) *CategoryDefaultFeatureQuery {
+	query := (&CategoryDefaultFeatureClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, id),
+			sqlgraph.To(categorydefaultfeature.Table, categorydefaultfeature.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, category.DefaultFeaturesTable, category.DefaultFeaturesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProducts queries the products edge of a Category.
+func (c *CategoryClient) QueryProducts(_m *Category) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(category.Table, category.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, category.ProductsTable, category.ProductsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *CategoryClient) Hooks() []Hook {
 	hooks := c.hooks.Category
@@ -982,6 +1038,172 @@ func (c *CategoryClient) mutate(ctx context.Context, m *CategoryMutation) (Value
 		return (&CategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Category mutation op: %q", m.Op())
+	}
+}
+
+// CategoryDefaultFeatureClient is a client for the CategoryDefaultFeature schema.
+type CategoryDefaultFeatureClient struct {
+	config
+}
+
+// NewCategoryDefaultFeatureClient returns a client for the CategoryDefaultFeature from the given config.
+func NewCategoryDefaultFeatureClient(c config) *CategoryDefaultFeatureClient {
+	return &CategoryDefaultFeatureClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `categorydefaultfeature.Hooks(f(g(h())))`.
+func (c *CategoryDefaultFeatureClient) Use(hooks ...Hook) {
+	c.hooks.CategoryDefaultFeature = append(c.hooks.CategoryDefaultFeature, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `categorydefaultfeature.Intercept(f(g(h())))`.
+func (c *CategoryDefaultFeatureClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CategoryDefaultFeature = append(c.inters.CategoryDefaultFeature, interceptors...)
+}
+
+// Create returns a builder for creating a CategoryDefaultFeature entity.
+func (c *CategoryDefaultFeatureClient) Create() *CategoryDefaultFeatureCreate {
+	mutation := newCategoryDefaultFeatureMutation(c.config, OpCreate)
+	return &CategoryDefaultFeatureCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CategoryDefaultFeature entities.
+func (c *CategoryDefaultFeatureClient) CreateBulk(builders ...*CategoryDefaultFeatureCreate) *CategoryDefaultFeatureCreateBulk {
+	return &CategoryDefaultFeatureCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CategoryDefaultFeatureClient) MapCreateBulk(slice any, setFunc func(*CategoryDefaultFeatureCreate, int)) *CategoryDefaultFeatureCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CategoryDefaultFeatureCreateBulk{err: fmt.Errorf("calling to CategoryDefaultFeatureClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CategoryDefaultFeatureCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CategoryDefaultFeatureCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CategoryDefaultFeature.
+func (c *CategoryDefaultFeatureClient) Update() *CategoryDefaultFeatureUpdate {
+	mutation := newCategoryDefaultFeatureMutation(c.config, OpUpdate)
+	return &CategoryDefaultFeatureUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CategoryDefaultFeatureClient) UpdateOne(_m *CategoryDefaultFeature) *CategoryDefaultFeatureUpdateOne {
+	mutation := newCategoryDefaultFeatureMutation(c.config, OpUpdateOne, withCategoryDefaultFeature(_m))
+	return &CategoryDefaultFeatureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CategoryDefaultFeatureClient) UpdateOneID(id uint32) *CategoryDefaultFeatureUpdateOne {
+	mutation := newCategoryDefaultFeatureMutation(c.config, OpUpdateOne, withCategoryDefaultFeatureID(id))
+	return &CategoryDefaultFeatureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CategoryDefaultFeature.
+func (c *CategoryDefaultFeatureClient) Delete() *CategoryDefaultFeatureDelete {
+	mutation := newCategoryDefaultFeatureMutation(c.config, OpDelete)
+	return &CategoryDefaultFeatureDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CategoryDefaultFeatureClient) DeleteOne(_m *CategoryDefaultFeature) *CategoryDefaultFeatureDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CategoryDefaultFeatureClient) DeleteOneID(id uint32) *CategoryDefaultFeatureDeleteOne {
+	builder := c.Delete().Where(categorydefaultfeature.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CategoryDefaultFeatureDeleteOne{builder}
+}
+
+// Query returns a query builder for CategoryDefaultFeature.
+func (c *CategoryDefaultFeatureClient) Query() *CategoryDefaultFeatureQuery {
+	return &CategoryDefaultFeatureQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCategoryDefaultFeature},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CategoryDefaultFeature entity by its id.
+func (c *CategoryDefaultFeatureClient) Get(ctx context.Context, id uint32) (*CategoryDefaultFeature, error) {
+	return c.Query().Where(categorydefaultfeature.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CategoryDefaultFeatureClient) GetX(ctx context.Context, id uint32) *CategoryDefaultFeature {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCategory queries the category edge of a CategoryDefaultFeature.
+func (c *CategoryDefaultFeatureClient) QueryCategory(_m *CategoryDefaultFeature) *CategoryQuery {
+	query := (&CategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(categorydefaultfeature.Table, categorydefaultfeature.FieldID, id),
+			sqlgraph.To(category.Table, category.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, categorydefaultfeature.CategoryTable, categorydefaultfeature.CategoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFeature queries the feature edge of a CategoryDefaultFeature.
+func (c *CategoryDefaultFeatureClient) QueryFeature(_m *CategoryDefaultFeature) *FeatureQuery {
+	query := (&FeatureClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(categorydefaultfeature.Table, categorydefaultfeature.FieldID, id),
+			sqlgraph.To(feature.Table, feature.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, categorydefaultfeature.FeatureTable, categorydefaultfeature.FeatureColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CategoryDefaultFeatureClient) Hooks() []Hook {
+	hooks := c.hooks.CategoryDefaultFeature
+	return append(hooks[:len(hooks):len(hooks)], categorydefaultfeature.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *CategoryDefaultFeatureClient) Interceptors() []Interceptor {
+	return c.inters.CategoryDefaultFeature
+}
+
+func (c *CategoryDefaultFeatureClient) mutate(ctx context.Context, m *CategoryDefaultFeatureMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CategoryDefaultFeatureCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CategoryDefaultFeatureUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CategoryDefaultFeatureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CategoryDefaultFeatureDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CategoryDefaultFeature mutation op: %q", m.Op())
 	}
 }
 
@@ -1691,6 +1913,22 @@ func (c *FeatureClient) GetX(ctx context.Context, id uint32) *Feature {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryCategoryDefaultEntries queries the category_default_entries edge of a Feature.
+func (c *FeatureClient) QueryCategoryDefaultEntries(_m *Feature) *CategoryDefaultFeatureQuery {
+	query := (&CategoryDefaultFeatureClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(feature.Table, feature.FieldID, id),
+			sqlgraph.To(categorydefaultfeature.Table, categorydefaultfeature.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, feature.CategoryDefaultEntriesTable, feature.CategoryDefaultEntriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -4756,6 +4994,322 @@ func (c *PositionClient) mutate(ctx context.Context, m *PositionMutation) (Value
 	}
 }
 
+// ProductClient is a client for the Product schema.
+type ProductClient struct {
+	config
+}
+
+// NewProductClient returns a client for the Product from the given config.
+func NewProductClient(c config) *ProductClient {
+	return &ProductClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `product.Hooks(f(g(h())))`.
+func (c *ProductClient) Use(hooks ...Hook) {
+	c.hooks.Product = append(c.hooks.Product, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `product.Intercept(f(g(h())))`.
+func (c *ProductClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Product = append(c.inters.Product, interceptors...)
+}
+
+// Create returns a builder for creating a Product entity.
+func (c *ProductClient) Create() *ProductCreate {
+	mutation := newProductMutation(c.config, OpCreate)
+	return &ProductCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Product entities.
+func (c *ProductClient) CreateBulk(builders ...*ProductCreate) *ProductCreateBulk {
+	return &ProductCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProductClient) MapCreateBulk(slice any, setFunc func(*ProductCreate, int)) *ProductCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProductCreateBulk{err: fmt.Errorf("calling to ProductClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProductCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProductCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Product.
+func (c *ProductClient) Update() *ProductUpdate {
+	mutation := newProductMutation(c.config, OpUpdate)
+	return &ProductUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProductClient) UpdateOne(_m *Product) *ProductUpdateOne {
+	mutation := newProductMutation(c.config, OpUpdateOne, withProduct(_m))
+	return &ProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProductClient) UpdateOneID(id uint32) *ProductUpdateOne {
+	mutation := newProductMutation(c.config, OpUpdateOne, withProductID(id))
+	return &ProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Product.
+func (c *ProductClient) Delete() *ProductDelete {
+	mutation := newProductMutation(c.config, OpDelete)
+	return &ProductDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProductClient) DeleteOne(_m *Product) *ProductDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProductClient) DeleteOneID(id uint32) *ProductDeleteOne {
+	builder := c.Delete().Where(product.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProductDeleteOne{builder}
+}
+
+// Query returns a query builder for Product.
+func (c *ProductClient) Query() *ProductQuery {
+	return &ProductQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProduct},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Product entity by its id.
+func (c *ProductClient) Get(ctx context.Context, id uint32) (*Product, error) {
+	return c.Query().Where(product.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProductClient) GetX(ctx context.Context, id uint32) *Product {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCategory queries the category edge of a Product.
+func (c *ProductClient) QueryCategory(_m *Product) *CategoryQuery {
+	query := (&CategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(category.Table, category.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.CategoryTable, product.CategoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFeatures queries the features edge of a Product.
+func (c *ProductClient) QueryFeatures(_m *Product) *ProductFeatureQuery {
+	query := (&ProductFeatureClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, id),
+			sqlgraph.To(productfeature.Table, productfeature.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.FeaturesTable, product.FeaturesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProductClient) Hooks() []Hook {
+	hooks := c.hooks.Product
+	return append(hooks[:len(hooks):len(hooks)], product.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProductClient) Interceptors() []Interceptor {
+	return c.inters.Product
+}
+
+func (c *ProductClient) mutate(ctx context.Context, m *ProductMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProductCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProductUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProductDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Product mutation op: %q", m.Op())
+	}
+}
+
+// ProductFeatureClient is a client for the ProductFeature schema.
+type ProductFeatureClient struct {
+	config
+}
+
+// NewProductFeatureClient returns a client for the ProductFeature from the given config.
+func NewProductFeatureClient(c config) *ProductFeatureClient {
+	return &ProductFeatureClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `productfeature.Hooks(f(g(h())))`.
+func (c *ProductFeatureClient) Use(hooks ...Hook) {
+	c.hooks.ProductFeature = append(c.hooks.ProductFeature, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `productfeature.Intercept(f(g(h())))`.
+func (c *ProductFeatureClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProductFeature = append(c.inters.ProductFeature, interceptors...)
+}
+
+// Create returns a builder for creating a ProductFeature entity.
+func (c *ProductFeatureClient) Create() *ProductFeatureCreate {
+	mutation := newProductFeatureMutation(c.config, OpCreate)
+	return &ProductFeatureCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProductFeature entities.
+func (c *ProductFeatureClient) CreateBulk(builders ...*ProductFeatureCreate) *ProductFeatureCreateBulk {
+	return &ProductFeatureCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProductFeatureClient) MapCreateBulk(slice any, setFunc func(*ProductFeatureCreate, int)) *ProductFeatureCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProductFeatureCreateBulk{err: fmt.Errorf("calling to ProductFeatureClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProductFeatureCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProductFeatureCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProductFeature.
+func (c *ProductFeatureClient) Update() *ProductFeatureUpdate {
+	mutation := newProductFeatureMutation(c.config, OpUpdate)
+	return &ProductFeatureUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProductFeatureClient) UpdateOne(_m *ProductFeature) *ProductFeatureUpdateOne {
+	mutation := newProductFeatureMutation(c.config, OpUpdateOne, withProductFeature(_m))
+	return &ProductFeatureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProductFeatureClient) UpdateOneID(id uint32) *ProductFeatureUpdateOne {
+	mutation := newProductFeatureMutation(c.config, OpUpdateOne, withProductFeatureID(id))
+	return &ProductFeatureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProductFeature.
+func (c *ProductFeatureClient) Delete() *ProductFeatureDelete {
+	mutation := newProductFeatureMutation(c.config, OpDelete)
+	return &ProductFeatureDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProductFeatureClient) DeleteOne(_m *ProductFeature) *ProductFeatureDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProductFeatureClient) DeleteOneID(id uint32) *ProductFeatureDeleteOne {
+	builder := c.Delete().Where(productfeature.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProductFeatureDeleteOne{builder}
+}
+
+// Query returns a query builder for ProductFeature.
+func (c *ProductFeatureClient) Query() *ProductFeatureQuery {
+	return &ProductFeatureQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProductFeature},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProductFeature entity by its id.
+func (c *ProductFeatureClient) Get(ctx context.Context, id uint32) (*ProductFeature, error) {
+	return c.Query().Where(productfeature.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProductFeatureClient) GetX(ctx context.Context, id uint32) *ProductFeature {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryProduct queries the product edge of a ProductFeature.
+func (c *ProductFeatureClient) QueryProduct(_m *ProductFeature) *ProductQuery {
+	query := (&ProductClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(productfeature.Table, productfeature.FieldID, id),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, productfeature.ProductTable, productfeature.ProductColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProductFeatureClient) Hooks() []Hook {
+	hooks := c.hooks.ProductFeature
+	return append(hooks[:len(hooks):len(hooks)], productfeature.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProductFeatureClient) Interceptors() []Interceptor {
+	return c.inters.ProductFeature
+}
+
+func (c *ProductFeatureClient) mutate(ctx context.Context, m *ProductFeatureMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProductFeatureCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProductFeatureUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProductFeatureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProductFeatureDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProductFeature mutation op: %q", m.Op())
+	}
+}
+
 // RoleClient is a client for the Role schema.
 type RoleClient struct {
 	config
@@ -6398,23 +6952,25 @@ func (c *UserRoleClient) mutate(ctx context.Context, m *UserRoleMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Api, ApiAuditLog, Category, DataAccessAuditLog, DictEntry, DictEntryI18n,
-		DictType, Feature, File, InternalMessage, InternalMessageCategory,
-		InternalMessageRecipient, Language, LoginAuditLog, LoginPolicy, Membership,
-		MembershipOrgUnit, MembershipPosition, MembershipRole, Menu, OperationAuditLog,
-		OrgUnit, Permission, PermissionApi, PermissionAuditLog, PermissionGroup,
-		PermissionMenu, PermissionPolicy, PolicyEvaluationLog, Position, Role,
-		RoleMetadata, RolePermission, Task, Tenant, Unit, UnitCategory, User,
-		UserCredential, UserOrgUnit, UserPosition, UserRole []ent.Hook
+		Api, ApiAuditLog, Category, CategoryDefaultFeature, DataAccessAuditLog,
+		DictEntry, DictEntryI18n, DictType, Feature, File, InternalMessage,
+		InternalMessageCategory, InternalMessageRecipient, Language, LoginAuditLog,
+		LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition, MembershipRole,
+		Menu, OperationAuditLog, OrgUnit, Permission, PermissionApi,
+		PermissionAuditLog, PermissionGroup, PermissionMenu, PermissionPolicy,
+		PolicyEvaluationLog, Position, Product, ProductFeature, Role, RoleMetadata,
+		RolePermission, Task, Tenant, Unit, UnitCategory, User, UserCredential,
+		UserOrgUnit, UserPosition, UserRole []ent.Hook
 	}
 	inters struct {
-		Api, ApiAuditLog, Category, DataAccessAuditLog, DictEntry, DictEntryI18n,
-		DictType, Feature, File, InternalMessage, InternalMessageCategory,
-		InternalMessageRecipient, Language, LoginAuditLog, LoginPolicy, Membership,
-		MembershipOrgUnit, MembershipPosition, MembershipRole, Menu, OperationAuditLog,
-		OrgUnit, Permission, PermissionApi, PermissionAuditLog, PermissionGroup,
-		PermissionMenu, PermissionPolicy, PolicyEvaluationLog, Position, Role,
-		RoleMetadata, RolePermission, Task, Tenant, Unit, UnitCategory, User,
-		UserCredential, UserOrgUnit, UserPosition, UserRole []ent.Interceptor
+		Api, ApiAuditLog, Category, CategoryDefaultFeature, DataAccessAuditLog,
+		DictEntry, DictEntryI18n, DictType, Feature, File, InternalMessage,
+		InternalMessageCategory, InternalMessageRecipient, Language, LoginAuditLog,
+		LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition, MembershipRole,
+		Menu, OperationAuditLog, OrgUnit, Permission, PermissionApi,
+		PermissionAuditLog, PermissionGroup, PermissionMenu, PermissionPolicy,
+		PolicyEvaluationLog, Position, Product, ProductFeature, Role, RoleMetadata,
+		RolePermission, Task, Tenant, Unit, UnitCategory, User, UserCredential,
+		UserOrgUnit, UserPosition, UserRole []ent.Interceptor
 	}
 )

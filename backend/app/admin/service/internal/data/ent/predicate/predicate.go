@@ -15,6 +15,9 @@ type ApiAuditLog func(*sql.Selector)
 // Category is the predicate function for category builders.
 type Category func(*sql.Selector)
 
+// CategoryDefaultFeature is the predicate function for categorydefaultfeature builders.
+type CategoryDefaultFeature func(*sql.Selector)
+
 // DataAccessAuditLog is the predicate function for dataaccessauditlog builders.
 type DataAccessAuditLog func(*sql.Selector)
 
@@ -95,6 +98,12 @@ type PolicyEvaluationLog func(*sql.Selector)
 
 // Position is the predicate function for position builders.
 type Position func(*sql.Selector)
+
+// Product is the predicate function for product builders.
+type Product func(*sql.Selector)
+
+// ProductFeature is the predicate function for productfeature builders.
+type ProductFeature func(*sql.Selector)
 
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)

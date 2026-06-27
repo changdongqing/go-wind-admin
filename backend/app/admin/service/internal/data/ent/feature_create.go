@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"go-wind-admin/app/admin/service/internal/data/ent/categorydefaultfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/feature"
 	"go-wind-admin/app/admin/service/internal/data/ent/schema"
 	"time"
@@ -329,6 +330,21 @@ func (_c *FeatureCreate) SetID(v uint32) *FeatureCreate {
 	return _c
 }
 
+// AddCategoryDefaultEntryIDs adds the "category_default_entries" edge to the CategoryDefaultFeature entity by IDs.
+func (_c *FeatureCreate) AddCategoryDefaultEntryIDs(ids ...uint32) *FeatureCreate {
+	_c.mutation.AddCategoryDefaultEntryIDs(ids...)
+	return _c
+}
+
+// AddCategoryDefaultEntries adds the "category_default_entries" edges to the CategoryDefaultFeature entity.
+func (_c *FeatureCreate) AddCategoryDefaultEntries(v ...*CategoryDefaultFeature) *FeatureCreate {
+	ids := make([]uint32, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddCategoryDefaultEntryIDs(ids...)
+}
+
 // Mutation returns the FeatureMutation object of the builder.
 func (_c *FeatureCreate) Mutation() *FeatureMutation {
 	return _c.mutation
@@ -553,6 +569,22 @@ func (_c *FeatureCreate) createSpec() (*Feature, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Spec(); ok {
 		_spec.SetField(feature.FieldSpec, field.TypeJSON, value)
 		_node.Spec = value
+	}
+	if nodes := _c.mutation.CategoryDefaultEntriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feature.CategoryDefaultEntriesTable,
+			Columns: []string{feature.CategoryDefaultEntriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(categorydefaultfeature.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

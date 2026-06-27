@@ -8,6 +8,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/category"
+	"go-wind-admin/app/admin/service/internal/data/ent/categorydefaultfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/dataaccessauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
@@ -35,6 +36,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/permissionpolicy"
 	"go-wind-admin/app/admin/service/internal/data/ent/policyevaluationlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/position"
+	"go-wind-admin/app/admin/service/internal/data/ent/product"
+	"go-wind-admin/app/admin/service/internal/data/ent/productfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolemetadata"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
@@ -172,6 +175,46 @@ func init() {
 	categoryDescID := categoryMixinFields0[0].Descriptor()
 	// category.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	category.IDValidator = categoryDescID.Validators[0].(func(uint32) error)
+	categorydefaultfeatureMixin := schema.CategoryDefaultFeature{}.Mixin()
+	categorydefaultfeature.Policy = privacy.NewPolicies(categorydefaultfeatureMixin[5], schema.CategoryDefaultFeature{})
+	categorydefaultfeature.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := categorydefaultfeature.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	categorydefaultfeatureMixinFields0 := categorydefaultfeatureMixin[0].Fields()
+	_ = categorydefaultfeatureMixinFields0
+	categorydefaultfeatureMixinFields3 := categorydefaultfeatureMixin[3].Fields()
+	_ = categorydefaultfeatureMixinFields3
+	categorydefaultfeatureMixinFields4 := categorydefaultfeatureMixin[4].Fields()
+	_ = categorydefaultfeatureMixinFields4
+	categorydefaultfeatureMixinFields5 := categorydefaultfeatureMixin[5].Fields()
+	_ = categorydefaultfeatureMixinFields5
+	categorydefaultfeatureFields := schema.CategoryDefaultFeature{}.Fields()
+	_ = categorydefaultfeatureFields
+	// categorydefaultfeatureDescIsEnabled is the schema descriptor for is_enabled field.
+	categorydefaultfeatureDescIsEnabled := categorydefaultfeatureMixinFields3[0].Descriptor()
+	// categorydefaultfeature.DefaultIsEnabled holds the default value on creation for the is_enabled field.
+	categorydefaultfeature.DefaultIsEnabled = categorydefaultfeatureDescIsEnabled.Default.(bool)
+	// categorydefaultfeatureDescSortOrder is the schema descriptor for sort_order field.
+	categorydefaultfeatureDescSortOrder := categorydefaultfeatureMixinFields4[0].Descriptor()
+	// categorydefaultfeature.DefaultSortOrder holds the default value on creation for the sort_order field.
+	categorydefaultfeature.DefaultSortOrder = categorydefaultfeatureDescSortOrder.Default.(uint32)
+	// categorydefaultfeatureDescTenantID is the schema descriptor for tenant_id field.
+	categorydefaultfeatureDescTenantID := categorydefaultfeatureMixinFields5[0].Descriptor()
+	// categorydefaultfeature.DefaultTenantID holds the default value on creation for the tenant_id field.
+	categorydefaultfeature.DefaultTenantID = categorydefaultfeatureDescTenantID.Default.(uint32)
+	// categorydefaultfeatureDescDisplayName is the schema descriptor for display_name field.
+	categorydefaultfeatureDescDisplayName := categorydefaultfeatureFields[3].Descriptor()
+	// categorydefaultfeature.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
+	categorydefaultfeature.DisplayNameValidator = categorydefaultfeatureDescDisplayName.Validators[0].(func(string) error)
+	// categorydefaultfeatureDescID is the schema descriptor for id field.
+	categorydefaultfeatureDescID := categorydefaultfeatureMixinFields0[0].Descriptor()
+	// categorydefaultfeature.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	categorydefaultfeature.IDValidator = categorydefaultfeatureDescID.Validators[0].(func(uint32) error)
 	dataaccessauditlogMixin := schema.DataAccessAuditLog{}.Mixin()
 	dataaccessauditlog.Policy = privacy.NewPolicies(dataaccessauditlogMixin[2], schema.DataAccessAuditLog{})
 	dataaccessauditlog.Hooks[0] = func(next ent.Mutator) ent.Mutator {
@@ -951,6 +994,188 @@ func init() {
 	positionDescID := positionMixinFields0[0].Descriptor()
 	// position.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	position.IDValidator = positionDescID.Validators[0].(func(uint32) error)
+	productMixin := schema.Product{}.Mixin()
+	product.Policy = privacy.NewPolicies(productMixin[5], schema.Product{})
+	product.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := product.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	productMixinFields0 := productMixin[0].Fields()
+	_ = productMixinFields0
+	productMixinFields3 := productMixin[3].Fields()
+	_ = productMixinFields3
+	productMixinFields4 := productMixin[4].Fields()
+	_ = productMixinFields4
+	productMixinFields5 := productMixin[5].Fields()
+	_ = productMixinFields5
+	productFields := schema.Product{}.Fields()
+	_ = productFields
+	// productDescIsEnabled is the schema descriptor for is_enabled field.
+	productDescIsEnabled := productMixinFields3[0].Descriptor()
+	// product.DefaultIsEnabled holds the default value on creation for the is_enabled field.
+	product.DefaultIsEnabled = productDescIsEnabled.Default.(bool)
+	// productDescSortOrder is the schema descriptor for sort_order field.
+	productDescSortOrder := productMixinFields4[0].Descriptor()
+	// product.DefaultSortOrder holds the default value on creation for the sort_order field.
+	product.DefaultSortOrder = productDescSortOrder.Default.(uint32)
+	// productDescTenantID is the schema descriptor for tenant_id field.
+	productDescTenantID := productMixinFields5[0].Descriptor()
+	// product.DefaultTenantID holds the default value on creation for the tenant_id field.
+	product.DefaultTenantID = productDescTenantID.Default.(uint32)
+	// productDescCode is the schema descriptor for code field.
+	productDescCode := productFields[0].Descriptor()
+	// product.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	product.CodeValidator = func() func(string) error {
+		validators := productDescCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(code string) error {
+			for _, fn := range fns {
+				if err := fn(code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productDescName is the schema descriptor for name field.
+	productDescName := productFields[1].Descriptor()
+	// product.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	product.NameValidator = func() func(string) error {
+		validators := productDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productDescNameEn is the schema descriptor for name_en field.
+	productDescNameEn := productFields[2].Descriptor()
+	// product.NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
+	product.NameEnValidator = productDescNameEn.Validators[0].(func(string) error)
+	// productDescManufacturer is the schema descriptor for manufacturer field.
+	productDescManufacturer := productFields[4].Descriptor()
+	// product.ManufacturerValidator is a validator for the "manufacturer" field. It is called by the builders before save.
+	product.ManufacturerValidator = productDescManufacturer.Validators[0].(func(string) error)
+	// productDescModelNo is the schema descriptor for model_no field.
+	productDescModelNo := productFields[5].Descriptor()
+	// product.ModelNoValidator is a validator for the "model_no" field. It is called by the builders before save.
+	product.ModelNoValidator = productDescModelNo.Validators[0].(func(string) error)
+	// productDescReferenceCount is the schema descriptor for reference_count field.
+	productDescReferenceCount := productFields[9].Descriptor()
+	// product.DefaultReferenceCount holds the default value on creation for the reference_count field.
+	product.DefaultReferenceCount = productDescReferenceCount.Default.(uint32)
+	// productDescID is the schema descriptor for id field.
+	productDescID := productMixinFields0[0].Descriptor()
+	// product.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	product.IDValidator = productDescID.Validators[0].(func(uint32) error)
+	productfeatureMixin := schema.ProductFeature{}.Mixin()
+	productfeature.Policy = privacy.NewPolicies(productfeatureMixin[5], schema.ProductFeature{})
+	productfeature.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := productfeature.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	productfeatureMixinFields0 := productfeatureMixin[0].Fields()
+	_ = productfeatureMixinFields0
+	productfeatureMixinFields3 := productfeatureMixin[3].Fields()
+	_ = productfeatureMixinFields3
+	productfeatureMixinFields4 := productfeatureMixin[4].Fields()
+	_ = productfeatureMixinFields4
+	productfeatureMixinFields5 := productfeatureMixin[5].Fields()
+	_ = productfeatureMixinFields5
+	productfeatureFields := schema.ProductFeature{}.Fields()
+	_ = productfeatureFields
+	// productfeatureDescIsEnabled is the schema descriptor for is_enabled field.
+	productfeatureDescIsEnabled := productfeatureMixinFields3[0].Descriptor()
+	// productfeature.DefaultIsEnabled holds the default value on creation for the is_enabled field.
+	productfeature.DefaultIsEnabled = productfeatureDescIsEnabled.Default.(bool)
+	// productfeatureDescSortOrder is the schema descriptor for sort_order field.
+	productfeatureDescSortOrder := productfeatureMixinFields4[0].Descriptor()
+	// productfeature.DefaultSortOrder holds the default value on creation for the sort_order field.
+	productfeature.DefaultSortOrder = productfeatureDescSortOrder.Default.(uint32)
+	// productfeatureDescTenantID is the schema descriptor for tenant_id field.
+	productfeatureDescTenantID := productfeatureMixinFields5[0].Descriptor()
+	// productfeature.DefaultTenantID holds the default value on creation for the tenant_id field.
+	productfeature.DefaultTenantID = productfeatureDescTenantID.Default.(uint32)
+	// productfeatureDescCode is the schema descriptor for code field.
+	productfeatureDescCode := productfeatureFields[4].Descriptor()
+	// productfeature.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	productfeature.CodeValidator = func() func(string) error {
+		validators := productfeatureDescCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(code string) error {
+			for _, fn := range fns {
+				if err := fn(code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productfeatureDescIdentifier is the schema descriptor for identifier field.
+	productfeatureDescIdentifier := productfeatureFields[5].Descriptor()
+	// productfeature.IdentifierValidator is a validator for the "identifier" field. It is called by the builders before save.
+	productfeature.IdentifierValidator = func() func(string) error {
+		validators := productfeatureDescIdentifier.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(identifier string) error {
+			for _, fn := range fns {
+				if err := fn(identifier); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productfeatureDescName is the schema descriptor for name field.
+	productfeatureDescName := productfeatureFields[6].Descriptor()
+	// productfeature.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	productfeature.NameValidator = func() func(string) error {
+		validators := productfeatureDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// productfeatureDescNameEn is the schema descriptor for name_en field.
+	productfeatureDescNameEn := productfeatureFields[7].Descriptor()
+	// productfeature.NameEnValidator is a validator for the "name_en" field. It is called by the builders before save.
+	productfeature.NameEnValidator = productfeatureDescNameEn.Validators[0].(func(string) error)
+	// productfeatureDescID is the schema descriptor for id field.
+	productfeatureDescID := productfeatureMixinFields0[0].Descriptor()
+	// productfeature.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	productfeature.IDValidator = productfeatureDescID.Validators[0].(func(uint32) error)
 	roleMixin := schema.Role{}.Mixin()
 	role.Policy = privacy.NewPolicies(roleMixin[6], schema.Role{})
 	role.Hooks[0] = func(next ent.Mutator) ent.Mutator {
