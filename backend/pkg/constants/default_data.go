@@ -859,4 +859,22 @@ var DefaultMenus = []*permissionV1.Menu{
 			Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
 		},
 	},
+	{
+		// 产品管理（模型管理入口②）/ Product management (Model management entry ②)
+		// 设计依据 / Design ref: docs/thingmodel/sheji/模型管理/05-前端实现设计.md §3.1
+		// 注意：分类默认模型（入口①）不单独建菜单，复用 thingmodel:category:edit 权限码
+		Id:        trans.Ptr(uint32(74)),
+		ParentId:  trans.Ptr(uint32(70)),
+		Type:      permissionV1.Menu_MENU.Enum(),
+		Name:      trans.Ptr("ThingModelProductManagement"),
+		Path:      trans.Ptr("product"),
+		Component: trans.Ptr("app/thingmodel/product/index.vue"),
+		CreatedAt: timeutil.TimeToTimestamppb(trans.Ptr(time.Now())),
+		Meta: &permissionV1.MenuMeta{
+			Title:     trans.Ptr("menu.thingmodel.product"),
+			Icon:      trans.Ptr("carbon:product"),
+			Order:     trans.Ptr(int32(4)),
+			Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
+		},
+	},
 }
