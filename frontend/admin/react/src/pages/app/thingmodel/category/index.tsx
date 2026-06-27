@@ -106,23 +106,14 @@ const CategoryManagement = () => {
         ),
     },
 
-    // 编码（带缩进，直观表达层级）
+    // 编码（左对齐，不按层级缩进——code 自带层级前缀已可直观表达层级关系）
     {
       title: t('fields.code'),
       dataIndex: 'code',
       width: 200,
       fixed: 'left',
       // ProTable 默认会把搜索值塞进 formValues；前端把它作为 code___starts_with 前缀过滤
-      render: (_, row) => {
-        const lvl = row.level ?? 1;
-        const indent = '\u00A0\u00A0\u00A0\u00A0'.repeat(lvl - 1);
-        return (
-          <span style={{ fontFamily: 'monospace' }}>
-            {indent}
-            {row.code}
-          </span>
-        );
-      },
+      render: (_, row) => <span style={{ fontFamily: 'monospace' }}>{row.code}</span>,
     },
 
     // 名称
