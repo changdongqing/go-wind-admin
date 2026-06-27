@@ -27,18 +27,18 @@ declare global {
   const BaseTransfer: typeof import('../src/components/Transfer/BaseTransfer').default
   const BaseTreeSelect: typeof import('../src/components/common/Selects/index').BaseTreeSelect
   const BaseUpload: typeof import('../src/components/Upload/BaseUpload').default
-  const CodeBlockModal: typeof import('../src/components/common/Editor/src/TiptapEditor/modals').CodeBlockModal
-  const CodeEditor: typeof import('../src/components/common/Editor/src/CodeEditor').default
+  const CodeBlockModal: typeof import('../src/components/common/Editor/src/TiptapEditor/index').CodeBlockModal
+  const CodeEditor: typeof import('../src/components/common/Editor/index').CodeEditor
   const CopyBtn: typeof import('../src/components/Copy/CopyBtn').default
   const CopyInput: typeof import('../src/components/Copy/CopyInput').default
   const Count: typeof import('../src/components/Count/index').default
   const CreateBusiness: typeof import('../src/components/common/Business/index').CreateBusiness
   const CustomCodeBlockLowlight: typeof import('../src/components/common/Editor/src/TiptapEditor/index').CustomCodeBlockLowlight
-  const CustomIframe: typeof import('../src/components/common/Editor/src/TiptapEditor/nodes').CustomIframe
-  const CustomVideo: typeof import('../src/components/common/Editor/src/TiptapEditor/nodes').CustomVideo
+  const CustomIframe: typeof import('../src/components/common/Editor/src/TiptapEditor/index').CustomIframe
+  const CustomVideo: typeof import('../src/components/common/Editor/src/TiptapEditor/index').CustomVideo
   const DeleteBtn: typeof import('../src/components/Buttons/index').DeleteBtn
   const DragContent: typeof import('../src/components/Table/components/DragContent').default
-  const Editor: typeof import('../src/components/common/Editor/src/Editor').default
+  const Editor: typeof import('../src/components/common/Editor/index').Editor
   const EditorType: typeof import('../src/components/common/Editor/types').EditorType
   const Ellipsis: typeof import('../src/components/Ellipsis/index').default
   const EllipsisText: typeof import('../src/components/Table/components/EllipsisText').default
@@ -48,21 +48,21 @@ declare global {
   const Github: typeof import('../src/components/common/Github/index').default
   const GlobalSearch: typeof import('../src/components/common/GlobalSearch/index').default
   const I18n: typeof import('../src/components/common/I18n/index').default
-  const IframeModal: typeof import('../src/components/common/Editor/src/TiptapEditor/modals').IframeModal
-  const JsonEditor: typeof import('../src/components/common/Editor/src/JsonEditor').default
+  const IframeModal: typeof import('../src/components/common/Editor/src/TiptapEditor/index').IframeModal
+  const JsonEditor: typeof import('../src/components/common/Editor/index').JsonEditor
   const Link: typeof import('react-router-dom').Link
   const LinkModal: typeof import('../src/components/common/Editor/src/TiptapEditor/index').LinkModal
   const Loading: typeof import('../src/components/common/Loading/index').default
   const LoadingComponent: typeof import('../src/components/common/Form/components/LoadingComponent').default
   const MAX_TAG_COUNT: typeof import('../src/components/common/Selects/index').MAX_TAG_COUNT
-  const MarkdownEditor: typeof import('../src/components/common/Editor/src/MarkdownEditor').default
+  const MarkdownEditor: typeof import('../src/components/common/Editor/index').MarkdownEditor
   const NavLink: typeof import('react-router-dom').NavLink
   const Navigate: typeof import('react-router-dom').Navigate
   const Outlet: typeof import('react-router-dom').Outlet
   const PageContainer: typeof import('../src/components/common/PageContainer/index').default
   const PartnerSelect: typeof import('../src/components/common/Business/Selects/PartnerSelect').default
   const PasswordStrength: typeof import('../src/components/PasswordStrength/index').default
-  const PlainTextEditor: typeof import('../src/components/common/Editor/src/PlainTextEditor').default
+  const PlainTextEditor: typeof import('../src/components/common/Editor/index').PlainTextEditor
   const ResizableTitle: typeof import('../src/components/Table/components/ResizableTitle').default
   const Route: typeof import('react-router-dom').Route
   const Routes: typeof import('react-router-dom').Routes
@@ -78,10 +78,10 @@ declare global {
   const TableFilter: typeof import('../src/components/Table/components/TableFilter').default
   const Theme: typeof import('../src/components/common/Theme/index').default
   const ThemeLoading: typeof import('../src/components/common/Loading/index').ThemeLoading
-  const TiptapEditor: typeof import('../src/components/common/Editor/src/TiptapEditor').default
+  const TiptapEditor: typeof import('../src/components/common/Editor/index').TiptapEditor
   const Toolbar: typeof import('../src/components/common/Editor/src/TiptapEditor/index').Toolbar
   const UpdateBtn: typeof import('../src/components/Buttons/index').UpdateBtn
-  const VideoModal: typeof import('../src/components/common/Editor/src/TiptapEditor/modals').VideoModal
+  const VideoModal: typeof import('../src/components/common/Editor/src/TiptapEditor/index').VideoModal
   const VirtualWrapper: typeof import('../src/components/Table/components/VirtualWrapper').default
   const addComponent: typeof import('../src/components/common/Form/utils/componentMap').addComponent
   const cache: typeof import('react').cache
@@ -172,7 +172,7 @@ declare global {
   const useTableScrollHeight: typeof import('../src/hooks/useTableScrollHeight').useTableScrollHeight
   const useTabsStore: typeof import('../src/stores/tabs').useTabsStore
   const useTimes: typeof import('../src/hooks/useTime').useTimes
-  const useTiptapEditor: typeof import('../src/components/common/Editor/src/TiptapEditor/useTiptapEditor').useTiptapEditor
+  const useTiptapEditor: typeof import('../src/components/common/Editor/src/TiptapEditor/index').useTiptapEditor
   const useTitle: typeof import('../src/hooks/useTitle').useTitle
   const useToken: typeof import('../src/hooks/useToken').useToken
   const useTransition: typeof import('react').useTransition
@@ -184,6 +184,6 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type { CodeBlockModalProps, VideoModalProps, IframeModalProps, TiptapEditorProps, MarkdownEditorProps, CodeEditorProps, JsonEditorProps, PlainTextEditorProps, EditorProps, TabItem, ThemeLoadingProps, TokenPayload, AuthState, UserState, AuthLayoutProps, BusinessComponents, RangeValue, SearchModalProps, Langs, ApiFn, ApiSelectProps, ApiTreeSelectProps, ApiPageSelectProps, CheckboxList, InitTableState, TableAction, ECOption, FC } from './autoImports.d'
-  import('./autoImports.d')
+  export type { FC } from 'react'
+  import('react')
 }

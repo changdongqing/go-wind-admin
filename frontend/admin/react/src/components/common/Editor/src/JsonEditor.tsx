@@ -3,13 +3,10 @@ import i18next from 'i18next';
 
 import { isDarkMode } from './utils';
 
-// We need to handle the CSS import separately
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  require('jsoneditor/dist/jsoneditor.min.css');
-} catch {
-  /* CSS may already be loaded */
-}
+// 说明：原 require('jsoneditor/dist/jsoneditor.min.css') 是历史遗留死代码——
+// jsoneditor 包从未安装，且本组件实际只渲染 JsonJsonEditorFallback（textarea），
+// 见下方注释"使用简单 textarea，因为 json-editor-vue 需要 Vue 运行时"。
+// 该静态 require 会让 Vite 依赖扫描报错（"could not be resolved"），故移除。
 
 export interface JsonEditorProps {
   value: string;

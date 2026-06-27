@@ -17,6 +17,10 @@ export default defineConfig(({mode}) => {
                 '@': '/src',
                 '#': '/types',
             },
+            // 去重：react-router-dom 透传递依赖 react-router，二者都导出同名 hooks
+            // (useNavigate/useLocation/useParams...)，未去重时 Vite 会在依赖图里看到两份
+            // 实例，触发 "Duplicated imports" 警告。dedupe 强制统一为同一份。
+            dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
         },
         css: {
             preprocessorOptions: {
