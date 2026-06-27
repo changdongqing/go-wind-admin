@@ -19,7 +19,7 @@
 | 1 | **code 长度按 level 分级** | 一律补 0 凑 8 位（大类 `30000000`） | **大类 2 位、中类 4 位、小类 6 位、细类 8 位**；**绝不补 0 凑长度** |
 | 2 | **叶子节点判定** | 用 `is_leaf` 冗余字段标记 | 直接由 `level == 4` 推导，**去掉 `is_leaf` 字段** |
 | 3 | **业务扩展机制** | 引入 `scope` 字段 + Scope Validator | 直接**扩展 `kind` 枚举**（未来加 `DOCUMENT` / `CERTIFICATE` / `FORM`），不引入新字段 |
-| 4 | **前端形态** | Tabs + Splitter（左 Tree 右 Table）+ Drawer | **Tabs（切 kind）+ 单一 ProTable + Drawer**——code 自带层级排序，无需树展示 |
+| 4 | **前端形态** | Tabs + Splitter（左 Tree 右 Table）+ Drawer | **单一 ProTable + Drawer**——kind 仅作查询表单里的下拉过滤项，不用 Tabs、不用 Tree |
 
 ---
 
@@ -71,7 +71,7 @@
 | 唯一性 | `(tenant_id, kind, code)` 复合唯一 | code 长度按 level 不同，天然无冲突 |
 | 叶子判定 | `level == 4` 即叶子，**不存 `is_leaf` 字段** | 由 level 推导，避免冗余不一致 |
 | 业务扩展 | 通过 `kind` 枚举追加新值 | 不引入 scope 字段；kind 已是天然的业务域区分 |
-| 前端布局 | **Tabs（切 kind）+ 单 ProTable + Drawer** | code 自带层级顺序，无需 Tree；简洁即正义 |
+| 前端布局 | **单一 ProTable + Drawer**（kind 作为搜索表单的下拉过滤项） | 极简即正义；不用 Tabs/Tree/Splitter |
 | 软删除 / 级联 | `On Delete: Restrict` + 应用层 has-children 校验 | 父节点有子节点时禁止物理删除 |
 
 ---
@@ -83,7 +83,7 @@
 | 领域域 | `thingmodel` | `thingmodel`（同域） |
 | 主资源 | UnitCategory + Unit（双表） | Category（单表 + kind 区分多业务） |
 | Proto | `unit_category.proto` + `unit.proto` | `category.proto`（单文件） |
-| 前端 | Splitter（左分类列表，右单位列表） | **Tabs + 单 ProTable**（更简单） |
+| 前端 | Splitter（左分类列表，右单位列表） | **单 ProTable + 搜索过滤**（更简单） |
 | 种子 | 41 分类 / ≈225 单位 | 3 kind / ≈600 分类节点 |
 | 引擎复杂度 | 换算引擎（独立 1 章） | 无引擎，纯 CRUD |
 
