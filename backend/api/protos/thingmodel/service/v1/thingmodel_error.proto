@@ -184,4 +184,32 @@ enum ThingModelErrorReason {
     CATEGORY_CODE_DUPLICATED        = 41040 [(errors.code) = 409]; // 同 (tenant, kind) 下编码重复 / Code duplicated in (tenant, kind)
 
     CATEGORY_IMMUTABLE_FIELD        = 41050 [(errors.code) = 400]; // 试图修改不可变字段（kind/code/parent_id/level）/ Attempt to modify immutable field
+
+    // ===== 模型管理 - 分类默认模型 / Category default feature =====
+    CAT_DEFAULT_FEATURE_NOT_FOUND          = 42010 [(errors.code) = 404]; // 分类默认模型条目不存在 / Not found
+    CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF  = 42011 [(errors.code) = 400]; // 仅 level=4 细类可挂默认模型 / Category must be level=4
+    CAT_DEFAULT_FEATURE_DUPLICATE          = 42012 [(errors.code) = 409]; // (category, feature) 已存在 / Duplicate (category, feature)
+    CAT_DEFAULT_FEATURE_OVERRIDE_INVALID   = 42013 [(errors.code) = 400]; // override_spec 非法 / Invalid override spec
+    CAT_DEFAULT_FEATURE_FEATURE_DISABLED   = 42014 [(errors.code) = 400]; // 引用的全局特征已停用 / Referenced feature disabled
+
+    // ===== 模型管理 - 产品 / Product =====
+    PRODUCT_NOT_FOUND                = 42110 [(errors.code) = 404]; // 产品不存在 / Product not found
+    PRODUCT_CATEGORY_NOT_LEAF        = 42111 [(errors.code) = 400]; // 产品分类必须 level=4 / Category must be level=4
+    PRODUCT_CODE_DUPLICATED          = 42112 [(errors.code) = 409]; // (tenant, code) 冲突 / Code duplicated
+    PRODUCT_NAME_DUPLICATED          = 42113 [(errors.code) = 409]; // (tenant, category, name) 冲突 / Name duplicated within category
+    PRODUCT_IN_USE_CANNOT_DELETE     = 42120 [(errors.code) = 409]; // 被设备实例引用，不可物理删除 / In use cannot delete
+    PRODUCT_STATUS_NOT_DRAFT         = 42130 [(errors.code) = 400]; // 当前状态非 DRAFT，不可执行此操作 / Status not DRAFT
+    PRODUCT_STATUS_NOT_PUBLISHED     = 42131 [(errors.code) = 400]; // 当前状态非 PUBLISHED / Status not PUBLISHED
+    PRODUCT_IMMUTABLE_FIELD          = 42140 [(errors.code) = 400]; // 试图修改不可变字段（code/category_id）/ Immutable field
+
+    // ===== 模型管理 - 产品特征 / Product feature =====
+    PRODUCT_FEATURE_NOT_FOUND        = 42210 [(errors.code) = 404]; // 产品特征条目不存在 / Not found
+    PF_SOURCE_REF_MISMATCH           = 42211 [(errors.code) = 400]; // source 与 ref_feature_id 配合非法 / source/ref mismatch
+    PF_DUPLICATE_CODE                = 42212 [(errors.code) = 409]; // (product, code) 冲突 / Code duplicated within product
+    PF_DUPLICATE_IDENTIFIER          = 42213 [(errors.code) = 409]; // (product, identifier) 冲突 / Identifier duplicated
+    PF_SPEC_TYPE_MISMATCH            = 42214 [(errors.code) = 400]; // feature_snapshot 与 feature_type 不一致 / Spec/type mismatch
+    PF_OVERRIDE_INVALID              = 42215 [(errors.code) = 400]; // override_spec 非法 / Invalid override spec
+    PF_PRODUCT_PUBLISHED             = 42216 [(errors.code) = 400]; // 产品已发布，结构禁止变更 / Product published, structure frozen
+    PF_FEATURE_DISABLED              = 42217 [(errors.code) = 400]; // 引用的全局特征已停用 / Referenced feature disabled
+    PF_DEFAULT_VIA_PULL_ONLY         = 42218 [(errors.code) = 400]; // source=DEFAULT 必须通过 PullFromDefault 创建 / DEFAULT must use PullFromDefault
 }

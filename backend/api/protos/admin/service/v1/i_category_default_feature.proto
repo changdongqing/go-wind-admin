@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+import "thingmodel/service/v1/category_default_feature.proto";
+
+// 分类默认模型服务（BFF 层 REST）/ Category default feature admin service (BFF REST)
+//
+// 入口①：分类管理 level=4 细类的"配置默认模型" Drawer
+// 详见 docs/thingmodel/sheji/模型管理/03-API与Proto设计.md §3.1
+service CategoryDefaultFeatureService {
+  // 分页查询 / List
+  rpc List (pagination.PagingRequest) returns (thingmodel.service.v1.ListCategoryDefaultFeatureResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/category-default-features"
+    };
+  }
+
+  // 详情 / Get
+  rpc Get (thingmodel.service.v1.GetCategoryDefaultFeatureRequest) returns (thingmodel.service.v1.CategoryDefaultFeature) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/category-default-features/{id}"
+    };
+  }
+
+  // 创建单条 / Create
+  rpc Create (thingmodel.service.v1.CreateCategoryDefaultFeatureRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/category-default-features"
+      body: "*"
+    };
+  }
+
+  // 批量添加（一次性把多个 feature 绑定到 category）/ Batch add
+  rpc BatchAdd (thingmodel.service.v1.BatchAddCategoryDefaultFeaturesRequest) returns (thingmodel.service.v1.BatchAddCategoryDefaultFeaturesResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/category-default-features:batch"
+      body: "*"
+    };
+  }
+
+  // 更新（FieldMask）/ Update
+  rpc Update (thingmodel.service.v1.UpdateCategoryDefaultFeatureRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/thingmodel/category-default-features/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除（批量）/ Delete
+  rpc Delete (thingmodel.service.v1.DeleteCategoryDefaultFeatureRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/thingmodel/category-default-features"
+    };
+  }
+
+  // 拖拽排序 / Reorder
+  rpc Reorder (thingmodel.service.v1.ReorderCategoryDefaultFeaturesRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/category-default-features:reorder"
+      body: "*"
+    };
+  }
+}

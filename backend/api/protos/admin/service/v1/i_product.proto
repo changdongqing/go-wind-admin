@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+import "thingmodel/service/v1/product.proto";
+
+// 产品管理服务（BFF 层 REST）/ Product admin service (BFF REST)
+//
+// 入口②：物模型一级菜单下 "产品管理" 子菜单
+// 详见 docs/thingmodel/sheji/模型管理/03-API与Proto设计.md §3.2
+service ProductService {
+  // 分页查询 / List
+  rpc List (pagination.PagingRequest) returns (thingmodel.service.v1.ListProductResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/products"
+    };
+  }
+
+  // 详情 / Get（支持 id 或 code 查询）
+  rpc Get (thingmodel.service.v1.GetProductRequest) returns (thingmodel.service.v1.Product) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/products/{id}"
+      additional_bindings {
+        get: "/admin/v1/thingmodel/products/code/{code}"
+      }
+    };
+  }
+
+  // 创建 / Create
+  rpc Create (thingmodel.service.v1.CreateProductRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/products"
+      body: "*"
+    };
+  }
+
+  // 更新（FieldMask）/ Update
+  rpc Update (thingmodel.service.v1.UpdateProductRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/thingmodel/products/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除（批量）/ Delete
+  rpc Delete (thingmodel.service.v1.DeleteProductRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/thingmodel/products"
+    };
+  }
+
+  // 发布（DRAFT → PUBLISHED）/ Publish
+  rpc Publish (thingmodel.service.v1.PublishProductRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/products/{id}:publish"
+      body: "*"
+    };
+  }
+
+  // 撤销发布（PUBLISHED → DRAFT）/ Unpublish
+  rpc Unpublish (thingmodel.service.v1.UnpublishProductRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/products/{id}:unpublish"
+      body: "*"
+    };
+  }
+}
