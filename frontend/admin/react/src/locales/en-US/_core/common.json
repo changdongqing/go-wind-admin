@@ -28,6 +28,21 @@
     "searchShortcut": "Ctrl K"
   },
   "refresh": "Refresh",
+  "edit": "Edit",
+  "delete": "Delete",
+  "back": "Back",
+  "save": "Save",
+  "search": "Search",
+  "select": "Select",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "deleteConfirm": "Are you sure to delete?",
+  "deleteSuccess": "Deleted",
+  "updateSuccess": "Updated",
+  "createSuccess": "Created",
+  "table": {
+    "action": "Action"
+  },
   "home": "Home",
   "iframe": {
     "noUrlTitle": "No Embedded Page URL Configured",

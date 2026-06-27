@@ -12,6 +12,7 @@
   "description": "Description",
   "status": "Status",
   "isEnabled": "Enabled",
+  "actionTitle": "Actions",
   "createProduct": "Create Product",
   "createSuccess": "Product created",
   "pullSuccess": "Pulled from default model",
@@ -20,9 +21,10 @@
   "publishHint": "After publishing the model structure is frozen: you can no longer add/remove feature entries or change their structure (override only). Continue?",
   "publishSuccess": "Published",
   "unpublishSuccess": "Unpublished",
-  "status": {
+  "statusMap": {
     "DRAFT": "Draft",
-    "PUBLISHED": "Published"
+    "PUBLISHED": "Published",
+    "PRODUCT_STATUS_UNSPECIFIED": "Unset"
   },
   "publish": "Publish",
   "unpublish": "Unpublish",

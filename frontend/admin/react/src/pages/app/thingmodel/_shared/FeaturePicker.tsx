@@ -81,7 +81,7 @@ export const FeaturePicker = ({
         onConfirm(selectedRows);
       }}
       okButtonProps={{ disabled: selectedRows.length === 0 }}
-      destroyOnClose
+      destroyOnHidden
     >
       <Tabs
         activeKey={activeType}

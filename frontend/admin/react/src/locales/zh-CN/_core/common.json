@@ -29,6 +29,21 @@
     "searchShortcut": "Ctrl K"
   },
   "refresh": "刷新",
+  "edit": "编辑",
+  "delete": "删除",
+  "back": "返回",
+  "save": "保存",
+  "search": "搜索",
+  "select": "选择",
+  "enabled": "启用",
+  "disabled": "停用",
+  "deleteConfirm": "确认删除？",
+  "deleteSuccess": "删除成功",
+  "updateSuccess": "更新成功",
+  "createSuccess": "创建成功",
+  "table": {
+    "action": "操作"
+  },
   "iframe": {
     "noUrlTitle": "未配置嵌入页面地址",
     "noUrlDesc": "请在路由配置中提供 iframe URL（通过 state.url 或 query 参数 url）",

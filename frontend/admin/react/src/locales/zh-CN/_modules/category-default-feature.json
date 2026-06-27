@@ -2,12 +2,15 @@
   "drawerTitle": "配置默认模型",
   "addFeature": "新增特征",
   "addSuccess": "添加成功",
+  "actionTitle": "操作",
   "featureCode": "编码",
   "featureIdentifier": "标识符",
   "featureName": "名称",
   "featureType": "类型",
   "overridden": "覆写",
-  "yes": "已",
+  "yes": "是",
+  "no": "否",
+  "deleteConfirm": "确认删除该条目？",
   "editOverride": "编辑覆写",
   "tab": {
     "all": "全部",
@@ -15,5 +18,12 @@
     "event": "事件",
     "service": "服务",
     "relation": "关系"
+  },
+  "featureTypeMap": {
+    "PROPERTY": "属性",
+    "EVENT": "事件",
+    "SERVICE": "服务",
+    "RELATION": "关系",
+    "FEATURE_TYPE_UNSPECIFIED": "-"
   }
 }

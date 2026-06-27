@@ -79,6 +79,14 @@ func (r *ProductRepo) init() {
 	r.mapper.AppendConverters(copierutil.NewTimeStringConverterPair())
 	r.mapper.AppendConverters(copierutil.NewTimeTimestamppbConverterPair())
 	r.mapper.AppendConverters(r.statusConverter.NewConverterPair())
+
+	// ⚠️ 重要：ent struct 中 Status 是 *非指针*（required enum）。
+	// EnumTypeConverter.NewConverterPair() 只注册 *ENTITY → *DTO 转换器，对非指针字段无效，
+	// 否则 copier 跳过该字段、DTO.Status 始终为 nil，前端看到的就是 proto 零值 PRODUCT_STATUS_UNSPECIFIED。
+	// 详见 product_feature_repo.go 的 nonPointerEnumConverter 注释。
+	r.mapper.AppendConverters(nonPointerEnumConverter[
+		product.Status, thingmodelV1.ProductStatus,
+	](thingmodelV1.ProductStatus_value))
 }
 
 // protoToEntProductStatus 将 proto 状态转为 ent 类型；UNSPECIFIED 视为未提供

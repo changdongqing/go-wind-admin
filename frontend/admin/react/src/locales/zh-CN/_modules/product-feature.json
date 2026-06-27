@@ -1,9 +1,11 @@
 {
   "moduleName": "产品特征",
-  "source": {
+  "source": "来源",
+  "sourceMap": {
     "DEFAULT": "默认模型",
     "GLOBAL": "全局特征",
-    "LOCAL": "本地特征"
+    "LOCAL": "本地特征",
+    "UNSPECIFIED": "未知"
   },
   "code": "编码",
   "identifier": "标识符",
@@ -11,7 +13,10 @@
   "dataType": "数据类型",
   "accessMode": "访问模式",
   "overridden": "覆写",
-  "yes": "已",
+  "yes": "是",
+  "no": "否",
+  "actionTitle": "操作",
+  "deleteConfirm": "确认删除该条目？",
   "description": "描述",
   "type": {
     "PROPERTY": "属性",

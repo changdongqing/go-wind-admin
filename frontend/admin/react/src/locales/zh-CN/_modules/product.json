@@ -12,6 +12,7 @@
   "description": "描述",
   "status": "状态",
   "isEnabled": "启停",
+  "actionTitle": "操作",
   "createProduct": "新增产品",
   "createSuccess": "产品创建成功",
   "pullSuccess": "拉取默认模型成功",
@@ -20,9 +21,10 @@
   "publishHint": "发布后将冻结物模型结构：不能再增/删特征条目，不能再修改特征结构（仅可调整覆写）。确定继续吗？",
   "publishSuccess": "发布成功",
   "unpublishSuccess": "已撤销发布",
-  "status": {
+  "statusMap": {
     "DRAFT": "草稿",
-    "PUBLISHED": "已发布"
+    "PUBLISHED": "已发布",
+    "PRODUCT_STATUS_UNSPECIFIED": "未设置"
   },
   "publish": "发布",
   "unpublish": "撤销发布",

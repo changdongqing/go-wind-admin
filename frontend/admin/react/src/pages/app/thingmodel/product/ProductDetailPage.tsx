@@ -199,9 +199,9 @@ const ProductDetailPage = () => {
         <Button onClick={() => navigate('/thingmodel/product')}>← {t('common:back')}</Button>
         <span style={{ fontSize: 18, fontWeight: 600 }}>{product.name}</span>
         {published ? (
-          <Tag color="green">{t('product:status.PUBLISHED')}</Tag>
+          <Tag color="green">{t('product:statusMap.PUBLISHED')}</Tag>
         ) : (
-          <Tag>{t('product:status.DRAFT')}</Tag>
+          <Tag>{t('product:statusMap.DRAFT')}</Tag>
         )}
       </Space>
       <Space style={{ float: 'right' }}>

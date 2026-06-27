@@ -118,7 +118,7 @@ const ProductFeatureDrawer = ({ open, productId, feature, mode, readonly, onClos
   return (
     <>
       <Drawer
-        width={720}
+        size={720}
         open={open && (mode !== 'create-global' || !!feature)}
         onClose={() => onClose(false)}
         title={
@@ -128,7 +128,7 @@ const ProductFeatureDrawer = ({ open, productId, feature, mode, readonly, onClos
               ? t('createLocalFeature')
               : t('createGlobalFeature')
         }
-        destroyOnClose
+        destroyOnHidden
         extra={
           <Button type="primary" onClick={handleSubmit} loading={creating || updating}>
             {t('common:save')}

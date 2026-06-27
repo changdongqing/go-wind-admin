@@ -198,7 +198,7 @@ const CategoryDrawer: React.FC<CategoryDrawerProps> = ({
         },
         resetButtonProps: { onClick: () => onClose(false) },
       }}
-      drawerProps={{ destroyOnClose: true, placement: 'right', size: 600 }}
+      drawerProps={{ destroyOnHidden: true, placement: 'right', size: 600 }}
     >
       <ProFormSelect
         name="kind"

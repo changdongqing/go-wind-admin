@@ -6,8 +6,8 @@
  *
  * 设计依据 / Design ref: docs/thingmodel/sheji/模型管理/05-前端实现设计.md §1.1
  */
-import { useRef, useState } from 'react';
-import { Drawer, Button, Space, Tabs, Popconfirm, App, Modal } from 'antd';
+import { useEffect, useRef, useState } from 'react';
+import { Drawer, Button, Space, Tabs, Popconfirm, App, Modal, Tag } from 'antd';
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -34,6 +34,14 @@ interface Props {
 
 type TabKey = 'ALL' | 'PROPERTY' | 'EVENT' | 'SERVICE' | 'RELATION';
 
+// feature_type → Tag 颜色（与特征管理保持一致）
+const featureTypeColor: Record<string, string> = {
+  PROPERTY: 'blue',
+  EVENT: 'orange',
+  SERVICE: 'green',
+  RELATION: 'purple',
+};
+
 export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props) => {
   const { t } = useTranslation(['category-default-feature', 'common']);
   const actionRef = useRef<ActionType>(null);
@@ -47,6 +55,13 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
     null,
   );
 
+  // 切换 Tab 时强制刷新 ProTable（params 一变 ProTable 会自动 reload）
+  useEffect(() => {
+    if (open) {
+      actionRef.current?.reload();
+    }
+  }, [tab, open]);
+
   const { mutate: batchAdd } = useBatchAddCategoryDefaultFeatures({
     onSuccess: () => {
       message.success(t('addSuccess'));
@@ -56,31 +71,57 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
   });
   const { mutate: doDelete } = useDeleteCategoryDefaultFeature({
     onSuccess: () => {
-      message.success(t('common:deleteSuccess'));
+      message.success(t('common:button.delete'));
       actionRef.current?.reload();
     },
   });
   const { mutate: doUpdate } = useUpdateCategoryDefaultFeature({
     onSuccess: () => {
-      message.success(t('common:updateSuccess'));
+      message.success(t('common:button.ok'));
       actionRef.current?.reload();
       setEditing(null);
     },
   });
 
   const columns: ProColumns<thingmodelservicev1_CategoryDefaultFeature>[] = [
-    { title: t('featureCode'), dataIndex: 'featureCode', width: 140 },
-    { title: t('featureIdentifier'), dataIndex: 'featureIdentifier', width: 160 },
-    { title: t('featureName'), dataIndex: 'featureName' },
-    { title: t('featureType'), dataIndex: 'featureType', width: 100 },
+    {
+      title: t('featureCode'),
+      dataIndex: 'featureCode',
+      width: 140,
+      render: (_, row) => row.featureCode || '-',
+    },
+    {
+      title: t('featureIdentifier'),
+      dataIndex: 'featureIdentifier',
+      width: 160,
+      render: (_, row) => row.featureIdentifier || '-',
+    },
+    {
+      title: t('featureName'),
+      dataIndex: 'featureName',
+      render: (_, row) => row.featureName || row.displayName || '-',
+    },
+    {
+      title: t('featureType'),
+      dataIndex: 'featureType',
+      width: 100,
+      render: (_, row) =>
+        row.featureType ? (
+          <Tag color={featureTypeColor[row.featureType] ?? 'default'}>
+            {t(`featureTypeMap.${row.featureType}`, row.featureType)}
+          </Tag>
+        ) : (
+          '-'
+        ),
+    },
     {
       title: t('overridden'),
       dataIndex: 'overrideSpec',
       width: 90,
-      render: (_, row) => (row.overrideSpec ? t('yes') : '-'),
+      render: (_, row) => (row.overrideSpec ? t('yes') : t('no')),
     },
     {
-      title: t('common:table.action'),
+      title: t('actionTitle'),
       key: 'op',
       width: 160,
       render: (_, row) => (
@@ -93,14 +134,14 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
               setEditOverride(row.overrideSpec ?? null);
             }}
           >
-            {t('common:edit')}
+            {t('common:button.edit')}
           </Button>
           <Popconfirm
-            title={t('common:deleteConfirm')}
+            title={t('deleteConfirm')}
             onConfirm={() => row.id && doDelete({ ids: [row.id] })}
           >
             <Button size="small" type="link" danger>
-              {t('common:delete')}
+              {t('common:button.delete')}
             </Button>
           </Popconfirm>
         </Space>
@@ -110,11 +151,11 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
 
   return (
     <Drawer
-      width={1024}
+      size={1024}
       open={open}
       onClose={onClose}
       title={category ? `${t('drawerTitle')} — ${category.name} (${category.code})` : ''}
-      destroyOnClose
+      destroyOnHidden
     >
       <Tabs
         activeKey={tab}
@@ -133,6 +174,8 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
         rowKey="id"
         search={false}
         columns={columns}
+        // params 中携带 tab，作为 request 的依赖项，切换 Tab 时 ProTable 自动 reload
+        params={{ tab }}
         toolBarRender={() => [
           <Button key="add" type="primary" onClick={() => setPickerOpen(true)}>
             + {t('addFeature')}
@@ -175,6 +218,7 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
         open={!!editing}
         title={t('editOverride')}
         onCancel={() => setEditing(null)}
+        destroyOnHidden
         onOk={() => {
           if (!editing) return;
           doUpdate({

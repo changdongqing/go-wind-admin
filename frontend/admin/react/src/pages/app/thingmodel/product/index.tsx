@@ -18,7 +18,7 @@ import { PaginationQuery } from '@/core/transport/rest';
 import { fetchListProducts, useDeleteProduct } from '@/api/hooks/product';
 import type { thingmodelservicev1_Product } from '@/api/generated/admin/service/v1';
 import CreateProductWizard from './CreateProductWizard';
-import { statusValueEnum, enabledValueEnum } from './constants';
+import { getStatusValueEnum, getEnabledValueEnum } from './constants';
 
 const ProductManagement = () => {
   const { t } = useTranslation(['product', 'common']);
@@ -74,14 +74,14 @@ const ProductManagement = () => {
       title: t('status'),
       dataIndex: 'status',
       width: 100,
-      valueEnum: statusValueEnum,
+      valueEnum: getStatusValueEnum(t),
     },
     {
       title: t('isEnabled'),
       dataIndex: 'isEnabled',
       width: 90,
       hideInSearch: true,
-      valueEnum: enabledValueEnum,
+      valueEnum: getEnabledValueEnum(t),
     },
     {
       title: t('common:table.action'),

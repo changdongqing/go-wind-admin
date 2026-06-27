@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -17,6 +18,7 @@ import (
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/categorydefaultfeature"
+	"go-wind-admin/app/admin/service/internal/data/ent/feature"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
 	"go-wind-admin/app/admin/service/internal/data/ent/schema"
 
@@ -120,11 +122,26 @@ func (r *CategoryDefaultFeatureRepo) Count(ctx context.Context, whereCond []func
 }
 
 // List 分页查询
+//
+// 过滤特殊处理：
+//   - feature_type 不是本表的列（位于关联 feature 表）。前端传入时会被 go-crud 当作未知列触发
+//     SQL 异常导致 500，因此这里预先剥离并翻译为 HasFeatureWith(feature.FeatureTypeEQ) 谓词。
+//
+// 返回值增强：
+//   - 列表返回的 DTO 中 feature_code/feature_identifier/feature_name/feature_type
+//     四个只读字段，由本方法通过 feature_id 批量回查 feature 表后回填。
 func (r *CategoryDefaultFeatureRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*thingmodelV1.ListCategoryDefaultFeatureResponse, error) {
 	if req == nil {
 		return nil, thingmodelV1.ErrorBadRequest("invalid parameter")
 	}
+
+	// 拆掉 query 中的 feature_type，转化为 builder 上的 edge 谓词；避免 SQL 报"unknown column"。
+	extraPreds := r.translateForeignFilters(req)
+
 	builder := r.entClient.Client().CategoryDefaultFeature.Query()
+	if len(extraPreds) > 0 {
+		builder = builder.Where(extraPreds...)
+	}
 	ret, err := r.repository.ListWithPaging(ctx, builder, builder.Clone(), req)
 	if err != nil {
 		return nil, err
@@ -132,10 +149,101 @@ func (r *CategoryDefaultFeatureRepo) List(ctx context.Context, req *paginationV1
 	if ret == nil {
 		return &thingmodelV1.ListCategoryDefaultFeatureResponse{Total: 0, Items: nil}, nil
 	}
+
+	// 联表回填只读字段
+	if err := r.enrichItemsWithFeatures(ctx, ret.Items); err != nil {
+		r.log.Warnf("enrich category_default_features with feature fields failed: %v", err)
+	}
+
 	return &thingmodelV1.ListCategoryDefaultFeatureResponse{
 		Total: ret.Total,
 		Items: ret.Items,
 	}, nil
+}
+
+// translateForeignFilters 把 query JSON 中"不属于本表列"的字段剥离出来，转换为 edge 谓词。
+// 目前仅处理 feature_type；未来如需新增（如 feature_code/feature_identifier 模糊搜索），按相同范式追加。
+func (r *CategoryDefaultFeatureRepo) translateForeignFilters(req *paginationV1.PagingRequest) []predicate.CategoryDefaultFeature {
+	q := req.GetQuery()
+	if q == "" {
+		return nil
+	}
+	var raw map[string]any
+	if err := json.Unmarshal([]byte(q), &raw); err != nil {
+		return nil
+	}
+	var preds []predicate.CategoryDefaultFeature
+	if v, ok := raw["feature_type"]; ok {
+		delete(raw, "feature_type")
+		if s, ok := v.(string); ok && s != "" {
+			preds = append(preds, categorydefaultfeature.HasFeatureWith(
+				feature.FeatureTypeEQ(feature.FeatureType(s)),
+			))
+		}
+	}
+	// 回写剥离后的 query；如果完全空了，把 oneof 重置为 nil 以避免后端解析空对象出错
+	if len(raw) == 0 {
+		req.FilteringType = nil
+	} else {
+		newQ, _ := json.Marshal(raw)
+		req.FilteringType = &paginationV1.PagingRequest_Query{Query: string(newQ)}
+	}
+	return preds
+}
+
+// enrichItemsWithFeatures 批量回查 feature 表，回填 feature_code/feature_identifier/feature_name/feature_type 4 个只读字段。
+func (r *CategoryDefaultFeatureRepo) enrichItemsWithFeatures(ctx context.Context, items []*thingmodelV1.CategoryDefaultFeature) error {
+	if len(items) == 0 {
+		return nil
+	}
+	idSet := make(map[uint32]struct{}, len(items))
+	for _, it := range items {
+		if it.GetFeatureId() != 0 {
+			idSet[it.GetFeatureId()] = struct{}{}
+		}
+	}
+	if len(idSet) == 0 {
+		return nil
+	}
+	ids := make([]uint32, 0, len(idSet))
+	for id := range idSet {
+		ids = append(ids, id)
+	}
+	rows, err := r.entClient.Client().Feature.Query().
+		Where(feature.IDIn(ids...)).
+		All(ctx)
+	if err != nil {
+		return err
+	}
+	byID := make(map[uint32]*ent.Feature, len(rows))
+	for _, f := range rows {
+		byID[f.ID] = f
+	}
+	for _, it := range items {
+		f, ok := byID[it.GetFeatureId()]
+		if !ok {
+			continue
+		}
+		if f.Code != nil {
+			c := *f.Code
+			it.FeatureCode = &c
+		}
+		if f.Identifier != nil {
+			id := *f.Identifier
+			it.FeatureIdentifier = &id
+		}
+		if f.Name != nil {
+			n := *f.Name
+			it.FeatureName = &n
+		}
+		if f.FeatureType != nil {
+			if v, ok := thingmodelV1.FeatureType_value[string(*f.FeatureType)]; ok {
+				ft := thingmodelV1.FeatureType(v)
+				it.FeatureType = &ft
+			}
+		}
+	}
+	return nil
 }
 
 // ListByCategory 按 category_id 查询某个分类的全部默认条目（不分页）。

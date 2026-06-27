@@ -2,12 +2,15 @@
   "drawerTitle": "Configure Default Model",
   "addFeature": "Add Feature",
   "addSuccess": "Added",
+  "actionTitle": "Actions",
   "featureCode": "Code",
   "featureIdentifier": "Identifier",
   "featureName": "Name",
   "featureType": "Type",
   "overridden": "Override",
-  "yes": "yes",
+  "yes": "Yes",
+  "no": "No",
+  "deleteConfirm": "Delete this entry?",
   "editOverride": "Edit Override",
   "tab": {
     "all": "All",
@@ -15,5 +18,12 @@
     "event": "Event",
     "service": "Service",
     "relation": "Relation"
+  },
+  "featureTypeMap": {
+    "PROPERTY": "Property",
+    "EVENT": "Event",
+    "SERVICE": "Service",
+    "RELATION": "Relation",
+    "FEATURE_TYPE_UNSPECIFIED": "-"
   }
 }

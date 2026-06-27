@@ -1,9 +1,11 @@
 {
   "moduleName": "Product Feature",
-  "source": {
+  "source": "Source",
+  "sourceMap": {
     "DEFAULT": "Default Model",
     "GLOBAL": "Global Library",
-    "LOCAL": "Local"
+    "LOCAL": "Local",
+    "UNSPECIFIED": "Unknown"
   },
   "code": "Code",
   "identifier": "Identifier",
@@ -11,7 +13,10 @@
   "dataType": "Data Type",
   "accessMode": "Access Mode",
   "overridden": "Override",
-  "yes": "yes",
+  "yes": "Yes",
+  "no": "No",
+  "actionTitle": "Actions",
+  "deleteConfirm": "Delete this entry?",
   "description": "Description",
   "type": {
     "PROPERTY": "Property",

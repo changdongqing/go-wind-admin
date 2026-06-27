@@ -107,7 +107,7 @@ func (r *ProductFeatureRepo) init() {
 	r.mapper.AppendConverters(copierutil.NewTimeStringConverterPair())
 	r.mapper.AppendConverters(copierutil.NewTimeTimestamppbConverterPair())
 
-	// 6 个 enum
+	// 6 个 enum（针对 *ENTITY → *DTO 类型对的 pointer 字段：data_type/access_mode/event_level/call_mode）
 	r.mapper.AppendConverters(r.sourceConverter.NewConverterPair())
 	r.mapper.AppendConverters(r.featureTypeConverter.NewConverterPair())
 	r.mapper.AppendConverters(r.dataTypeConverter.NewConverterPair())
@@ -115,9 +115,44 @@ func (r *ProductFeatureRepo) init() {
 	r.mapper.AppendConverters(r.eventLevelConverter.NewConverterPair())
 	r.mapper.AppendConverters(r.callModeConverter.NewConverterPair())
 
+	// ⚠️ 重要：ent struct 中 Source / FeatureType 是 *非指针*（required enum），
+	// 但 EnumTypeConverter.NewConverterPair() 注册的是 *ENTITY → *DTO；
+	// 不补这两组非指针转换器会导致 copier 跳过该字段、DTO.Source/FeatureType 始终为 nil，
+	// 前端看到的就是 proto 零值 PRODUCT_FEATURE_SOURCE_UNSPECIFIED / FEATURE_TYPE_UNSPECIFIED。
+	r.mapper.AppendConverters(nonPointerEnumConverter[
+		productfeature.Source, thingmodelV1.ProductFeatureSource,
+	](thingmodelV1.ProductFeatureSource_value))
+	r.mapper.AppendConverters(nonPointerEnumConverter[
+		productfeature.FeatureType, thingmodelV1.FeatureType,
+	](thingmodelV1.FeatureType_value))
+
 	// 2 个 JSON wrapper converter
 	r.mapper.AppendConverters(productFeatureSnapshotConverterPair())
 	r.mapper.AppendConverters(featureOverrideSpecConverterPair())
+}
+
+// nonPointerEnumConverter 注册 `非指针 ENTITY → *DTO` 单向 copier 转换器。
+// 解决 EnumTypeConverter 只覆盖 pointer 字段对的盲区（required enum 字段不带 *）。
+func nonPointerEnumConverter[
+	ENTITY ~string, DTO ~int32,
+](valueMap map[string]int32) []copier.TypeConverter {
+	srcType := ENTITY("")
+	var dstType *DTO
+	return []copier.TypeConverter{
+		{
+			SrcType: srcType,
+			DstType: dstType,
+			Fn: func(src interface{}) (interface{}, error) {
+				s, _ := src.(ENTITY)
+				v, ok := valueMap[string(s)]
+				if !ok {
+					return (*DTO)(nil), nil
+				}
+				d := DTO(v)
+				return &d, nil
+			},
+		},
+	}
 }
 
 // productFeatureSnapshotConverterPair 返回 feature_snapshot 字段的双向类型转换对
