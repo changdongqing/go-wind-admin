@@ -49,17 +49,17 @@ type UnitServiceHTTPServer interface {
 
 func RegisterUnitServiceHTTPServer(s *http.Server, srv UnitServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/admin/v1/thingmodel/units", _UnitService_List22_HTTP_Handler(srv))
-	r.GET("/admin/v1/thingmodel/units/code/{code}", _UnitService_Get25_HTTP_Handler(srv))
-	r.GET("/admin/v1/thingmodel/units/{id}", _UnitService_Get26_HTTP_Handler(srv))
-	r.POST("/admin/v1/thingmodel/units", _UnitService_Create16_HTTP_Handler(srv))
-	r.PUT("/admin/v1/thingmodel/units/{id}", _UnitService_Update16_HTTP_Handler(srv))
-	r.DELETE("/admin/v1/thingmodel/units", _UnitService_Delete16_HTTP_Handler(srv))
+	r.GET("/admin/v1/thingmodel/units", _UnitService_List23_HTTP_Handler(srv))
+	r.GET("/admin/v1/thingmodel/units/code/{code}", _UnitService_Get27_HTTP_Handler(srv))
+	r.GET("/admin/v1/thingmodel/units/{id}", _UnitService_Get28_HTTP_Handler(srv))
+	r.POST("/admin/v1/thingmodel/units", _UnitService_Create17_HTTP_Handler(srv))
+	r.PUT("/admin/v1/thingmodel/units/{id}", _UnitService_Update17_HTTP_Handler(srv))
+	r.DELETE("/admin/v1/thingmodel/units", _UnitService_Delete17_HTTP_Handler(srv))
 	r.GET("/admin/v1/thingmodel/unit-categories/{category_id}/units", _UnitService_ListByCategory0_HTTP_Handler(srv))
 	r.POST("/admin/v1/thingmodel/units:convert", _UnitService_Convert0_HTTP_Handler(srv))
 }
 
-func _UnitService_List22_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
+func _UnitService_List23_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v1.PagingRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -78,7 +78,7 @@ func _UnitService_List22_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.C
 	}
 }
 
-func _UnitService_Get25_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
+func _UnitService_Get27_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v11.GetUnitRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -100,7 +100,7 @@ func _UnitService_Get25_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Co
 	}
 }
 
-func _UnitService_Get26_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
+func _UnitService_Get28_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v11.GetUnitRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -122,7 +122,7 @@ func _UnitService_Get26_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Co
 	}
 }
 
-func _UnitService_Create16_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
+func _UnitService_Create17_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v11.CreateUnitRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -144,7 +144,7 @@ func _UnitService_Create16_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http
 	}
 }
 
-func _UnitService_Update16_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
+func _UnitService_Update17_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v11.UpdateUnitRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -169,7 +169,7 @@ func _UnitService_Update16_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http
 	}
 }
 
-func _UnitService_Delete16_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
+func _UnitService_Delete17_HTTP_Handler(srv UnitServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v11.DeleteUnitRequest
 		if err := ctx.BindQuery(&in); err != nil {

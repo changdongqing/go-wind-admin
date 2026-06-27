@@ -51,3 +51,4 @@ export * from './internal-message';
 // 物模型 / Thing model
 export * from './unit';
 export * from './feature';
+export * from './category';

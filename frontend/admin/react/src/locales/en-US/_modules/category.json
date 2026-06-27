@@ -1,0 +1,53 @@
+{
+  "moduleName": "Category Management",
+  "kind": {
+    "SYSTEM": "Smart System",
+    "SPACE": "Space",
+    "FACILITY": "Facility"
+  },
+  "level": {
+    "1": "Class",
+    "2": "Sub-class",
+    "3": "Group",
+    "4": "Item"
+  },
+  "fields": {
+    "kind": "Kind",
+    "code": "Code",
+    "name": "Name",
+    "nameEn": "Name (EN)",
+    "level": "Level",
+    "parent": "Parent",
+    "icon": "Icon",
+    "description": "Description",
+    "referenceCount": "References",
+    "sortOrder": "Order",
+    "isEnabled": "Status"
+  },
+  "tags": {
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "actions": {
+    "create": "Create",
+    "createChild": "Add Child",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "createSuccess": "Created successfully",
+  "createFailed": "Create failed",
+  "updateSuccess": "Updated successfully",
+  "updateFailed": "Update failed",
+  "deleteSuccess": "Deleted successfully",
+  "deleteFailed": "Delete failed",
+  "tips": {
+    "topLevel": "(Top-level, no parent)",
+    "deleteConfirm": "Delete this category? Will be rejected if it has children.",
+    "requiredKind": "Please select a kind",
+    "requiredCode": "Please enter the code",
+    "requiredName": "Please enter the name",
+    "codeFormat": "Code must be all digits",
+    "codeLength": "{{need}} digits required for current level",
+    "codePrefix": "Code must start with parent code {{prefix}} and be exactly 2 digits longer"
+  }
+}

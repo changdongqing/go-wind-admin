@@ -164,4 +164,24 @@ enum ThingModelErrorReason {
     FEATURE_IDENTIFIER_DUPLICATED = 50031 [(errors.code) = 409];        // 标识符重复 / Identifier duplicated
     FEATURE_IN_USE_CANNOT_DELETE = 50040 [(errors.code) = 409];         // 特征被关系引用，不可删除 / Feature in use by relation cannot delete
     FEATURE_UNIT_REFERENCE_FAIL = 50050 [(errors.code) = 500];          // 维护单位引用计数失败 / Maintain unit reference count failed
+
+    // ===== 分类管理业务错误码 / Category management business reasons =====
+    CATEGORY_NOT_FOUND              = 41010 [(errors.code) = 404]; // 分类不存在 / Category not found
+    CATEGORY_PARENT_NOT_FOUND       = 41011 [(errors.code) = 404]; // 父分类不存在 / Parent category not found
+
+    CATEGORY_CODE_FORMAT_INVALID    = 41020 [(errors.code) = 400]; // 编码格式不合法（非纯数字）/ Code format invalid (must be digits)
+    CATEGORY_CODE_LENGTH_MISMATCH   = 41021 [(errors.code) = 400]; // 编码长度与 level 不匹配 (= level*2) / Code length mismatch (must = level*2)
+    CATEGORY_CODE_PREFIX_MISMATCH   = 41022 [(errors.code) = 400]; // 编码必须以父编码为严格前缀且长度 + 2 / Code must be strict prefix of parent + 2 digits
+
+    CATEGORY_LEVEL_INVALID          = 41023 [(errors.code) = 400]; // 层级不在 1..4 范围 / Level out of range 1..4
+    CATEGORY_LEVEL_PARENT_MISMATCH  = 41024 [(errors.code) = 400]; // 父分类层级与本层级不匹配 / Parent level mismatch
+    CATEGORY_KIND_PARENT_MISMATCH   = 41025 [(errors.code) = 400]; // 父子分类 kind 不一致 / Parent kind mismatch
+    CATEGORY_PARENT_REQUIRED        = 41026 [(errors.code) = 400]; // level>1 必须指定父分类 / Parent required for level>1
+    CATEGORY_PARENT_FORBIDDEN       = 41027 [(errors.code) = 400]; // level=1 不能指定父分类 / Parent forbidden when level=1
+
+    CATEGORY_HAS_CHILDREN           = 41030 [(errors.code) = 409]; // 存在子分类，不可删除 / Has children, cannot delete
+    CATEGORY_IN_USE_CANNOT_DELETE   = 41031 [(errors.code) = 409]; // 被引用，不可删除 / In use, cannot delete
+    CATEGORY_CODE_DUPLICATED        = 41040 [(errors.code) = 409]; // 同 (tenant, kind) 下编码重复 / Code duplicated in (tenant, kind)
+
+    CATEGORY_IMMUTABLE_FIELD        = 41050 [(errors.code) = 400]; // 试图修改不可变字段（kind/code/parent_id/level）/ Attempt to modify immutable field
 }

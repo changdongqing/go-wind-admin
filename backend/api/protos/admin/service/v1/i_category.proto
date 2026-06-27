@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+import "thingmodel/service/v1/category.proto";
+
+// 分类管理服务（BFF 层 REST）/ Category admin service (BFF REST)
+//
+// 业务过滤参数（kind / level / parent_id / code_prefix / keyword / is_enabled）
+// 通过 pagination.PagingRequest 的 query 字段传入；默认按 code 升序（天然层级顺序）。
+service CategoryService {
+  // 分页查询分类列表 / List categories
+  rpc List (pagination.PagingRequest) returns (thingmodel.service.v1.ListCategoryResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/categories"
+    };
+  }
+
+  // 查询分类详情 / Get category
+  rpc Get (thingmodel.service.v1.GetCategoryRequest) returns (thingmodel.service.v1.Category) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/categories/{id}"
+      additional_bindings {
+        get: "/admin/v1/thingmodel/categories/code/{code}"
+      }
+    };
+  }
+
+  // 创建分类 / Create category
+  rpc Create (thingmodel.service.v1.CreateCategoryRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/categories"
+      body: "*"
+    };
+  }
+
+  // 更新分类（不可改 kind/code/parent_id/level）/ Update category
+  rpc Update (thingmodel.service.v1.UpdateCategoryRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/thingmodel/categories/{id}"
+      body: "*"
+    };
+  }
+
+  // 批量删除（有子节点的拒绝）/ Batch delete (reject if has children)
+  rpc Delete (thingmodel.service.v1.DeleteCategoryRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/thingmodel/categories"
+    };
+  }
+}

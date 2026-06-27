@@ -16,6 +16,8 @@ type Tx struct {
 	Api *APIClient
 	// ApiAuditLog is the client for interacting with the ApiAuditLog builders.
 	ApiAuditLog *ApiAuditLogClient
+	// Category is the client for interacting with the Category builders.
+	Category *CategoryClient
 	// DataAccessAuditLog is the client for interacting with the DataAccessAuditLog builders.
 	DataAccessAuditLog *DataAccessAuditLogClient
 	// DictEntry is the client for interacting with the DictEntry builders.
@@ -227,6 +229,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Api = NewAPIClient(tx.config)
 	tx.ApiAuditLog = NewApiAuditLogClient(tx.config)
+	tx.Category = NewCategoryClient(tx.config)
 	tx.DataAccessAuditLog = NewDataAccessAuditLogClient(tx.config)
 	tx.DictEntry = NewDictEntryClient(tx.config)
 	tx.DictEntryI18n = NewDictEntryI18nClient(tx.config)

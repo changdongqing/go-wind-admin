@@ -46,6 +46,19 @@ export const thingmodelRoutes: AppRouteObject[] = [
           // authority: ['feature:view'],
         },
       },
+      {
+        name: 'thingmodel-category',
+        path: 'category',
+        element: createLazyRoute(() => import('@/pages/app/thingmodel/category')),
+        meta: {
+          title: 'routes:thingmodelCategory',
+          icon: 'lucide:layers',
+          order: 3,
+          // 权限码由后端 SyncPermissions 自动从菜单 path 派生：
+          //   menu /thingmodel/category (MENU) → "category:view"
+          // authority: ['category:view'],
+        },
+      },
     ],
   },
 ];

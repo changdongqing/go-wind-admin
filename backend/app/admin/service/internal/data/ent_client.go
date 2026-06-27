@@ -71,6 +71,15 @@ func NewEntClient(ctx *bootstrap.Context) (*entCrud.EntClient[*ent.Client], func
 				// Errorf so users immediately notice seed failures in startup logs.
 				l.Errorf("[ENT] seed thingmodel features failed: %v", seedErr)
 			}
+
+			// 物模型-分类模块种子（幂等）
+			// Thing-model category module seed (idempotent).
+			//   - 三套国标清单：智能系统(30-36)/空间(10)/设备设施(20-26)，约 600~750 节点
+			//   - tenant_id=0、按 (tenant_id, kind, code) upsert
+			//   - 单表 + kind 枚举承载多业务域；4 层固定，code 变长 2/4/6/8
+			if seedErr := seed.SeedThingmodelCategories(ctx.Context(), client, l); seedErr != nil {
+				l.Errorf("[ENT] seed thingmodel categories failed: %v", seedErr)
+			}
 		}
 
 		return client

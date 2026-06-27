@@ -3905,6 +3905,216 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/thingmodel/categories:
+        get:
+            tags:
+                - CategoryService
+            description: 分页查询分类列表 / List categories
+            operationId: CategoryService_List
+            parameters:
+                - name: page
+                  in: query
+                  description: 当前页码（从1开始，默认1）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  description: 每页条数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: offset
+                  in: query
+                  description: 跳过的记录数（从0开始，默认0）
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: 最多返回的记录数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: token
+                  in: query
+                  description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
+                  schema:
+                    type: string
+                - name: noPaging
+                  in: query
+                  description: 是否不分页，如果为true，则page和pageSize参数无效。
+                  schema:
+                    type: boolean
+                - name: query
+                  in: query
+                  description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: Google AIP规范字符串过滤条件
+                  schema:
+                    type: string
+                - name: filterExpr.type
+                  in: query
+                  description: 过滤表达式类型
+                  schema:
+                    enum:
+                        - EXPR_TYPE_UNSPECIFIED
+                        - AND
+                        - OR
+                    type: string
+                    format: enum
+                - name: orderBy
+                  in: query
+                  description: 排序条件
+                  schema:
+                    type: string
+                - name: fieldMask
+                  in: query
+                  description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListCategoryResponse'
+        post:
+            tags:
+                - CategoryService
+            description: 创建分类 / Create category
+            operationId: CategoryService_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateCategoryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - CategoryService
+            description: 批量删除（有子节点的拒绝）/ Batch delete (reject if has children)
+            operationId: CategoryService_Delete
+            parameters:
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/categories/code/{code}:
+        get:
+            tags:
+                - CategoryService
+            description: 查询分类详情 / Get category
+            operationId: CategoryService_Get
+            parameters:
+                - name: code
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: kind
+                  in: query
+                  schema:
+                    enum:
+                        - CATEGORY_KIND_UNSPECIFIED
+                        - SYSTEM
+                        - SPACE
+                        - FACILITY
+                    type: string
+                    format: enum
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Category'
+    /admin/v1/thingmodel/categories/{id}:
+        get:
+            tags:
+                - CategoryService
+            description: 查询分类详情 / Get category
+            operationId: CategoryService_Get
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: kind
+                  in: query
+                  schema:
+                    enum:
+                        - CATEGORY_KIND_UNSPECIFIED
+                        - SYSTEM
+                        - SPACE
+                        - FACILITY
+                    type: string
+                    format: enum
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Category'
+        put:
+            tags:
+                - CategoryService
+            description: 更新分类（不可改 kind/code/parent_id/level）/ Update category
+            operationId: CategoryService_Update
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateCategoryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /admin/v1/thingmodel/features:
         get:
             tags:
@@ -4170,6 +4380,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/thingmodel/features:import:
+        post:
+            tags:
+                - FeatureService
+            description: 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+            operationId: FeatureService_ImportFeatures
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ImportFeaturesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ImportFeaturesResponse'
     /admin/v1/thingmodel/features:validateSpec:
         post:
             tags:
@@ -5087,6 +5316,93 @@ components:
                 "true":
                     type: string
             description: 布尔标签 / Bool labels
+        Category:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 分类ID / Category ID
+                    format: uint32
+                kind:
+                    enum:
+                        - CATEGORY_KIND_UNSPECIFIED
+                        - SYSTEM
+                        - SPACE
+                        - FACILITY
+                    type: string
+                    description: 分类种类（不可变）/ Category kind (immutable)
+                    format: enum
+                code:
+                    type: string
+                    description: 分类编码（变长 2/4/6/8 位纯数字，不可变）/ Variable-length numeric code, immutable
+                level:
+                    type: integer
+                    description: 层级：1=大类 2=中类 3=小类 4=细类 / Hierarchy level (1..4)
+                    format: uint32
+                parentId:
+                    type: integer
+                    description: 父分类ID（level=1 时为空）/ Parent category id (null when level=1)
+                    format: uint32
+                name:
+                    type: string
+                    description: 中文名 / Category name (zh)
+                nameEn:
+                    type: string
+                    description: 英文名 / Category name (en)
+                icon:
+                    type: string
+                    description: Iconify 图标名 / Iconify icon name
+                description:
+                    type: string
+                    description: 描述 / Description
+                referenceCount:
+                    type: integer
+                    description: 被物模型/实例引用次数（预留，本期恒 0）/ Reference count (reserved)
+                    format: uint32
+                isEnabled:
+                    type: boolean
+                    description: 是否启用 / Is enabled
+                sortOrder:
+                    type: integer
+                    description: 排序号，越小越靠前 / Sort order
+                    format: uint32
+                tenantId:
+                    type: integer
+                    description: 租户ID，0代表系统全局 / Tenant ID, 0=system global
+                    format: uint32
+                tenantName:
+                    type: string
+                    description: 租户名称 / Tenant name
+                createdBy:
+                    type: integer
+                    description: 创建者用户ID / Created by
+                    format: uint32
+                updatedBy:
+                    type: integer
+                    description: 更新者用户ID / Updated by
+                    format: uint32
+                deletedBy:
+                    type: integer
+                    description: 删除者用户ID / Deleted by
+                    format: uint32
+                createdAt:
+                    type: string
+                    description: 创建时间 / Created at
+                    format: date-time
+                updatedAt:
+                    type: string
+                    description: 更新时间 / Updated at
+                    format: date-time
+                deletedAt:
+                    type: string
+                    description: 删除时间 / Deleted at
+                    format: date-time
+            description: |-
+                分类节点 / Category node
+
+                 code 长度按 level 严格分级 / variable-length code by level：
+                   level=1 大类 → 2 位、level=2 中类 → 4 位、level=3 小类 → 6 位、level=4 细类 → 8 位。
+                   不存 path / is_leaf 字段：叶子由 `level==4` 推导，父子关系由 code 截断推导。
         ChangePasswordRequest:
             type: object
             properties:
@@ -5168,6 +5484,12 @@ components:
                 data:
                     $ref: '#/components/schemas/Api'
             description: 创建 - 请求
+        CreateCategoryRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/Category'
+            description: 创建分类 - 请求 / Create request
         CreateDictEntryRequest:
             type: object
             properties:
@@ -5989,6 +6311,71 @@ components:
                     type: string
                     description: 经度（微度）
             description: 地理位置
+        ImportFeatureRow:
+            type: object
+            properties:
+                featureType:
+                    type: string
+                    description: 特征类型 PROPERTY/EVENT/SERVICE/RELATION / Feature type
+                code:
+                    type: string
+                    description: 清单编码（不可变，租户内唯一）/ Code
+                identifier:
+                    type: string
+                    description: 程序标识符（租户内唯一）/ Program identifier
+                name:
+                    type: string
+                    description: 中文名 / Name (zh)
+                nameEn:
+                    type: string
+                    description: 英文名 / Name (en)
+                description:
+                    type: string
+                applicableScope:
+                    type: string
+                    description: 适用设备范围 / Applicable device scope
+                sortOrder:
+                    type: integer
+                    description: 排序号 / Sort order
+                    format: uint32
+                specJson:
+                    type: string
+                    description: spec 的 JSON 字符串（与种子 map 同构，按 featureType 还原为 FeatureSpec oneof）/ Spec as JSON string
+            description: |-
+                导入单行（对应 Excel 一行；spec_json 是 spec map 的 JSON 字符串，与种子同构）
+                 One import row; spec_json is the JSON of a spec map (same shape as seed data).
+        ImportFeaturesRequest:
+            type: object
+            properties:
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ImportFeatureRow'
+                skipInvalid:
+                    type: boolean
+                    description: true=跳过非法行继续导入并汇总错误；false=遇错即停 / Skip invalid rows or stop on first error
+            description: 批量导入 - 请求 / Import request
+        ImportFeaturesResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    description: 接收总行数 / Total rows received
+                    format: uint32
+                succeeded:
+                    type: integer
+                    description: 成功写入行数 / Rows upserted
+                    format: uint32
+                failed:
+                    type: integer
+                    description: 失败行数 / Rows failed
+                    format: uint32
+                errors:
+                    type: array
+                    items:
+                        type: string
+                    description: '失败明细（code: 原因），截断到前 20 条 / Failure detail (first 20)'
+            description: 批量导入 - 回应 / Import response
         InitialContextResponse:
             type: object
             properties:
@@ -6292,6 +6679,16 @@ components:
                 total:
                     type: string
             description: 查询列表 - 回应
+        ListCategoryResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Category'
+                total:
+                    type: string
+            description: 查询分类列表 - 回应 / List response
         ListDataAccessAuditLogResponse:
             type: object
             properties:
@@ -8435,6 +8832,27 @@ components:
                     type: boolean
                     description: 如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。
             description: 更新 - 请求
+        UpdateCategoryRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                data:
+                    $ref: '#/components/schemas/Category'
+                updateMask:
+                    example: name,nameEn,icon,description,sortOrder,isEnabled
+                    type: string
+                    description: 要更新的字段列表 / Fields to update
+                    format: field-mask
+                allowMissing:
+                    type: boolean
+                    description: 若为 true，资源不存在则新增（此时 updateMask 被忽略）/ If true, insert when missing
+            description: |-
+                更新分类 - 请求 / Update request
+
+                 不可变字段：kind / code / parent_id / level —— Service 层会校验并拒绝。
+                 Immutable fields: kind / code / parent_id / level — Service layer rejects modifications.
         UpdateDictEntryRequest:
             type: object
             properties:
@@ -9062,6 +9480,12 @@ tags:
       description: API资源管理服务
     - name: AuthenticationService
       description: 用户后台登录认证服务
+    - name: CategoryService
+      description: |-
+        分类管理服务（BFF 层 REST）/ Category admin service (BFF REST)
+
+         业务过滤参数（kind / level / parent_id / code_prefix / keyword / is_enabled）
+         通过 pagination.PagingRequest 的 query 字段传入；默认按 code 升序（天然层级顺序）。
     - name: DataAccessAuditLogService
       description: 数据访问审计日志管理服务
     - name: DictEntryService

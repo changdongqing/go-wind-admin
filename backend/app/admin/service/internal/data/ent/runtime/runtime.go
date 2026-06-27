@@ -7,6 +7,7 @@ import (
 	permissionpb "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
+	"go-wind-admin/app/admin/service/internal/data/ent/category"
 	"go-wind-admin/app/admin/service/internal/data/ent/dataaccessauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
@@ -91,6 +92,86 @@ func init() {
 	apiauditlogDescID := apiauditlogMixinFields0[0].Descriptor()
 	// apiauditlog.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	apiauditlog.IDValidator = apiauditlogDescID.Validators[0].(func(uint32) error)
+	categoryMixin := schema.Category{}.Mixin()
+	category.Policy = privacy.NewPolicies(categoryMixin[5], schema.Category{})
+	category.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := category.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	categoryMixinFields0 := categoryMixin[0].Fields()
+	_ = categoryMixinFields0
+	categoryMixinFields3 := categoryMixin[3].Fields()
+	_ = categoryMixinFields3
+	categoryMixinFields4 := categoryMixin[4].Fields()
+	_ = categoryMixinFields4
+	categoryMixinFields5 := categoryMixin[5].Fields()
+	_ = categoryMixinFields5
+	categoryFields := schema.Category{}.Fields()
+	_ = categoryFields
+	// categoryDescIsEnabled is the schema descriptor for is_enabled field.
+	categoryDescIsEnabled := categoryMixinFields3[0].Descriptor()
+	// category.DefaultIsEnabled holds the default value on creation for the is_enabled field.
+	category.DefaultIsEnabled = categoryDescIsEnabled.Default.(bool)
+	// categoryDescSortOrder is the schema descriptor for sort_order field.
+	categoryDescSortOrder := categoryMixinFields4[0].Descriptor()
+	// category.DefaultSortOrder holds the default value on creation for the sort_order field.
+	category.DefaultSortOrder = categoryDescSortOrder.Default.(uint32)
+	// categoryDescTenantID is the schema descriptor for tenant_id field.
+	categoryDescTenantID := categoryMixinFields5[0].Descriptor()
+	// category.DefaultTenantID holds the default value on creation for the tenant_id field.
+	category.DefaultTenantID = categoryDescTenantID.Default.(uint32)
+	// categoryDescCode is the schema descriptor for code field.
+	categoryDescCode := categoryFields[1].Descriptor()
+	// category.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	category.CodeValidator = func() func(string) error {
+		validators := categoryDescCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(code string) error {
+			for _, fn := range fns {
+				if err := fn(code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// categoryDescLevel is the schema descriptor for level field.
+	categoryDescLevel := categoryFields[2].Descriptor()
+	// category.LevelValidator is a validator for the "level" field. It is called by the builders before save.
+	category.LevelValidator = func() func(uint8) error {
+		validators := categoryDescLevel.Validators
+		fns := [...]func(uint8) error{
+			validators[0].(func(uint8) error),
+			validators[1].(func(uint8) error),
+		}
+		return func(level uint8) error {
+			for _, fn := range fns {
+				if err := fn(level); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// categoryDescName is the schema descriptor for name field.
+	categoryDescName := categoryFields[4].Descriptor()
+	// category.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	category.NameValidator = categoryDescName.Validators[0].(func(string) error)
+	// categoryDescReferenceCount is the schema descriptor for reference_count field.
+	categoryDescReferenceCount := categoryFields[8].Descriptor()
+	// category.DefaultReferenceCount holds the default value on creation for the reference_count field.
+	category.DefaultReferenceCount = categoryDescReferenceCount.Default.(uint32)
+	// categoryDescID is the schema descriptor for id field.
+	categoryDescID := categoryMixinFields0[0].Descriptor()
+	// category.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	category.IDValidator = categoryDescID.Validators[0].(func(uint32) error)
 	dataaccessauditlogMixin := schema.DataAccessAuditLog{}.Mixin()
 	dataaccessauditlog.Policy = privacy.NewPolicies(dataaccessauditlogMixin[2], schema.DataAccessAuditLog{})
 	dataaccessauditlog.Hooks[0] = func(next ent.Mutator) ent.Mutator {

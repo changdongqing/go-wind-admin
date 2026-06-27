@@ -844,4 +844,19 @@ var DefaultMenus = []*permissionV1.Menu{
 			Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
 		},
 	},
+	{
+		Id:        trans.Ptr(uint32(73)),
+		ParentId:  trans.Ptr(uint32(70)),
+		Type:      permissionV1.Menu_MENU.Enum(),
+		Name:      trans.Ptr("ThingModelCategoryManagement"),
+		Path:      trans.Ptr("category"),
+		Component: trans.Ptr("app/thingmodel/category/index.vue"),
+		CreatedAt: timeutil.TimeToTimestamppb(trans.Ptr(time.Now())),
+		Meta: &permissionV1.MenuMeta{
+			Title:     trans.Ptr("menu.thingmodel.category"),
+			Icon:      trans.Ptr("lucide:layers"),
+			Order:     trans.Ptr(int32(3)),
+			Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
+		},
+	},
 }

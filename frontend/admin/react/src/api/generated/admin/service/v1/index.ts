@@ -1131,6 +1131,294 @@ export type authenticationservicev1_VerifyCaptchaResponse = {
   valid: boolean | undefined;
 };
 
+// 分类管理服务（BFF 层 REST）/ Category admin service (BFF REST)
+// 业务过滤参数（kind / level / parent_id / code_prefix / keyword / is_enabled）
+// 通过 pagination.PagingRequest 的 query 字段传入；默认按 code 升序（天然层级顺序）。
+export interface CategoryService {
+  // 分页查询分类列表 / List categories
+  List(
+    request: pagination_PagingRequest,
+  ): Promise<thingmodelservicev1_ListCategoryResponse>;
+  // 查询分类详情 / Get category
+  Get(
+    request: thingmodelservicev1_GetCategoryRequest,
+  ): Promise<thingmodelservicev1_Category>;
+  // 创建分类 / Create category
+  Create(
+    request: thingmodelservicev1_CreateCategoryRequest,
+  ): Promise<wellKnownEmpty>;
+  // 更新分类（不可改 kind/code/parent_id/level）/ Update category
+  Update(
+    request: thingmodelservicev1_UpdateCategoryRequest,
+  ): Promise<wellKnownEmpty>;
+  // 批量删除（有子节点的拒绝）/ Batch delete (reject if has children)
+  Delete(
+    request: thingmodelservicev1_DeleteCategoryRequest,
+  ): Promise<wellKnownEmpty>;
+}
+
+export function createCategoryServiceClient(
+  transport: ClientTransport,
+): CategoryService {
+  return {
+    List(request) {
+      const path = `admin/v1/thingmodel/categories`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.page) {
+        queryParams.push(
+          `page=${encodeURIComponent(request.page.toString())}`,
+        );
+      }
+      if (request.pageSize) {
+        queryParams.push(
+          `pageSize=${encodeURIComponent(request.pageSize.toString())}`,
+        );
+      }
+      if (request.offset) {
+        queryParams.push(
+          `offset=${encodeURIComponent(request.offset.toString())}`,
+        );
+      }
+      if (request.limit) {
+        queryParams.push(
+          `limit=${encodeURIComponent(request.limit.toString())}`,
+        );
+      }
+      if (request.token) {
+        queryParams.push(
+          `token=${encodeURIComponent(request.token.toString())}`,
+        );
+      }
+      if (request.noPaging) {
+        queryParams.push(
+          `noPaging=${encodeURIComponent(request.noPaging.toString())}`,
+        );
+      }
+      if (request.query) {
+        queryParams.push(
+          `query=${encodeURIComponent(request.query.toString())}`,
+        );
+      }
+      if (request.filter) {
+        queryParams.push(
+          `filter=${encodeURIComponent(request.filter.toString())}`,
+        );
+      }
+      if (request.filterExpr?.type) {
+        queryParams.push(
+          `filterExpr.type=${encodeURIComponent(request.filterExpr.type.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.field) {
+        queryParams.push(
+          `filterExpr.conditions.field=${encodeURIComponent(request.filterExpr.conditions.field.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.op) {
+        queryParams.push(
+          `filterExpr.conditions.op=${encodeURIComponent(request.filterExpr.conditions.op.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.value) {
+        queryParams.push(
+          `filterExpr.conditions.value=${encodeURIComponent(request.filterExpr.conditions.value.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonValue) {
+        queryParams.push(
+          `filterExpr.conditions.jsonValue=${encodeURIComponent(request.filterExpr.conditions.jsonValue.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.values) {
+        request.filterExpr.conditions.values.forEach((x) => {
+          queryParams.push(
+            `filterExpr.conditions.values=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      if (request.filterExpr?.conditions?.datePart) {
+        queryParams.push(
+          `filterExpr.conditions.datePart=${encodeURIComponent(request.filterExpr.conditions.datePart.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonPath) {
+        queryParams.push(
+          `filterExpr.conditions.jsonPath=${encodeURIComponent(request.filterExpr.conditions.jsonPath.toString())}`,
+        );
+      }
+      if (request.orderBy) {
+        queryParams.push(
+          `orderBy=${encodeURIComponent(request.orderBy.toString())}`,
+        );
+      }
+      if (request.sorting?.field) {
+        queryParams.push(
+          `sorting.field=${encodeURIComponent(request.sorting.field.toString())}`,
+        );
+      }
+      if (request.sorting?.direction) {
+        queryParams.push(
+          `sorting.direction=${encodeURIComponent(request.sorting.direction.toString())}`,
+        );
+      }
+      if (request.fieldMask) {
+        queryParams.push(
+          `fieldMask=${encodeURIComponent(request.fieldMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'CategoryService',
+        method: 'List',
+      }) as Promise<thingmodelservicev1_ListCategoryResponse>;
+    },
+    Get(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/categories/${request.id}`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.code) {
+        queryParams.push(
+          `code=${encodeURIComponent(request.code.toString())}`,
+        );
+      }
+      if (request.kind) {
+        queryParams.push(
+          `kind=${encodeURIComponent(request.kind.toString())}`,
+        );
+      }
+      if (request.viewMask) {
+        queryParams.push(
+          `viewMask=${encodeURIComponent(request.viewMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'CategoryService',
+        method: 'Get',
+      }) as Promise<thingmodelservicev1_Category>;
+    },
+    Create(request) {
+      const path = `admin/v1/thingmodel/categories`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'CategoryService',
+        method: 'Create',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Update(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/categories/${request.id}`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'PUT', body, {
+        service: 'CategoryService',
+        method: 'Update',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Delete(request) {
+      const path = `admin/v1/thingmodel/categories`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.ids) {
+        request.ids.forEach((x) => {
+          queryParams.push(
+            `ids=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'DELETE', body, {
+        service: 'CategoryService',
+        method: 'Delete',
+      }) as Promise<wellKnownEmpty>;
+    },
+  };
+}
+// 查询分类列表 - 回应 / List response
+export type thingmodelservicev1_ListCategoryResponse = {
+  items: thingmodelservicev1_Category[] | undefined;
+  total: number | undefined;
+};
+
+// 分类节点 / Category node
+// code 长度按 level 严格分级 / variable-length code by level：
+// level=1 大类 → 2 位、level=2 中类 → 4 位、level=3 小类 → 6 位、level=4 细类 → 8 位。
+// 不存 path / is_leaf 字段：叶子由 `level==4` 推导，父子关系由 code 截断推导。
+export type thingmodelservicev1_Category = {
+  code?: string;
+  createdAt?: wellKnownTimestamp;
+  createdBy?: number;
+  deletedAt?: wellKnownTimestamp;
+  deletedBy?: number;
+  description?: string;
+  icon?: string;
+  id?: number;
+  isEnabled?: boolean;
+  kind?: thingmodelservicev1_CategoryKind;
+  level?: number;
+  name?: string;
+  nameEn?: string;
+  parentId?: number;
+  referenceCount?: number;
+  sortOrder?: number;
+  tenantId?: number;
+  tenantName?: string;
+  updatedAt?: wellKnownTimestamp;
+  updatedBy?: number;
+};
+
+// 分类种类（未来扩展只需在此追加枚举值）
+// Category kind, extensible — append new values for future business domains.
+export type thingmodelservicev1_CategoryKind =
+  | 'CATEGORY_KIND_UNSPECIFIED'
+  | 'FACILITY'
+  | 'SPACE'
+  // ===== 本期：物模型三 kind / Thing-model kinds =====
+  | 'SYSTEM';
+// 查询分类详情 - 请求 / Get request
+// 按 id 查时无需带 kind；按 code 查时建议同时带 kind 以唯一定位（同一 code 在不同 kind 下都可能存在，
+// 但唯一键是 (tenant, kind, code)，因此用 code 查至少要把 kind 一起带上才确保唯一）。
+export type thingmodelservicev1_GetCategoryRequest = {
+  code?: string;
+  id?: number;
+  kind?: thingmodelservicev1_CategoryKind;
+  viewMask?: wellKnownFieldMask;
+};
+
+// 创建分类 - 请求 / Create request
+export type thingmodelservicev1_CreateCategoryRequest = {
+  data: thingmodelservicev1_Category | undefined;
+};
+
+// 更新分类 - 请求 / Update request
+// 不可变字段：kind / code / parent_id / level —— Service 层会校验并拒绝。
+// Immutable fields: kind / code / parent_id / level — Service layer rejects modifications.
+export type thingmodelservicev1_UpdateCategoryRequest = {
+  allowMissing?: boolean;
+  data: thingmodelservicev1_Category | undefined;
+  id: number | undefined;
+  updateMask: undefined | wellKnownFieldMask;
+};
+
+// 删除分类 - 请求 / Delete request
+export type thingmodelservicev1_DeleteCategoryRequest = {
+  ids: number[] | undefined;
+};
+
 // 数据访问审计日志管理服务
 export interface DataAccessAuditLogService {
   // 查询数据访问审计日志列表
@@ -8427,6 +8715,7 @@ export class ApiClient {
   private _apiAuditLogService?: ApiAuditLogService;
   private _apiService?: ApiService;
   private _authenticationService?: AuthenticationService;
+  private _categoryService?: CategoryService;
   private _dataAccessAuditLogService?: DataAccessAuditLogService;
   private _dictEntryService?: DictEntryService;
   private _dictTypeService?: DictTypeService;
@@ -8474,6 +8763,10 @@ export class ApiClient {
 
   get authenticationService(): AuthenticationService {
     return this._authenticationService ??= createAuthenticationServiceClient(this._transport);
+  }
+
+  get categoryService(): CategoryService {
+    return this._categoryService ??= createCategoryServiceClient(this._transport);
   }
 
   get dataAccessAuditLogService(): DataAccessAuditLogService {

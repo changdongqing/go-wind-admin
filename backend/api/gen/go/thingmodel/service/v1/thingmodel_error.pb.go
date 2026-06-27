@@ -139,6 +139,21 @@ const (
 	ThingModelErrorReason_FEATURE_IDENTIFIER_DUPLICATED     ThingModelErrorReason = 50031 // 标识符重复 / Identifier duplicated
 	ThingModelErrorReason_FEATURE_IN_USE_CANNOT_DELETE      ThingModelErrorReason = 50040 // 特征被关系引用，不可删除 / Feature in use by relation cannot delete
 	ThingModelErrorReason_FEATURE_UNIT_REFERENCE_FAIL       ThingModelErrorReason = 50050 // 维护单位引用计数失败 / Maintain unit reference count failed
+	// ===== 分类管理业务错误码 / Category management business reasons =====
+	ThingModelErrorReason_CATEGORY_NOT_FOUND             ThingModelErrorReason = 41010 // 分类不存在 / Category not found
+	ThingModelErrorReason_CATEGORY_PARENT_NOT_FOUND      ThingModelErrorReason = 41011 // 父分类不存在 / Parent category not found
+	ThingModelErrorReason_CATEGORY_CODE_FORMAT_INVALID   ThingModelErrorReason = 41020 // 编码格式不合法（非纯数字）/ Code format invalid (must be digits)
+	ThingModelErrorReason_CATEGORY_CODE_LENGTH_MISMATCH  ThingModelErrorReason = 41021 // 编码长度与 level 不匹配 (= level*2) / Code length mismatch (must = level*2)
+	ThingModelErrorReason_CATEGORY_CODE_PREFIX_MISMATCH  ThingModelErrorReason = 41022 // 编码必须以父编码为严格前缀且长度 + 2 / Code must be strict prefix of parent + 2 digits
+	ThingModelErrorReason_CATEGORY_LEVEL_INVALID         ThingModelErrorReason = 41023 // 层级不在 1..4 范围 / Level out of range 1..4
+	ThingModelErrorReason_CATEGORY_LEVEL_PARENT_MISMATCH ThingModelErrorReason = 41024 // 父分类层级与本层级不匹配 / Parent level mismatch
+	ThingModelErrorReason_CATEGORY_KIND_PARENT_MISMATCH  ThingModelErrorReason = 41025 // 父子分类 kind 不一致 / Parent kind mismatch
+	ThingModelErrorReason_CATEGORY_PARENT_REQUIRED       ThingModelErrorReason = 41026 // level>1 必须指定父分类 / Parent required for level>1
+	ThingModelErrorReason_CATEGORY_PARENT_FORBIDDEN      ThingModelErrorReason = 41027 // level=1 不能指定父分类 / Parent forbidden when level=1
+	ThingModelErrorReason_CATEGORY_HAS_CHILDREN          ThingModelErrorReason = 41030 // 存在子分类，不可删除 / Has children, cannot delete
+	ThingModelErrorReason_CATEGORY_IN_USE_CANNOT_DELETE  ThingModelErrorReason = 41031 // 被引用，不可删除 / In use, cannot delete
+	ThingModelErrorReason_CATEGORY_CODE_DUPLICATED       ThingModelErrorReason = 41040 // 同 (tenant, kind) 下编码重复 / Code duplicated in (tenant, kind)
+	ThingModelErrorReason_CATEGORY_IMMUTABLE_FIELD       ThingModelErrorReason = 41050 // 试图修改不可变字段（kind/code/parent_id/level）/ Attempt to modify immutable field
 )
 
 // Enum value maps for ThingModelErrorReason.
@@ -213,6 +228,20 @@ var (
 		50031: "FEATURE_IDENTIFIER_DUPLICATED",
 		50040: "FEATURE_IN_USE_CANNOT_DELETE",
 		50050: "FEATURE_UNIT_REFERENCE_FAIL",
+		41010: "CATEGORY_NOT_FOUND",
+		41011: "CATEGORY_PARENT_NOT_FOUND",
+		41020: "CATEGORY_CODE_FORMAT_INVALID",
+		41021: "CATEGORY_CODE_LENGTH_MISMATCH",
+		41022: "CATEGORY_CODE_PREFIX_MISMATCH",
+		41023: "CATEGORY_LEVEL_INVALID",
+		41024: "CATEGORY_LEVEL_PARENT_MISMATCH",
+		41025: "CATEGORY_KIND_PARENT_MISMATCH",
+		41026: "CATEGORY_PARENT_REQUIRED",
+		41027: "CATEGORY_PARENT_FORBIDDEN",
+		41030: "CATEGORY_HAS_CHILDREN",
+		41031: "CATEGORY_IN_USE_CANNOT_DELETE",
+		41040: "CATEGORY_CODE_DUPLICATED",
+		41050: "CATEGORY_IMMUTABLE_FIELD",
 	}
 	ThingModelErrorReason_value = map[string]int32{
 		"BAD_REQUEST":                       0,
@@ -284,6 +313,20 @@ var (
 		"FEATURE_IDENTIFIER_DUPLICATED":     50031,
 		"FEATURE_IN_USE_CANNOT_DELETE":      50040,
 		"FEATURE_UNIT_REFERENCE_FAIL":       50050,
+		"CATEGORY_NOT_FOUND":                41010,
+		"CATEGORY_PARENT_NOT_FOUND":         41011,
+		"CATEGORY_CODE_FORMAT_INVALID":      41020,
+		"CATEGORY_CODE_LENGTH_MISMATCH":     41021,
+		"CATEGORY_CODE_PREFIX_MISMATCH":     41022,
+		"CATEGORY_LEVEL_INVALID":            41023,
+		"CATEGORY_LEVEL_PARENT_MISMATCH":    41024,
+		"CATEGORY_KIND_PARENT_MISMATCH":     41025,
+		"CATEGORY_PARENT_REQUIRED":          41026,
+		"CATEGORY_PARENT_FORBIDDEN":         41027,
+		"CATEGORY_HAS_CHILDREN":             41030,
+		"CATEGORY_IN_USE_CANNOT_DELETE":     41031,
+		"CATEGORY_CODE_DUPLICATED":          41040,
+		"CATEGORY_IMMUTABLE_FIELD":          41050,
 	}
 )
 
@@ -318,7 +361,7 @@ var File_thingmodel_service_v1_thingmodel_error_proto protoreflect.FileDescripto
 
 const file_thingmodel_service_v1_thingmodel_error_proto_rawDesc = "" +
 	"\n" +
-	",thingmodel/service/v1/thingmodel_error.proto\x12\x15thingmodel.service.v1\x1a\x13errors/errors.proto*\x80\x12\n" +
+	",thingmodel/service/v1/thingmodel_error.proto\x12\x15thingmodel.service.v1\x1a\x13errors/errors.proto*\xa9\x16\n" +
 	"\x15ThingModelErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x16\n" +
 	"\fUNAUTHORIZED\x10d\x1a\x04\xa8E\x91\x03\x12\x1b\n" +
@@ -388,7 +431,21 @@ const file_thingmodel_service_v1_thingmodel_error_proto_rawDesc = "" +
 	"\x17FEATURE_CODE_DUPLICATED\x10\xee\x86\x03\x1a\x04\xa8E\x99\x03\x12)\n" +
 	"\x1dFEATURE_IDENTIFIER_DUPLICATED\x10\xef\x86\x03\x1a\x04\xa8E\x99\x03\x12(\n" +
 	"\x1cFEATURE_IN_USE_CANNOT_DELETE\x10\xf8\x86\x03\x1a\x04\xa8E\x99\x03\x12'\n" +
-	"\x1bFEATURE_UNIT_REFERENCE_FAIL\x10\x82\x87\x03\x1a\x04\xa8E\xf4\x03\x1a\x04\xa0E\xf4\x03B\xe4\x01\n" +
+	"\x1bFEATURE_UNIT_REFERENCE_FAIL\x10\x82\x87\x03\x1a\x04\xa8E\xf4\x03\x12\x1e\n" +
+	"\x12CATEGORY_NOT_FOUND\x10\xb2\xc0\x02\x1a\x04\xa8E\x94\x03\x12%\n" +
+	"\x19CATEGORY_PARENT_NOT_FOUND\x10\xb3\xc0\x02\x1a\x04\xa8E\x94\x03\x12(\n" +
+	"\x1cCATEGORY_CODE_FORMAT_INVALID\x10\xbc\xc0\x02\x1a\x04\xa8E\x90\x03\x12)\n" +
+	"\x1dCATEGORY_CODE_LENGTH_MISMATCH\x10\xbd\xc0\x02\x1a\x04\xa8E\x90\x03\x12)\n" +
+	"\x1dCATEGORY_CODE_PREFIX_MISMATCH\x10\xbe\xc0\x02\x1a\x04\xa8E\x90\x03\x12\"\n" +
+	"\x16CATEGORY_LEVEL_INVALID\x10\xbf\xc0\x02\x1a\x04\xa8E\x90\x03\x12*\n" +
+	"\x1eCATEGORY_LEVEL_PARENT_MISMATCH\x10\xc0\xc0\x02\x1a\x04\xa8E\x90\x03\x12)\n" +
+	"\x1dCATEGORY_KIND_PARENT_MISMATCH\x10\xc1\xc0\x02\x1a\x04\xa8E\x90\x03\x12$\n" +
+	"\x18CATEGORY_PARENT_REQUIRED\x10\xc2\xc0\x02\x1a\x04\xa8E\x90\x03\x12%\n" +
+	"\x19CATEGORY_PARENT_FORBIDDEN\x10\xc3\xc0\x02\x1a\x04\xa8E\x90\x03\x12!\n" +
+	"\x15CATEGORY_HAS_CHILDREN\x10\xc6\xc0\x02\x1a\x04\xa8E\x99\x03\x12)\n" +
+	"\x1dCATEGORY_IN_USE_CANNOT_DELETE\x10\xc7\xc0\x02\x1a\x04\xa8E\x99\x03\x12$\n" +
+	"\x18CATEGORY_CODE_DUPLICATED\x10\xd0\xc0\x02\x1a\x04\xa8E\x99\x03\x12$\n" +
+	"\x18CATEGORY_IMMUTABLE_FIELD\x10\xda\xc0\x02\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x03B\xe4\x01\n" +
 	"\x19com.thingmodel.service.v1B\x14ThingmodelErrorProtoP\x01Z;go-wind-admin/api/gen/go/thingmodel/service/v1;thingmodelpb\xa2\x02\x03TSX\xaa\x02\x15Thingmodel.Service.V1\xca\x02\x15Thingmodel\\Service\\V1\xe2\x02!Thingmodel\\Service\\V1\\GPBMetadata\xea\x02\x17Thingmodel::Service::V1b\x06proto3"
 
 var (

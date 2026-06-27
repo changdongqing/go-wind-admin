@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
+	"go-wind-admin/app/admin/service/internal/data/ent/category"
 	"go-wind-admin/app/admin/service/internal/data/ent/dataaccessauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
@@ -115,6 +116,7 @@ func checkColumn(t, c string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			api.Table:                      api.ValidColumn,
 			apiauditlog.Table:              apiauditlog.ValidColumn,
+			category.Table:                 category.ValidColumn,
 			dataaccessauditlog.Table:       dataaccessauditlog.ValidColumn,
 			dictentry.Table:                dictentry.ValidColumn,
 			dictentryi18n.Table:            dictentryi18n.ValidColumn,

@@ -1,0 +1,197 @@
+syntax = "proto3";
+
+package thingmodel.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+
+// 分类种类（未来扩展只需在此追加枚举值）
+// Category kind, extensible — append new values for future business domains.
+enum CategoryKind {
+  CATEGORY_KIND_UNSPECIFIED = 0;
+
+  // ===== 本期：物模型三 kind / Thing-model kinds =====
+  SYSTEM   = 1; // 智能系统（30-36 段大类）/ Smart system
+  SPACE    = 2; // 空间（10 段大类）/ Space
+  FACILITY = 3; // 设备设施（20-26 段大类）/ Facility & equipment
+
+  // ===== 未来扩展示例（暂注释，业务方接入时启用）/ Future placeholders =====
+  // DOCUMENT    = 10;
+  // CERTIFICATE = 11;
+  // FORM        = 12;
+}
+
+// 分类服务（源领域层，无 HTTP 注解）/ Category service (source domain layer, no HTTP annotations)
+service CategoryService {
+  // 分页查询分类列表 / List categories with paging
+  rpc List (pagination.PagingRequest) returns (ListCategoryResponse) {}
+
+  // 统计分类数量 / Count categories
+  rpc Count (pagination.PagingRequest) returns (CountCategoryResponse) {}
+
+  // 查询分类详情 / Get category detail
+  rpc Get (GetCategoryRequest) returns (Category) {}
+
+  // 创建分类 / Create category
+  rpc Create (CreateCategoryRequest) returns (google.protobuf.Empty) {}
+
+  // 更新分类 / Update category
+  rpc Update (UpdateCategoryRequest) returns (google.protobuf.Empty) {}
+
+  // 删除分类 / Delete categories
+  rpc Delete (DeleteCategoryRequest) returns (google.protobuf.Empty) {}
+}
+
+// 分类节点 / Category node
+//
+// code 长度按 level 严格分级 / variable-length code by level：
+//   level=1 大类 → 2 位、level=2 中类 → 4 位、level=3 小类 → 6 位、level=4 细类 → 8 位。
+//   不存 path / is_leaf 字段：叶子由 `level==4` 推导，父子关系由 code 截断推导。
+message Category {
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {description: "分类ID / Category ID"}
+  ];
+
+  optional CategoryKind kind = 2 [
+    json_name = "kind",
+    (gnostic.openapi.v3.property) = {description: "分类种类（不可变）/ Category kind (immutable)"}
+  ];
+
+  optional string code = 3 [
+    json_name = "code",
+    (gnostic.openapi.v3.property) = {description: "分类编码（变长 2/4/6/8 位纯数字，不可变）/ Variable-length numeric code, immutable"}
+  ];
+
+  optional uint32 level = 4 [
+    json_name = "level",
+    (gnostic.openapi.v3.property) = {description: "层级：1=大类 2=中类 3=小类 4=细类 / Hierarchy level (1..4)"}
+  ];
+
+  optional uint32 parent_id = 5 [
+    json_name = "parentId",
+    (gnostic.openapi.v3.property) = {description: "父分类ID（level=1 时为空）/ Parent category id (null when level=1)"}
+  ];
+
+  optional string name = 6 [
+    json_name = "name",
+    (gnostic.openapi.v3.property) = {description: "中文名 / Category name (zh)"}
+  ];
+
+  optional string name_en = 7 [
+    json_name = "nameEn",
+    (gnostic.openapi.v3.property) = {description: "英文名 / Category name (en)"}
+  ];
+
+  optional string icon = 8 [
+    json_name = "icon",
+    (gnostic.openapi.v3.property) = {description: "Iconify 图标名 / Iconify icon name"}
+  ];
+
+  optional string description = 9 [
+    json_name = "description",
+    (gnostic.openapi.v3.property) = {description: "描述 / Description"}
+  ];
+
+  optional uint32 reference_count = 10 [
+    json_name = "referenceCount",
+    (gnostic.openapi.v3.property) = {description: "被物模型/实例引用次数（预留，本期恒 0）/ Reference count (reserved)"}
+  ];
+
+  optional bool is_enabled = 11 [
+    json_name = "isEnabled",
+    (gnostic.openapi.v3.property) = {description: "是否启用 / Is enabled"}
+  ];
+
+  optional uint32 sort_order = 12 [
+    json_name = "sortOrder",
+    (gnostic.openapi.v3.property) = {description: "排序号，越小越靠前 / Sort order"}
+  ];
+
+  optional uint32 tenant_id = 100 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "租户ID，0代表系统全局 / Tenant ID, 0=system global"}
+  ];
+  optional string tenant_name = 101 [
+    json_name = "tenantName",
+    (gnostic.openapi.v3.property) = {description: "租户名称 / Tenant name"}
+  ];
+
+  optional uint32 created_by = 200 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "创建者用户ID / Created by"}];
+  optional uint32 updated_by = 201 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "更新者用户ID / Updated by"}];
+  optional uint32 deleted_by = 202 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "删除者用户ID / Deleted by"}];
+
+  optional google.protobuf.Timestamp created_at = 300 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "创建时间 / Created at"}];
+  optional google.protobuf.Timestamp updated_at = 301 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "更新时间 / Updated at"}];
+  optional google.protobuf.Timestamp deleted_at = 302 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "删除时间 / Deleted at"}];
+}
+
+// 查询分类列表 - 回应 / List response
+message ListCategoryResponse {
+  repeated Category items = 1;
+  uint64 total = 2;
+}
+
+// 统计分类数量 - 回应 / Count response
+message CountCategoryResponse {
+  uint64 count = 1;
+}
+
+// 查询分类详情 - 请求 / Get request
+//
+// 按 id 查时无需带 kind；按 code 查时建议同时带 kind 以唯一定位（同一 code 在不同 kind 下都可能存在，
+// 但唯一键是 (tenant, kind, code)，因此用 code 查至少要把 kind 一起带上才确保唯一）。
+message GetCategoryRequest {
+  oneof query_by {
+    uint32 id = 1;
+    string code = 2;
+  }
+
+  optional CategoryKind kind = 3 [
+    json_name = "kind",
+    (gnostic.openapi.v3.property) = {description: "分类种类（与 code 配合使用时必填）/ Required when querying by code"}
+  ];
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {description: "视图字段过滤器 / View field mask"}
+  ];
+}
+
+// 创建分类 - 请求 / Create request
+message CreateCategoryRequest {
+  Category data = 1;
+}
+
+// 更新分类 - 请求 / Update request
+//
+// 不可变字段：kind / code / parent_id / level —— Service 层会校验并拒绝。
+// Immutable fields: kind / code / parent_id / level — Service layer rejects modifications.
+message UpdateCategoryRequest {
+  uint32 id = 1;
+
+  Category data = 2;
+
+  google.protobuf.FieldMask update_mask = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "要更新的字段列表 / Fields to update",
+      example: {yaml: "name,nameEn,icon,description,sortOrder,isEnabled"}
+    },
+    json_name = "updateMask"
+  ];
+
+  optional bool allow_missing = 4 [
+    (gnostic.openapi.v3.property) = {description: "若为 true，资源不存在则新增（此时 updateMask 被忽略）/ If true, insert when missing"},
+    json_name = "allowMissing"
+  ];
+}
+
+// 删除分类 - 请求 / Delete request
+message DeleteCategoryRequest {
+  repeated uint32 ids = 1; // 要删除的ID列表 / IDs to delete
+}

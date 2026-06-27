@@ -161,6 +161,80 @@ var (
 			},
 		},
 	}
+	// ThingmodelCategoriesColumns holds the columns for the "thingmodel_categories" table.
+	ThingmodelCategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
+		{Name: "is_enabled", Type: field.TypeBool, Nullable: true, Comment: "是否启用", Default: true},
+		{Name: "sort_order", Type: field.TypeUint32, Nullable: true, Comment: "排序值（越小越靠前）", Default: 0},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "kind", Type: field.TypeEnum, Nullable: true, Comment: "分类种类（不可变）/ Category kind, immutable", Enums: []string{"SYSTEM", "SPACE", "FACILITY"}},
+		{Name: "code", Type: field.TypeString, Nullable: true, Size: 8, Comment: "分类编码（变长 2/4/6/8 位纯数字，按 level 决定长度，不可变）/ Variable-length numeric code, immutable"},
+		{Name: "level", Type: field.TypeUint8, Nullable: true, Comment: "层级：1=大类 2=中类 3=小类 4=细类 / Hierarchy level (1..4)"},
+		{Name: "name", Type: field.TypeString, Nullable: true, Comment: "中文名 / Category name (zh)"},
+		{Name: "name_en", Type: field.TypeString, Nullable: true, Comment: "英文名 / Category name (en)"},
+		{Name: "icon", Type: field.TypeString, Nullable: true, Comment: "Iconify 图标名 / Iconify icon name"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "描述 / Description"},
+		{Name: "reference_count", Type: field.TypeUint32, Nullable: true, Comment: "被物模型/实例引用次数（预留，本期恒 0）/ Reference count (reserved)", Default: 0},
+		{Name: "parent_id", Type: field.TypeUint32, Nullable: true, Comment: "父节点 ID（level=1 时为空）/ Parent category id (nullable when level=1)"},
+	}
+	// ThingmodelCategoriesTable holds the schema information for the "thingmodel_categories" table.
+	ThingmodelCategoriesTable = &schema.Table{
+		Name:       "thingmodel_categories",
+		Comment:    "物模型-分类表 / Thing model category",
+		Columns:    ThingmodelCategoriesColumns,
+		PrimaryKey: []*schema.Column{ThingmodelCategoriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "thingmodel_categories_thingmodel_categories_children",
+				Columns:    []*schema.Column{ThingmodelCategoriesColumns[18]},
+				RefColumns: []*schema.Column{ThingmodelCategoriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_thingmodel_cat_tenant_kind_code",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelCategoriesColumns[9], ThingmodelCategoriesColumns[10], ThingmodelCategoriesColumns[11]},
+			},
+			{
+				Name:    "idx_thingmodel_cat_tenant_kind_level",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoriesColumns[9], ThingmodelCategoriesColumns[10], ThingmodelCategoriesColumns[12]},
+			},
+			{
+				Name:    "idx_thingmodel_cat_tenant_kind_parent",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoriesColumns[9], ThingmodelCategoriesColumns[10], ThingmodelCategoriesColumns[18]},
+			},
+			{
+				Name:    "idx_thingmodel_cat_is_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoriesColumns[7]},
+			},
+			{
+				Name:    "idx_thingmodel_cat_sort_order",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoriesColumns[8]},
+			},
+			{
+				Name:    "idx_thingmodel_cat_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoriesColumns[9]},
+			},
+			{
+				Name:    "idx_thingmodel_cat_name",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoriesColumns[13]},
+			},
+		},
+	}
 	// SysDataAccessAuditLogsColumns holds the columns for the "sys_data_access_audit_logs" table.
 	SysDataAccessAuditLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -3025,6 +3099,7 @@ var (
 	Tables = []*schema.Table{
 		SysApisTable,
 		SysAPIAuditLogsTable,
+		ThingmodelCategoriesTable,
 		SysDataAccessAuditLogsTable,
 		SysDictEntriesTable,
 		SysDictEntryI18nTable,
@@ -3075,6 +3150,12 @@ func init() {
 	}
 	SysAPIAuditLogsTable.Annotation = &entsql.Annotation{
 		Table:     "sys_api_audit_logs",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	ThingmodelCategoriesTable.ForeignKeys[0].RefTable = ThingmodelCategoriesTable
+	ThingmodelCategoriesTable.Annotation = &entsql.Annotation{
+		Table:     "thingmodel_categories",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
 	}

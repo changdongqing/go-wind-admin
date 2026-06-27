@@ -12,6 +12,9 @@ type Api func(*sql.Selector)
 // ApiAuditLog is the predicate function for apiauditlog builders.
 type ApiAuditLog func(*sql.Selector)
 
+// Category is the predicate function for category builders.
+type Category func(*sql.Selector)
+
 // DataAccessAuditLog is the predicate function for dataaccessauditlog builders.
 type DataAccessAuditLog func(*sql.Selector)
 

@@ -32,6 +32,7 @@
   "thingmodel": "Thing Model",
   "thingmodelUnit": "Unit Management",
   "thingmodelFeature": "Feature Management",
+  "thingmodelCategory": "Category Management",
   "auth": "Authentication",
   "login": "Login",
   "register": "Register",

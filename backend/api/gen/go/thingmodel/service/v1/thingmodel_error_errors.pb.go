@@ -976,3 +976,199 @@ func IsFeatureUnitReferenceFail(err error) bool {
 func ErrorFeatureUnitReferenceFail(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, ThingModelErrorReason_FEATURE_UNIT_REFERENCE_FAIL.String(), fmt.Sprintf(format, args...))
 }
+
+// ===== 分类管理业务错误码 / Category management business reasons =====
+func IsCategoryNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_NOT_FOUND.String() && e.Code == 404
+}
+
+// ===== 分类管理业务错误码 / Category management business reasons =====
+func ErrorCategoryNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, ThingModelErrorReason_CATEGORY_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+// 父分类不存在 / Parent category not found
+func IsCategoryParentNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_PARENT_NOT_FOUND.String() && e.Code == 404
+}
+
+// 父分类不存在 / Parent category not found
+func ErrorCategoryParentNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, ThingModelErrorReason_CATEGORY_PARENT_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+// 编码格式不合法（非纯数字）/ Code format invalid (must be digits)
+func IsCategoryCodeFormatInvalid(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_CODE_FORMAT_INVALID.String() && e.Code == 400
+}
+
+// 编码格式不合法（非纯数字）/ Code format invalid (must be digits)
+func ErrorCategoryCodeFormatInvalid(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CATEGORY_CODE_FORMAT_INVALID.String(), fmt.Sprintf(format, args...))
+}
+
+// 编码长度与 level 不匹配 (= level*2) / Code length mismatch (must = level*2)
+func IsCategoryCodeLengthMismatch(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_CODE_LENGTH_MISMATCH.String() && e.Code == 400
+}
+
+// 编码长度与 level 不匹配 (= level*2) / Code length mismatch (must = level*2)
+func ErrorCategoryCodeLengthMismatch(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CATEGORY_CODE_LENGTH_MISMATCH.String(), fmt.Sprintf(format, args...))
+}
+
+// 编码必须以父编码为严格前缀且长度 + 2 / Code must be strict prefix of parent + 2 digits
+func IsCategoryCodePrefixMismatch(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_CODE_PREFIX_MISMATCH.String() && e.Code == 400
+}
+
+// 编码必须以父编码为严格前缀且长度 + 2 / Code must be strict prefix of parent + 2 digits
+func ErrorCategoryCodePrefixMismatch(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CATEGORY_CODE_PREFIX_MISMATCH.String(), fmt.Sprintf(format, args...))
+}
+
+// 层级不在 1..4 范围 / Level out of range 1..4
+func IsCategoryLevelInvalid(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_LEVEL_INVALID.String() && e.Code == 400
+}
+
+// 层级不在 1..4 范围 / Level out of range 1..4
+func ErrorCategoryLevelInvalid(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CATEGORY_LEVEL_INVALID.String(), fmt.Sprintf(format, args...))
+}
+
+// 父分类层级与本层级不匹配 / Parent level mismatch
+func IsCategoryLevelParentMismatch(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_LEVEL_PARENT_MISMATCH.String() && e.Code == 400
+}
+
+// 父分类层级与本层级不匹配 / Parent level mismatch
+func ErrorCategoryLevelParentMismatch(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CATEGORY_LEVEL_PARENT_MISMATCH.String(), fmt.Sprintf(format, args...))
+}
+
+// 父子分类 kind 不一致 / Parent kind mismatch
+func IsCategoryKindParentMismatch(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_KIND_PARENT_MISMATCH.String() && e.Code == 400
+}
+
+// 父子分类 kind 不一致 / Parent kind mismatch
+func ErrorCategoryKindParentMismatch(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CATEGORY_KIND_PARENT_MISMATCH.String(), fmt.Sprintf(format, args...))
+}
+
+// level>1 必须指定父分类 / Parent required for level>1
+func IsCategoryParentRequired(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_PARENT_REQUIRED.String() && e.Code == 400
+}
+
+// level>1 必须指定父分类 / Parent required for level>1
+func ErrorCategoryParentRequired(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CATEGORY_PARENT_REQUIRED.String(), fmt.Sprintf(format, args...))
+}
+
+// level=1 不能指定父分类 / Parent forbidden when level=1
+func IsCategoryParentForbidden(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_PARENT_FORBIDDEN.String() && e.Code == 400
+}
+
+// level=1 不能指定父分类 / Parent forbidden when level=1
+func ErrorCategoryParentForbidden(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CATEGORY_PARENT_FORBIDDEN.String(), fmt.Sprintf(format, args...))
+}
+
+// 存在子分类，不可删除 / Has children, cannot delete
+func IsCategoryHasChildren(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_HAS_CHILDREN.String() && e.Code == 409
+}
+
+// 存在子分类，不可删除 / Has children, cannot delete
+func ErrorCategoryHasChildren(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_CATEGORY_HAS_CHILDREN.String(), fmt.Sprintf(format, args...))
+}
+
+// 被引用，不可删除 / In use, cannot delete
+func IsCategoryInUseCannotDelete(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_IN_USE_CANNOT_DELETE.String() && e.Code == 409
+}
+
+// 被引用，不可删除 / In use, cannot delete
+func ErrorCategoryInUseCannotDelete(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_CATEGORY_IN_USE_CANNOT_DELETE.String(), fmt.Sprintf(format, args...))
+}
+
+// 同 (tenant, kind) 下编码重复 / Code duplicated in (tenant, kind)
+func IsCategoryCodeDuplicated(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_CODE_DUPLICATED.String() && e.Code == 409
+}
+
+// 同 (tenant, kind) 下编码重复 / Code duplicated in (tenant, kind)
+func ErrorCategoryCodeDuplicated(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_CATEGORY_CODE_DUPLICATED.String(), fmt.Sprintf(format, args...))
+}
+
+// 试图修改不可变字段（kind/code/parent_id/level）/ Attempt to modify immutable field
+func IsCategoryImmutableField(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CATEGORY_IMMUTABLE_FIELD.String() && e.Code == 400
+}
+
+// 试图修改不可变字段（kind/code/parent_id/level）/ Attempt to modify immutable field
+func ErrorCategoryImmutableField(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CATEGORY_IMMUTABLE_FIELD.String(), fmt.Sprintf(format, args...))
+}

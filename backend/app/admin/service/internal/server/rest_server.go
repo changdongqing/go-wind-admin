@@ -100,6 +100,7 @@ func NewRestServer(
 	unitCategoryService *service.UnitCategoryService,
 	unitService *service.UnitService,
 	featureService *service.FeatureService,
+	categoryService *service.CategoryService,
 
 	tenantService *service.TenantService,
 	userService *service.UserService,
@@ -155,6 +156,7 @@ func NewRestServer(
 	adminV1.RegisterUnitCategoryServiceHTTPServer(srv, unitCategoryService)
 	adminV1.RegisterUnitServiceHTTPServer(srv, unitService)
 	adminV1.RegisterFeatureServiceHTTPServer(srv, featureService)
+	adminV1.RegisterCategoryServiceHTTPServer(srv, categoryService)
 
 	adminV1.RegisterApiServiceHTTPServer(srv, apiService)
 	adminV1.RegisterMenuServiceHTTPServer(srv, menuService)

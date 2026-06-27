@@ -1,0 +1,53 @@
+{
+  "moduleName": "分类管理",
+  "kind": {
+    "SYSTEM": "智能系统",
+    "SPACE": "建筑空间",
+    "FACILITY": "设备设施"
+  },
+  "level": {
+    "1": "大类",
+    "2": "中类",
+    "3": "小类",
+    "4": "细类"
+  },
+  "fields": {
+    "kind": "种类",
+    "code": "编码",
+    "name": "中文名",
+    "nameEn": "英文名",
+    "level": "层级",
+    "parent": "父分类",
+    "icon": "图标",
+    "description": "描述",
+    "referenceCount": "引用数",
+    "sortOrder": "排序",
+    "isEnabled": "状态"
+  },
+  "tags": {
+    "enabled": "启用",
+    "disabled": "停用"
+  },
+  "actions": {
+    "create": "新建",
+    "createChild": "新建子分类",
+    "edit": "编辑",
+    "delete": "删除"
+  },
+  "createSuccess": "创建成功",
+  "createFailed": "创建失败",
+  "updateSuccess": "更新成功",
+  "updateFailed": "更新失败",
+  "deleteSuccess": "删除成功",
+  "deleteFailed": "删除失败",
+  "tips": {
+    "topLevel": "（顶层，无父分类）",
+    "deleteConfirm": "确定删除该分类？若存在子分类将被拒绝。",
+    "requiredKind": "请选择种类",
+    "requiredCode": "请输入编码",
+    "requiredName": "请输入名称",
+    "codeFormat": "编码必须为纯数字",
+    "codeLength": "{{need}} 位数字（当前层级要求）",
+    "codePrefix": "编码必须以父编码 {{prefix}} 开头，且恰好多 2 位"
+  }
+}
