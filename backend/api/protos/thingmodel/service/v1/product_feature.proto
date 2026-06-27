@@ -1,0 +1,281 @@
+syntax = "proto3";
+
+package thingmodel.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+import "thingmodel/service/v1/feature.proto";              // FeatureType / FeatureSpec / DataType / AccessMode / EventLevel / CallMode
+import "thingmodel/service/v1/feature_override_spec.proto"; // FeatureOverrideSpec
+
+// 产品特征来源 / Product feature source
+enum ProductFeatureSource {
+  PRODUCT_FEATURE_SOURCE_UNSPECIFIED = 0;
+  DEFAULT = 1;  // 从分类默认模型拷贝（ref_feature_id 指向 thing_features）/ Copied from default model
+  GLOBAL  = 2;  // 从全局特征库新加（ref_feature_id 非空）/ Added from global library
+  LOCAL   = 3;  // 产品本地自定义（ref_feature_id 为空）/ Product-local custom
+}
+
+// PullFromDefault 冲突策略 / Conflict policy
+enum ConflictPolicy {
+  CONFLICT_POLICY_UNSPECIFIED = 0;
+  SKIP    = 1;  // 跳过已存在项（默认）/ Skip existing
+  REPLACE = 2;  // 删除已存在项后重建（丢失原 override）/ Delete then recreate
+}
+
+// 产品特征服务（源领域层，无 HTTP 注解）/ Product feature service (domain)
+//
+// 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.3
+// 含 PullFromDefault 批量从分类默认模型拉取的核心 RPC（详见 04-后端实现设计.md §4）。
+service ProductFeatureService {
+  // 分页查询（业务过滤通过 PagingRequest.query 传入：product_id/feature_type/source/is_enabled）
+  rpc List (pagination.PagingRequest) returns (ListProductFeatureResponse) {}
+
+  // 统计 / Count
+  rpc Count (pagination.PagingRequest) returns (CountProductFeatureResponse) {}
+
+  // 查询详情（返回 feature_snapshot + override_spec + 后端合并的 effective_spec）/ Get
+  rpc Get (GetProductFeatureRequest) returns (ProductFeature) {}
+
+  // 创建（source=GLOBAL/LOCAL；source=DEFAULT 必须走 PullFromDefault）/ Create
+  rpc Create (CreateProductFeatureRequest) returns (google.protobuf.Empty) {}
+
+  // 批量从分类默认模型拉取（产品创建后立即调用，或产品页面追加拉取）/ Pull from default
+  rpc PullFromDefault (PullFromDefaultRequest) returns (PullFromDefaultResponse) {}
+
+  // 从另一产品克隆全部特征（含 LOCAL）/ Clone from another product
+  rpc CloneFromProduct (CloneFromProductRequest) returns (CloneFromProductResponse) {}
+
+  // 更新（仅白名单字段；PUBLISHED 产品禁止改结构）/ Update via FieldMask
+  rpc Update (UpdateProductFeatureRequest) returns (google.protobuf.Empty) {}
+
+  // 删除 / Delete
+  rpc Delete (DeleteProductFeatureRequest) returns (google.protobuf.Empty) {}
+
+  // 拖拽排序 / Reorder
+  rpc Reorder (ReorderProductFeaturesRequest) returns (google.protobuf.Empty) {}
+}
+
+// 产品下特征条目 / Product feature entry
+message ProductFeature {
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {description: "条目ID / Entry ID"}
+  ];
+
+  optional uint32 product_id = 2 [
+    json_name = "productId",
+    (gnostic.openapi.v3.property) = {description: "父产品ID / Product ID"}
+  ];
+
+  optional ProductFeatureSource source = 3 [
+    json_name = "source",
+    (gnostic.openapi.v3.property) = {description: "来源 DEFAULT/GLOBAL/LOCAL / Source"}
+  ];
+
+  optional uint32 ref_feature_id = 4 [
+    json_name = "refFeatureId",
+    (gnostic.openapi.v3.property) = {description: "引用全局特征ID（LOCAL 时为 0）/ Referenced feature ID"}
+  ];
+
+  optional FeatureType feature_type = 10 [
+    json_name = "featureType",
+    (gnostic.openapi.v3.property) = {description: "特征类型（冗余）/ Feature type"}
+  ];
+
+  optional string code = 11 [
+    json_name = "code",
+    (gnostic.openapi.v3.property) = {description: "产品内编码 / Code within product"}
+  ];
+
+  optional string identifier = 12 [
+    json_name = "identifier",
+    (gnostic.openapi.v3.property) = {description: "产品内程序标识符 / Identifier within product"}
+  ];
+
+  optional string name = 13 [
+    json_name = "name",
+    (gnostic.openapi.v3.property) = {description: "中文名 / Name (zh)"}
+  ];
+
+  optional string name_en = 14 [
+    json_name = "nameEn",
+    (gnostic.openapi.v3.property) = {description: "英文名 / Name (en)"}
+  ];
+
+  optional string description = 15 [
+    json_name = "description",
+    (gnostic.openapi.v3.property) = {description: "描述 / Description"}
+  ];
+
+  // 完整 FeatureSpec 快照（产品自洽核心）/ Full spec snapshot
+  optional FeatureSpec feature_snapshot = 20 [
+    json_name = "featureSnapshot",
+    (gnostic.openapi.v3.property) = {description: "完整 spec 快照 / Full feature spec snapshot"}
+  ];
+
+  // 稀疏覆写 / Sparse override
+  optional FeatureOverrideSpec override_spec = 21 [
+    json_name = "overrideSpec",
+    (gnostic.openapi.v3.property) = {description: "稀疏覆写（白名单字段）/ Sparse override"}
+  ];
+
+  // 运行时有效 spec = snapshot deepmerged with override；后端在 Get 时填充，写入时忽略
+  optional FeatureSpec effective_spec = 22 [
+    json_name = "effectiveSpec",
+    (gnostic.openapi.v3.property) = {description: "有效 spec（后端合并，只读）/ Effective spec (read-only)"}
+  ];
+
+  // ===== 冗余特化列（与 thing_features 的对应列同义，便于筛选）=====
+  optional DataType   data_type     = 30 [json_name = "dataType",     (gnostic.openapi.v3.property) = {description: "property 数据类型 / Data type"}];
+  optional AccessMode access_mode   = 31 [json_name = "accessMode",   (gnostic.openapi.v3.property) = {description: "property 访问模式 / Access mode"}];
+  optional EventLevel event_level   = 32 [json_name = "eventLevel",   (gnostic.openapi.v3.property) = {description: "event 级别 / Event level"}];
+  optional CallMode   call_mode     = 33 [json_name = "callMode",     (gnostic.openapi.v3.property) = {description: "service 调用模式 / Call mode"}];
+  optional string     relation_type = 34 [json_name = "relationType", (gnostic.openapi.v3.property) = {description: "relation 关系类型 / Relation type"}];
+
+  optional bool is_enabled = 40 [
+    json_name = "isEnabled",
+    (gnostic.openapi.v3.property) = {description: "是否启用 / Is enabled"}
+  ];
+  optional uint32 sort_order = 41 [
+    json_name = "sortOrder",
+    (gnostic.openapi.v3.property) = {description: "排序号 / Sort order"}
+  ];
+
+  optional uint32 tenant_id = 100 [json_name = "tenantId", (gnostic.openapi.v3.property) = {description: "租户ID / Tenant ID"}];
+
+  optional uint32 created_by = 200 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "创建者 / Created by"}];
+  optional uint32 updated_by = 201 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "更新者 / Updated by"}];
+  optional uint32 deleted_by = 202 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "删除者 / Deleted by"}];
+
+  optional google.protobuf.Timestamp created_at = 300 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "创建时间 / Created at"}];
+  optional google.protobuf.Timestamp updated_at = 301 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "更新时间 / Updated at"}];
+  optional google.protobuf.Timestamp deleted_at = 302 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "删除时间 / Deleted at"}];
+}
+
+message ListProductFeatureResponse {
+  repeated ProductFeature items = 1;
+  uint64 total = 2;
+}
+
+message CountProductFeatureResponse {
+  uint64 count = 1;
+}
+
+message GetProductFeatureRequest {
+  uint32 id = 1;
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {description: "视图字段过滤器 / View field mask"}
+  ];
+}
+
+message CreateProductFeatureRequest {
+  ProductFeature data = 1;
+}
+
+// ============================================================================
+// PullFromDefault：本期核心批量操作
+// ============================================================================
+
+message PullFromDefaultRequest {
+  uint32 product_id = 1 [
+    json_name = "productId",
+    (gnostic.openapi.v3.property) = {description: "目标产品ID / Target product ID"}
+  ];
+
+  // 要拉取的默认条目 ID 列表；空表示"全部拉取"
+  repeated uint32 default_feature_ids = 2 [
+    json_name = "defaultFeatureIds",
+    (gnostic.openapi.v3.property) = {description: "选定的 default_feature ID 列表（空=全部）/ Selected default feature IDs (empty=all)"}
+  ];
+
+  // 冲突策略
+  optional ConflictPolicy on_conflict = 3 [
+    json_name = "onConflict",
+    (gnostic.openapi.v3.property) = {description: "冲突策略 SKIP/REPLACE / Conflict policy"}
+  ];
+}
+
+message PullFromDefaultResponse {
+  repeated ProductFeature created = 1 [
+    (gnostic.openapi.v3.property) = {description: "成功创建的产品特征列表 / Created entries"}
+  ];
+
+  // 跳过项详情
+  message PullSkipped {
+    uint32 default_feature_id = 1 [json_name = "defaultFeatureId"];
+    string reason = 2 [
+      (gnostic.openapi.v3.property) = {description: "跳过原因：duplicate/feature_disabled/category_mismatch / Skip reason"}
+    ];
+  }
+  repeated PullSkipped skipped = 2;
+}
+
+// ============================================================================
+// CloneFromProduct：从另一产品克隆全部特征（含 LOCAL）
+// ============================================================================
+
+message CloneFromProductRequest {
+  uint32 product_id = 1 [
+    json_name = "productId",
+    (gnostic.openapi.v3.property) = {description: "目标产品ID（接收方）/ Target product ID"}
+  ];
+  uint32 source_product_id = 2 [
+    json_name = "sourceProductId",
+    (gnostic.openapi.v3.property) = {description: "源产品ID（拷贝来源）/ Source product ID"}
+  ];
+
+  // 冲突策略（与 PullFromDefault 复用）
+  optional ConflictPolicy on_conflict = 3 [
+    json_name = "onConflict",
+    (gnostic.openapi.v3.property) = {description: "冲突策略 / Conflict policy"}
+  ];
+}
+
+message CloneFromProductResponse {
+  repeated ProductFeature created = 1;
+  uint32 skipped_count = 2 [json_name = "skippedCount"];
+}
+
+// ============================================================================
+// Update / Delete / Reorder
+// ============================================================================
+
+message UpdateProductFeatureRequest {
+  uint32 id = 1;
+
+  ProductFeature data = 2;
+
+  google.protobuf.FieldMask update_mask = 3 [
+    json_name = "updateMask",
+    (gnostic.openapi.v3.property) = {
+      description: "要更新的字段列表 / Fields to update",
+      example: {yaml: "overrideSpec,description,isEnabled,sortOrder"}
+    }
+  ];
+
+  optional bool allow_missing = 4 [
+    json_name = "allowMissing",
+    (gnostic.openapi.v3.property) = {description: "若为 true，资源不存在则新增 / Insert when missing"}
+  ];
+}
+
+message DeleteProductFeatureRequest {
+  repeated uint32 ids = 1;
+}
+
+message ReorderProductFeaturesRequest {
+  uint32 product_id = 1 [json_name = "productId"];
+
+  message Item {
+    uint32 id = 1;
+    uint32 sort_order = 2 [json_name = "sortOrder"];
+  }
+  repeated Item items = 2;
+}
