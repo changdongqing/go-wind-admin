@@ -472,6 +472,32 @@ func (r *UnitRepo) ReferencedIDs(ctx context.Context, ids []uint32) ([]uint32, e
 	return out, nil
 }
 
+// IncReferenceCount 调整单位引用计数（delta 可正可负），用于物模型特征模块维护。
+// IncReferenceCount adjusts the reference_count of unit by delta (positive on property create, negative on delete).
+//
+// 兑现单位管理预留挂钩点（[01 章 §4 / 02 章 C6]）：
+//   - 当 property 引用 unit 时 +1；删除/解除引用时 -1
+//   - reference_count > 0 时阻止物理删除（由 unit_service.Delete 的 ReferencedIDs 守卫生效）
+//
+// 失败由调用方决策是否阻断主流程；本方法不会回滚事务。
+func (r *UnitRepo) IncReferenceCount(ctx context.Context, id uint32, delta int32) error {
+	if id == 0 || delta == 0 {
+		return nil
+	}
+	if err := r.entClient.Client().Unit.UpdateOneID(id).
+		AddReferenceCount(delta).
+		Exec(ctx); err != nil {
+		if ent.IsNotFound(err) {
+			// 单位已不存在，不视为错误（可能并发删除）
+			r.log.Warnf("inc reference_count: unit %d not found (delta=%d)", id, delta)
+			return nil
+		}
+		r.log.Errorf("inc unit %d reference_count by %d failed: %s", id, delta, err.Error())
+		return thingmodelV1.ErrorFeatureUnitReferenceFail("inc unit %d reference_count by %d failed", id, delta)
+	}
+	return nil
+}
+
 // maskContains 判断 FieldMask 路径列表是否包含指定字段
 // maskContains reports whether the FieldMask paths include the given field.
 func maskContains(fm *fieldmaskpb.FieldMask, field string) bool {

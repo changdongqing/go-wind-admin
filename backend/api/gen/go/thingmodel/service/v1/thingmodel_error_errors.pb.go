@@ -808,3 +808,171 @@ func IsUnitCategoryCodeDuplicated(err error) bool {
 func ErrorUnitCategoryCodeDuplicated(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, ThingModelErrorReason_UNIT_CATEGORY_CODE_DUPLICATED.String(), fmt.Sprintf(format, args...))
 }
+
+// ===== 特征管理业务错误码 / Feature management business reasons =====
+func IsFeatureNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_NOT_FOUND.String() && e.Code == 404
+}
+
+// ===== 特征管理业务错误码 / Feature management business reasons =====
+func ErrorFeatureNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, ThingModelErrorReason_FEATURE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+// 特征类型非法 / Invalid feature type
+func IsFeatureTypeInvalid(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_TYPE_INVALID.String() && e.Code == 400
+}
+
+// 特征类型非法 / Invalid feature type
+func ErrorFeatureTypeInvalid(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_FEATURE_TYPE_INVALID.String(), fmt.Sprintf(format, args...))
+}
+
+// spec 结构无效 / Invalid spec structure
+func IsFeatureSpecInvalid(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_SPEC_INVALID.String() && e.Code == 400
+}
+
+// spec 结构无效 / Invalid spec structure
+func ErrorFeatureSpecInvalid(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_FEATURE_SPEC_INVALID.String(), fmt.Sprintf(format, args...))
+}
+
+// 特化列与 spec 不一致 / Specialized columns mismatch spec
+func IsFeatureSpecMismatch(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_SPEC_MISMATCH.String() && e.Code == 400
+}
+
+// 特化列与 spec 不一致 / Specialized columns mismatch spec
+func ErrorFeatureSpecMismatch(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_FEATURE_SPEC_MISMATCH.String(), fmt.Sprintf(format, args...))
+}
+
+// 枚举类型缺 enumItems / Enum type missing enumItems
+func IsFeatureEnumEmpty(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_ENUM_EMPTY.String() && e.Code == 400
+}
+
+// 枚举类型缺 enumItems / Enum type missing enumItems
+func ErrorFeatureEnumEmpty(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_FEATURE_ENUM_EMPTY.String(), fmt.Sprintf(format, args...))
+}
+
+// 结构体类型缺 structFields / Struct type missing structFields
+func IsFeatureStructEmpty(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_STRUCT_EMPTY.String() && e.Code == 400
+}
+
+// 结构体类型缺 structFields / Struct type missing structFields
+func ErrorFeatureStructEmpty(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_FEATURE_STRUCT_EMPTY.String(), fmt.Sprintf(format, args...))
+}
+
+// 约束非法（min>max 等）/ Invalid constraints
+func IsFeatureConstraintInvalid(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_CONSTRAINT_INVALID.String() && e.Code == 400
+}
+
+// 约束非法（min>max 等）/ Invalid constraints
+func ErrorFeatureConstraintInvalid(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_FEATURE_CONSTRAINT_INVALID.String(), fmt.Sprintf(format, args...))
+}
+
+// 关系目标特征不存在 / Relation target feature not found
+func IsFeatureRelationTargetNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_RELATION_TARGET_NOT_FOUND.String() && e.Code == 404
+}
+
+// 关系目标特征不存在 / Relation target feature not found
+func ErrorFeatureRelationTargetNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, ThingModelErrorReason_FEATURE_RELATION_TARGET_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+// 特征编码重复 / Feature code duplicated
+func IsFeatureCodeDuplicated(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_CODE_DUPLICATED.String() && e.Code == 409
+}
+
+// 特征编码重复 / Feature code duplicated
+func ErrorFeatureCodeDuplicated(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_FEATURE_CODE_DUPLICATED.String(), fmt.Sprintf(format, args...))
+}
+
+// 标识符重复 / Identifier duplicated
+func IsFeatureIdentifierDuplicated(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_IDENTIFIER_DUPLICATED.String() && e.Code == 409
+}
+
+// 标识符重复 / Identifier duplicated
+func ErrorFeatureIdentifierDuplicated(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_FEATURE_IDENTIFIER_DUPLICATED.String(), fmt.Sprintf(format, args...))
+}
+
+// 特征被关系引用，不可删除 / Feature in use by relation cannot delete
+func IsFeatureInUseCannotDelete(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_IN_USE_CANNOT_DELETE.String() && e.Code == 409
+}
+
+// 特征被关系引用，不可删除 / Feature in use by relation cannot delete
+func ErrorFeatureInUseCannotDelete(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_FEATURE_IN_USE_CANNOT_DELETE.String(), fmt.Sprintf(format, args...))
+}
+
+// 维护单位引用计数失败 / Maintain unit reference count failed
+func IsFeatureUnitReferenceFail(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_FEATURE_UNIT_REFERENCE_FAIL.String() && e.Code == 500
+}
+
+// 维护单位引用计数失败 / Maintain unit reference count failed
+func ErrorFeatureUnitReferenceFail(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, ThingModelErrorReason_FEATURE_UNIT_REFERENCE_FAIL.String(), fmt.Sprintf(format, args...))
+}

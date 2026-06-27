@@ -789,11 +789,13 @@ var DefaultMenus = []*permissionV1.Menu{
 	},
 
 	// ========== 物模型 / Thing model ==========
-	// 物模型为未来的大模块，目前包含"单位管理"子项；
-	// 后续将扩展属性、物模型实例、设备数据归一化等子菜单。
+	// 物模型为大模块，目前包含"单位管理""特征管理"子项；
+	// 后续将扩展产品物模型模板、设备实例、设备数据归一化运行时等子菜单。
 	// 权限码由 SyncPermissions 按 menu.path 自动派生：
-	//   /thingmodel/unit (MENU)  → unit:view
-	//   /admin/v1/thingmodel/units/* (API) → thingmodel:view
+	//   /thingmodel/unit (MENU)      → unit:view
+	//   /thingmodel/feature (MENU)   → feature:view
+	//   /admin/v1/thingmodel/units/*    (API) → thingmodel:view
+	//   /admin/v1/thingmodel/features/* (API) → thingmodel:view
 	// 平台管理员/租户管理员通过 sys:platform_admin / sys:tenant_manager 角色码取得菜单访问权限。
 	{
 		Id:        trans.Ptr(uint32(70)),
@@ -824,6 +826,21 @@ var DefaultMenus = []*permissionV1.Menu{
 			Title:     trans.Ptr("menu.thingmodel.unit"),
 			Icon:      trans.Ptr("lucide:ruler"),
 			Order:     trans.Ptr(int32(1)),
+			Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
+		},
+	},
+	{
+		Id:        trans.Ptr(uint32(72)),
+		ParentId:  trans.Ptr(uint32(70)),
+		Type:      permissionV1.Menu_MENU.Enum(),
+		Name:      trans.Ptr("ThingModelFeatureManagement"),
+		Path:      trans.Ptr("feature"),
+		Component: trans.Ptr("app/thingmodel/feature/index.vue"),
+		CreatedAt: timeutil.TimeToTimestamppb(trans.Ptr(time.Now())),
+		Meta: &permissionV1.MenuMeta{
+			Title:     trans.Ptr("menu.thingmodel.feature"),
+			Icon:      trans.Ptr("lucide:boxes"),
+			Order:     trans.Ptr(int32(2)),
 			Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
 		},
 	},

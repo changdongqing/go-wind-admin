@@ -420,6 +420,96 @@ var (
 			},
 		},
 	}
+	// ThingmodelFeaturesColumns holds the columns for the "thingmodel_features" table.
+	ThingmodelFeaturesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
+		{Name: "is_enabled", Type: field.TypeBool, Nullable: true, Comment: "是否启用", Default: true},
+		{Name: "sort_order", Type: field.TypeUint32, Nullable: true, Comment: "排序值（越小越靠前）", Default: 0},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "feature_type", Type: field.TypeEnum, Nullable: true, Comment: "特征类型 PROPERTY/EVENT/SERVICE/RELATION / Feature type", Enums: []string{"PROPERTY", "EVENT", "SERVICE", "RELATION"}},
+		{Name: "code", Type: field.TypeString, Nullable: true, Comment: "清单编码，如 P-RUN-0001（不可变）/ Code, immutable"},
+		{Name: "identifier", Type: field.TypeString, Nullable: true, Comment: "程序标识符，如 powerSwitch / Program identifier"},
+		{Name: "name", Type: field.TypeString, Nullable: true, Comment: "中文名 / Name (zh)"},
+		{Name: "name_en", Type: field.TypeString, Nullable: true, Comment: "英文名 / Name (en)"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "说明 / Description"},
+		{Name: "applicable_scope", Type: field.TypeString, Nullable: true, Comment: "适用设备范围，如 冷机/锅炉 / Applicable device scope"},
+		{Name: "data_type", Type: field.TypeEnum, Nullable: true, Comment: "property 数据类型 / Property data type", Enums: []string{"INT", "FLOAT", "DOUBLE", "BOOL", "ENUM", "TEXT", "DATE", "STRUCT", "ARRAY"}},
+		{Name: "access_mode", Type: field.TypeEnum, Nullable: true, Comment: "property 访问模式 R/RW / Property access mode", Enums: []string{"R", "RW"}},
+		{Name: "event_level", Type: field.TypeEnum, Nullable: true, Comment: "event 级别 INFO/ALERT/ERROR / Event level", Enums: []string{"INFO", "ALERT", "ERROR"}},
+		{Name: "call_mode", Type: field.TypeEnum, Nullable: true, Comment: "service 调用模式 ASYNC/SYNC / Service call mode", Enums: []string{"ASYNC", "SYNC"}},
+		{Name: "relation_type", Type: field.TypeString, Nullable: true, Comment: "relation 关系类型，如 derivedFrom/partOf / Relation type"},
+		{Name: "spec", Type: field.TypeJSON, Nullable: true, Comment: "特征结构化约束（按 feature_type 解读，protojson 编码）/ Structured spec by feature_type (protojson)"},
+	}
+	// ThingmodelFeaturesTable holds the schema information for the "thingmodel_features" table.
+	ThingmodelFeaturesTable = &schema.Table{
+		Name:       "thingmodel_features",
+		Comment:    "物模型-特征表（属性/事件/服务/关系统一）/ Thing model feature",
+		Columns:    ThingmodelFeaturesColumns,
+		PrimaryKey: []*schema.Column{ThingmodelFeaturesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_thingmodel_feature_tenant_code",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[9], ThingmodelFeaturesColumns[11]},
+			},
+			{
+				Name:    "uix_thingmodel_feature_tenant_identifier",
+				Unique:  true,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[9], ThingmodelFeaturesColumns[12]},
+			},
+			{
+				Name:    "idx_thingmodel_feature_tenant_type",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[9], ThingmodelFeaturesColumns[10]},
+			},
+			{
+				Name:    "idx_thingmodel_feature_type",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[10]},
+			},
+			{
+				Name:    "idx_thingmodel_feature_type_datatype",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[10], ThingmodelFeaturesColumns[17]},
+			},
+			{
+				Name:    "idx_thingmodel_feature_type_level",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[10], ThingmodelFeaturesColumns[19]},
+			},
+			{
+				Name:    "idx_thingmodel_feature_type_callmode",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[10], ThingmodelFeaturesColumns[20]},
+			},
+			{
+				Name:    "idx_thingmodel_feature_scope",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[16]},
+			},
+			{
+				Name:    "idx_thingmodel_feature_is_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[7]},
+			},
+			{
+				Name:    "idx_thingmodel_feature_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[9]},
+			},
+			{
+				Name:    "idx_thingmodel_feature_sort_order",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[8]},
+			},
+		},
+	}
 	// FilesColumns holds the columns for the "files" table.
 	FilesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -2939,6 +3029,7 @@ var (
 		SysDictEntriesTable,
 		SysDictEntryI18nTable,
 		SysDictTypesTable,
+		ThingmodelFeaturesTable,
 		FilesTable,
 		InternalMessagesTable,
 		InternalMessageCategoriesTable,
@@ -3006,6 +3097,11 @@ func init() {
 	}
 	SysDictTypesTable.Annotation = &entsql.Annotation{
 		Table:     "sys_dict_types",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	ThingmodelFeaturesTable.Annotation = &entsql.Annotation{
+		Table:     "thingmodel_features",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
 	}

@@ -80,6 +80,18 @@ func (f DictTypeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DictTypeMutation", m)
 }
 
+// The FeatureFunc type is an adapter to allow the use of ordinary
+// function as Feature mutator.
+type FeatureFunc func(context.Context, *ent.FeatureMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f FeatureFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.FeatureMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FeatureMutation", m)
+}
+
 // The FileFunc type is an adapter to allow the use of ordinary
 // function as File mutator.
 type FileFunc func(context.Context, *ent.FileMutation) (ent.Value, error)

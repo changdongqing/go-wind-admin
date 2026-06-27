@@ -11,6 +11,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
 	"go-wind-admin/app/admin/service/internal/data/ent/dicttype"
+	"go-wind-admin/app/admin/service/internal/data/ent/feature"
 	"go-wind-admin/app/admin/service/internal/data/ent/file"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessage"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagecategory"
@@ -236,6 +237,54 @@ func init() {
 	dicttypeDescID := dicttypeMixinFields0[0].Descriptor()
 	// dicttype.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	dicttype.IDValidator = dicttypeDescID.Validators[0].(func(uint32) error)
+	featureMixin := schema.Feature{}.Mixin()
+	feature.Policy = privacy.NewPolicies(featureMixin[5], schema.Feature{})
+	feature.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := feature.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	featureMixinFields0 := featureMixin[0].Fields()
+	_ = featureMixinFields0
+	featureMixinFields3 := featureMixin[3].Fields()
+	_ = featureMixinFields3
+	featureMixinFields4 := featureMixin[4].Fields()
+	_ = featureMixinFields4
+	featureMixinFields5 := featureMixin[5].Fields()
+	_ = featureMixinFields5
+	featureFields := schema.Feature{}.Fields()
+	_ = featureFields
+	// featureDescIsEnabled is the schema descriptor for is_enabled field.
+	featureDescIsEnabled := featureMixinFields3[0].Descriptor()
+	// feature.DefaultIsEnabled holds the default value on creation for the is_enabled field.
+	feature.DefaultIsEnabled = featureDescIsEnabled.Default.(bool)
+	// featureDescSortOrder is the schema descriptor for sort_order field.
+	featureDescSortOrder := featureMixinFields4[0].Descriptor()
+	// feature.DefaultSortOrder holds the default value on creation for the sort_order field.
+	feature.DefaultSortOrder = featureDescSortOrder.Default.(uint32)
+	// featureDescTenantID is the schema descriptor for tenant_id field.
+	featureDescTenantID := featureMixinFields5[0].Descriptor()
+	// feature.DefaultTenantID holds the default value on creation for the tenant_id field.
+	feature.DefaultTenantID = featureDescTenantID.Default.(uint32)
+	// featureDescCode is the schema descriptor for code field.
+	featureDescCode := featureFields[1].Descriptor()
+	// feature.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	feature.CodeValidator = featureDescCode.Validators[0].(func(string) error)
+	// featureDescIdentifier is the schema descriptor for identifier field.
+	featureDescIdentifier := featureFields[2].Descriptor()
+	// feature.IdentifierValidator is a validator for the "identifier" field. It is called by the builders before save.
+	feature.IdentifierValidator = featureDescIdentifier.Validators[0].(func(string) error)
+	// featureDescName is the schema descriptor for name field.
+	featureDescName := featureFields[3].Descriptor()
+	// feature.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	feature.NameValidator = featureDescName.Validators[0].(func(string) error)
+	// featureDescID is the schema descriptor for id field.
+	featureDescID := featureMixinFields0[0].Descriptor()
+	// feature.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	feature.IDValidator = featureDescID.Validators[0].(func(uint32) error)
 	fileMixin := schema.File{}.Mixin()
 	file.Policy = privacy.NewPolicies(fileMixin[4], schema.File{})
 	file.Hooks[0] = func(next ent.Mutator) ent.Mutator {

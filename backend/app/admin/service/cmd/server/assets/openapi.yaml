@@ -3905,6 +3905,717 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/thingmodel/features:
+        get:
+            tags:
+                - FeatureService
+            description: 分页查询特征列表 / List features
+            operationId: FeatureService_List
+            parameters:
+                - name: page
+                  in: query
+                  description: 当前页码（从1开始，默认1）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  description: 每页条数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: offset
+                  in: query
+                  description: 跳过的记录数（从0开始，默认0）
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: 最多返回的记录数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: token
+                  in: query
+                  description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
+                  schema:
+                    type: string
+                - name: noPaging
+                  in: query
+                  description: 是否不分页，如果为true，则page和pageSize参数无效。
+                  schema:
+                    type: boolean
+                - name: query
+                  in: query
+                  description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: Google AIP规范字符串过滤条件
+                  schema:
+                    type: string
+                - name: filterExpr.type
+                  in: query
+                  description: 过滤表达式类型
+                  schema:
+                    enum:
+                        - EXPR_TYPE_UNSPECIFIED
+                        - AND
+                        - OR
+                    type: string
+                    format: enum
+                - name: orderBy
+                  in: query
+                  description: 排序条件
+                  schema:
+                    type: string
+                - name: fieldMask
+                  in: query
+                  description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListFeatureResponse'
+        post:
+            tags:
+                - FeatureService
+            description: 创建特征 / Create feature
+            operationId: FeatureService_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateFeatureRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - FeatureService
+            description: 删除特征 / Delete feature
+            operationId: FeatureService_Delete
+            parameters:
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/features/code/{code}:
+        get:
+            tags:
+                - FeatureService
+            description: 查询特征详情 / Get feature
+            operationId: FeatureService_Get
+            parameters:
+                - name: code
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: identifier
+                  in: query
+                  schema:
+                    type: string
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Feature'
+    /admin/v1/thingmodel/features/identifier/{identifier}:
+        get:
+            tags:
+                - FeatureService
+            description: 查询特征详情 / Get feature
+            operationId: FeatureService_Get
+            parameters:
+                - name: identifier
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Feature'
+    /admin/v1/thingmodel/features/types/{featureType}:
+        get:
+            tags:
+                - FeatureService
+            description: 按特征类型查询（左侧树选类型联动右侧列表）/ List features by type
+            operationId: FeatureService_ListByType
+            parameters:
+                - name: featureType
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - FEATURE_TYPE_UNSPECIFIED
+                        - PROPERTY
+                        - EVENT
+                        - SERVICE
+                        - RELATION
+                    type: string
+                    format: enum
+                - name: onlyEnabled
+                  in: query
+                  schema:
+                    type: boolean
+                - name: applicableScope
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListFeatureResponse'
+    /admin/v1/thingmodel/features/{id}:
+        get:
+            tags:
+                - FeatureService
+            description: 查询特征详情 / Get feature
+            operationId: FeatureService_Get
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: identifier
+                  in: query
+                  schema:
+                    type: string
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Feature'
+        put:
+            tags:
+                - FeatureService
+            description: 更新特征 / Update feature
+            operationId: FeatureService_Update
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateFeatureRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/features:validateSpec:
+        post:
+            tags:
+                - FeatureService
+            description: 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
+            operationId: FeatureService_ValidateSpec
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ValidateFeatureSpecRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidateFeatureSpecResponse'
+    /admin/v1/thingmodel/unit-categories:
+        get:
+            tags:
+                - UnitCategoryService
+            description: 分页查询物理量分类列表 / List unit categories
+            operationId: UnitCategoryService_List
+            parameters:
+                - name: page
+                  in: query
+                  description: 当前页码（从1开始，默认1）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  description: 每页条数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: offset
+                  in: query
+                  description: 跳过的记录数（从0开始，默认0）
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: 最多返回的记录数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: token
+                  in: query
+                  description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
+                  schema:
+                    type: string
+                - name: noPaging
+                  in: query
+                  description: 是否不分页，如果为true，则page和pageSize参数无效。
+                  schema:
+                    type: boolean
+                - name: query
+                  in: query
+                  description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: Google AIP规范字符串过滤条件
+                  schema:
+                    type: string
+                - name: filterExpr.type
+                  in: query
+                  description: 过滤表达式类型
+                  schema:
+                    enum:
+                        - EXPR_TYPE_UNSPECIFIED
+                        - AND
+                        - OR
+                    type: string
+                    format: enum
+                - name: orderBy
+                  in: query
+                  description: 排序条件
+                  schema:
+                    type: string
+                - name: fieldMask
+                  in: query
+                  description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUnitCategoryResponse'
+        post:
+            tags:
+                - UnitCategoryService
+            description: 创建物理量分类 / Create unit category
+            operationId: UnitCategoryService_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateUnitCategoryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - UnitCategoryService
+            description: 删除物理量分类 / Delete unit category
+            operationId: UnitCategoryService_Delete
+            parameters:
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/unit-categories/code/{code}:
+        get:
+            tags:
+                - UnitCategoryService
+            description: 查询物理量分类详情 / Get unit category
+            operationId: UnitCategoryService_Get
+            parameters:
+                - name: code
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnitCategory'
+    /admin/v1/thingmodel/unit-categories/{categoryId}/units:
+        get:
+            tags:
+                - UnitService
+            description: 按物理量分类查询单位（属性选单位下拉框用）/ List units by category
+            operationId: UnitService_ListByCategory
+            parameters:
+                - name: categoryId
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: categoryCode
+                  in: query
+                  schema:
+                    type: string
+                - name: onlyEnabled
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUnitResponse'
+    /admin/v1/thingmodel/unit-categories/{id}:
+        get:
+            tags:
+                - UnitCategoryService
+            description: 查询物理量分类详情 / Get unit category
+            operationId: UnitCategoryService_Get
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnitCategory'
+        put:
+            tags:
+                - UnitCategoryService
+            description: 更新物理量分类 / Update unit category
+            operationId: UnitCategoryService_Update
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateUnitCategoryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/units:
+        get:
+            tags:
+                - UnitService
+            description: 分页查询单位列表 / List units
+            operationId: UnitService_List
+            parameters:
+                - name: page
+                  in: query
+                  description: 当前页码（从1开始，默认1）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  description: 每页条数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: offset
+                  in: query
+                  description: 跳过的记录数（从0开始，默认0）
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: 最多返回的记录数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: token
+                  in: query
+                  description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
+                  schema:
+                    type: string
+                - name: noPaging
+                  in: query
+                  description: 是否不分页，如果为true，则page和pageSize参数无效。
+                  schema:
+                    type: boolean
+                - name: query
+                  in: query
+                  description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: Google AIP规范字符串过滤条件
+                  schema:
+                    type: string
+                - name: filterExpr.type
+                  in: query
+                  description: 过滤表达式类型
+                  schema:
+                    enum:
+                        - EXPR_TYPE_UNSPECIFIED
+                        - AND
+                        - OR
+                    type: string
+                    format: enum
+                - name: orderBy
+                  in: query
+                  description: 排序条件
+                  schema:
+                    type: string
+                - name: fieldMask
+                  in: query
+                  description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUnitResponse'
+        post:
+            tags:
+                - UnitService
+            description: 创建单位 / Create unit
+            operationId: UnitService_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateUnitRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - UnitService
+            description: 删除单位 / Delete unit
+            operationId: UnitService_Delete
+            parameters:
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/units/code/{code}:
+        get:
+            tags:
+                - UnitService
+            description: 查询单位详情 / Get unit
+            operationId: UnitService_Get
+            parameters:
+                - name: code
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Unit'
+    /admin/v1/thingmodel/units/{id}:
+        get:
+            tags:
+                - UnitService
+            description: 查询单位详情 / Get unit
+            operationId: UnitService_Get
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Unit'
+        put:
+            tags:
+                - UnitService
+            description: 更新单位 / Update unit
+            operationId: UnitService_Update
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateUnitRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/units:convert:
+        post:
+            tags:
+                - UnitService
+            description: 单位换算 / Convert unit value
+            operationId: UnitService_Convert
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ConvertUnitRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConvertUnitResponse'
     /admin/v1/users:
         get:
             tags:
@@ -4327,6 +5038,15 @@ components:
                     description: 日志创建时间
                     format: date-time
             description: 接口审计日志
+        ArraySpec:
+            type: object
+            properties:
+                size:
+                    type: integer
+                    format: int32
+                element:
+                    $ref: '#/components/schemas/ParamSpec'
+            description: 数组 spec / Array spec
         BatchCreateLanguagesRequest:
             type: object
             properties:
@@ -4359,6 +5079,14 @@ components:
                 code:
                     type: string
                     description: 验证码
+        BoolLabels:
+            type: object
+            properties:
+                "false":
+                    type: string
+                "true":
+                    type: string
+            description: 布尔标签 / Bool labels
         ChangePasswordRequest:
             type: object
             properties:
@@ -4384,6 +5112,56 @@ components:
                     type: string
                     description: 任务执行类型名，例如 "send_email"、"generate_report" 等，用于区分不同类型的任务
             description: 控制调度任务 - 请求
+        ConvertUnitRequest:
+            type: object
+            properties:
+                sourceUnitId:
+                    type: integer
+                    format: uint32
+                sourceUnitCode:
+                    type: string
+                targetUnitId:
+                    type: integer
+                    format: uint32
+                targetUnitCode:
+                    type: string
+                value:
+                    type: number
+                    description: 待换算的数值 / Value to convert
+                    format: double
+                precision:
+                    type: integer
+                    description: 结果精度（小数位），缺省用目标单位 precision / Precision
+                    format: int32
+            description: 单位换算 - 请求 / Convert request
+        ConvertUnitResponse:
+            type: object
+            properties:
+                result:
+                    type: number
+                    description: 换算结果 / Result
+                    format: double
+                formula:
+                    type: string
+                    description: 人类可读换算链 / Human-readable chain
+                status:
+                    enum:
+                        - CONVERT_STATUS_UNSPECIFIED
+                        - CONVERT_OK
+                        - CONVERT_NOT_FOUND
+                        - CONVERT_DIFFERENT_CATEGORY
+                        - CONVERT_NOT_CONVERTIBLE
+                    type: string
+                    description: 换算状态 / Status
+                    format: enum
+                message:
+                    type: string
+                    description: 非 OK 时的说明 / Message when not OK
+                baseValue:
+                    type: number
+                    description: 经基准单位的中转值 / Base value
+                    format: double
+            description: 单位换算 - 回应 / Convert response
         CreateApiRequest:
             type: object
             properties:
@@ -4402,6 +5180,12 @@ components:
                 data:
                     $ref: '#/components/schemas/DictType'
             description: 创建字典类型 - 请求
+        CreateFeatureRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/Feature'
+            description: 创建特征 - 请求 / Create request
         CreateFileRequest:
             type: object
             properties:
@@ -4484,6 +5268,18 @@ components:
                 password:
                     type: string
             description: 创建租户及管理员用户 - 请求
+        CreateUnitCategoryRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/UnitCategory'
+            description: 创建物理量分类 - 请求 / Create request
+        CreateUnitRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/Unit'
+            description: 创建单位 - 请求 / Create request
         CreateUserRequest:
             type: object
             properties:
@@ -4892,6 +5688,184 @@ components:
                     type: string
                     description: 邮箱验证码
             description: 邮箱验证
+        EntityRef:
+            type: object
+            properties:
+                kind:
+                    type: string
+                id:
+                    type: integer
+                    format: uint32
+                code:
+                    type: string
+                identifier:
+                    type: string
+                type:
+                    type: string
+            description: 关系实体引用 / Relation entity reference
+        EnumItem:
+            type: object
+            properties:
+                value:
+                    type: integer
+                    format: int32
+                label:
+                    type: string
+            description: 枚举项 / Enum item
+        EventSpec:
+            type: object
+            properties:
+                level:
+                    enum:
+                        - EVENT_LEVEL_UNSPECIFIED
+                        - INFO
+                        - ALERT
+                        - ERROR
+                    type: string
+                    format: enum
+                outputParams:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParamSpec'
+                triggerCondition:
+                    type: string
+                severity:
+                    type: integer
+                    format: int32
+            description: 事件 spec / Event spec
+        Feature:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 特征ID / Feature ID
+                    format: uint32
+                featureType:
+                    enum:
+                        - FEATURE_TYPE_UNSPECIFIED
+                        - PROPERTY
+                        - EVENT
+                        - SERVICE
+                        - RELATION
+                    type: string
+                    description: 特征类型 PROPERTY/EVENT/SERVICE/RELATION / Feature type
+                    format: enum
+                code:
+                    type: string
+                    description: 清单编码，如 P-RUN-0001（不可变）/ Code, immutable
+                identifier:
+                    type: string
+                    description: 程序标识符，如 powerSwitch / Program identifier
+                name:
+                    type: string
+                    description: 中文名 / Name (zh)
+                nameEn:
+                    type: string
+                    description: 英文名 / Name (en)
+                description:
+                    type: string
+                    description: 说明 / Description
+                applicableScope:
+                    type: string
+                    description: 适用设备范围，如 冷机/锅炉 / Applicable device scope
+                dataType:
+                    enum:
+                        - DATA_TYPE_UNSPECIFIED
+                        - INT
+                        - FLOAT
+                        - DOUBLE
+                        - BOOL
+                        - ENUM
+                        - TEXT
+                        - DATE
+                        - STRUCT
+                        - ARRAY
+                    type: string
+                    description: property 数据类型 / Property data type
+                    format: enum
+                accessMode:
+                    enum:
+                        - ACCESS_MODE_UNSPECIFIED
+                        - R
+                        - RW
+                    type: string
+                    description: property 访问模式 R/RW / Property access mode
+                    format: enum
+                eventLevel:
+                    enum:
+                        - EVENT_LEVEL_UNSPECIFIED
+                        - INFO
+                        - ALERT
+                        - ERROR
+                    type: string
+                    description: event 级别 / Event level
+                    format: enum
+                callMode:
+                    enum:
+                        - CALL_MODE_UNSPECIFIED
+                        - ASYNC
+                        - SYNC
+                    type: string
+                    description: service 调用模式 / Service call mode
+                    format: enum
+                relationType:
+                    type: string
+                    description: relation 关系类型，如 derivedFrom / Relation type
+                spec:
+                    allOf:
+                        - $ref: '#/components/schemas/FeatureSpec'
+                    description: 特征结构化约束（FeatureSpec oneof，按 featureType 取分支）/ Structured spec
+                isEnabled:
+                    type: boolean
+                    description: 是否启用 / Is enabled
+                sortOrder:
+                    type: integer
+                    description: 排序号 / Sort order
+                    format: uint32
+                tenantId:
+                    type: integer
+                    description: 租户ID，0=系统全局 / Tenant ID, 0=system global
+                    format: uint32
+                tenantName:
+                    type: string
+                    description: 租户名称 / Tenant name
+                createdBy:
+                    type: integer
+                    description: 创建者 / Created by
+                    format: uint32
+                updatedBy:
+                    type: integer
+                    description: 更新者 / Updated by
+                    format: uint32
+                deletedBy:
+                    type: integer
+                    description: 删除者 / Deleted by
+                    format: uint32
+                createdAt:
+                    type: string
+                    description: 创建时间 / Created at
+                    format: date-time
+                updatedAt:
+                    type: string
+                    description: 更新时间 / Updated at
+                    format: date-time
+                deletedAt:
+                    type: string
+                    description: 删除时间 / Deleted at
+                    format: date-time
+            description: 特征 / Feature (统一承载 property/event/service/relation)
+        FeatureSpec:
+            type: object
+            properties:
+                property:
+                    $ref: '#/components/schemas/PropertySpec'
+                event:
+                    $ref: '#/components/schemas/EventSpec'
+                service:
+                    $ref: '#/components/schemas/ServiceSpec'
+                relation:
+                    $ref: '#/components/schemas/RelationSpec'
+            description: 特征 spec（按 feature_type 取 oneof 分支）/ Feature spec (oneof by feature_type)
         File:
             type: object
             properties:
@@ -5355,6 +6329,16 @@ components:
                 total:
                     type: string
             description: 查询字典类型列表 - 回应
+        ListFeatureResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Feature'
+                total:
+                    type: string
+            description: 查询特征列表 - 回应 / List response
         ListFileResponse:
             type: object
             properties:
@@ -5550,6 +6534,26 @@ components:
                 total:
                     type: string
             description: 租户列表 - 答复
+        ListUnitCategoryResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UnitCategory'
+                total:
+                    type: string
+            description: 查询物理量分类列表 - 回应 / List response
+        ListUnitResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Unit'
+                total:
+                    type: string
+            description: 查询单位列表 - 回应 / List response
         ListUserInboxResponse:
             type: object
             properties:
@@ -6290,6 +7294,53 @@ components:
                     description: 删除时间
                     format: date-time
             description: 组织单元
+        ParamSpec:
+            type: object
+            properties:
+                key:
+                    type: string
+                name:
+                    type: string
+                dataType:
+                    enum:
+                        - DATA_TYPE_UNSPECIFIED
+                        - INT
+                        - FLOAT
+                        - DOUBLE
+                        - BOOL
+                        - ENUM
+                        - TEXT
+                        - DATE
+                        - STRUCT
+                        - ARRAY
+                    type: string
+                    format: enum
+                unit:
+                    $ref: '#/components/schemas/UnitRef'
+                constraints:
+                    $ref: '#/components/schemas/ValueConstraints'
+                enumItems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EnumItem'
+                boolLabels:
+                    $ref: '#/components/schemas/BoolLabels'
+                textMaxLength:
+                    type: integer
+                    format: int32
+                structFields:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParamSpec'
+                arraySpec:
+                    $ref: '#/components/schemas/ArraySpec'
+                required:
+                    type: boolean
+                defaultValue:
+                    type: string
+            description: |-
+                通用参数 spec（事件/服务/struct 子字段共享，自递归）
+                 Generic param spec (shared by event output / service input/output / struct fields, self-recursive)
         Permission:
             type: object
             properties:
@@ -6697,6 +7748,54 @@ components:
                     type: string
                     description: 预签名约束的 Content-Type（可选）
             description: 预签名选项
+        PropertySpec:
+            type: object
+            properties:
+                dataType:
+                    enum:
+                        - DATA_TYPE_UNSPECIFIED
+                        - INT
+                        - FLOAT
+                        - DOUBLE
+                        - BOOL
+                        - ENUM
+                        - TEXT
+                        - DATE
+                        - STRUCT
+                        - ARRAY
+                    type: string
+                    format: enum
+                accessMode:
+                    enum:
+                        - ACCESS_MODE_UNSPECIFIED
+                        - R
+                        - RW
+                    type: string
+                    format: enum
+                category:
+                    type: string
+                unit:
+                    $ref: '#/components/schemas/UnitRef'
+                constraints:
+                    $ref: '#/components/schemas/ValueConstraints'
+                enumItems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EnumItem'
+                boolLabels:
+                    $ref: '#/components/schemas/BoolLabels'
+                textMaxLength:
+                    type: integer
+                    format: int32
+                structFields:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParamSpec'
+                arraySpec:
+                    $ref: '#/components/schemas/ArraySpec'
+                isRated:
+                    type: boolean
+            description: 属性 spec / Property spec
         RegisterUserRequest:
             type: object
             properties:
@@ -6726,6 +7825,24 @@ components:
                     type: integer
                     description: 用户ID
                     format: uint32
+        RelationSpec:
+            type: object
+            properties:
+                relationType:
+                    type: string
+                source:
+                    $ref: '#/components/schemas/EntityRef'
+                target:
+                    $ref: '#/components/schemas/EntityRef'
+                cardinality:
+                    type: string
+                directional:
+                    type: boolean
+                properties:
+                    type: object
+                    additionalProperties:
+                        type: string
+            description: 关系 spec（本体）/ Relation spec (ontology)
         RestartAllTaskResponse:
             type: object
             properties:
@@ -6866,6 +7983,30 @@ components:
                     type: integer
                     description: 消息ID
                     format: uint32
+        ServiceSpec:
+            type: object
+            properties:
+                callMode:
+                    enum:
+                        - CALL_MODE_UNSPECIFIED
+                        - ASYNC
+                        - SYNC
+                    type: string
+                    format: enum
+                inputParams:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParamSpec'
+                outputParams:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParamSpec'
+                timeout:
+                    type: integer
+                    format: int32
+                description:
+                    type: string
+            description: 服务 spec / Service spec
         StorageObject:
             type: object
             properties:
@@ -7098,6 +8239,185 @@ components:
                 exist:
                     type: boolean
             description: 租户是否存在 - 答复
+        Unit:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 单位ID / Unit ID
+                    format: uint32
+                categoryId:
+                    type: integer
+                    description: 所属物理量分类ID / Category ID
+                    format: uint32
+                code:
+                    type: string
+                    description: 单位编码，如 celsius（不可变）/ Unit code, immutable
+                symbol:
+                    type: string
+                    description: 单位符号，如 ℃ / Unit symbol
+                name:
+                    type: string
+                    description: 中文名 / Unit name (zh)
+                nameEn:
+                    type: string
+                    description: 英文名 / Unit name (en)
+                isBase:
+                    type: boolean
+                    description: 是否基准单位（每分类唯一）/ Is base unit (unique per category)
+                conversionType:
+                    enum:
+                        - CONVERSION_TYPE_UNSPECIFIED
+                        - LINEAR
+                        - AFFINE
+                        - LOGARITHMIC
+                        - CONDITIONAL
+                        - NONE
+                    type: string
+                    description: 换算类型 / Conversion type
+                    format: enum
+                factor:
+                    type: number
+                    description: 线性系数 k（基准=原值·k+offset）/ Linear factor k
+                    format: double
+                offset:
+                    type: number
+                    description: 偏移量 b（仅仿射非0）/ Offset b (affine only)
+                    format: double
+                formulaExpr:
+                    type: string
+                    description: 公式说明（仅展示）/ Formula description (display only)
+                precision:
+                    type: integer
+                    description: 建议显示精度（小数位）/ Display precision
+                    format: int32
+                isSiUnit:
+                    type: boolean
+                    description: 是否 SI 单位 / Is SI unit
+                isLegalUnit:
+                    type: boolean
+                    description: 是否中国法定计量单位 / Is PRC legal unit
+                referenceCount:
+                    type: integer
+                    description: 被物模型属性引用次数（预留）/ Reference count (reserved)
+                    format: uint32
+                isEnabled:
+                    type: boolean
+                    description: 是否启用 / Is enabled
+                sortOrder:
+                    type: integer
+                    description: 排序号 / Sort order
+                    format: uint32
+                tenantId:
+                    type: integer
+                    description: 租户ID，0代表系统全局 / Tenant ID, 0=system global
+                    format: uint32
+                tenantName:
+                    type: string
+                    description: 租户名称 / Tenant name
+                createdBy:
+                    type: integer
+                    description: 创建者用户ID / Created by
+                    format: uint32
+                updatedBy:
+                    type: integer
+                    description: 更新者用户ID / Updated by
+                    format: uint32
+                deletedBy:
+                    type: integer
+                    description: 删除者用户ID / Deleted by
+                    format: uint32
+                createdAt:
+                    type: string
+                    description: 创建时间 / Created at
+                    format: date-time
+                updatedAt:
+                    type: string
+                    description: 更新时间 / Updated at
+                    format: date-time
+                deletedAt:
+                    type: string
+                    description: 删除时间 / Deleted at
+                    format: date-time
+            description: 单位 / Unit
+        UnitCategory:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 物理量分类ID / Unit category ID
+                    format: uint32
+                code:
+                    type: string
+                    description: 物理量编码，如 temperature/pressure（不可变）/ Category code, immutable
+                name:
+                    type: string
+                    description: 中文名，如 温度 / Category name (zh)
+                nameEn:
+                    type: string
+                    description: 英文名，如 Temperature / Category name (en)
+                quantity:
+                    type: string
+                    description: 量纲/物理量名，如 热力学温度 / Quantity name
+                baseUnitSymbol:
+                    type: string
+                    description: 基准单位符号（冗余展示，如 K）/ Base unit symbol (display only)
+                icon:
+                    type: string
+                    description: Iconify 图标名 / Iconify icon name
+                description:
+                    type: string
+                    description: 描述 / Description
+                isEnabled:
+                    type: boolean
+                    description: 是否启用 / Is enabled
+                sortOrder:
+                    type: integer
+                    description: 排序号，越小越靠前 / Sort order
+                    format: uint32
+                tenantId:
+                    type: integer
+                    description: 租户ID，0代表系统全局 / Tenant ID, 0=system global
+                    format: uint32
+                tenantName:
+                    type: string
+                    description: 租户名称 / Tenant name
+                createdBy:
+                    type: integer
+                    description: 创建者用户ID / Created by
+                    format: uint32
+                updatedBy:
+                    type: integer
+                    description: 更新者用户ID / Updated by
+                    format: uint32
+                deletedBy:
+                    type: integer
+                    description: 删除者用户ID / Deleted by
+                    format: uint32
+                createdAt:
+                    type: string
+                    description: 创建时间 / Created at
+                    format: date-time
+                updatedAt:
+                    type: string
+                    description: 更新时间 / Updated at
+                    format: date-time
+                deletedAt:
+                    type: string
+                    description: 删除时间 / Deleted at
+                    format: date-time
+            description: 物理量分类 / Unit category
+        UnitRef:
+            type: object
+            properties:
+                unitId:
+                    type: integer
+                    format: uint32
+                unitCode:
+                    type: string
+                unitSymbol:
+                    type: string
+            description: 单位引用（property 顶层 + 参数级共享）/ Unit reference
         UpdateApiRequest:
             type: object
             properties:
@@ -7149,6 +8469,23 @@ components:
                     type: boolean
                     description: 如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。
             description: 更新字典类型 - 请求
+        UpdateFeatureRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                data:
+                    $ref: '#/components/schemas/Feature'
+                updateMask:
+                    example: name,description,spec,sort_order
+                    type: string
+                    description: 要更新的字段列表 / Fields to update
+                    format: field-mask
+                allowMissing:
+                    type: boolean
+                    description: 若为 true，资源不存在则新增 / If true, insert when missing
+            description: 更新特征 - 请求 / Update request
         UpdateFileRequest:
             type: object
             properties:
@@ -7370,6 +8707,40 @@ components:
                     type: boolean
                     description: 如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。
             description: 更新租户 -请求
+        UpdateUnitCategoryRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                data:
+                    $ref: '#/components/schemas/UnitCategory'
+                updateMask:
+                    example: code,name,isEnabled
+                    type: string
+                    description: 要更新的字段列表 / Fields to update
+                    format: field-mask
+                allowMissing:
+                    type: boolean
+                    description: 若为 true，资源不存在则新增（此时 updateMask 被忽略）/ If true, insert when missing
+            description: 更新物理量分类 - 请求 / Update request
+        UpdateUnitRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                data:
+                    $ref: '#/components/schemas/Unit'
+                updateMask:
+                    example: symbol,name,factor,offset
+                    type: string
+                    description: 要更新的字段列表 / Fields to update
+                    format: field-mask
+                allowMissing:
+                    type: boolean
+                    description: 若为 true，资源不存在则新增（此时 updateMask 被忽略）/ If true, insert when missing
+            description: 更新单位 - 请求 / Update request
         UpdateUserRequest:
             required:
                 - data
@@ -7600,6 +8971,46 @@ components:
                 exist:
                     type: boolean
             description: 用户是否存在 - 答复
+        ValidateFeatureSpecRequest:
+            type: object
+            properties:
+                featureType:
+                    enum:
+                        - FEATURE_TYPE_UNSPECIFIED
+                        - PROPERTY
+                        - EVENT
+                        - SERVICE
+                        - RELATION
+                    type: string
+                    format: enum
+                spec:
+                    $ref: '#/components/schemas/FeatureSpec'
+            description: 校验 spec - 请求 / Validate spec request
+        ValidateFeatureSpecResponse:
+            type: object
+            properties:
+                valid:
+                    type: boolean
+                errors:
+                    type: array
+                    items:
+                        type: string
+            description: 校验 spec - 回应 / Validate spec response
+        ValueConstraints:
+            type: object
+            properties:
+                min:
+                    type: number
+                    format: double
+                max:
+                    type: number
+                    format: double
+                step:
+                    type: number
+                    format: double
+                defaultValue:
+                    type: string
+            description: 数值约束 / Value constraints
         VerifyCaptchaRequest:
             type: object
             properties:
@@ -7657,6 +9068,8 @@ tags:
       description: 数据字典条目管理服务
     - name: DictTypeService
       description: 数据字典分类管理服务
+    - name: FeatureService
+      description: 特征管理服务（BFF 层 REST）/ Feature admin service
     - name: FileService
       description: 文件管理服务
     - name: FileTransferService
@@ -7695,6 +9108,10 @@ tags:
       description: 调度任务管理服务
     - name: TenantService
       description: 租户管理服务
+    - name: UnitCategoryService
+      description: 物理量分类管理服务（BFF 层 REST）/ Unit category admin service
+    - name: UnitService
+      description: 单位管理服务（BFF 层 REST）/ Unit admin service
     - name: UserProfileService
       description: 用户个人资料服务
     - name: UserService

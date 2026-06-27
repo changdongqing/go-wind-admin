@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "pagination/v1/pagination.proto";
+import "thingmodel/service/v1/feature.proto";
+
+// 特征管理服务（BFF 层 REST）/ Feature admin service
+service FeatureService {
+  // 分页查询特征列表 / List features
+  rpc List (pagination.PagingRequest) returns (thingmodel.service.v1.ListFeatureResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/features"
+    };
+  }
+
+  // 查询特征详情 / Get feature
+  rpc Get (thingmodel.service.v1.GetFeatureRequest) returns (thingmodel.service.v1.Feature) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/features/{id}"
+      additional_bindings {
+        get: "/admin/v1/thingmodel/features/code/{code}"
+      }
+      additional_bindings {
+        get: "/admin/v1/thingmodel/features/identifier/{identifier}"
+      }
+    };
+  }
+
+  // 创建特征 / Create feature
+  rpc Create (thingmodel.service.v1.CreateFeatureRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/features"
+      body: "*"
+    };
+  }
+
+  // 更新特征 / Update feature
+  rpc Update (thingmodel.service.v1.UpdateFeatureRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/admin/v1/thingmodel/features/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除特征 / Delete feature
+  rpc Delete (thingmodel.service.v1.DeleteFeatureRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/admin/v1/thingmodel/features"
+    };
+  }
+
+  // 按特征类型查询（左侧树选类型联动右侧列表）/ List features by type
+  rpc ListByType (thingmodel.service.v1.ListFeatureByTypeRequest) returns (thingmodel.service.v1.ListFeatureResponse) {
+    option (google.api.http) = {
+      get: "/admin/v1/thingmodel/features/types/{feature_type}"
+    };
+  }
+
+  // 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
+  rpc ValidateSpec (thingmodel.service.v1.ValidateFeatureSpecRequest) returns (thingmodel.service.v1.ValidateFeatureSpecResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/features:validateSpec"
+      body: "*"
+    };
+  }
+}

@@ -43,6 +43,7 @@ var ProviderSet = wire.NewSet(
 
 	data.NewUnitCategoryRepo,
 	data.NewUnitRepo,
+	data.NewFeatureRepo,
 
 	data.NewTaskRepo,
 	data.NewLoginPolicyRepo,

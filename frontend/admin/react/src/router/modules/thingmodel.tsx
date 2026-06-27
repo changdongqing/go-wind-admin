@@ -33,6 +33,19 @@ export const thingmodelRoutes: AppRouteObject[] = [
           // authority: ['unit:view'],
         },
       },
+      {
+        name: 'thingmodel-feature',
+        path: 'feature',
+        element: createLazyRoute(() => import('@/pages/app/thingmodel/feature')),
+        meta: {
+          title: 'routes:thingmodelFeature',
+          icon: 'lucide:boxes',
+          order: 2,
+          // 权限码由后端 SyncPermissions 自动从菜单 path 派生：
+          //   menu /thingmodel/feature (MENU) → "feature:view"
+          // authority: ['feature:view'],
+        },
+      },
     ],
   },
 ];

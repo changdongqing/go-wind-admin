@@ -1880,6 +1880,488 @@ export type dictservicev1_DeleteDictTypeRequest = {
   ids: number[] | undefined;
 };
 
+// 特征管理服务（BFF 层 REST）/ Feature admin service
+export interface FeatureService {
+  // 分页查询特征列表 / List features
+  List(
+    request: pagination_PagingRequest,
+  ): Promise<thingmodelservicev1_ListFeatureResponse>;
+  // 查询特征详情 / Get feature
+  Get(
+    request: thingmodelservicev1_GetFeatureRequest,
+  ): Promise<thingmodelservicev1_Feature>;
+  // 创建特征 / Create feature
+  Create(
+    request: thingmodelservicev1_CreateFeatureRequest,
+  ): Promise<wellKnownEmpty>;
+  // 更新特征 / Update feature
+  Update(
+    request: thingmodelservicev1_UpdateFeatureRequest,
+  ): Promise<wellKnownEmpty>;
+  // 删除特征 / Delete feature
+  Delete(
+    request: thingmodelservicev1_DeleteFeatureRequest,
+  ): Promise<wellKnownEmpty>;
+  // 按特征类型查询（左侧树选类型联动右侧列表）/ List features by type
+  ListByType(
+    request: thingmodelservicev1_ListFeatureByTypeRequest,
+  ): Promise<thingmodelservicev1_ListFeatureResponse>;
+  // 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
+  ValidateSpec(
+    request: thingmodelservicev1_ValidateFeatureSpecRequest,
+  ): Promise<thingmodelservicev1_ValidateFeatureSpecResponse>;
+}
+
+export function createFeatureServiceClient(
+  transport: ClientTransport,
+): FeatureService {
+  return {
+    List(request) {
+      const path = `admin/v1/thingmodel/features`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.page) {
+        queryParams.push(
+          `page=${encodeURIComponent(request.page.toString())}`,
+        );
+      }
+      if (request.pageSize) {
+        queryParams.push(
+          `pageSize=${encodeURIComponent(request.pageSize.toString())}`,
+        );
+      }
+      if (request.offset) {
+        queryParams.push(
+          `offset=${encodeURIComponent(request.offset.toString())}`,
+        );
+      }
+      if (request.limit) {
+        queryParams.push(
+          `limit=${encodeURIComponent(request.limit.toString())}`,
+        );
+      }
+      if (request.token) {
+        queryParams.push(
+          `token=${encodeURIComponent(request.token.toString())}`,
+        );
+      }
+      if (request.noPaging) {
+        queryParams.push(
+          `noPaging=${encodeURIComponent(request.noPaging.toString())}`,
+        );
+      }
+      if (request.query) {
+        queryParams.push(
+          `query=${encodeURIComponent(request.query.toString())}`,
+        );
+      }
+      if (request.filter) {
+        queryParams.push(
+          `filter=${encodeURIComponent(request.filter.toString())}`,
+        );
+      }
+      if (request.filterExpr?.type) {
+        queryParams.push(
+          `filterExpr.type=${encodeURIComponent(request.filterExpr.type.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.field) {
+        queryParams.push(
+          `filterExpr.conditions.field=${encodeURIComponent(request.filterExpr.conditions.field.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.op) {
+        queryParams.push(
+          `filterExpr.conditions.op=${encodeURIComponent(request.filterExpr.conditions.op.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.value) {
+        queryParams.push(
+          `filterExpr.conditions.value=${encodeURIComponent(request.filterExpr.conditions.value.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonValue) {
+        queryParams.push(
+          `filterExpr.conditions.jsonValue=${encodeURIComponent(request.filterExpr.conditions.jsonValue.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.values) {
+        request.filterExpr.conditions.values.forEach((x) => {
+          queryParams.push(
+            `filterExpr.conditions.values=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      if (request.filterExpr?.conditions?.datePart) {
+        queryParams.push(
+          `filterExpr.conditions.datePart=${encodeURIComponent(request.filterExpr.conditions.datePart.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonPath) {
+        queryParams.push(
+          `filterExpr.conditions.jsonPath=${encodeURIComponent(request.filterExpr.conditions.jsonPath.toString())}`,
+        );
+      }
+      if (request.orderBy) {
+        queryParams.push(
+          `orderBy=${encodeURIComponent(request.orderBy.toString())}`,
+        );
+      }
+      if (request.sorting?.field) {
+        queryParams.push(
+          `sorting.field=${encodeURIComponent(request.sorting.field.toString())}`,
+        );
+      }
+      if (request.sorting?.direction) {
+        queryParams.push(
+          `sorting.direction=${encodeURIComponent(request.sorting.direction.toString())}`,
+        );
+      }
+      if (request.fieldMask) {
+        queryParams.push(
+          `fieldMask=${encodeURIComponent(request.fieldMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'FeatureService',
+        method: 'List',
+      }) as Promise<thingmodelservicev1_ListFeatureResponse>;
+    },
+    Get(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/features/${request.id}`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.code) {
+        queryParams.push(
+          `code=${encodeURIComponent(request.code.toString())}`,
+        );
+      }
+      if (request.identifier) {
+        queryParams.push(
+          `identifier=${encodeURIComponent(request.identifier.toString())}`,
+        );
+      }
+      if (request.viewMask) {
+        queryParams.push(
+          `viewMask=${encodeURIComponent(request.viewMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'FeatureService',
+        method: 'Get',
+      }) as Promise<thingmodelservicev1_Feature>;
+    },
+    Create(request) {
+      const path = `admin/v1/thingmodel/features`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'FeatureService',
+        method: 'Create',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Update(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/features/${request.id}`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'PUT', body, {
+        service: 'FeatureService',
+        method: 'Update',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Delete(request) {
+      const path = `admin/v1/thingmodel/features`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.ids) {
+        request.ids.forEach((x) => {
+          queryParams.push(
+            `ids=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'DELETE', body, {
+        service: 'FeatureService',
+        method: 'Delete',
+      }) as Promise<wellKnownEmpty>;
+    },
+    ListByType(request) {
+      if (request.featureType === undefined || request.featureType === null) {
+        throw new Error('missing required field request.feature_type');
+      }
+      const path = `admin/v1/thingmodel/features/types/${request.featureType}`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.onlyEnabled) {
+        queryParams.push(
+          `onlyEnabled=${encodeURIComponent(request.onlyEnabled.toString())}`,
+        );
+      }
+      if (request.applicableScope) {
+        queryParams.push(
+          `applicableScope=${encodeURIComponent(request.applicableScope.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'FeatureService',
+        method: 'ListByType',
+      }) as Promise<thingmodelservicev1_ListFeatureResponse>;
+    },
+    ValidateSpec(request) {
+      const path = `admin/v1/thingmodel/features:validateSpec`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'FeatureService',
+        method: 'ValidateSpec',
+      }) as Promise<thingmodelservicev1_ValidateFeatureSpecResponse>;
+    },
+  };
+}
+// 查询特征列表 - 回应 / List response
+export type thingmodelservicev1_ListFeatureResponse = {
+  items: thingmodelservicev1_Feature[] | undefined;
+  total: number | undefined;
+};
+
+// 特征 / Feature (统一承载 property/event/service/relation)
+export type thingmodelservicev1_Feature = {
+  accessMode?: thingmodelservicev1_AccessMode;
+  applicableScope?: string;
+  callMode?: thingmodelservicev1_CallMode;
+  code?: string;
+  createdAt?: wellKnownTimestamp;
+  createdBy?: number;
+  // ===== 特化抽取列（高频筛选）/ Specialized columns =====
+  dataType?: thingmodelservicev1_DataType;
+  deletedAt?: wellKnownTimestamp;
+  deletedBy?: number;
+  description?: string;
+  eventLevel?: thingmodelservicev1_EventLevel;
+  featureType?: thingmodelservicev1_FeatureType;
+  id?: number;
+  identifier?: string;
+  isEnabled?: boolean;
+  name?: string;
+  nameEn?: string;
+  relationType?: string;
+  sortOrder?: number;
+  // ===== 差异容器：spec（四类结构化约束，强类型 oneof）=====
+  spec?: thingmodelservicev1_FeatureSpec;
+  tenantId?: number;
+  tenantName?: string;
+  updatedAt?: wellKnownTimestamp;
+  updatedBy?: number;
+};
+
+// 特征类型 / Feature type
+export type thingmodelservicev1_FeatureType =
+  | 'EVENT'
+  | 'FEATURE_TYPE_UNSPECIFIED'
+  | 'PROPERTY'
+  | 'RELATION'
+  | 'SERVICE';
+// 属性数据类型 / Property data type
+export type thingmodelservicev1_DataType =
+  | 'ARRAY'
+  | 'BOOL'
+  | 'DATA_TYPE_UNSPECIFIED'
+  | 'DATE'
+  | 'DOUBLE'
+  | 'ENUM'
+  | 'FLOAT'
+  | 'INT'
+  | 'STRUCT'
+  | 'TEXT';
+// 属性访问模式 / Property access mode
+export type thingmodelservicev1_AccessMode =
+  | 'ACCESS_MODE_UNSPECIFIED'
+  | 'R'
+  | 'RW';
+// 事件级别 / Event level
+export type thingmodelservicev1_EventLevel =
+  | 'ALERT'
+  | 'ERROR'
+  | 'EVENT_LEVEL_UNSPECIFIED'
+  | 'INFO';
+// 服务调用模式 / Service call mode
+export type thingmodelservicev1_CallMode =
+  | 'ASYNC'
+  | 'CALL_MODE_UNSPECIFIED'
+  | 'SYNC';
+// 特征 spec（按 feature_type 取 oneof 分支）/ Feature spec (oneof by feature_type)
+export type thingmodelservicev1_FeatureSpec = {
+  event?: thingmodelservicev1_EventSpec;
+  property?: thingmodelservicev1_PropertySpec;
+  relation?: thingmodelservicev1_RelationSpec;
+  service?: thingmodelservicev1_ServiceSpec;
+};
+
+// 属性 spec / Property spec
+export type thingmodelservicev1_PropertySpec = {
+  accessMode?: thingmodelservicev1_AccessMode;
+  arraySpec?: thingmodelservicev1_ArraySpec;
+  boolLabels?: thingmodelservicev1_BoolLabels;
+  category?: string;
+  constraints?: thingmodelservicev1_ValueConstraints;
+  dataType?: thingmodelservicev1_DataType;
+  enumItems: thingmodelservicev1_EnumItem[] | undefined;
+  isRated?: boolean;
+  structFields: thingmodelservicev1_ParamSpec[] | undefined;
+  textMaxLength?: number;
+  unit?: thingmodelservicev1_UnitRef;
+};
+
+// 单位引用（property 顶层 + 参数级共享）/ Unit reference
+export type thingmodelservicev1_UnitRef = {
+  unitCode?: string;
+  unitId?: number;
+  unitSymbol?: string;
+};
+
+// 数值约束 / Value constraints
+export type thingmodelservicev1_ValueConstraints = {
+  defaultValue?: string;
+  max?: number;
+  min?: number;
+  step?: number;
+};
+
+// 枚举项 / Enum item
+export type thingmodelservicev1_EnumItem = {
+  label: string | undefined;
+  value: number | undefined;
+};
+
+// 布尔标签 / Bool labels
+export type thingmodelservicev1_BoolLabels = {
+  false: string | undefined;
+  true: string | undefined;
+};
+
+// 通用参数 spec（事件/服务/struct 子字段共享，自递归）
+// Generic param spec (shared by event output / service input/output / struct fields, self-recursive)
+export type thingmodelservicev1_ParamSpec = {
+  arraySpec?: thingmodelservicev1_ArraySpec;
+  boolLabels?: thingmodelservicev1_BoolLabels;
+  constraints?: thingmodelservicev1_ValueConstraints;
+  dataType?: thingmodelservicev1_DataType;
+  defaultValue?: string;
+  enumItems: thingmodelservicev1_EnumItem[] | undefined;
+  key?: string;
+  name?: string;
+  required?: boolean;
+  structFields: thingmodelservicev1_ParamSpec[] | undefined;
+  textMaxLength?: number;
+  unit?: thingmodelservicev1_UnitRef;
+};
+
+// 数组 spec / Array spec
+export type thingmodelservicev1_ArraySpec = {
+  element?: thingmodelservicev1_ParamSpec;
+  size?: number;
+};
+
+// 事件 spec / Event spec
+export type thingmodelservicev1_EventSpec = {
+  level?: thingmodelservicev1_EventLevel;
+  outputParams: thingmodelservicev1_ParamSpec[] | undefined;
+  severity?: number;
+  triggerCondition?: string;
+};
+
+// 服务 spec / Service spec
+export type thingmodelservicev1_ServiceSpec = {
+  callMode?: thingmodelservicev1_CallMode;
+  description?: string;
+  inputParams: thingmodelservicev1_ParamSpec[] | undefined;
+  outputParams: thingmodelservicev1_ParamSpec[] | undefined;
+  timeout?: number;
+};
+
+// 关系 spec（本体）/ Relation spec (ontology)
+export type thingmodelservicev1_RelationSpec = {
+  cardinality?: string;
+  directional?: boolean;
+  properties: { [key: string]: string } | undefined;
+  relationType?: string;
+  source?: thingmodelservicev1_EntityRef;
+  target?: thingmodelservicev1_EntityRef;
+};
+
+// 关系实体引用 / Relation entity reference
+export type thingmodelservicev1_EntityRef = {
+  code?: string;
+  id?: number;
+  identifier?: string;
+  kind?: string;
+  type?: string;
+};
+
+// 查询特征详情 - 请求 / Get request
+export type thingmodelservicev1_GetFeatureRequest = {
+  code?: string;
+  id?: number;
+  identifier?: string;
+  viewMask?: wellKnownFieldMask;
+};
+
+// 创建特征 - 请求 / Create request
+export type thingmodelservicev1_CreateFeatureRequest = {
+  data: thingmodelservicev1_Feature | undefined;
+};
+
+// 更新特征 - 请求 / Update request
+export type thingmodelservicev1_UpdateFeatureRequest = {
+  allowMissing?: boolean;
+  data: thingmodelservicev1_Feature | undefined;
+  id: number | undefined;
+  updateMask: undefined | wellKnownFieldMask;
+};
+
+// 删除特征 - 请求 / Delete request
+export type thingmodelservicev1_DeleteFeatureRequest = {
+  ids: number[] | undefined;
+};
+
+// 按特征类型查询 - 请求 / List by type request
+export type thingmodelservicev1_ListFeatureByTypeRequest = {
+  applicableScope?: string;
+  featureType: thingmodelservicev1_FeatureType | undefined;
+  onlyEnabled?: boolean;
+};
+
+// 校验 spec - 请求 / Validate spec request
+export type thingmodelservicev1_ValidateFeatureSpecRequest = {
+  featureType: thingmodelservicev1_FeatureType | undefined;
+  spec: thingmodelservicev1_FeatureSpec | undefined;
+};
+
+// 校验 spec - 回应 / Validate spec response
+export type thingmodelservicev1_ValidateFeatureSpecResponse = {
+  errors: string[] | undefined;
+  valid: boolean | undefined;
+};
+
 // 文件管理服务
 export interface FileService {
   // 查询文件列表
@@ -7908,6 +8390,7 @@ export class ApiClient {
   private _dataAccessAuditLogService?: DataAccessAuditLogService;
   private _dictEntryService?: DictEntryService;
   private _dictTypeService?: DictTypeService;
+  private _featureService?: FeatureService;
   private _fileService?: FileService;
   private _fileTransferService?: FileTransferService;
   private _internalMessageCategoryService?: InternalMessageCategoryService;
@@ -7963,6 +8446,10 @@ export class ApiClient {
 
   get dictTypeService(): DictTypeService {
     return this._dictTypeService ??= createDictTypeServiceClient(this._transport);
+  }
+
+  get featureService(): FeatureService {
+    return this._featureService ??= createFeatureServiceClient(this._transport);
   }
 
   get fileService(): FileService {

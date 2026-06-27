@@ -17,6 +17,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
 	"go-wind-admin/app/admin/service/internal/data/ent/dicttype"
+	"go-wind-admin/app/admin/service/internal/data/ent/feature"
 	"go-wind-admin/app/admin/service/internal/data/ent/file"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessage"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagecategory"
@@ -75,6 +76,8 @@ type Client struct {
 	DictEntryI18n *DictEntryI18nClient
 	// DictType is the client for interacting with the DictType builders.
 	DictType *DictTypeClient
+	// Feature is the client for interacting with the Feature builders.
+	Feature *FeatureClient
 	// File is the client for interacting with the File builders.
 	File *FileClient
 	// InternalMessage is the client for interacting with the InternalMessage builders.
@@ -160,6 +163,7 @@ func (c *Client) init() {
 	c.DictEntry = NewDictEntryClient(c.config)
 	c.DictEntryI18n = NewDictEntryI18nClient(c.config)
 	c.DictType = NewDictTypeClient(c.config)
+	c.Feature = NewFeatureClient(c.config)
 	c.File = NewFileClient(c.config)
 	c.InternalMessage = NewInternalMessageClient(c.config)
 	c.InternalMessageCategory = NewInternalMessageCategoryClient(c.config)
@@ -292,6 +296,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DictEntry:                NewDictEntryClient(cfg),
 		DictEntryI18n:            NewDictEntryI18nClient(cfg),
 		DictType:                 NewDictTypeClient(cfg),
+		Feature:                  NewFeatureClient(cfg),
 		File:                     NewFileClient(cfg),
 		InternalMessage:          NewInternalMessageClient(cfg),
 		InternalMessageCategory:  NewInternalMessageCategoryClient(cfg),
@@ -351,6 +356,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DictEntry:                NewDictEntryClient(cfg),
 		DictEntryI18n:            NewDictEntryI18nClient(cfg),
 		DictType:                 NewDictTypeClient(cfg),
+		Feature:                  NewFeatureClient(cfg),
 		File:                     NewFileClient(cfg),
 		InternalMessage:          NewInternalMessageClient(cfg),
 		InternalMessageCategory:  NewInternalMessageCategoryClient(cfg),
@@ -415,7 +421,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Api, c.ApiAuditLog, c.DataAccessAuditLog, c.DictEntry, c.DictEntryI18n,
-		c.DictType, c.File, c.InternalMessage, c.InternalMessageCategory,
+		c.DictType, c.Feature, c.File, c.InternalMessage, c.InternalMessageCategory,
 		c.InternalMessageRecipient, c.Language, c.LoginAuditLog, c.LoginPolicy,
 		c.Membership, c.MembershipOrgUnit, c.MembershipPosition, c.MembershipRole,
 		c.Menu, c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
@@ -433,7 +439,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Api, c.ApiAuditLog, c.DataAccessAuditLog, c.DictEntry, c.DictEntryI18n,
-		c.DictType, c.File, c.InternalMessage, c.InternalMessageCategory,
+		c.DictType, c.Feature, c.File, c.InternalMessage, c.InternalMessageCategory,
 		c.InternalMessageRecipient, c.Language, c.LoginAuditLog, c.LoginPolicy,
 		c.Membership, c.MembershipOrgUnit, c.MembershipPosition, c.MembershipRole,
 		c.Menu, c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
@@ -461,6 +467,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DictEntryI18n.mutate(ctx, m)
 	case *DictTypeMutation:
 		return c.DictType.mutate(ctx, m)
+	case *FeatureMutation:
+		return c.Feature.mutate(ctx, m)
 	case *FileMutation:
 		return c.File.mutate(ctx, m)
 	case *InternalMessageMutation:
@@ -1398,6 +1406,140 @@ func (c *DictTypeClient) mutate(ctx context.Context, m *DictTypeMutation) (Value
 		return (&DictTypeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown DictType mutation op: %q", m.Op())
+	}
+}
+
+// FeatureClient is a client for the Feature schema.
+type FeatureClient struct {
+	config
+}
+
+// NewFeatureClient returns a client for the Feature from the given config.
+func NewFeatureClient(c config) *FeatureClient {
+	return &FeatureClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `feature.Hooks(f(g(h())))`.
+func (c *FeatureClient) Use(hooks ...Hook) {
+	c.hooks.Feature = append(c.hooks.Feature, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `feature.Intercept(f(g(h())))`.
+func (c *FeatureClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Feature = append(c.inters.Feature, interceptors...)
+}
+
+// Create returns a builder for creating a Feature entity.
+func (c *FeatureClient) Create() *FeatureCreate {
+	mutation := newFeatureMutation(c.config, OpCreate)
+	return &FeatureCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Feature entities.
+func (c *FeatureClient) CreateBulk(builders ...*FeatureCreate) *FeatureCreateBulk {
+	return &FeatureCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *FeatureClient) MapCreateBulk(slice any, setFunc func(*FeatureCreate, int)) *FeatureCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &FeatureCreateBulk{err: fmt.Errorf("calling to FeatureClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*FeatureCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &FeatureCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Feature.
+func (c *FeatureClient) Update() *FeatureUpdate {
+	mutation := newFeatureMutation(c.config, OpUpdate)
+	return &FeatureUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *FeatureClient) UpdateOne(_m *Feature) *FeatureUpdateOne {
+	mutation := newFeatureMutation(c.config, OpUpdateOne, withFeature(_m))
+	return &FeatureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *FeatureClient) UpdateOneID(id uint32) *FeatureUpdateOne {
+	mutation := newFeatureMutation(c.config, OpUpdateOne, withFeatureID(id))
+	return &FeatureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Feature.
+func (c *FeatureClient) Delete() *FeatureDelete {
+	mutation := newFeatureMutation(c.config, OpDelete)
+	return &FeatureDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *FeatureClient) DeleteOne(_m *Feature) *FeatureDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *FeatureClient) DeleteOneID(id uint32) *FeatureDeleteOne {
+	builder := c.Delete().Where(feature.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &FeatureDeleteOne{builder}
+}
+
+// Query returns a query builder for Feature.
+func (c *FeatureClient) Query() *FeatureQuery {
+	return &FeatureQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeFeature},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Feature entity by its id.
+func (c *FeatureClient) Get(ctx context.Context, id uint32) (*Feature, error) {
+	return c.Query().Where(feature.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *FeatureClient) GetX(ctx context.Context, id uint32) *Feature {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *FeatureClient) Hooks() []Hook {
+	hooks := c.hooks.Feature
+	return append(hooks[:len(hooks):len(hooks)], feature.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *FeatureClient) Interceptors() []Interceptor {
+	return c.inters.Feature
+}
+
+func (c *FeatureClient) mutate(ctx context.Context, m *FeatureMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&FeatureCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&FeatureUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&FeatureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&FeatureDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Feature mutation op: %q", m.Op())
 	}
 }
 
@@ -6080,23 +6222,23 @@ func (c *UserRoleClient) mutate(ctx context.Context, m *UserRoleMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Api, ApiAuditLog, DataAccessAuditLog, DictEntry, DictEntryI18n, DictType, File,
-		InternalMessage, InternalMessageCategory, InternalMessageRecipient, Language,
-		LoginAuditLog, LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition,
-		MembershipRole, Menu, OperationAuditLog, OrgUnit, Permission, PermissionApi,
-		PermissionAuditLog, PermissionGroup, PermissionMenu, PermissionPolicy,
-		PolicyEvaluationLog, Position, Role, RoleMetadata, RolePermission, Task,
-		Tenant, Unit, UnitCategory, User, UserCredential, UserOrgUnit, UserPosition,
-		UserRole []ent.Hook
+		Api, ApiAuditLog, DataAccessAuditLog, DictEntry, DictEntryI18n, DictType,
+		Feature, File, InternalMessage, InternalMessageCategory,
+		InternalMessageRecipient, Language, LoginAuditLog, LoginPolicy, Membership,
+		MembershipOrgUnit, MembershipPosition, MembershipRole, Menu, OperationAuditLog,
+		OrgUnit, Permission, PermissionApi, PermissionAuditLog, PermissionGroup,
+		PermissionMenu, PermissionPolicy, PolicyEvaluationLog, Position, Role,
+		RoleMetadata, RolePermission, Task, Tenant, Unit, UnitCategory, User,
+		UserCredential, UserOrgUnit, UserPosition, UserRole []ent.Hook
 	}
 	inters struct {
-		Api, ApiAuditLog, DataAccessAuditLog, DictEntry, DictEntryI18n, DictType, File,
-		InternalMessage, InternalMessageCategory, InternalMessageRecipient, Language,
-		LoginAuditLog, LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition,
-		MembershipRole, Menu, OperationAuditLog, OrgUnit, Permission, PermissionApi,
-		PermissionAuditLog, PermissionGroup, PermissionMenu, PermissionPolicy,
-		PolicyEvaluationLog, Position, Role, RoleMetadata, RolePermission, Task,
-		Tenant, Unit, UnitCategory, User, UserCredential, UserOrgUnit, UserPosition,
-		UserRole []ent.Interceptor
+		Api, ApiAuditLog, DataAccessAuditLog, DictEntry, DictEntryI18n, DictType,
+		Feature, File, InternalMessage, InternalMessageCategory,
+		InternalMessageRecipient, Language, LoginAuditLog, LoginPolicy, Membership,
+		MembershipOrgUnit, MembershipPosition, MembershipRole, Menu, OperationAuditLog,
+		OrgUnit, Permission, PermissionApi, PermissionAuditLog, PermissionGroup,
+		PermissionMenu, PermissionPolicy, PolicyEvaluationLog, Position, Role,
+		RoleMetadata, RolePermission, Task, Tenant, Unit, UnitCategory, User,
+		UserCredential, UserOrgUnit, UserPosition, UserRole []ent.Interceptor
 	}
 )

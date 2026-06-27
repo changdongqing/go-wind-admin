@@ -1,0 +1,176 @@
+{
+  "pageTitle": "特征管理",
+  "moduleName": "特征",
+  "featureType": "特征类型",
+  "featureTypePlaceholder": "请选择特征类型",
+  "featureTypeMap": {
+    "PROPERTY": "属性",
+    "EVENT": "事件",
+    "SERVICE": "服务",
+    "RELATION": "关系"
+  },
+  "featureTypeDesc": {
+    "PROPERTY": "设备状态/参数数据项",
+    "EVENT": "设备主动上报的通知（信息/告警/故障）",
+    "SERVICE": "平台可下发的指令（异步/同步）",
+    "RELATION": "本体关系（设备/属性/服务间）"
+  },
+
+  "code": "编码",
+  "codePlaceholder": "如 P-RUN-0001（不可变）",
+  "requiredCode": "请输入特征编码",
+  "identifier": "标识符",
+  "identifierPlaceholder": "如 powerSwitch（程序用，camelCase）",
+  "requiredIdentifier": "请输入程序标识符",
+  "name": "中文名",
+  "namePlaceholder": "如 开关状态",
+  "requiredName": "请输入中文名",
+  "nameEn": "英文名",
+  "nameEnPlaceholder": "如 Power Switch",
+  "description": "说明",
+  "descriptionPlaceholder": "请输入说明",
+  "applicableScope": "适用设备范围",
+  "applicableScopePlaceholder": "如 冷机/锅炉 或 通用",
+
+  "dataType": "数据类型",
+  "dataTypePlaceholder": "请选择数据类型",
+  "dataTypeMap": {
+    "INT": "整数",
+    "FLOAT": "单精度浮点",
+    "DOUBLE": "双精度浮点",
+    "BOOL": "布尔",
+    "ENUM": "枚举",
+    "TEXT": "字符串",
+    "DATE": "时间戳",
+    "STRUCT": "结构体",
+    "ARRAY": "数组"
+  },
+  "accessMode": "访问模式",
+  "accessModeMap": {
+    "R": "只读",
+    "RW": "读写"
+  },
+  "propertyCategory": "属性类别",
+  "propertyCategoryPlaceholder": "请选择属性类别",
+  "propertyCategoryMap": {
+    "runtime": "运行状态",
+    "measurement": "测量参数",
+    "setting": "设定参数",
+    "rated": "额定参数",
+    "statistic": "统计参数",
+    "environment": "环境参数"
+  },
+  "isRated": "铭牌额定",
+
+  "eventLevel": "事件级别",
+  "eventLevelMap": {
+    "INFO": "信息",
+    "ALERT": "告警",
+    "ERROR": "故障"
+  },
+  "triggerCondition": "触发条件",
+  "triggerConditionPlaceholder": "如 value > limit（仅展示）",
+  "severity": "严重度",
+  "severityPlaceholder": "1~5（可选）",
+
+  "callMode": "调用模式",
+  "callModeMap": {
+    "ASYNC": "异步",
+    "SYNC": "同步"
+  },
+  "timeout": "超时(s)",
+  "timeoutPlaceholder": "同步服务超时秒数",
+
+  "relationType": "关系类型",
+  "relationTypeMap": {
+    "partOf": "组成",
+    "feeds": "供给",
+    "suppliedBy": "被供给",
+    "controls": "控制",
+    "controlledBy": "被控制",
+    "derivedFrom": "派生",
+    "dependsOn": "依赖",
+    "locatedIn": "位于",
+    "monitors": "监测",
+    "relatedTo": "关联"
+  },
+  "cardinality": "基数",
+  "cardinalityMap": {
+    "oneToOne": "一对一",
+    "oneToMany": "一对多",
+    "manyToOne": "多对一",
+    "manyToMany": "多对多"
+  },
+  "directional": "有向关系",
+  "source": "源",
+  "target": "目标",
+  "entityKind": "实体类型",
+  "entityKindMap": {
+    "feature": "特征",
+    "external": "外部实体"
+  },
+  "selectFeaturePlaceholder": "请选择特征",
+  "externalTypePlaceholder": "外部实体类型，如 device/space",
+  "externalCodePlaceholder": "外部实体编码",
+
+  "unit": "单位",
+  "selectUnit": "选择单位",
+  "selectUnitCategoryFirst": "请先选择物理量分类",
+
+  "constraints": "约束",
+  "min": "最小值",
+  "max": "最大值",
+  "step": "步长",
+  "defaultValue": "默认值",
+  "textMaxLength": "最大长度",
+  "arraySize": "数组长度",
+  "elementType": "元素类型",
+  "structFields": "结构子字段",
+  "enumItems": "枚举项",
+  "enumValue": "值",
+  "enumLabel": "描述",
+  "boolFalseLabel": "0(false) 描述",
+  "boolTrueLabel": "1(true) 描述",
+  "addItem": "新增",
+  "removeItem": "删除",
+
+  "outputParams": "输出参数",
+  "inputParams": "输入参数",
+  "paramKey": "参数键",
+  "paramName": "参数名",
+  "required": "必填",
+
+  "sortOrder": "排序",
+  "sortOrderPlaceholder": "排序值",
+  "status": "状态",
+  "statusMap": {
+    "true": "启用",
+    "false": "停用"
+  },
+
+  "create": "新建",
+  "edit": "编辑",
+  "delete": "删除",
+  "action": "操作",
+  "validateSpec": "校验 spec",
+  "specValid": "spec 校验通过",
+  "specInvalid": "spec 校验失败",
+
+  "createSuccess": "创建成功",
+  "createFailed": "创建失败",
+  "updateSuccess": "更新成功",
+  "updateFailed": "更新失败",
+  "deleteSuccess": "删除成功",
+  "deleteFailed": "删除失败",
+  "fetchFailed": "查询失败",
+
+  "deleteConfirmTitle": "确认删除？",
+  "deleteConfirmDesc": "删除后无法恢复，是否继续？",
+  "referencedCannotDelete": "该特征被关系引用，无法删除，请先移除相关关系",
+
+  "featureList": "特征列表",
+  "selectTypeFirst": "请在左侧选择一个特征类型",
+  "specSection": "结构化约束（spec）",
+  "commonSection": "公共字段",
+  "governanceSection": "治理"
+}

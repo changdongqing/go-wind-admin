@@ -60,6 +60,17 @@ func NewEntClient(ctx *bootstrap.Context) (*entCrud.EntClient[*ent.Client], func
 			if seedErr := seed.SeedThingmodelUnits(ctx.Context(), client, l); seedErr != nil {
 				l.Warnf("[ENT] seed thingmodel units failed: %v", seedErr)
 			}
+
+			// 物模型-特征模块种子（幂等，依赖单位种子先行）
+			// Thing-model feature module seed (idempotent; depends on unit seed).
+			//   - ~270 条出厂特征（属性/事件/服务/关系），tenant_id=0，按 code upsert
+			//   - property 的 spec.unit.unitCode 在 upsert 前解析为 unitId
+			//   - relation 的 source/target.identifier 在第二遍 upsert 时回填 id
+			if seedErr := seed.SeedThingmodelFeatures(ctx.Context(), client, l); seedErr != nil {
+				// 用 Errorf 让用户在启动日志中第一时间能看到具体失败原因。
+				// Errorf so users immediately notice seed failures in startup logs.
+				l.Errorf("[ENT] seed thingmodel features failed: %v", seedErr)
+			}
 		}
 
 		return client

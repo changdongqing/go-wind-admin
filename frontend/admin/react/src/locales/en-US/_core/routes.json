@@ -31,6 +31,7 @@
   "languages": "Language Management",
   "thingmodel": "Thing Model",
   "thingmodelUnit": "Unit Management",
+  "thingmodelFeature": "Feature Management",
   "auth": "Authentication",
   "login": "Login",
   "register": "Register",

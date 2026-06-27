@@ -1,0 +1,389 @@
+syntax = "proto3";
+
+package thingmodel.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+
+// ============================================================================
+// Enums / 枚举
+// ============================================================================
+
+// 特征类型 / Feature type
+enum FeatureType {
+  FEATURE_TYPE_UNSPECIFIED = 0;
+  PROPERTY = 1;   // 属性 / Property
+  EVENT = 2;      // 事件 / Event
+  SERVICE = 3;    // 服务 / Service
+  RELATION = 4;   // 关系（本体）/ Relation (ontology)
+}
+
+// 属性访问模式 / Property access mode
+enum AccessMode {
+  ACCESS_MODE_UNSPECIFIED = 0;
+  R = 1;   // 只读 / Read-only
+  RW = 2;  // 读写 / Read-write
+}
+
+// 事件级别 / Event level
+enum EventLevel {
+  EVENT_LEVEL_UNSPECIFIED = 0;
+  INFO = 1;    // 信息 / Info
+  ALERT = 2;   // 告警 / Alert
+  ERROR = 3;   // 故障 / Error
+}
+
+// 服务调用模式 / Service call mode
+enum CallMode {
+  CALL_MODE_UNSPECIFIED = 0;
+  ASYNC = 1;  // 异步 / Asynchronous
+  SYNC = 2;   // 同步 / Synchronous
+}
+
+// 属性数据类型 / Property data type
+enum DataType {
+  DATA_TYPE_UNSPECIFIED = 0;
+  INT = 1;
+  FLOAT = 2;
+  DOUBLE = 3;
+  BOOL = 4;
+  ENUM = 5;
+  TEXT = 6;
+  DATE = 7;
+  STRUCT = 8;
+  ARRAY = 9;
+}
+
+// ============================================================================
+// Service / 服务
+// ============================================================================
+
+// 特征服务（源领域层，无 HTTP 注解）/ Feature service
+service FeatureService {
+  // 分页查询特征列表 / List features with paging
+  rpc List (pagination.PagingRequest) returns (ListFeatureResponse) {}
+
+  // 统计特征数量 / Count features
+  rpc Count (pagination.PagingRequest) returns (CountFeatureResponse) {}
+
+  // 查询特征详情 / Get feature detail
+  rpc Get (GetFeatureRequest) returns (Feature) {}
+
+  // 创建特征 / Create feature
+  rpc Create (CreateFeatureRequest) returns (google.protobuf.Empty) {}
+
+  // 更新特征 / Update feature
+  rpc Update (UpdateFeatureRequest) returns (google.protobuf.Empty) {}
+
+  // 删除特征 / Delete feature
+  rpc Delete (DeleteFeatureRequest) returns (google.protobuf.Empty) {}
+
+  // 按特征类型查询（左侧树选类型 → 右侧列表）/ List features by type
+  rpc ListByType (ListFeatureByTypeRequest) returns (ListFeatureResponse) {}
+
+  // 校验 spec（不落库，返回校验结果）/ Validate spec without persisting
+  rpc ValidateSpec (ValidateFeatureSpecRequest) returns (ValidateFeatureSpecResponse) {}
+}
+
+// ============================================================================
+// FeatureSpec oneof / 四类 spec 强类型契约
+// ============================================================================
+
+// 特征 spec（按 feature_type 取 oneof 分支）/ Feature spec (oneof by feature_type)
+message FeatureSpec {
+  oneof spec {
+    PropertySpec property = 1;
+    EventSpec    event    = 2;
+    ServiceSpec  service  = 3;
+    RelationSpec relation = 4;
+  }
+}
+
+// 属性 spec / Property spec
+message PropertySpec {
+  optional DataType data_type = 1 [json_name = "dataType"];
+  optional AccessMode access_mode = 2 [json_name = "accessMode"];
+  optional string category = 3 [json_name = "category"];          // runtime/measurement/setting/rated/statistic/environment
+  optional UnitRef unit = 4 [json_name = "unit"];                  // 单位引用（顶层属性才正式引用）
+  optional ValueConstraints constraints = 5 [json_name = "constraints"];
+  repeated EnumItem enum_items = 6 [json_name = "enumItems"];
+  optional BoolLabels bool_labels = 7 [json_name = "boolLabels"];
+  optional int32 text_max_length = 8 [json_name = "textMaxLength"];
+  repeated ParamSpec struct_fields = 9 [json_name = "structFields"];
+  optional ArraySpec array_spec = 10 [json_name = "arraySpec"];
+  optional bool is_rated = 11 [json_name = "isRated"];
+}
+
+// 事件 spec / Event spec
+message EventSpec {
+  optional EventLevel level = 1 [json_name = "level"];
+  repeated ParamSpec output_params = 2 [json_name = "outputParams"];
+  optional string trigger_condition = 3 [json_name = "triggerCondition"];
+  optional int32 severity = 4 [json_name = "severity"];
+}
+
+// 服务 spec / Service spec
+message ServiceSpec {
+  optional CallMode call_mode = 1 [json_name = "callMode"];
+  repeated ParamSpec input_params = 2 [json_name = "inputParams"];
+  repeated ParamSpec output_params = 3 [json_name = "outputParams"];
+  optional int32 timeout = 4 [json_name = "timeout"];
+  optional string description = 5 [json_name = "description"];
+}
+
+// 关系 spec（本体）/ Relation spec (ontology)
+message RelationSpec {
+  optional string relation_type = 1 [json_name = "relationType"]; // derivedFrom/partOf/feeds/...
+  optional EntityRef source = 2 [json_name = "source"];
+  optional EntityRef target = 3 [json_name = "target"];
+  optional string cardinality = 4 [json_name = "cardinality"];   // oneToOne/oneToMany/manyToOne/manyToMany
+  optional bool directional = 5 [json_name = "directional"];
+  map<string, string> properties = 6 [json_name = "properties"];
+}
+
+// ============================================================================
+// Common sub-structures / 公共子结构
+// ============================================================================
+
+// 通用参数 spec（事件/服务/struct 子字段共享，自递归）
+// Generic param spec (shared by event output / service input/output / struct fields, self-recursive)
+message ParamSpec {
+  optional string key = 1 [json_name = "key"];
+  optional string name = 2 [json_name = "name"];
+  optional DataType data_type = 3 [json_name = "dataType"];
+  optional UnitRef unit = 4 [json_name = "unit"];
+  optional ValueConstraints constraints = 5 [json_name = "constraints"];
+  repeated EnumItem enum_items = 6 [json_name = "enumItems"];
+  optional BoolLabels bool_labels = 7 [json_name = "boolLabels"];
+  optional int32 text_max_length = 8 [json_name = "textMaxLength"];
+  repeated ParamSpec struct_fields = 9 [json_name = "structFields"]; // 递归
+  optional ArraySpec array_spec = 10 [json_name = "arraySpec"];
+  optional bool required = 11 [json_name = "required"];
+  optional string default_value = 12 [json_name = "defaultValue"];
+}
+
+// 单位引用（property 顶层 + 参数级共享）/ Unit reference
+message UnitRef {
+  optional uint32 unit_id = 1 [json_name = "unitId"];       // 仅 property 顶层用，影响 reference_count
+  optional string unit_code = 2 [json_name = "unitCode"];   // 冗余 code，便于无 join 展示
+  optional string unit_symbol = 3 [json_name = "unitSymbol"]; // 冗余符号
+}
+
+// 关系实体引用 / Relation entity reference
+message EntityRef {
+  optional string kind = 1 [json_name = "kind"];        // feature / external
+  optional uint32 id = 2 [json_name = "id"];            // kind=feature 时
+  optional string code = 3 [json_name = "code"];        // 冗余 code
+  optional string identifier = 4 [json_name = "identifier"]; // 冗余 identifier
+  optional string type = 5 [json_name = "type"];        // kind=external 时：device/space/product
+}
+
+// 数值约束 / Value constraints
+message ValueConstraints {
+  optional double min = 1 [json_name = "min"];
+  optional double max = 2 [json_name = "max"];
+  optional double step = 3 [json_name = "step"];
+  optional string default_value = 4 [json_name = "defaultValue"];
+}
+
+// 枚举项 / Enum item
+message EnumItem {
+  int32 value = 1 [json_name = "value"];
+  string label = 2 [json_name = "label"];
+}
+
+// 布尔标签 / Bool labels
+message BoolLabels {
+  string false_label = 1 [json_name = "false"];  // 注意 JSON 键是 false
+  string true_label = 2 [json_name = "true"];    // 注意 JSON 键是 true
+}
+
+// 数组 spec / Array spec
+message ArraySpec {
+  optional int32 size = 1 [json_name = "size"];
+  optional ParamSpec element = 2 [json_name = "element"];
+}
+
+// ============================================================================
+// Feature message / 特征主消息
+// ============================================================================
+
+// 特征 / Feature (统一承载 property/event/service/relation)
+message Feature {
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {description: "特征ID / Feature ID"}
+  ];
+
+  optional FeatureType feature_type = 2 [
+    json_name = "featureType",
+    (gnostic.openapi.v3.property) = {description: "特征类型 PROPERTY/EVENT/SERVICE/RELATION / Feature type"}
+  ];
+
+  optional string code = 3 [
+    json_name = "code",
+    (gnostic.openapi.v3.property) = {description: "清单编码，如 P-RUN-0001（不可变）/ Code, immutable"}
+  ];
+
+  optional string identifier = 4 [
+    json_name = "identifier",
+    (gnostic.openapi.v3.property) = {description: "程序标识符，如 powerSwitch / Program identifier"}
+  ];
+
+  optional string name = 5 [
+    json_name = "name",
+    (gnostic.openapi.v3.property) = {description: "中文名 / Name (zh)"}
+  ];
+
+  optional string name_en = 6 [
+    json_name = "nameEn",
+    (gnostic.openapi.v3.property) = {description: "英文名 / Name (en)"}
+  ];
+
+  optional string description = 7 [
+    json_name = "description",
+    (gnostic.openapi.v3.property) = {description: "说明 / Description"}
+  ];
+
+  optional string applicable_scope = 8 [
+    json_name = "applicableScope",
+    (gnostic.openapi.v3.property) = {description: "适用设备范围，如 冷机/锅炉 / Applicable device scope"}
+  ];
+
+  // ===== 特化抽取列（高频筛选）/ Specialized columns =====
+  optional DataType data_type = 10 [
+    json_name = "dataType",
+    (gnostic.openapi.v3.property) = {description: "property 数据类型 / Property data type"}
+  ];
+  optional AccessMode access_mode = 11 [
+    json_name = "accessMode",
+    (gnostic.openapi.v3.property) = {description: "property 访问模式 R/RW / Property access mode"}
+  ];
+  optional EventLevel event_level = 12 [
+    json_name = "eventLevel",
+    (gnostic.openapi.v3.property) = {description: "event 级别 / Event level"}
+  ];
+  optional CallMode call_mode = 13 [
+    json_name = "callMode",
+    (gnostic.openapi.v3.property) = {description: "service 调用模式 / Service call mode"}
+  ];
+  optional string relation_type = 14 [
+    json_name = "relationType",
+    (gnostic.openapi.v3.property) = {description: "relation 关系类型，如 derivedFrom / Relation type"}
+  ];
+
+  // ===== 差异容器：spec（四类结构化约束，强类型 oneof）=====
+  optional FeatureSpec spec = 20 [
+    json_name = "spec",
+    (gnostic.openapi.v3.property) = {description: "特征结构化约束（FeatureSpec oneof，按 featureType 取分支）/ Structured spec"}
+  ];
+
+  optional bool is_enabled = 30 [
+    json_name = "isEnabled",
+    (gnostic.openapi.v3.property) = {description: "是否启用 / Is enabled"}
+  ];
+  optional uint32 sort_order = 31 [
+    json_name = "sortOrder",
+    (gnostic.openapi.v3.property) = {description: "排序号 / Sort order"}
+  ];
+
+  optional uint32 tenant_id = 100 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "租户ID，0=系统全局 / Tenant ID, 0=system global"}
+  ];
+  optional string tenant_name = 101 [
+    json_name = "tenantName",
+    (gnostic.openapi.v3.property) = {description: "租户名称 / Tenant name"}
+  ];
+
+  optional uint32 created_by = 200 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "创建者 / Created by"}];
+  optional uint32 updated_by = 201 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "更新者 / Updated by"}];
+  optional uint32 deleted_by = 202 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "删除者 / Deleted by"}];
+
+  optional google.protobuf.Timestamp created_at = 300 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "创建时间 / Created at"}];
+  optional google.protobuf.Timestamp updated_at = 301 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "更新时间 / Updated at"}];
+  optional google.protobuf.Timestamp deleted_at = 302 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "删除时间 / Deleted at"}];
+}
+
+// ============================================================================
+// Request / Response messages
+// ============================================================================
+
+// 查询特征列表 - 回应 / List response
+message ListFeatureResponse {
+  repeated Feature items = 1;
+  uint64 total = 2;
+}
+
+// 统计特征数量 - 回应 / Count response
+message CountFeatureResponse {
+  uint64 count = 1;
+}
+
+// 查询特征详情 - 请求 / Get request
+message GetFeatureRequest {
+  oneof query_by {
+    uint32 id = 1;
+    string code = 2;
+    string identifier = 3;
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {description: "视图字段过滤器 / View field mask"}
+  ];
+}
+
+// 创建特征 - 请求 / Create request
+message CreateFeatureRequest {
+  Feature data = 1;
+}
+
+// 更新特征 - 请求 / Update request
+message UpdateFeatureRequest {
+  uint32 id = 1;
+
+  Feature data = 2;
+
+  google.protobuf.FieldMask update_mask = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "要更新的字段列表 / Fields to update",
+      example: {yaml: "name,description,spec,sort_order"}
+    },
+    json_name = "updateMask"
+  ];
+
+  optional bool allow_missing = 4 [
+    (gnostic.openapi.v3.property) = {description: "若为 true，资源不存在则新增 / If true, insert when missing"},
+    json_name = "allowMissing"
+  ];
+}
+
+// 删除特征 - 请求 / Delete request
+message DeleteFeatureRequest {
+  repeated uint32 ids = 1;
+}
+
+// 按特征类型查询 - 请求 / List by type request
+message ListFeatureByTypeRequest {
+  FeatureType feature_type = 1 [json_name = "featureType"];
+  optional bool only_enabled = 2 [json_name = "onlyEnabled"];
+  optional string applicable_scope = 3 [json_name = "applicableScope"];
+}
+
+// 校验 spec - 请求 / Validate spec request
+message ValidateFeatureSpecRequest {
+  FeatureType feature_type = 1 [json_name = "featureType"];
+  FeatureSpec spec = 2 [json_name = "spec"];
+}
+
+// 校验 spec - 回应 / Validate spec response
+message ValidateFeatureSpecResponse {
+  bool valid = 1 [json_name = "valid"];
+  repeated string errors = 2 [json_name = "errors"];
+}

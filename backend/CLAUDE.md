@@ -297,3 +297,196 @@ cd app/admin/service && make wire
 gow run        # 无需先构建
 # 访问 http://localhost:7788/docs 验证
 ```
+
+### Step 12: 菜单与权限码（**必做，勿漏**）
+
+> 仅当新功能对应一个用户可访问的页面/模块时执行。纯内部 RPC 可跳过。
+> 这是平台的强约定：**菜单数据是权限码的源头**，跳过这一步会导致功能无法授权、动态菜单不可见。
+
+#### 12.1 在 `backend/pkg/constants/default_data.go` 的 `DefaultMenus` 追加菜单节点
+
+按业务模块挂在对应目录节点下（如物模型挂 `id=70` 的 `ThingModel`），格式：
+
+```go
+{
+    Id:        trans.Ptr(uint32(72)),                     // 新 id，按现有最大 +1
+    ParentId:  trans.Ptr(uint32(70)),                     // 父级目录 id
+    Type:      permissionV1.Menu_MENU.Enum(),             // MENU=页面 / CATALOG=目录 / BUTTON=按钮
+    Name:      trans.Ptr("ThingModelFeatureManagement"),  // 英文驼峰
+    Path:      trans.Ptr("feature"),                      // 仅本段路径（不含父）
+    Component: trans.Ptr("app/thingmodel/feature/index.vue"), // Vue 端组件路径（React 端忽略）
+    CreatedAt: timeutil.TimeToTimestamppb(trans.Ptr(time.Now())),
+    Meta: &permissionV1.MenuMeta{
+        Title:     trans.Ptr("menu.thingmodel.feature"),  // i18n 键（动态菜单用）
+        Icon:      trans.Ptr("lucide:boxes"),
+        Order:     trans.Ptr(int32(2)),
+        Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
+    },
+},
+```
+
+#### 12.2 自动产生的权限码
+
+启动时 `MenuService.init()` → `createDefaultMenus()` 写入菜单，`PermissionService.init()` → `SyncPermissions()` 自动派生：
+
+| 菜单 path | 类型 | 自动权限码 |
+|-----------|------|-----------|
+| `/thingmodel`            | CATALOG | `thingmodel:dir` |
+| `/thingmodel/feature`    | MENU    | `feature:view`  |
+| `/admin/v1/thingmodel/features/*` (API) | — | `thingmodel:view`（由 API converter 派生） |
+
+派生规则：`MenuPermissionConverter.ConvertCode` 取路径最后一段单数化 + `:view`（MENU 类型）/ `:dir`（CATALOG）/ `:create|edit|delete|act`（BUTTON 按 title 关键词）。
+
+#### 12.3 前端路由 + i18n（与菜单**双轨**配合）
+
+- React 端在 `frontend/admin/react/src/router/modules/<module>.tsx` 追加静态子路由，`meta.title` 用 `routes:xxxKey` 格式
+- 在 `locales/zh-CN/_core/routes.json` 与 `locales/en-US/_core/routes.json` 同步追加 `xxxKey` 翻译
+- 路由 `meta.authority` 一般留空：权限由后端菜单的 `Authority` 字段驱动（通过角色码绑定）
+
+#### 12.4 自检清单（PR 前过一遍）
+
+- [ ] `DefaultMenus` 已追加新菜单节点（含 `ParentId` / `Path` / `Type` / `Authority`）
+- [ ] React 端静态路由已加入对应 module，`meta.title` 引用 `routes:xxx`
+- [ ] `routes.json`（zh + en）已补 i18n 键
+- [ ] 启动验证：首次启动新库后，`/admin/v1/permissions` 应返回 `xxx:view` 权限码
+- [ ] 平台/租户管理员角色应自动可见该菜单（依赖 `Authority` 中的角色码）
+
+### Step 13: ent field.JSON 存 proto message — protojson 强制规范（**必看，避坑**）
+
+> 适用场景：你打算用 `field.JSON("xxx", &someProtoV1.SomeMessage{})` 把一个 protobuf message 落地到 JSON 字段。
+
+#### 13.1 雷区：encoding/json 不兼容 protobuf 高级特性
+
+Ent 的 `field.JSON` 默认用 Go 标准库 `encoding/json` 做 marshal/unmarshal。但 protobuf-go 生成的代码**不实现** `json.Marshaler / json.Unmarshaler` 接口；当 message 含以下任一特性时，`encoding/json` 会**静默写错** + **读取时报错**：
+
+| protobuf 特性 | encoding/json 表现 | 后果 |
+|---------------|--------------------|------|
+| **oneof** | 接口字段无 json tag，序列化为 `{"Spec":{"Property":...}}`（大写、无辨别字段）；反序列化报 `cannot unmarshal object into Go struct field X of type isX_Y` | **List/Get 全部失败**，前端列表空 |
+| **map<string, *Msg>** | 嵌套 message 走默认 marshal，丢字段 | 数据残缺 |
+| **`google.protobuf.Any` / `Struct` / `Value`** | 完全不可读 | 报错 |
+| **Wrapper types**（`StringValue` 等） | 输出 `{"value":"x"}` 而非 protobuf 期望的 `"x"` | 跨语言不兼容 |
+
+**普通 message（无 oneof / 无 wkt / 字段都有 json tag）** 在 encoding/json 下可工作 — 如本仓库的 `menu.meta = *permissionV1.MenuMeta`。所以 `menu.meta` OK，但 `feature.spec = *thingmodelV1.FeatureSpec`（含 oneof）必须包装。
+
+#### 13.2 强制规范：含 oneof / wkt / map<msg> 的 proto message 必须包装
+
+在 `internal/data/ent/schema/` 同包写一个包装类型，实现 `json.Marshaler / json.Unmarshaler`，**全部委托给 protojson**：
+
+```go
+// internal/data/ent/schema/xxxspec_jsonfield.go
+package schema
+
+import (
+	"encoding/json"
+	"google.golang.org/protobuf/encoding/protojson"
+	xxxV1 "go-wind-admin/api/gen/go/xxx/service/v1"
+)
+
+type XxxSpecField struct {
+	*xxxV1.XxxSpec
+}
+
+var (
+	_ json.Marshaler   = (*XxxSpecField)(nil)
+	_ json.Unmarshaler = (*XxxSpecField)(nil)
+)
+
+func (f *XxxSpecField) MarshalJSON() ([]byte, error) {
+	if f == nil || f.XxxSpec == nil {
+		return []byte("null"), nil
+	}
+	return protojson.MarshalOptions{UseProtoNames: false}.Marshal(f.XxxSpec)
+}
+
+func (f *XxxSpecField) UnmarshalJSON(data []byte) error {
+	if len(data) == 0 || string(data) == "null" {
+		f.XxxSpec = nil
+		return nil
+	}
+	if f.XxxSpec == nil {
+		f.XxxSpec = &xxxV1.XxxSpec{}
+	}
+	return protojson.UnmarshalOptions{DiscardUnknown: true}.Unmarshal(data, f.XxxSpec)
+}
+
+func WrapXxxSpec(s *xxxV1.XxxSpec) *XxxSpecField { /* nil-safe */ }
+func UnwrapXxxSpec(f *XxxSpecField) *xxxV1.XxxSpec { /* nil-safe */ }
+```
+
+Schema 字段引用包装类型：
+
+```go
+// internal/data/ent/schema/xxx.go
+field.JSON("spec", &XxxSpecField{}).Optional()
+```
+
+#### 13.3 配套：repo + mapper 同步适配
+
+包装会让 `ent.Xxx.Spec` 类型从 `*XxxSpec` 变为 `*XxxSpecField`，DTO 端仍是 `*XxxSpec`。两侧 Go 类型不一致 — mapper（jinzhu/copier）会**默默跳过该字段**，导致 List/Get 的 DTO.Spec 永远为 nil。**必须注册双向 TypeConverter**：
+
+```go
+// internal/data/xxx_repo.go init()
+import (
+	"github.com/jinzhu/copier"
+	"go-wind-admin/app/admin/service/internal/data/ent/schema"
+)
+
+r.mapper.AppendConverters([]copier.TypeConverter{
+	// entity → dto
+	{
+		SrcType: (*schema.XxxSpecField)(nil),
+		DstType: (*xxxV1.XxxSpec)(nil),
+		Fn: func(src interface{}) (interface{}, error) {
+			f, _ := src.(*schema.XxxSpecField)
+			return schema.UnwrapXxxSpec(f), nil
+		},
+	},
+	// dto → entity（备用，幂等）
+	{
+		SrcType: (*xxxV1.XxxSpec)(nil),
+		DstType: (*schema.XxxSpecField)(nil),
+		Fn: func(src interface{}) (interface{}, error) {
+			s, _ := src.(*xxxV1.XxxSpec)
+			return schema.WrapXxxSpec(s), nil
+		},
+	},
+})
+```
+
+Repo 写路径手动包装（mapper.FromDTO 我们一般不用，是直接 `builder.SetXXX`）：
+
+```go
+if req.Data.Spec != nil {
+	builder.SetSpec(schema.WrapXxxSpec(req.Data.Spec))
+}
+```
+
+#### 13.4 必做：单元测试 round-trip
+
+任何 `XxxSpecField` 都必须配 `featurespec_jsonfield_test.go` 同样的 4 类用例（参考 `internal/data/ent/schema/featurespec_jsonfield_test.go`）：
+- 覆盖所有 oneof 分支
+- 覆盖嵌套 message
+- 覆盖 nil 安全（Wrap(nil) / Unwrap(nil) / Marshal nil / Unmarshal "null"）
+- **验证 marshal 后的 JSON 键名是 camelCase（protojson 规范）**
+
+`go test ./internal/data/ent/schema/...` 必须全过才能提交。
+
+#### 13.5 自检清单
+
+- [ ] 你的 proto message 含 oneof / map<string,Msg> / wkt？是 → 必须包装；否 → 跳过本节
+- [ ] 在 `schema/` 同包写了 `XxxSpecField` + Wrap/Unwrap 函数
+- [ ] schema 字段用 `field.JSON("xxx", &XxxSpecField{})`
+- [ ] repo init 注册了双向 `copier.TypeConverter`
+- [ ] repo Create/Update 用 `WrapXxxSpec()` 包装后 `SetSpec`
+- [ ] 写了 round-trip 单元测试（4 类用例）并通过
+- [ ] 种子程序里 `OnConflict.Update(...).SetXxx(WrapXxxSpec(...))` 也已包装
+
+#### 13.6 历史教训（必读）
+
+特征模块（thing_feature）首次实现时直接 `field.JSON("spec", &thingmodelV1.FeatureSpec{})`，FeatureSpec 含 oneof，结果：
+- DB INSERT 成功（encoding/json 不报错，但格式错乱）
+- DB SELECT 失败（`cannot unmarshal ... into isFeatureSpec_Spec`）
+- 前端列表全空，**症状极像"种子数据没写入"**，但实际是写入成功+读取报错+控制台静默吞日志
+
+**任何含 oneof 的 proto message 进 ent JSON，必须先实现包装类型 + round-trip 测试，否则禁止合并**。
+

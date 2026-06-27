@@ -1,0 +1,176 @@
+{
+  "pageTitle": "Feature Management",
+  "moduleName": "Feature",
+  "featureType": "Feature Type",
+  "featureTypePlaceholder": "Select feature type",
+  "featureTypeMap": {
+    "PROPERTY": "Property",
+    "EVENT": "Event",
+    "SERVICE": "Service",
+    "RELATION": "Relation"
+  },
+  "featureTypeDesc": {
+    "PROPERTY": "Device state/parameter data points",
+    "EVENT": "Notifications reported by device (info/alert/error)",
+    "SERVICE": "Commands the platform can dispatch (async/sync)",
+    "RELATION": "Ontology relations among devices/properties/services"
+  },
+
+  "code": "Code",
+  "codePlaceholder": "e.g. P-RUN-0001 (immutable)",
+  "requiredCode": "Code is required",
+  "identifier": "Identifier",
+  "identifierPlaceholder": "e.g. powerSwitch (camelCase)",
+  "requiredIdentifier": "Identifier is required",
+  "name": "Name (zh)",
+  "namePlaceholder": "e.g. 开关状态",
+  "requiredName": "Name is required",
+  "nameEn": "Name (en)",
+  "nameEnPlaceholder": "e.g. Power Switch",
+  "description": "Description",
+  "descriptionPlaceholder": "Description",
+  "applicableScope": "Applicable Scope",
+  "applicableScopePlaceholder": "e.g. Chiller/Boiler or General",
+
+  "dataType": "Data Type",
+  "dataTypePlaceholder": "Select data type",
+  "dataTypeMap": {
+    "INT": "Integer",
+    "FLOAT": "Float",
+    "DOUBLE": "Double",
+    "BOOL": "Bool",
+    "ENUM": "Enum",
+    "TEXT": "Text",
+    "DATE": "Date",
+    "STRUCT": "Struct",
+    "ARRAY": "Array"
+  },
+  "accessMode": "Access Mode",
+  "accessModeMap": {
+    "R": "Read-only",
+    "RW": "Read-write"
+  },
+  "propertyCategory": "Property Category",
+  "propertyCategoryPlaceholder": "Select category",
+  "propertyCategoryMap": {
+    "runtime": "Runtime",
+    "measurement": "Measurement",
+    "setting": "Setting",
+    "rated": "Rated (Nameplate)",
+    "statistic": "Statistic",
+    "environment": "Environment"
+  },
+  "isRated": "Nameplate Rated",
+
+  "eventLevel": "Event Level",
+  "eventLevelMap": {
+    "INFO": "Info",
+    "ALERT": "Alert",
+    "ERROR": "Error"
+  },
+  "triggerCondition": "Trigger Condition",
+  "triggerConditionPlaceholder": "e.g. value > limit (display only)",
+  "severity": "Severity",
+  "severityPlaceholder": "1~5 (optional)",
+
+  "callMode": "Call Mode",
+  "callModeMap": {
+    "ASYNC": "Asynchronous",
+    "SYNC": "Synchronous"
+  },
+  "timeout": "Timeout(s)",
+  "timeoutPlaceholder": "Timeout for sync services",
+
+  "relationType": "Relation Type",
+  "relationTypeMap": {
+    "partOf": "Part Of",
+    "feeds": "Feeds",
+    "suppliedBy": "Supplied By",
+    "controls": "Controls",
+    "controlledBy": "Controlled By",
+    "derivedFrom": "Derived From",
+    "dependsOn": "Depends On",
+    "locatedIn": "Located In",
+    "monitors": "Monitors",
+    "relatedTo": "Related To"
+  },
+  "cardinality": "Cardinality",
+  "cardinalityMap": {
+    "oneToOne": "One to One",
+    "oneToMany": "One to Many",
+    "manyToOne": "Many to One",
+    "manyToMany": "Many to Many"
+  },
+  "directional": "Directional",
+  "source": "Source",
+  "target": "Target",
+  "entityKind": "Entity Kind",
+  "entityKindMap": {
+    "feature": "Feature",
+    "external": "External"
+  },
+  "selectFeaturePlaceholder": "Select feature",
+  "externalTypePlaceholder": "External entity type, e.g. device/space",
+  "externalCodePlaceholder": "External entity code",
+
+  "unit": "Unit",
+  "selectUnit": "Select unit",
+  "selectUnitCategoryFirst": "Select a category first",
+
+  "constraints": "Constraints",
+  "min": "Min",
+  "max": "Max",
+  "step": "Step",
+  "defaultValue": "Default",
+  "textMaxLength": "Max length",
+  "arraySize": "Array size",
+  "elementType": "Element type",
+  "structFields": "Struct fields",
+  "enumItems": "Enum items",
+  "enumValue": "Value",
+  "enumLabel": "Label",
+  "boolFalseLabel": "Label for false (0)",
+  "boolTrueLabel": "Label for true (1)",
+  "addItem": "Add",
+  "removeItem": "Remove",
+
+  "outputParams": "Output Params",
+  "inputParams": "Input Params",
+  "paramKey": "Param Key",
+  "paramName": "Param Name",
+  "required": "Required",
+
+  "sortOrder": "Sort Order",
+  "sortOrderPlaceholder": "Sort order",
+  "status": "Status",
+  "statusMap": {
+    "true": "Enabled",
+    "false": "Disabled"
+  },
+
+  "create": "Create",
+  "edit": "Edit",
+  "delete": "Delete",
+  "action": "Action",
+  "validateSpec": "Validate spec",
+  "specValid": "Spec validation passed",
+  "specInvalid": "Spec validation failed",
+
+  "createSuccess": "Created",
+  "createFailed": "Create failed",
+  "updateSuccess": "Updated",
+  "updateFailed": "Update failed",
+  "deleteSuccess": "Deleted",
+  "deleteFailed": "Delete failed",
+  "fetchFailed": "Fetch failed",
+
+  "deleteConfirmTitle": "Confirm delete?",
+  "deleteConfirmDesc": "This cannot be undone. Continue?",
+  "referencedCannotDelete": "This feature is referenced by relation(s); remove relations first.",
+
+  "featureList": "Feature List",
+  "selectTypeFirst": "Select a feature type on the left",
+  "specSection": "Structured Spec",
+  "commonSection": "Common Fields",
+  "governanceSection": "Governance"
+}

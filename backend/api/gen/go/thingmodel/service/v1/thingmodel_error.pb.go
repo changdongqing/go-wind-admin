@@ -126,6 +126,19 @@ const (
 	ThingModelErrorReason_UNIT_IN_USE_CANNOT_DELETE        ThingModelErrorReason = 40040 // 单位被引用，不可删除 / In use cannot delete
 	ThingModelErrorReason_UNIT_CODE_DUPLICATED             ThingModelErrorReason = 40041 // 单位编码重复 / Unit code duplicated
 	ThingModelErrorReason_UNIT_CATEGORY_CODE_DUPLICATED    ThingModelErrorReason = 40042 // 分类编码重复 / Category code duplicated
+	// ===== 特征管理业务错误码 / Feature management business reasons =====
+	ThingModelErrorReason_FEATURE_NOT_FOUND                 ThingModelErrorReason = 50010 // 特征不存在 / Feature not found
+	ThingModelErrorReason_FEATURE_TYPE_INVALID              ThingModelErrorReason = 50011 // 特征类型非法 / Invalid feature type
+	ThingModelErrorReason_FEATURE_SPEC_INVALID              ThingModelErrorReason = 50020 // spec 结构无效 / Invalid spec structure
+	ThingModelErrorReason_FEATURE_SPEC_MISMATCH             ThingModelErrorReason = 50021 // 特化列与 spec 不一致 / Specialized columns mismatch spec
+	ThingModelErrorReason_FEATURE_ENUM_EMPTY                ThingModelErrorReason = 50022 // 枚举类型缺 enumItems / Enum type missing enumItems
+	ThingModelErrorReason_FEATURE_STRUCT_EMPTY              ThingModelErrorReason = 50023 // 结构体类型缺 structFields / Struct type missing structFields
+	ThingModelErrorReason_FEATURE_CONSTRAINT_INVALID        ThingModelErrorReason = 50024 // 约束非法（min>max 等）/ Invalid constraints
+	ThingModelErrorReason_FEATURE_RELATION_TARGET_NOT_FOUND ThingModelErrorReason = 50025 // 关系目标特征不存在 / Relation target feature not found
+	ThingModelErrorReason_FEATURE_CODE_DUPLICATED           ThingModelErrorReason = 50030 // 特征编码重复 / Feature code duplicated
+	ThingModelErrorReason_FEATURE_IDENTIFIER_DUPLICATED     ThingModelErrorReason = 50031 // 标识符重复 / Identifier duplicated
+	ThingModelErrorReason_FEATURE_IN_USE_CANNOT_DELETE      ThingModelErrorReason = 50040 // 特征被关系引用，不可删除 / Feature in use by relation cannot delete
+	ThingModelErrorReason_FEATURE_UNIT_REFERENCE_FAIL       ThingModelErrorReason = 50050 // 维护单位引用计数失败 / Maintain unit reference count failed
 )
 
 // Enum value maps for ThingModelErrorReason.
@@ -188,65 +201,89 @@ var (
 		40040: "UNIT_IN_USE_CANNOT_DELETE",
 		40041: "UNIT_CODE_DUPLICATED",
 		40042: "UNIT_CATEGORY_CODE_DUPLICATED",
+		50010: "FEATURE_NOT_FOUND",
+		50011: "FEATURE_TYPE_INVALID",
+		50020: "FEATURE_SPEC_INVALID",
+		50021: "FEATURE_SPEC_MISMATCH",
+		50022: "FEATURE_ENUM_EMPTY",
+		50023: "FEATURE_STRUCT_EMPTY",
+		50024: "FEATURE_CONSTRAINT_INVALID",
+		50025: "FEATURE_RELATION_TARGET_NOT_FOUND",
+		50030: "FEATURE_CODE_DUPLICATED",
+		50031: "FEATURE_IDENTIFIER_DUPLICATED",
+		50040: "FEATURE_IN_USE_CANNOT_DELETE",
+		50050: "FEATURE_UNIT_REFERENCE_FAIL",
 	}
 	ThingModelErrorReason_value = map[string]int32{
-		"BAD_REQUEST":                      0,
-		"UNAUTHORIZED":                     100,
-		"PAYMENT_REQUIRED":                 200,
-		"FORBIDDEN":                        300,
-		"NOT_FOUND":                        400,
-		"METHOD_NOT_ALLOWED":               500,
-		"NOT_ACCEPTABLE":                   600,
-		"PROXY_AUTHENTICATION_REQUIRED":    700,
-		"REQUEST_TIMEOUT":                  800,
-		"CONFLICT":                         900,
-		"GONE":                             1000,
-		"LENGTH_REQUIRED":                  1010,
-		"PRECONDITION_FAILED":              1020,
-		"PAYLOAD_TOO_LARGE":                1030,
-		"URI_TOO_LONG":                     1040,
-		"UNSUPPORTED_MEDIA_TYPE":           1050,
-		"RANGE_NOT_SATISFIABLE":            1060,
-		"EXPECTATION_FAILED":               1070,
-		"IM_A_TEAPOT":                      1080,
-		"MISDIRECTED_REQUEST":              1090,
-		"UNPROCESSABLE_ENTITY":             1100,
-		"LOCKED":                           1110,
-		"FAILED_DEPENDENCY":                1120,
-		"TOO_EARLY":                        1130,
-		"UPGRADE_REQUIRED":                 1140,
-		"PRECONDITION_REQUIRED":            1150,
-		"TOO_MANY_REQUESTS":                1160,
-		"REQUEST_HEADER_FIELDS_TOO_LARGE":  1170,
-		"UNAVAILABLE_FOR_LEGAL_REASONS":    1180,
-		"INTERNAL_SERVER_ERROR":            2000,
-		"NOT_IMPLEMENTED":                  2100,
-		"BAD_GATEWAY":                      2200,
-		"SERVICE_UNAVAILABLE":              2300,
-		"GATEWAY_TIMEOUT":                  2400,
-		"HTTP_VERSION_NOT_SUPPORTED":       2500,
-		"VARIANT_ALSO_NEGOTIATES":          2600,
-		"INSUFFICIENT_STORAGE":             2700,
-		"LOOP_DETECTED":                    2800,
-		"NOT_EXTENDED":                     2900,
-		"NETWORK_AUTHENTICATION_REQUIRED":  3000,
-		"NETWORK_READ_TIMEOUT_ERROR":       3100,
-		"NETWORK_CONNECT_TIMEOUT_ERROR":    3200,
-		"UNIT_NOT_FOUND":                   40010,
-		"UNIT_CATEGORY_NOT_FOUND":          40011,
-		"UNIT_DIFFERENT_CATEGORY":          40020,
-		"UNIT_NOT_CONVERTIBLE":             40021,
-		"UNIT_LOGARITHMIC_NOT_CONVERTIBLE": 40022,
-		"UNIT_CONDITIONAL_REQUIRES_PARAMS": 40023,
-		"UNIT_OVERFLOW":                    40024,
-		"UNIT_INVALID_FACTOR":              40030,
-		"UNIT_BASE_FACTOR_INVALID":         40031,
-		"UNIT_LINEAR_OFFSET_MUST_BE_ZERO":  40032,
-		"UNIT_FACTOR_ZERO":                 40033,
-		"UNIT_BASE_ALREADY_EXISTS":         40034,
-		"UNIT_IN_USE_CANNOT_DELETE":        40040,
-		"UNIT_CODE_DUPLICATED":             40041,
-		"UNIT_CATEGORY_CODE_DUPLICATED":    40042,
+		"BAD_REQUEST":                       0,
+		"UNAUTHORIZED":                      100,
+		"PAYMENT_REQUIRED":                  200,
+		"FORBIDDEN":                         300,
+		"NOT_FOUND":                         400,
+		"METHOD_NOT_ALLOWED":                500,
+		"NOT_ACCEPTABLE":                    600,
+		"PROXY_AUTHENTICATION_REQUIRED":     700,
+		"REQUEST_TIMEOUT":                   800,
+		"CONFLICT":                          900,
+		"GONE":                              1000,
+		"LENGTH_REQUIRED":                   1010,
+		"PRECONDITION_FAILED":               1020,
+		"PAYLOAD_TOO_LARGE":                 1030,
+		"URI_TOO_LONG":                      1040,
+		"UNSUPPORTED_MEDIA_TYPE":            1050,
+		"RANGE_NOT_SATISFIABLE":             1060,
+		"EXPECTATION_FAILED":                1070,
+		"IM_A_TEAPOT":                       1080,
+		"MISDIRECTED_REQUEST":               1090,
+		"UNPROCESSABLE_ENTITY":              1100,
+		"LOCKED":                            1110,
+		"FAILED_DEPENDENCY":                 1120,
+		"TOO_EARLY":                         1130,
+		"UPGRADE_REQUIRED":                  1140,
+		"PRECONDITION_REQUIRED":             1150,
+		"TOO_MANY_REQUESTS":                 1160,
+		"REQUEST_HEADER_FIELDS_TOO_LARGE":   1170,
+		"UNAVAILABLE_FOR_LEGAL_REASONS":     1180,
+		"INTERNAL_SERVER_ERROR":             2000,
+		"NOT_IMPLEMENTED":                   2100,
+		"BAD_GATEWAY":                       2200,
+		"SERVICE_UNAVAILABLE":               2300,
+		"GATEWAY_TIMEOUT":                   2400,
+		"HTTP_VERSION_NOT_SUPPORTED":        2500,
+		"VARIANT_ALSO_NEGOTIATES":           2600,
+		"INSUFFICIENT_STORAGE":              2700,
+		"LOOP_DETECTED":                     2800,
+		"NOT_EXTENDED":                      2900,
+		"NETWORK_AUTHENTICATION_REQUIRED":   3000,
+		"NETWORK_READ_TIMEOUT_ERROR":        3100,
+		"NETWORK_CONNECT_TIMEOUT_ERROR":     3200,
+		"UNIT_NOT_FOUND":                    40010,
+		"UNIT_CATEGORY_NOT_FOUND":           40011,
+		"UNIT_DIFFERENT_CATEGORY":           40020,
+		"UNIT_NOT_CONVERTIBLE":              40021,
+		"UNIT_LOGARITHMIC_NOT_CONVERTIBLE":  40022,
+		"UNIT_CONDITIONAL_REQUIRES_PARAMS":  40023,
+		"UNIT_OVERFLOW":                     40024,
+		"UNIT_INVALID_FACTOR":               40030,
+		"UNIT_BASE_FACTOR_INVALID":          40031,
+		"UNIT_LINEAR_OFFSET_MUST_BE_ZERO":   40032,
+		"UNIT_FACTOR_ZERO":                  40033,
+		"UNIT_BASE_ALREADY_EXISTS":          40034,
+		"UNIT_IN_USE_CANNOT_DELETE":         40040,
+		"UNIT_CODE_DUPLICATED":              40041,
+		"UNIT_CATEGORY_CODE_DUPLICATED":     40042,
+		"FEATURE_NOT_FOUND":                 50010,
+		"FEATURE_TYPE_INVALID":              50011,
+		"FEATURE_SPEC_INVALID":              50020,
+		"FEATURE_SPEC_MISMATCH":             50021,
+		"FEATURE_ENUM_EMPTY":                50022,
+		"FEATURE_STRUCT_EMPTY":              50023,
+		"FEATURE_CONSTRAINT_INVALID":        50024,
+		"FEATURE_RELATION_TARGET_NOT_FOUND": 50025,
+		"FEATURE_CODE_DUPLICATED":           50030,
+		"FEATURE_IDENTIFIER_DUPLICATED":     50031,
+		"FEATURE_IN_USE_CANNOT_DELETE":      50040,
+		"FEATURE_UNIT_REFERENCE_FAIL":       50050,
 	}
 )
 
@@ -281,7 +318,7 @@ var File_thingmodel_service_v1_thingmodel_error_proto protoreflect.FileDescripto
 
 const file_thingmodel_service_v1_thingmodel_error_proto_rawDesc = "" +
 	"\n" +
-	",thingmodel/service/v1/thingmodel_error.proto\x12\x15thingmodel.service.v1\x1a\x13errors/errors.proto*\xbe\x0e\n" +
+	",thingmodel/service/v1/thingmodel_error.proto\x12\x15thingmodel.service.v1\x1a\x13errors/errors.proto*\x80\x12\n" +
 	"\x15ThingModelErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x16\n" +
 	"\fUNAUTHORIZED\x10d\x1a\x04\xa8E\x91\x03\x12\x1b\n" +
@@ -339,7 +376,19 @@ const file_thingmodel_service_v1_thingmodel_error_proto_rawDesc = "" +
 	"\x18UNIT_BASE_ALREADY_EXISTS\x10\xe2\xb8\x02\x1a\x04\xa8E\x99\x03\x12%\n" +
 	"\x19UNIT_IN_USE_CANNOT_DELETE\x10\xe8\xb8\x02\x1a\x04\xa8E\x99\x03\x12 \n" +
 	"\x14UNIT_CODE_DUPLICATED\x10\xe9\xb8\x02\x1a\x04\xa8E\x99\x03\x12)\n" +
-	"\x1dUNIT_CATEGORY_CODE_DUPLICATED\x10\xea\xb8\x02\x1a\x04\xa8E\x99\x03\x1a\x04\xa0E\xf4\x03B\xe4\x01\n" +
+	"\x1dUNIT_CATEGORY_CODE_DUPLICATED\x10\xea\xb8\x02\x1a\x04\xa8E\x99\x03\x12\x1d\n" +
+	"\x11FEATURE_NOT_FOUND\x10چ\x03\x1a\x04\xa8E\x94\x03\x12 \n" +
+	"\x14FEATURE_TYPE_INVALID\x10ۆ\x03\x1a\x04\xa8E\x90\x03\x12 \n" +
+	"\x14FEATURE_SPEC_INVALID\x10\xe4\x86\x03\x1a\x04\xa8E\x90\x03\x12!\n" +
+	"\x15FEATURE_SPEC_MISMATCH\x10\xe5\x86\x03\x1a\x04\xa8E\x90\x03\x12\x1e\n" +
+	"\x12FEATURE_ENUM_EMPTY\x10\xe6\x86\x03\x1a\x04\xa8E\x90\x03\x12 \n" +
+	"\x14FEATURE_STRUCT_EMPTY\x10\xe7\x86\x03\x1a\x04\xa8E\x90\x03\x12&\n" +
+	"\x1aFEATURE_CONSTRAINT_INVALID\x10\xe8\x86\x03\x1a\x04\xa8E\x90\x03\x12-\n" +
+	"!FEATURE_RELATION_TARGET_NOT_FOUND\x10\xe9\x86\x03\x1a\x04\xa8E\x94\x03\x12#\n" +
+	"\x17FEATURE_CODE_DUPLICATED\x10\xee\x86\x03\x1a\x04\xa8E\x99\x03\x12)\n" +
+	"\x1dFEATURE_IDENTIFIER_DUPLICATED\x10\xef\x86\x03\x1a\x04\xa8E\x99\x03\x12(\n" +
+	"\x1cFEATURE_IN_USE_CANNOT_DELETE\x10\xf8\x86\x03\x1a\x04\xa8E\x99\x03\x12'\n" +
+	"\x1bFEATURE_UNIT_REFERENCE_FAIL\x10\x82\x87\x03\x1a\x04\xa8E\xf4\x03\x1a\x04\xa0E\xf4\x03B\xe4\x01\n" +
 	"\x19com.thingmodel.service.v1B\x14ThingmodelErrorProtoP\x01Z;go-wind-admin/api/gen/go/thingmodel/service/v1;thingmodelpb\xa2\x02\x03TSX\xaa\x02\x15Thingmodel.Service.V1\xca\x02\x15Thingmodel\\Service\\V1\xe2\x02!Thingmodel\\Service\\V1\\GPBMetadata\xea\x02\x17Thingmodel::Service::V1b\x06proto3"
 
 var (

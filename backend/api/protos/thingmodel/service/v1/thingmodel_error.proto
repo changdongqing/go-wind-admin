@@ -150,4 +150,18 @@ enum ThingModelErrorReason {
     UNIT_IN_USE_CANNOT_DELETE = 40040 [(errors.code) = 409];         // 单位被引用，不可删除 / In use cannot delete
     UNIT_CODE_DUPLICATED = 40041 [(errors.code) = 409];              // 单位编码重复 / Unit code duplicated
     UNIT_CATEGORY_CODE_DUPLICATED = 40042 [(errors.code) = 409];     // 分类编码重复 / Category code duplicated
+
+    // ===== 特征管理业务错误码 / Feature management business reasons =====
+    FEATURE_NOT_FOUND = 50010 [(errors.code) = 404];                    // 特征不存在 / Feature not found
+    FEATURE_TYPE_INVALID = 50011 [(errors.code) = 400];                 // 特征类型非法 / Invalid feature type
+    FEATURE_SPEC_INVALID = 50020 [(errors.code) = 400];                 // spec 结构无效 / Invalid spec structure
+    FEATURE_SPEC_MISMATCH = 50021 [(errors.code) = 400];                // 特化列与 spec 不一致 / Specialized columns mismatch spec
+    FEATURE_ENUM_EMPTY = 50022 [(errors.code) = 400];                   // 枚举类型缺 enumItems / Enum type missing enumItems
+    FEATURE_STRUCT_EMPTY = 50023 [(errors.code) = 400];                 // 结构体类型缺 structFields / Struct type missing structFields
+    FEATURE_CONSTRAINT_INVALID = 50024 [(errors.code) = 400];           // 约束非法（min>max 等）/ Invalid constraints
+    FEATURE_RELATION_TARGET_NOT_FOUND = 50025 [(errors.code) = 404];    // 关系目标特征不存在 / Relation target feature not found
+    FEATURE_CODE_DUPLICATED = 50030 [(errors.code) = 409];              // 特征编码重复 / Feature code duplicated
+    FEATURE_IDENTIFIER_DUPLICATED = 50031 [(errors.code) = 409];        // 标识符重复 / Identifier duplicated
+    FEATURE_IN_USE_CANNOT_DELETE = 50040 [(errors.code) = 409];         // 特征被关系引用，不可删除 / Feature in use by relation cannot delete
+    FEATURE_UNIT_REFERENCE_FAIL = 50050 [(errors.code) = 500];          // 维护单位引用计数失败 / Maintain unit reference count failed
 }

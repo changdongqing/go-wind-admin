@@ -255,6 +255,30 @@ func (f DictTypeMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutati
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.DictTypeMutation", m)
 }
 
+// The FeatureQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type FeatureQueryRuleFunc func(context.Context, *ent.FeatureQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f FeatureQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.FeatureQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.FeatureQuery", q)
+}
+
+// The FeatureMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type FeatureMutationRuleFunc func(context.Context, *ent.FeatureMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f FeatureMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.FeatureMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.FeatureMutation", m)
+}
+
 // The FileQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type FileQueryRuleFunc func(context.Context, *ent.FileQuery) error
@@ -1118,6 +1142,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.DictTypeQuery:
 		return q.Filter(), nil
+	case *ent.FeatureQuery:
+		return q.Filter(), nil
 	case *ent.FileQuery:
 		return q.Filter(), nil
 	case *ent.InternalMessageQuery:
@@ -1204,6 +1230,8 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.DictEntryI18nMutation:
 		return m.Filter(), nil
 	case *ent.DictTypeMutation:
+		return m.Filter(), nil
+	case *ent.FeatureMutation:
 		return m.Filter(), nil
 	case *ent.FileMutation:
 		return m.Filter(), nil

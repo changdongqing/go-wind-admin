@@ -24,6 +24,9 @@ type DictEntryI18n func(*sql.Selector)
 // DictType is the predicate function for dicttype builders.
 type DictType func(*sql.Selector)
 
+// Feature is the predicate function for feature builders.
+type Feature func(*sql.Selector)
+
 // File is the predicate function for file builders.
 type File func(*sql.Selector)
 
