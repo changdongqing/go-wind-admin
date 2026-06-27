@@ -1,7 +1,9 @@
 package schema
 
 import (
+	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 
 	"google.golang.org/protobuf/encoding/protojson"
 
@@ -35,6 +37,12 @@ type FeatureSpecField struct {
 var (
 	_ json.Marshaler   = (*FeatureSpecField)(nil)
 	_ json.Unmarshaler = (*FeatureSpecField)(nil)
+	// driver.Valuer / sql.Scanner：必需，否则 ent 在 Upsert 路径会
+	// 把 wrapper 结构体直接传给 SQL 驱动，pgx 报 "unsupported type"。
+	// driver.Valuer / sql.Scanner are required because Ent's Upsert path
+	// (FeatureUpsert.Set) bypasses sqlgraph's json.Marshal and passes the
+	// wrapper struct directly to the SQL driver.
+	_ driver.Valuer = (*FeatureSpecField)(nil)
 )
 
 // MarshalJSON 将内部 FeatureSpec 通过 protojson 编码。
@@ -63,6 +71,47 @@ func (f *FeatureSpecField) UnmarshalJSON(data []byte) error {
 	return protojson.UnmarshalOptions{
 		DiscardUnknown: true, // 兼容向前演化：忽略 DB 旧数据多余字段
 	}.Unmarshal(data, f.FeatureSpec)
+}
+
+// Value 实现 database/sql/driver.Valuer，让 SQL 驱动能直接序列化本类型。
+// Value implements driver.Valuer so the SQL driver can serialize the wrapper
+// directly. This is the canonical path used by Ent's Upsert.Set, which does
+// not route through sqlgraph's json.Marshal.
+func (f *FeatureSpecField) Value() (driver.Value, error) {
+	if f == nil || f.FeatureSpec == nil {
+		return nil, nil
+	}
+	return protojson.MarshalOptions{
+		UseProtoNames:   false,
+		EmitUnpopulated: false,
+	}.Marshal(f.FeatureSpec)
+}
+
+// Scan 实现 database/sql.Scanner，让 SQL 驱动能直接反序列化本类型。
+// Scan implements sql.Scanner so Ent can read JSON columns into the wrapper.
+// PostgreSQL JSON/JSONB columns surface as []byte; some drivers surface as string.
+func (f *FeatureSpecField) Scan(src any) error {
+	if src == nil {
+		f.FeatureSpec = nil
+		return nil
+	}
+	var data []byte
+	switch v := src.(type) {
+	case []byte:
+		data = v
+	case string:
+		data = []byte(v)
+	default:
+		return fmt.Errorf("FeatureSpecField.Scan: unsupported source type %T", src)
+	}
+	if len(data) == 0 || string(data) == "null" {
+		f.FeatureSpec = nil
+		return nil
+	}
+	if f.FeatureSpec == nil {
+		f.FeatureSpec = &thingmodelV1.FeatureSpec{}
+	}
+	return protojson.UnmarshalOptions{DiscardUnknown: true}.Unmarshal(data, f.FeatureSpec)
 }
 
 // WrapFeatureSpec 把 proto FeatureSpec 包装为 FeatureSpecField。

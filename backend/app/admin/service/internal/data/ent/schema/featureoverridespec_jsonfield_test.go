@@ -104,3 +104,113 @@ func TestFeatureOverrideSpecField_RoundTrip(t *testing.T) {
 		}
 	})
 }
+
+// TestFeatureOverrideSpecField_DriverValuerScanner 验证 SQL 驱动直接序列化路径。
+// 此路径是 Ent 在 Upsert.Set 中实际使用的路径——绕过 sqlgraph 的 json.Marshal，
+// 把 wrapper 结构体直接传给 SQL 驱动；没有 Valuer 时 pgx 报 "unsupported type"。
+func TestFeatureOverrideSpecField_DriverValuerScanner(t *testing.T) {
+	t.Run("Value returns JSON bytes via protojson", func(t *testing.T) {
+		min := 5.0
+		max := 12.0
+		src := &thingmodelV1.FeatureOverrideSpec{
+			Constraints: &thingmodelV1.ValueConstraints{Min: &min, Max: &max},
+			DisplayName: ptrStr("test"),
+		}
+		w := WrapFeatureOverrideSpec(src)
+
+		v, err := w.Value()
+		if err != nil {
+			t.Fatalf("Value: %v", err)
+		}
+		b, ok := v.([]byte)
+		if !ok {
+			t.Fatalf("Value should return []byte, got %T", v)
+		}
+		s := string(b)
+		if !strings.Contains(s, `"displayName":"test"`) || !strings.Contains(s, `"max":12`) {
+			t.Fatalf("Value JSON missing fields: %s", s)
+		}
+	})
+
+	t.Run("Value of nil returns nil", func(t *testing.T) {
+		var w *FeatureOverrideSpecField
+		v, err := w.Value()
+		if err != nil {
+			t.Fatalf("Value(nil wrapper): %v", err)
+		}
+		if v != nil {
+			t.Fatalf("Value(nil) should return nil, got %v", v)
+		}
+
+		w2 := &FeatureOverrideSpecField{}
+		v2, err := w2.Value()
+		if err != nil {
+			t.Fatalf("Value(empty wrapper): %v", err)
+		}
+		if v2 != nil {
+			t.Fatalf("Value(empty) should return nil, got %v", v2)
+		}
+	})
+
+	t.Run("Scan from []byte round-trips", func(t *testing.T) {
+		jsonData := []byte(`{"displayName":"出水温度","constraints":{"min":5,"max":12}}`)
+		w := &FeatureOverrideSpecField{}
+		if err := w.Scan(jsonData); err != nil {
+			t.Fatalf("Scan: %v", err)
+		}
+		got := UnwrapFeatureOverrideSpec(w)
+		if got.GetDisplayName() != "出水温度" {
+			t.Fatalf("Scan displayName lost: %q", got.GetDisplayName())
+		}
+		if got.GetConstraints().GetMax() != 12 {
+			t.Fatalf("Scan constraints.max lost: %v", got.GetConstraints().GetMax())
+		}
+	})
+
+	t.Run("Scan from string round-trips", func(t *testing.T) {
+		w := &FeatureOverrideSpecField{}
+		if err := w.Scan(`{"displayName":"abc"}`); err != nil {
+			t.Fatalf("Scan(string): %v", err)
+		}
+		if UnwrapFeatureOverrideSpec(w).GetDisplayName() != "abc" {
+			t.Fatalf("Scan(string) lost data")
+		}
+	})
+
+	t.Run("Scan nil clears wrapper", func(t *testing.T) {
+		w := &FeatureOverrideSpecField{FeatureOverrideSpec: &thingmodelV1.FeatureOverrideSpec{DisplayName: ptrStr("x")}}
+		if err := w.Scan(nil); err != nil {
+			t.Fatalf("Scan(nil): %v", err)
+		}
+		if w.FeatureOverrideSpec != nil {
+			t.Fatalf("Scan(nil) should clear inner, got %+v", w.FeatureOverrideSpec)
+		}
+	})
+
+	t.Run("Scan unsupported type errors", func(t *testing.T) {
+		w := &FeatureOverrideSpecField{}
+		if err := w.Scan(12345); err == nil {
+			t.Fatalf("Scan(int) should error")
+		}
+	})
+
+	t.Run("Round-trip via Value then Scan", func(t *testing.T) {
+		src := &thingmodelV1.FeatureOverrideSpec{
+			DisplayName: ptrStr("hello"),
+			Description: ptrStr("world"),
+		}
+		w := WrapFeatureOverrideSpec(src)
+		v, err := w.Value()
+		if err != nil {
+			t.Fatalf("Value: %v", err)
+		}
+		w2 := &FeatureOverrideSpecField{}
+		if err := w2.Scan(v); err != nil {
+			t.Fatalf("Scan: %v", err)
+		}
+		got := UnwrapFeatureOverrideSpec(w2)
+		if got.GetDisplayName() != "hello" || got.GetDescription() != "world" {
+			t.Fatalf("round-trip lost data: %+v", got)
+		}
+	})
+}

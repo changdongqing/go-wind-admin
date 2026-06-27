@@ -143,5 +143,74 @@ func TestFeatureSpecField_RoundTrip(t *testing.T) {
 	})
 }
 
+// TestFeatureSpecField_DriverValuerScanner 验证 SQL 驱动直接序列化路径。
+// 这是修复 ent Upsert 路径 "unsupported type schema.FeatureSpecField" bug
+// 的关键：在 Upsert.Set(col, wrapper) 中，ent 不走 sqlgraph 的 json.Marshal，
+// 而是直接把 wrapper 传给 SQL 驱动。
+func TestFeatureSpecField_DriverValuerScanner(t *testing.T) {
+	t.Run("Value returns JSON bytes for property", func(t *testing.T) {
+		dt := thingmodelV1.DataType_BOOL
+		spec := &thingmodelV1.FeatureSpec{
+			Spec: &thingmodelV1.FeatureSpec_Property{
+				Property: &thingmodelV1.PropertySpec{
+					DataType:   &dt,
+					BoolLabels: &thingmodelV1.BoolLabels{FalseLabel: "off", TrueLabel: "on"},
+				},
+			},
+		}
+		w := WrapFeatureSpec(spec)
+		v, err := w.Value()
+		if err != nil {
+			t.Fatalf("Value: %v", err)
+		}
+		b, ok := v.([]byte)
+		if !ok {
+			t.Fatalf("Value should return []byte, got %T", v)
+		}
+		if !strings.Contains(string(b), `"dataType":"BOOL"`) {
+			t.Fatalf("Value JSON missing dataType: %s", string(b))
+		}
+	})
+
+	t.Run("Value of nil returns nil", func(t *testing.T) {
+		var w *FeatureSpecField
+		v, err := w.Value()
+		if err != nil || v != nil {
+			t.Fatalf("Value(nil) want (nil,nil), got (%v,%v)", v, err)
+		}
+	})
+
+	t.Run("Scan + Value round-trip", func(t *testing.T) {
+		dt := thingmodelV1.DataType_DOUBLE
+		spec := &thingmodelV1.FeatureSpec{
+			Spec: &thingmodelV1.FeatureSpec_Property{
+				Property: &thingmodelV1.PropertySpec{DataType: &dt},
+			},
+		}
+		w := WrapFeatureSpec(spec)
+		v, err := w.Value()
+		if err != nil {
+			t.Fatalf("Value: %v", err)
+		}
+		w2 := &FeatureSpecField{}
+		if err := w2.Scan(v); err != nil {
+			t.Fatalf("Scan: %v", err)
+		}
+		if UnwrapFeatureSpec(w2).GetProperty().GetDataType() != thingmodelV1.DataType_DOUBLE {
+			t.Fatalf("round-trip lost dataType")
+		}
+	})
+
+	t.Run("Scan nil clears wrapper", func(t *testing.T) {
+		w := &FeatureSpecField{FeatureSpec: &thingmodelV1.FeatureSpec{}}
+		if err := w.Scan(nil); err != nil {
+			t.Fatalf("Scan(nil): %v", err)
+		}
+		if w.FeatureSpec != nil {
+			t.Fatalf("Scan(nil) should clear")
+		}
+	})
+}
+
 func ptrStr(s string) *string                        { return &s }
 func ptrDT(d thingmodelV1.DataType) *thingmodelV1.DataType { return &d }
