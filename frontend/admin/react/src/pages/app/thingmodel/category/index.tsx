@@ -19,6 +19,7 @@ import { PaginationQuery } from '@/core';
 import { fetchListCategories, useDeleteCategory } from '@/api/hooks/category';
 import type { thingmodelservicev1_Category } from '@/api/generated/admin/service/v1';
 import CategoryDrawer from './CategoryDrawer';
+import CategoryDefaultFeaturesDrawer from './CategoryDefaultFeaturesDrawer';
 import {
   kindValueEnum,
   levelValueEnum,
@@ -39,6 +40,15 @@ const CategoryManagement = () => {
   const [drawerMode, setDrawerMode] = useState<'create' | 'edit'>('create');
   const [editing, setEditing] = useState<thingmodelservicev1_Category | null>(null);
   const [parentNode, setParentNode] = useState<thingmodelservicev1_Category | null>(null);
+
+  // 分类默认模型 Drawer 状态（模型管理入口①，仅 level=4 行触发）
+  // Category default features drawer state (model management entry ①, triggered on level=4 rows)
+  const [cdfOpen, setCdfOpen] = useState(false);
+  const [cdfCategory, setCdfCategory] = useState<thingmodelservicev1_Category | null>(null);
+  const openCdfDrawer = (row: thingmodelservicev1_Category) => {
+    setCdfCategory(row);
+    setCdfOpen(true);
+  };
 
   const { mutate: del } = useDeleteCategory({
     onSuccess: () => {
@@ -169,7 +179,7 @@ const CategoryManagement = () => {
     {
       title: t('common:table.action', '操作'),
       key: 'action',
-      width: 240,
+      width: 320,
       fixed: 'right',
       hideInSearch: true,
       render: (_, row) => (
@@ -177,6 +187,12 @@ const CategoryManagement = () => {
           {(row.level ?? 1) < 4 && (
             <Button type="link" size="small" onClick={() => openCreateChild(row)}>
               {t('actions.createChild')}
+            </Button>
+          )}
+          {/* 仅 level=4 细类显示"配置默认模型"（模型管理入口①）*/}
+          {(row.level ?? 1) === 4 && (
+            <Button type="link" size="small" onClick={() => openCdfDrawer(row)}>
+              {t('actions.configDefaultModel', '配置默认模型')}
             </Button>
           )}
           <Button type="link" size="small" onClick={() => openEdit(row)}>
@@ -248,6 +264,12 @@ const CategoryManagement = () => {
         data={editing}
         parent={parentNode}
         onClose={handleDrawerClose}
+      />
+
+      <CategoryDefaultFeaturesDrawer
+        open={cdfOpen}
+        category={cdfCategory}
+        onClose={() => setCdfOpen(false)}
       />
     </ContentContainer>
   );
