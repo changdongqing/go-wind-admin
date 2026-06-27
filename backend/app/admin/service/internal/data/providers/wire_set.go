@@ -46,6 +46,11 @@ var ProviderSet = wire.NewSet(
 	data.NewFeatureRepo,
 	data.NewCategoryRepo,
 
+	// 物模型-模型管理 / Thing model - Model management
+	data.NewCategoryDefaultFeatureRepo,
+	data.NewProductRepo,
+	data.NewProductFeatureRepo,
+
 	data.NewTaskRepo,
 	data.NewLoginPolicyRepo,
 

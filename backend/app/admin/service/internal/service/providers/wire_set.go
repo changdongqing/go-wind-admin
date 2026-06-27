@@ -34,6 +34,11 @@ var ProviderSet = wire.NewSet(
 	service.NewUnitService,
 	service.NewFeatureService,
 	service.NewCategoryService,
+
+	// 物模型-模型管理 / Thing model - Model management
+	service.NewCategoryDefaultFeatureService,
+	service.NewProductService,
+	service.NewProductFeatureService,
 	service.NewLoginAuditLogService,
 	service.NewApiAuditLogService,
 	service.NewFileService,

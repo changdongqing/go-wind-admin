@@ -102,6 +102,11 @@ func NewRestServer(
 	featureService *service.FeatureService,
 	categoryService *service.CategoryService,
 
+	// 物模型-模型管理 / Thing model - Model management
+	categoryDefaultFeatureService *service.CategoryDefaultFeatureService,
+	productService *service.ProductService,
+	productFeatureService *service.ProductFeatureService,
+
 	tenantService *service.TenantService,
 	userService *service.UserService,
 	userProfileService *service.UserProfileService,
@@ -157,6 +162,11 @@ func NewRestServer(
 	adminV1.RegisterUnitServiceHTTPServer(srv, unitService)
 	adminV1.RegisterFeatureServiceHTTPServer(srv, featureService)
 	adminV1.RegisterCategoryServiceHTTPServer(srv, categoryService)
+
+	// 物模型-模型管理 / Thing model - Model management
+	adminV1.RegisterCategoryDefaultFeatureServiceHTTPServer(srv, categoryDefaultFeatureService)
+	adminV1.RegisterProductServiceHTTPServer(srv, productService)
+	adminV1.RegisterProductFeatureServiceHTTPServer(srv, productFeatureService)
 
 	adminV1.RegisterApiServiceHTTPServer(srv, apiService)
 	adminV1.RegisterMenuServiceHTTPServer(srv, menuService)
