@@ -80,6 +80,16 @@ func NewEntClient(ctx *bootstrap.Context) (*entCrud.EntClient[*ent.Client], func
 			if seedErr := seed.SeedThingmodelCategories(ctx.Context(), client, l); seedErr != nil {
 				l.Errorf("[ENT] seed thingmodel categories failed: %v", seedErr)
 			}
+
+			// 物模型-模型管理种子（幂等）— 必须最后跑，依赖前三个种子结果
+			// Thing-model model management seed (idempotent).
+			//   - 1 个示范分类默认模型：电动压缩式冷水机组 (20010100) → 10 条特征 (含 2 条 override)
+			//   - 1 个示范产品：GREE-LSBLG320 (status=PUBLISHED)
+			//   - 9 条产品特征：8 条 DEFAULT (跳过制冷量/所属系统) + 1 条 LOCAL (夜间静音)
+			// 详见 docs/thingmodel/sheji/模型管理/06-种子数据与实施计划.md
+			if seedErr := seed.SeedModelManagement(ctx.Context(), client, l); seedErr != nil {
+				l.Errorf("[ENT] seed model management failed: %v", seedErr)
+			}
 		}
 
 		return client
