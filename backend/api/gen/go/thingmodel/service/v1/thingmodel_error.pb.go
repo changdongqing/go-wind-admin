@@ -154,6 +154,31 @@ const (
 	ThingModelErrorReason_CATEGORY_IN_USE_CANNOT_DELETE  ThingModelErrorReason = 41031 // 被引用，不可删除 / In use, cannot delete
 	ThingModelErrorReason_CATEGORY_CODE_DUPLICATED       ThingModelErrorReason = 41040 // 同 (tenant, kind) 下编码重复 / Code duplicated in (tenant, kind)
 	ThingModelErrorReason_CATEGORY_IMMUTABLE_FIELD       ThingModelErrorReason = 41050 // 试图修改不可变字段（kind/code/parent_id/level）/ Attempt to modify immutable field
+	// ===== 模型管理 - 分类默认模型 / Category default feature =====
+	ThingModelErrorReason_CAT_DEFAULT_FEATURE_NOT_FOUND         ThingModelErrorReason = 42010 // 分类默认模型条目不存在 / Not found
+	ThingModelErrorReason_CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF ThingModelErrorReason = 42011 // 仅 level=4 细类可挂默认模型 / Category must be level=4
+	ThingModelErrorReason_CAT_DEFAULT_FEATURE_DUPLICATE         ThingModelErrorReason = 42012 // (category, feature) 已存在 / Duplicate (category, feature)
+	ThingModelErrorReason_CAT_DEFAULT_FEATURE_OVERRIDE_INVALID  ThingModelErrorReason = 42013 // override_spec 非法 / Invalid override spec
+	ThingModelErrorReason_CAT_DEFAULT_FEATURE_FEATURE_DISABLED  ThingModelErrorReason = 42014 // 引用的全局特征已停用 / Referenced feature disabled
+	// ===== 模型管理 - 产品 / Product =====
+	ThingModelErrorReason_PRODUCT_NOT_FOUND            ThingModelErrorReason = 42110 // 产品不存在 / Product not found
+	ThingModelErrorReason_PRODUCT_CATEGORY_NOT_LEAF    ThingModelErrorReason = 42111 // 产品分类必须 level=4 / Category must be level=4
+	ThingModelErrorReason_PRODUCT_CODE_DUPLICATED      ThingModelErrorReason = 42112 // (tenant, code) 冲突 / Code duplicated
+	ThingModelErrorReason_PRODUCT_NAME_DUPLICATED      ThingModelErrorReason = 42113 // (tenant, category, name) 冲突 / Name duplicated within category
+	ThingModelErrorReason_PRODUCT_IN_USE_CANNOT_DELETE ThingModelErrorReason = 42120 // 被设备实例引用，不可物理删除 / In use cannot delete
+	ThingModelErrorReason_PRODUCT_STATUS_NOT_DRAFT     ThingModelErrorReason = 42130 // 当前状态非 DRAFT，不可执行此操作 / Status not DRAFT
+	ThingModelErrorReason_PRODUCT_STATUS_NOT_PUBLISHED ThingModelErrorReason = 42131 // 当前状态非 PUBLISHED / Status not PUBLISHED
+	ThingModelErrorReason_PRODUCT_IMMUTABLE_FIELD      ThingModelErrorReason = 42140 // 试图修改不可变字段（code/category_id）/ Immutable field
+	// ===== 模型管理 - 产品特征 / Product feature =====
+	ThingModelErrorReason_PRODUCT_FEATURE_NOT_FOUND ThingModelErrorReason = 42210 // 产品特征条目不存在 / Not found
+	ThingModelErrorReason_PF_SOURCE_REF_MISMATCH    ThingModelErrorReason = 42211 // source 与 ref_feature_id 配合非法 / source/ref mismatch
+	ThingModelErrorReason_PF_DUPLICATE_CODE         ThingModelErrorReason = 42212 // (product, code) 冲突 / Code duplicated within product
+	ThingModelErrorReason_PF_DUPLICATE_IDENTIFIER   ThingModelErrorReason = 42213 // (product, identifier) 冲突 / Identifier duplicated
+	ThingModelErrorReason_PF_SPEC_TYPE_MISMATCH     ThingModelErrorReason = 42214 // feature_snapshot 与 feature_type 不一致 / Spec/type mismatch
+	ThingModelErrorReason_PF_OVERRIDE_INVALID       ThingModelErrorReason = 42215 // override_spec 非法 / Invalid override spec
+	ThingModelErrorReason_PF_PRODUCT_PUBLISHED      ThingModelErrorReason = 42216 // 产品已发布，结构禁止变更 / Product published, structure frozen
+	ThingModelErrorReason_PF_FEATURE_DISABLED       ThingModelErrorReason = 42217 // 引用的全局特征已停用 / Referenced feature disabled
+	ThingModelErrorReason_PF_DEFAULT_VIA_PULL_ONLY  ThingModelErrorReason = 42218 // source=DEFAULT 必须通过 PullFromDefault 创建 / DEFAULT must use PullFromDefault
 )
 
 // Enum value maps for ThingModelErrorReason.
@@ -242,91 +267,135 @@ var (
 		41031: "CATEGORY_IN_USE_CANNOT_DELETE",
 		41040: "CATEGORY_CODE_DUPLICATED",
 		41050: "CATEGORY_IMMUTABLE_FIELD",
+		42010: "CAT_DEFAULT_FEATURE_NOT_FOUND",
+		42011: "CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF",
+		42012: "CAT_DEFAULT_FEATURE_DUPLICATE",
+		42013: "CAT_DEFAULT_FEATURE_OVERRIDE_INVALID",
+		42014: "CAT_DEFAULT_FEATURE_FEATURE_DISABLED",
+		42110: "PRODUCT_NOT_FOUND",
+		42111: "PRODUCT_CATEGORY_NOT_LEAF",
+		42112: "PRODUCT_CODE_DUPLICATED",
+		42113: "PRODUCT_NAME_DUPLICATED",
+		42120: "PRODUCT_IN_USE_CANNOT_DELETE",
+		42130: "PRODUCT_STATUS_NOT_DRAFT",
+		42131: "PRODUCT_STATUS_NOT_PUBLISHED",
+		42140: "PRODUCT_IMMUTABLE_FIELD",
+		42210: "PRODUCT_FEATURE_NOT_FOUND",
+		42211: "PF_SOURCE_REF_MISMATCH",
+		42212: "PF_DUPLICATE_CODE",
+		42213: "PF_DUPLICATE_IDENTIFIER",
+		42214: "PF_SPEC_TYPE_MISMATCH",
+		42215: "PF_OVERRIDE_INVALID",
+		42216: "PF_PRODUCT_PUBLISHED",
+		42217: "PF_FEATURE_DISABLED",
+		42218: "PF_DEFAULT_VIA_PULL_ONLY",
 	}
 	ThingModelErrorReason_value = map[string]int32{
-		"BAD_REQUEST":                       0,
-		"UNAUTHORIZED":                      100,
-		"PAYMENT_REQUIRED":                  200,
-		"FORBIDDEN":                         300,
-		"NOT_FOUND":                         400,
-		"METHOD_NOT_ALLOWED":                500,
-		"NOT_ACCEPTABLE":                    600,
-		"PROXY_AUTHENTICATION_REQUIRED":     700,
-		"REQUEST_TIMEOUT":                   800,
-		"CONFLICT":                          900,
-		"GONE":                              1000,
-		"LENGTH_REQUIRED":                   1010,
-		"PRECONDITION_FAILED":               1020,
-		"PAYLOAD_TOO_LARGE":                 1030,
-		"URI_TOO_LONG":                      1040,
-		"UNSUPPORTED_MEDIA_TYPE":            1050,
-		"RANGE_NOT_SATISFIABLE":             1060,
-		"EXPECTATION_FAILED":                1070,
-		"IM_A_TEAPOT":                       1080,
-		"MISDIRECTED_REQUEST":               1090,
-		"UNPROCESSABLE_ENTITY":              1100,
-		"LOCKED":                            1110,
-		"FAILED_DEPENDENCY":                 1120,
-		"TOO_EARLY":                         1130,
-		"UPGRADE_REQUIRED":                  1140,
-		"PRECONDITION_REQUIRED":             1150,
-		"TOO_MANY_REQUESTS":                 1160,
-		"REQUEST_HEADER_FIELDS_TOO_LARGE":   1170,
-		"UNAVAILABLE_FOR_LEGAL_REASONS":     1180,
-		"INTERNAL_SERVER_ERROR":             2000,
-		"NOT_IMPLEMENTED":                   2100,
-		"BAD_GATEWAY":                       2200,
-		"SERVICE_UNAVAILABLE":               2300,
-		"GATEWAY_TIMEOUT":                   2400,
-		"HTTP_VERSION_NOT_SUPPORTED":        2500,
-		"VARIANT_ALSO_NEGOTIATES":           2600,
-		"INSUFFICIENT_STORAGE":              2700,
-		"LOOP_DETECTED":                     2800,
-		"NOT_EXTENDED":                      2900,
-		"NETWORK_AUTHENTICATION_REQUIRED":   3000,
-		"NETWORK_READ_TIMEOUT_ERROR":        3100,
-		"NETWORK_CONNECT_TIMEOUT_ERROR":     3200,
-		"UNIT_NOT_FOUND":                    40010,
-		"UNIT_CATEGORY_NOT_FOUND":           40011,
-		"UNIT_DIFFERENT_CATEGORY":           40020,
-		"UNIT_NOT_CONVERTIBLE":              40021,
-		"UNIT_LOGARITHMIC_NOT_CONVERTIBLE":  40022,
-		"UNIT_CONDITIONAL_REQUIRES_PARAMS":  40023,
-		"UNIT_OVERFLOW":                     40024,
-		"UNIT_INVALID_FACTOR":               40030,
-		"UNIT_BASE_FACTOR_INVALID":          40031,
-		"UNIT_LINEAR_OFFSET_MUST_BE_ZERO":   40032,
-		"UNIT_FACTOR_ZERO":                  40033,
-		"UNIT_BASE_ALREADY_EXISTS":          40034,
-		"UNIT_IN_USE_CANNOT_DELETE":         40040,
-		"UNIT_CODE_DUPLICATED":              40041,
-		"UNIT_CATEGORY_CODE_DUPLICATED":     40042,
-		"FEATURE_NOT_FOUND":                 50010,
-		"FEATURE_TYPE_INVALID":              50011,
-		"FEATURE_SPEC_INVALID":              50020,
-		"FEATURE_SPEC_MISMATCH":             50021,
-		"FEATURE_ENUM_EMPTY":                50022,
-		"FEATURE_STRUCT_EMPTY":              50023,
-		"FEATURE_CONSTRAINT_INVALID":        50024,
-		"FEATURE_RELATION_TARGET_NOT_FOUND": 50025,
-		"FEATURE_CODE_DUPLICATED":           50030,
-		"FEATURE_IDENTIFIER_DUPLICATED":     50031,
-		"FEATURE_IN_USE_CANNOT_DELETE":      50040,
-		"FEATURE_UNIT_REFERENCE_FAIL":       50050,
-		"CATEGORY_NOT_FOUND":                41010,
-		"CATEGORY_PARENT_NOT_FOUND":         41011,
-		"CATEGORY_CODE_FORMAT_INVALID":      41020,
-		"CATEGORY_CODE_LENGTH_MISMATCH":     41021,
-		"CATEGORY_CODE_PREFIX_MISMATCH":     41022,
-		"CATEGORY_LEVEL_INVALID":            41023,
-		"CATEGORY_LEVEL_PARENT_MISMATCH":    41024,
-		"CATEGORY_KIND_PARENT_MISMATCH":     41025,
-		"CATEGORY_PARENT_REQUIRED":          41026,
-		"CATEGORY_PARENT_FORBIDDEN":         41027,
-		"CATEGORY_HAS_CHILDREN":             41030,
-		"CATEGORY_IN_USE_CANNOT_DELETE":     41031,
-		"CATEGORY_CODE_DUPLICATED":          41040,
-		"CATEGORY_IMMUTABLE_FIELD":          41050,
+		"BAD_REQUEST":                           0,
+		"UNAUTHORIZED":                          100,
+		"PAYMENT_REQUIRED":                      200,
+		"FORBIDDEN":                             300,
+		"NOT_FOUND":                             400,
+		"METHOD_NOT_ALLOWED":                    500,
+		"NOT_ACCEPTABLE":                        600,
+		"PROXY_AUTHENTICATION_REQUIRED":         700,
+		"REQUEST_TIMEOUT":                       800,
+		"CONFLICT":                              900,
+		"GONE":                                  1000,
+		"LENGTH_REQUIRED":                       1010,
+		"PRECONDITION_FAILED":                   1020,
+		"PAYLOAD_TOO_LARGE":                     1030,
+		"URI_TOO_LONG":                          1040,
+		"UNSUPPORTED_MEDIA_TYPE":                1050,
+		"RANGE_NOT_SATISFIABLE":                 1060,
+		"EXPECTATION_FAILED":                    1070,
+		"IM_A_TEAPOT":                           1080,
+		"MISDIRECTED_REQUEST":                   1090,
+		"UNPROCESSABLE_ENTITY":                  1100,
+		"LOCKED":                                1110,
+		"FAILED_DEPENDENCY":                     1120,
+		"TOO_EARLY":                             1130,
+		"UPGRADE_REQUIRED":                      1140,
+		"PRECONDITION_REQUIRED":                 1150,
+		"TOO_MANY_REQUESTS":                     1160,
+		"REQUEST_HEADER_FIELDS_TOO_LARGE":       1170,
+		"UNAVAILABLE_FOR_LEGAL_REASONS":         1180,
+		"INTERNAL_SERVER_ERROR":                 2000,
+		"NOT_IMPLEMENTED":                       2100,
+		"BAD_GATEWAY":                           2200,
+		"SERVICE_UNAVAILABLE":                   2300,
+		"GATEWAY_TIMEOUT":                       2400,
+		"HTTP_VERSION_NOT_SUPPORTED":            2500,
+		"VARIANT_ALSO_NEGOTIATES":               2600,
+		"INSUFFICIENT_STORAGE":                  2700,
+		"LOOP_DETECTED":                         2800,
+		"NOT_EXTENDED":                          2900,
+		"NETWORK_AUTHENTICATION_REQUIRED":       3000,
+		"NETWORK_READ_TIMEOUT_ERROR":            3100,
+		"NETWORK_CONNECT_TIMEOUT_ERROR":         3200,
+		"UNIT_NOT_FOUND":                        40010,
+		"UNIT_CATEGORY_NOT_FOUND":               40011,
+		"UNIT_DIFFERENT_CATEGORY":               40020,
+		"UNIT_NOT_CONVERTIBLE":                  40021,
+		"UNIT_LOGARITHMIC_NOT_CONVERTIBLE":      40022,
+		"UNIT_CONDITIONAL_REQUIRES_PARAMS":      40023,
+		"UNIT_OVERFLOW":                         40024,
+		"UNIT_INVALID_FACTOR":                   40030,
+		"UNIT_BASE_FACTOR_INVALID":              40031,
+		"UNIT_LINEAR_OFFSET_MUST_BE_ZERO":       40032,
+		"UNIT_FACTOR_ZERO":                      40033,
+		"UNIT_BASE_ALREADY_EXISTS":              40034,
+		"UNIT_IN_USE_CANNOT_DELETE":             40040,
+		"UNIT_CODE_DUPLICATED":                  40041,
+		"UNIT_CATEGORY_CODE_DUPLICATED":         40042,
+		"FEATURE_NOT_FOUND":                     50010,
+		"FEATURE_TYPE_INVALID":                  50011,
+		"FEATURE_SPEC_INVALID":                  50020,
+		"FEATURE_SPEC_MISMATCH":                 50021,
+		"FEATURE_ENUM_EMPTY":                    50022,
+		"FEATURE_STRUCT_EMPTY":                  50023,
+		"FEATURE_CONSTRAINT_INVALID":            50024,
+		"FEATURE_RELATION_TARGET_NOT_FOUND":     50025,
+		"FEATURE_CODE_DUPLICATED":               50030,
+		"FEATURE_IDENTIFIER_DUPLICATED":         50031,
+		"FEATURE_IN_USE_CANNOT_DELETE":          50040,
+		"FEATURE_UNIT_REFERENCE_FAIL":           50050,
+		"CATEGORY_NOT_FOUND":                    41010,
+		"CATEGORY_PARENT_NOT_FOUND":             41011,
+		"CATEGORY_CODE_FORMAT_INVALID":          41020,
+		"CATEGORY_CODE_LENGTH_MISMATCH":         41021,
+		"CATEGORY_CODE_PREFIX_MISMATCH":         41022,
+		"CATEGORY_LEVEL_INVALID":                41023,
+		"CATEGORY_LEVEL_PARENT_MISMATCH":        41024,
+		"CATEGORY_KIND_PARENT_MISMATCH":         41025,
+		"CATEGORY_PARENT_REQUIRED":              41026,
+		"CATEGORY_PARENT_FORBIDDEN":             41027,
+		"CATEGORY_HAS_CHILDREN":                 41030,
+		"CATEGORY_IN_USE_CANNOT_DELETE":         41031,
+		"CATEGORY_CODE_DUPLICATED":              41040,
+		"CATEGORY_IMMUTABLE_FIELD":              41050,
+		"CAT_DEFAULT_FEATURE_NOT_FOUND":         42010,
+		"CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF": 42011,
+		"CAT_DEFAULT_FEATURE_DUPLICATE":         42012,
+		"CAT_DEFAULT_FEATURE_OVERRIDE_INVALID":  42013,
+		"CAT_DEFAULT_FEATURE_FEATURE_DISABLED":  42014,
+		"PRODUCT_NOT_FOUND":                     42110,
+		"PRODUCT_CATEGORY_NOT_LEAF":             42111,
+		"PRODUCT_CODE_DUPLICATED":               42112,
+		"PRODUCT_NAME_DUPLICATED":               42113,
+		"PRODUCT_IN_USE_CANNOT_DELETE":          42120,
+		"PRODUCT_STATUS_NOT_DRAFT":              42130,
+		"PRODUCT_STATUS_NOT_PUBLISHED":          42131,
+		"PRODUCT_IMMUTABLE_FIELD":               42140,
+		"PRODUCT_FEATURE_NOT_FOUND":             42210,
+		"PF_SOURCE_REF_MISMATCH":                42211,
+		"PF_DUPLICATE_CODE":                     42212,
+		"PF_DUPLICATE_IDENTIFIER":               42213,
+		"PF_SPEC_TYPE_MISMATCH":                 42214,
+		"PF_OVERRIDE_INVALID":                   42215,
+		"PF_PRODUCT_PUBLISHED":                  42216,
+		"PF_FEATURE_DISABLED":                   42217,
+		"PF_DEFAULT_VIA_PULL_ONLY":              42218,
 	}
 )
 
@@ -361,7 +430,7 @@ var File_thingmodel_service_v1_thingmodel_error_proto protoreflect.FileDescripto
 
 const file_thingmodel_service_v1_thingmodel_error_proto_rawDesc = "" +
 	"\n" +
-	",thingmodel/service/v1/thingmodel_error.proto\x12\x15thingmodel.service.v1\x1a\x13errors/errors.proto*\xa9\x16\n" +
+	",thingmodel/service/v1/thingmodel_error.proto\x12\x15thingmodel.service.v1\x1a\x13errors/errors.proto*\x81\x1d\n" +
 	"\x15ThingModelErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x16\n" +
 	"\fUNAUTHORIZED\x10d\x1a\x04\xa8E\x91\x03\x12\x1b\n" +
@@ -445,7 +514,29 @@ const file_thingmodel_service_v1_thingmodel_error_proto_rawDesc = "" +
 	"\x15CATEGORY_HAS_CHILDREN\x10\xc6\xc0\x02\x1a\x04\xa8E\x99\x03\x12)\n" +
 	"\x1dCATEGORY_IN_USE_CANNOT_DELETE\x10\xc7\xc0\x02\x1a\x04\xa8E\x99\x03\x12$\n" +
 	"\x18CATEGORY_CODE_DUPLICATED\x10\xd0\xc0\x02\x1a\x04\xa8E\x99\x03\x12$\n" +
-	"\x18CATEGORY_IMMUTABLE_FIELD\x10\xda\xc0\x02\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x03B\xe4\x01\n" +
+	"\x18CATEGORY_IMMUTABLE_FIELD\x10\xda\xc0\x02\x1a\x04\xa8E\x90\x03\x12)\n" +
+	"\x1dCAT_DEFAULT_FEATURE_NOT_FOUND\x10\x9a\xc8\x02\x1a\x04\xa8E\x94\x03\x121\n" +
+	"%CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF\x10\x9b\xc8\x02\x1a\x04\xa8E\x90\x03\x12)\n" +
+	"\x1dCAT_DEFAULT_FEATURE_DUPLICATE\x10\x9c\xc8\x02\x1a\x04\xa8E\x99\x03\x120\n" +
+	"$CAT_DEFAULT_FEATURE_OVERRIDE_INVALID\x10\x9d\xc8\x02\x1a\x04\xa8E\x90\x03\x120\n" +
+	"$CAT_DEFAULT_FEATURE_FEATURE_DISABLED\x10\x9e\xc8\x02\x1a\x04\xa8E\x90\x03\x12\x1d\n" +
+	"\x11PRODUCT_NOT_FOUND\x10\xfe\xc8\x02\x1a\x04\xa8E\x94\x03\x12%\n" +
+	"\x19PRODUCT_CATEGORY_NOT_LEAF\x10\xff\xc8\x02\x1a\x04\xa8E\x90\x03\x12#\n" +
+	"\x17PRODUCT_CODE_DUPLICATED\x10\x80\xc9\x02\x1a\x04\xa8E\x99\x03\x12#\n" +
+	"\x17PRODUCT_NAME_DUPLICATED\x10\x81\xc9\x02\x1a\x04\xa8E\x99\x03\x12(\n" +
+	"\x1cPRODUCT_IN_USE_CANNOT_DELETE\x10\x88\xc9\x02\x1a\x04\xa8E\x99\x03\x12$\n" +
+	"\x18PRODUCT_STATUS_NOT_DRAFT\x10\x92\xc9\x02\x1a\x04\xa8E\x90\x03\x12(\n" +
+	"\x1cPRODUCT_STATUS_NOT_PUBLISHED\x10\x93\xc9\x02\x1a\x04\xa8E\x90\x03\x12#\n" +
+	"\x17PRODUCT_IMMUTABLE_FIELD\x10\x9c\xc9\x02\x1a\x04\xa8E\x90\x03\x12%\n" +
+	"\x19PRODUCT_FEATURE_NOT_FOUND\x10\xe2\xc9\x02\x1a\x04\xa8E\x94\x03\x12\"\n" +
+	"\x16PF_SOURCE_REF_MISMATCH\x10\xe3\xc9\x02\x1a\x04\xa8E\x90\x03\x12\x1d\n" +
+	"\x11PF_DUPLICATE_CODE\x10\xe4\xc9\x02\x1a\x04\xa8E\x99\x03\x12#\n" +
+	"\x17PF_DUPLICATE_IDENTIFIER\x10\xe5\xc9\x02\x1a\x04\xa8E\x99\x03\x12!\n" +
+	"\x15PF_SPEC_TYPE_MISMATCH\x10\xe6\xc9\x02\x1a\x04\xa8E\x90\x03\x12\x1f\n" +
+	"\x13PF_OVERRIDE_INVALID\x10\xe7\xc9\x02\x1a\x04\xa8E\x90\x03\x12 \n" +
+	"\x14PF_PRODUCT_PUBLISHED\x10\xe8\xc9\x02\x1a\x04\xa8E\x90\x03\x12\x1f\n" +
+	"\x13PF_FEATURE_DISABLED\x10\xe9\xc9\x02\x1a\x04\xa8E\x90\x03\x12$\n" +
+	"\x18PF_DEFAULT_VIA_PULL_ONLY\x10\xea\xc9\x02\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x03B\xe4\x01\n" +
 	"\x19com.thingmodel.service.v1B\x14ThingmodelErrorProtoP\x01Z;go-wind-admin/api/gen/go/thingmodel/service/v1;thingmodelpb\xa2\x02\x03TSX\xaa\x02\x15Thingmodel.Service.V1\xca\x02\x15Thingmodel\\Service\\V1\xe2\x02!Thingmodel\\Service\\V1\\GPBMetadata\xea\x02\x17Thingmodel::Service::V1b\x06proto3"
 
 var (

@@ -52,19 +52,19 @@ type FeatureServiceHTTPServer interface {
 
 func RegisterFeatureServiceHTTPServer(s *http.Server, srv FeatureServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/admin/v1/thingmodel/features", _FeatureService_List6_HTTP_Handler(srv))
-	r.GET("/admin/v1/thingmodel/features/code/{code}", _FeatureService_Get7_HTTP_Handler(srv))
-	r.GET("/admin/v1/thingmodel/features/identifier/{identifier}", _FeatureService_Get8_HTTP_Handler(srv))
-	r.GET("/admin/v1/thingmodel/features/{id}", _FeatureService_Get9_HTTP_Handler(srv))
-	r.POST("/admin/v1/thingmodel/features", _FeatureService_Create4_HTTP_Handler(srv))
-	r.PUT("/admin/v1/thingmodel/features/{id}", _FeatureService_Update4_HTTP_Handler(srv))
-	r.DELETE("/admin/v1/thingmodel/features", _FeatureService_Delete4_HTTP_Handler(srv))
+	r.GET("/admin/v1/thingmodel/features", _FeatureService_List7_HTTP_Handler(srv))
+	r.GET("/admin/v1/thingmodel/features/code/{code}", _FeatureService_Get8_HTTP_Handler(srv))
+	r.GET("/admin/v1/thingmodel/features/identifier/{identifier}", _FeatureService_Get9_HTTP_Handler(srv))
+	r.GET("/admin/v1/thingmodel/features/{id}", _FeatureService_Get10_HTTP_Handler(srv))
+	r.POST("/admin/v1/thingmodel/features", _FeatureService_Create5_HTTP_Handler(srv))
+	r.PUT("/admin/v1/thingmodel/features/{id}", _FeatureService_Update5_HTTP_Handler(srv))
+	r.DELETE("/admin/v1/thingmodel/features", _FeatureService_Delete5_HTTP_Handler(srv))
 	r.GET("/admin/v1/thingmodel/features/types/{feature_type}", _FeatureService_ListByType0_HTTP_Handler(srv))
 	r.POST("/admin/v1/thingmodel/features:validateSpec", _FeatureService_ValidateSpec0_HTTP_Handler(srv))
 	r.POST("/admin/v1/thingmodel/features:import", _FeatureService_ImportFeatures0_HTTP_Handler(srv))
 }
 
-func _FeatureService_List6_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
+func _FeatureService_List7_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v1.PagingRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -79,28 +79,6 @@ func _FeatureService_List6_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx h
 			return err
 		}
 		reply := out.(*v11.ListFeatureResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _FeatureService_Get7_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in v11.GetFeatureRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationFeatureServiceGet)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.Get(ctx, req.(*v11.GetFeatureRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*v11.Feature)
 		return ctx.Result(200, reply)
 	}
 }
@@ -149,7 +127,29 @@ func _FeatureService_Get9_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx ht
 	}
 }
 
-func _FeatureService_Create4_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
+func _FeatureService_Get10_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v11.GetFeatureRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationFeatureServiceGet)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Get(ctx, req.(*v11.GetFeatureRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v11.Feature)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _FeatureService_Create5_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v11.CreateFeatureRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -171,7 +171,7 @@ func _FeatureService_Create4_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx
 	}
 }
 
-func _FeatureService_Update4_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
+func _FeatureService_Update5_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v11.UpdateFeatureRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -196,7 +196,7 @@ func _FeatureService_Update4_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx
 	}
 }
 
-func _FeatureService_Delete4_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
+func _FeatureService_Delete5_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v11.DeleteFeatureRequest
 		if err := ctx.BindQuery(&in); err != nil {

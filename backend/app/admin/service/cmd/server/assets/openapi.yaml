@@ -4115,6 +4115,198 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/thingmodel/category-default-features:
+        get:
+            tags:
+                - CategoryDefaultFeatureService
+            description: 分页查询 / List
+            operationId: CategoryDefaultFeatureService_List
+            parameters:
+                - name: page
+                  in: query
+                  description: 当前页码（从1开始，默认1）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  description: 每页条数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: offset
+                  in: query
+                  description: 跳过的记录数（从0开始，默认0）
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: 最多返回的记录数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: token
+                  in: query
+                  description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
+                  schema:
+                    type: string
+                - name: noPaging
+                  in: query
+                  description: 是否不分页，如果为true，则page和pageSize参数无效。
+                  schema:
+                    type: boolean
+                - name: query
+                  in: query
+                  description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: Google AIP规范字符串过滤条件
+                  schema:
+                    type: string
+                - name: filterExpr.type
+                  in: query
+                  description: 过滤表达式类型
+                  schema:
+                    enum:
+                        - EXPR_TYPE_UNSPECIFIED
+                        - AND
+                        - OR
+                    type: string
+                    format: enum
+                - name: orderBy
+                  in: query
+                  description: 排序条件
+                  schema:
+                    type: string
+                - name: fieldMask
+                  in: query
+                  description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListCategoryDefaultFeatureResponse'
+        post:
+            tags:
+                - CategoryDefaultFeatureService
+            description: 创建单条 / Create
+            operationId: CategoryDefaultFeatureService_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateCategoryDefaultFeatureRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - CategoryDefaultFeatureService
+            description: 删除（批量）/ Delete
+            operationId: CategoryDefaultFeatureService_Delete
+            parameters:
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/category-default-features/{id}:
+        get:
+            tags:
+                - CategoryDefaultFeatureService
+            description: 详情 / Get
+            operationId: CategoryDefaultFeatureService_Get
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CategoryDefaultFeature'
+        put:
+            tags:
+                - CategoryDefaultFeatureService
+            description: 更新（FieldMask）/ Update
+            operationId: CategoryDefaultFeatureService_Update
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateCategoryDefaultFeatureRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/category-default-features:batch:
+        post:
+            tags:
+                - CategoryDefaultFeatureService
+            description: 批量添加（一次性把多个 feature 绑定到 category）/ Batch add
+            operationId: CategoryDefaultFeatureService_BatchAdd
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BatchAddCategoryDefaultFeaturesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BatchAddCategoryDefaultFeaturesResponse'
+    /admin/v1/thingmodel/category-default-features:reorder:
+        post:
+            tags:
+                - CategoryDefaultFeatureService
+            description: 拖拽排序 / Reorder
+            operationId: CategoryDefaultFeatureService_Reorder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ReorderCategoryDefaultFeaturesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /admin/v1/thingmodel/features:
         get:
             tags:
@@ -4418,6 +4610,453 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ValidateFeatureSpecResponse'
+    /admin/v1/thingmodel/product-features:
+        get:
+            tags:
+                - ProductFeatureService
+            description: 分页查询 / List
+            operationId: ProductFeatureService_List
+            parameters:
+                - name: page
+                  in: query
+                  description: 当前页码（从1开始，默认1）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  description: 每页条数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: offset
+                  in: query
+                  description: 跳过的记录数（从0开始，默认0）
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: 最多返回的记录数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: token
+                  in: query
+                  description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
+                  schema:
+                    type: string
+                - name: noPaging
+                  in: query
+                  description: 是否不分页，如果为true，则page和pageSize参数无效。
+                  schema:
+                    type: boolean
+                - name: query
+                  in: query
+                  description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: Google AIP规范字符串过滤条件
+                  schema:
+                    type: string
+                - name: filterExpr.type
+                  in: query
+                  description: 过滤表达式类型
+                  schema:
+                    enum:
+                        - EXPR_TYPE_UNSPECIFIED
+                        - AND
+                        - OR
+                    type: string
+                    format: enum
+                - name: orderBy
+                  in: query
+                  description: 排序条件
+                  schema:
+                    type: string
+                - name: fieldMask
+                  in: query
+                  description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListProductFeatureResponse'
+        post:
+            tags:
+                - ProductFeatureService
+            description: 创建（source=GLOBAL/LOCAL）/ Create
+            operationId: ProductFeatureService_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateProductFeatureRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - ProductFeatureService
+            description: 删除（批量）/ Delete
+            operationId: ProductFeatureService_Delete
+            parameters:
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/product-features/{id}:
+        get:
+            tags:
+                - ProductFeatureService
+            description: 详情（返回 effective_spec）/ Get
+            operationId: ProductFeatureService_Get
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ProductFeature'
+        put:
+            tags:
+                - ProductFeatureService
+            description: 更新（仅白名单字段；PUBLISHED 产品禁改结构）/ Update via FieldMask
+            operationId: ProductFeatureService_Update
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateProductFeatureRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/product-features:clone-from:
+        post:
+            tags:
+                - ProductFeatureService
+            description: 从另一产品克隆全部特征（含 LOCAL）/ Clone from another product
+            operationId: ProductFeatureService_CloneFromProduct
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CloneFromProductRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CloneFromProductResponse'
+    /admin/v1/thingmodel/product-features:pull-from-default:
+        post:
+            tags:
+                - ProductFeatureService
+            description: ⭐ 批量从分类默认模型拉取 / Pull from default
+            operationId: ProductFeatureService_PullFromDefault
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PullFromDefaultRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PullFromDefaultResponse'
+    /admin/v1/thingmodel/product-features:reorder:
+        post:
+            tags:
+                - ProductFeatureService
+            description: 拖拽排序 / Reorder
+            operationId: ProductFeatureService_Reorder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ReorderProductFeaturesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/products:
+        get:
+            tags:
+                - ProductService
+            description: 分页查询 / List
+            operationId: ProductService_List
+            parameters:
+                - name: page
+                  in: query
+                  description: 当前页码（从1开始，默认1）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  description: 每页条数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: offset
+                  in: query
+                  description: 跳过的记录数（从0开始，默认0）
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: 最多返回的记录数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: token
+                  in: query
+                  description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
+                  schema:
+                    type: string
+                - name: noPaging
+                  in: query
+                  description: 是否不分页，如果为true，则page和pageSize参数无效。
+                  schema:
+                    type: boolean
+                - name: query
+                  in: query
+                  description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: Google AIP规范字符串过滤条件
+                  schema:
+                    type: string
+                - name: filterExpr.type
+                  in: query
+                  description: 过滤表达式类型
+                  schema:
+                    enum:
+                        - EXPR_TYPE_UNSPECIFIED
+                        - AND
+                        - OR
+                    type: string
+                    format: enum
+                - name: orderBy
+                  in: query
+                  description: 排序条件
+                  schema:
+                    type: string
+                - name: fieldMask
+                  in: query
+                  description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListProductResponse'
+        post:
+            tags:
+                - ProductService
+            description: 创建 / Create
+            operationId: ProductService_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateProductRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - ProductService
+            description: 删除（批量）/ Delete
+            operationId: ProductService_Delete
+            parameters:
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/products/code/{code}:
+        get:
+            tags:
+                - ProductService
+            description: 详情 / Get（支持 id 或 code 查询）
+            operationId: ProductService_Get
+            parameters:
+                - name: code
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+    /admin/v1/thingmodel/products/{id}:
+        get:
+            tags:
+                - ProductService
+            description: 详情 / Get（支持 id 或 code 查询）
+            operationId: ProductService_Get
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: viewMask
+                  in: query
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Product'
+        put:
+            tags:
+                - ProductService
+            description: 更新（FieldMask）/ Update
+            operationId: ProductService_Update
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateProductRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/products/{id}:publish:
+        post:
+            tags:
+                - ProductService
+            description: 发布（DRAFT → PUBLISHED）/ Publish
+            operationId: ProductService_Publish
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PublishProductRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /admin/v1/thingmodel/products/{id}:unpublish:
+        post:
+            tags:
+                - ProductService
+            description: 撤销发布（PUBLISHED → DRAFT）/ Unpublish
+            operationId: ProductService_Unpublish
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UnpublishProductRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /admin/v1/thingmodel/unit-categories:
         get:
             tags:
@@ -5276,6 +5915,43 @@ components:
                 element:
                     $ref: '#/components/schemas/ParamSpec'
             description: 数组 spec / Array spec
+        BatchAddCategoryDefaultFeaturesRequest:
+            type: object
+            properties:
+                categoryId:
+                    type: integer
+                    format: uint32
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BatchAddCategoryDefaultFeaturesRequest_Item'
+            description: BatchAdd request：一次性把多个 feature_id 挂到同一个 category_id 下
+        BatchAddCategoryDefaultFeaturesRequest_Item:
+            type: object
+            properties:
+                featureId:
+                    type: integer
+                    format: uint32
+                overrideSpec:
+                    $ref: '#/components/schemas/FeatureOverrideSpec'
+                displayName:
+                    type: string
+                sortOrder:
+                    type: integer
+                    format: uint32
+            description: 单项：要绑定的 feature + 可选 override + 可选 display_name + 可选 sort_order
+        BatchAddCategoryDefaultFeaturesResponse:
+            type: object
+            properties:
+                created:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CategoryDefaultFeature'
+                skippedDuplicateFeatureCodes:
+                    type: array
+                    items:
+                        type: string
+            description: BatchAdd response：返回创建成功的列表 + 因 (category,feature) 唯一冲突而跳过的特征编码
         BatchCreateLanguagesRequest:
             type: object
             properties:
@@ -5403,6 +6079,85 @@ components:
                  code 长度按 level 严格分级 / variable-length code by level：
                    level=1 大类 → 2 位、level=2 中类 → 4 位、level=3 小类 → 6 位、level=4 细类 → 8 位。
                    不存 path / is_leaf 字段：叶子由 `level==4` 推导，父子关系由 code 截断推导。
+        CategoryDefaultFeature:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 条目ID / Entry ID
+                    format: uint32
+                categoryId:
+                    type: integer
+                    description: 分类ID（必须 level=4）/ Category ID, must be level=4
+                    format: uint32
+                featureId:
+                    type: integer
+                    description: 全局特征ID / Global feature ID
+                    format: uint32
+                featureCode:
+                    type: string
+                    description: 全局特征编码（冗余）/ Feature code (denormalized)
+                featureIdentifier:
+                    type: string
+                    description: 全局特征标识符（冗余）/ Feature identifier (denormalized)
+                featureName:
+                    type: string
+                    description: 全局特征名称（冗余）/ Feature name (denormalized)
+                featureType:
+                    enum:
+                        - FEATURE_TYPE_UNSPECIFIED
+                        - PROPERTY
+                        - EVENT
+                        - SERVICE
+                        - RELATION
+                    type: string
+                    description: 特征类型（冗余）/ Feature type (denormalized)
+                    format: enum
+                featureSnapshotPreview:
+                    $ref: '#/components/schemas/FeatureSpec'
+                overrideSpec:
+                    allOf:
+                        - $ref: '#/components/schemas/FeatureOverrideSpec'
+                    description: 稀疏覆写（白名单字段）/ Sparse override spec
+                displayName:
+                    type: string
+                    description: 分类内展示别名 / Display alias within category
+                isEnabled:
+                    type: boolean
+                    description: 是否启用 / Is enabled
+                sortOrder:
+                    type: integer
+                    description: 排序号，越小越靠前 / Sort order
+                    format: uint32
+                tenantId:
+                    type: integer
+                    description: 租户ID，0=系统全局 / Tenant ID, 0=system global
+                    format: uint32
+                createdBy:
+                    type: integer
+                    description: 创建者 / Created by
+                    format: uint32
+                updatedBy:
+                    type: integer
+                    description: 更新者 / Updated by
+                    format: uint32
+                deletedBy:
+                    type: integer
+                    description: 删除者 / Deleted by
+                    format: uint32
+                createdAt:
+                    type: string
+                    description: 创建时间 / Created at
+                    format: date-time
+                updatedAt:
+                    type: string
+                    description: 更新时间 / Updated at
+                    format: date-time
+                deletedAt:
+                    type: string
+                    description: 删除时间 / Deleted at
+                    format: date-time
+            description: 分类默认模型条目 / Category default feature entry
         ChangePasswordRequest:
             type: object
             properties:
@@ -5413,6 +6168,35 @@ components:
                     type: string
                     description: 新密码
             description: 修改用户密码（需要验证旧密码） - 请求
+        CloneFromProductRequest:
+            type: object
+            properties:
+                productId:
+                    type: integer
+                    description: 目标产品ID（接收方）/ Target product ID
+                    format: uint32
+                sourceProductId:
+                    type: integer
+                    description: 源产品ID（拷贝来源）/ Source product ID
+                    format: uint32
+                onConflict:
+                    enum:
+                        - CONFLICT_POLICY_UNSPECIFIED
+                        - SKIP
+                        - REPLACE
+                    type: string
+                    description: 冲突策略 / Conflict policy
+                    format: enum
+        CloneFromProductResponse:
+            type: object
+            properties:
+                created:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ProductFeature'
+                skippedCount:
+                    type: integer
+                    format: uint32
         ControlTaskRequest:
             type: object
             properties:
@@ -5484,6 +6268,12 @@ components:
                 data:
                     $ref: '#/components/schemas/Api'
             description: 创建 - 请求
+        CreateCategoryDefaultFeatureRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/CategoryDefaultFeature'
+            description: Create request
         CreateCategoryRequest:
             type: object
             properties:
@@ -5562,6 +6352,16 @@ components:
                 data:
                     $ref: '#/components/schemas/Position'
             description: 创建职位 - 请求
+        CreateProductFeatureRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/ProductFeature'
+        CreateProductRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/Product'
         CreateRoleRequest:
             type: object
             properties:
@@ -6176,6 +6976,39 @@ components:
                     description: 删除时间 / Deleted at
                     format: date-time
             description: 特征 / Feature (统一承载 property/event/service/relation)
+        FeatureOverrideSpec:
+            type: object
+            properties:
+                constraints:
+                    allOf:
+                        - $ref: '#/components/schemas/ValueConstraints'
+                    description: 覆写数值约束（仅 property）/ Override numeric constraints (property only)
+                unit:
+                    allOf:
+                        - $ref: '#/components/schemas/UnitRef'
+                    description: 覆写单位引用（仅 property）/ Override unit ref (property only)
+                defaultValue:
+                    type: string
+                    description: 覆写默认值（按 dataType 解析）/ Override default value
+                displayName:
+                    type: string
+                    description: 作用域内展示别名 / Display alias within scope
+                description:
+                    type: string
+                    description: 覆写描述 / Override description
+                required:
+                    type: boolean
+                    description: 覆写 required（service 参数）/ Override required (service params)
+            description: |-
+                特征覆写规约（白名单字段）/ Feature override spec (whitelist fields only)
+
+                 用于：
+                   thingmodel_category_default_features.override_spec —— 分类层覆写
+                   thingmodel_product_features.override_spec        —— 产品层覆写
+
+                 设计目标：proto schema 即白名单——结构上只允许 6 个字段，
+                 杜绝试图通过 wire 传 dataType/accessMode/enumItems 等结构性字段进行覆写。
+                 详见 docs/thingmodel/sheji/模型管理/01-架构决策.md §4
         FeatureSpec:
             type: object
             properties:
@@ -6679,6 +7512,16 @@ components:
                 total:
                     type: string
             description: 查询列表 - 回应
+        ListCategoryDefaultFeatureResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CategoryDefaultFeature'
+                total:
+                    type: string
+            description: List response
         ListCategoryResponse:
             type: object
             properties:
@@ -6884,6 +7727,24 @@ components:
                 total:
                     type: string
             description: 获取职位列表 - 答复
+        ListProductFeatureResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ProductFeature'
+                total:
+                    type: string
+        ListProductResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Product'
+                total:
+                    type: string
         ListRoleResponse:
             type: object
             properties:
@@ -8145,6 +9006,239 @@ components:
                     type: string
                     description: 预签名约束的 Content-Type（可选）
             description: 预签名选项
+        Product:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 产品ID / Product ID
+                    format: uint32
+                code:
+                    type: string
+                    description: 产品编码（程序标识符，租户内唯一，不可变）/ Product code, immutable
+                name:
+                    type: string
+                    description: 产品中文名 / Name (zh)
+                nameEn:
+                    type: string
+                    description: 产品英文名 / Name (en)
+                categoryId:
+                    type: integer
+                    description: 分类ID（必须 level=4，不可变）/ Category ID, must be level=4
+                    format: uint32
+                categoryCode:
+                    type: string
+                    description: 分类编码（冗余）/ Category code (denormalized)
+                categoryName:
+                    type: string
+                    description: 分类名（冗余）/ Category name (denormalized)
+                manufacturer:
+                    type: string
+                    description: 制造商/品牌（可选）/ Manufacturer (optional)
+                modelNo:
+                    type: string
+                    description: 型号（可选）/ Model number (optional)
+                icon:
+                    type: string
+                    description: Iconify 图标名 / Icon
+                description:
+                    type: string
+                    description: 描述 / Description
+                status:
+                    enum:
+                        - PRODUCT_STATUS_UNSPECIFIED
+                        - DRAFT
+                        - PUBLISHED
+                    type: string
+                    description: 发布状态 DRAFT/PUBLISHED / Lifecycle status
+                    format: enum
+                isEnabled:
+                    type: boolean
+                    description: 运行启停 / Is enabled
+                sortOrder:
+                    type: integer
+                    description: 排序号 / Sort order
+                    format: uint32
+                referenceCount:
+                    type: integer
+                    description: 被设备实例引用次数（预留）/ Reference count (reserved)
+                    format: uint32
+                featureCount:
+                    type: integer
+                    description: 该产品下特征条目总数（统计）/ Feature count under this product
+                    format: uint32
+                tenantId:
+                    type: integer
+                    description: 租户ID / Tenant ID
+                    format: uint32
+                tenantName:
+                    type: string
+                    description: 租户名称 / Tenant name
+                createdBy:
+                    type: integer
+                    description: 创建者 / Created by
+                    format: uint32
+                updatedBy:
+                    type: integer
+                    description: 更新者 / Updated by
+                    format: uint32
+                deletedBy:
+                    type: integer
+                    description: 删除者 / Deleted by
+                    format: uint32
+                createdAt:
+                    type: string
+                    description: 创建时间 / Created at
+                    format: date-time
+                updatedAt:
+                    type: string
+                    description: 更新时间 / Updated at
+                    format: date-time
+                deletedAt:
+                    type: string
+                    description: 删除时间 / Deleted at
+                    format: date-time
+            description: 产品 / Product
+        ProductFeature:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 条目ID / Entry ID
+                    format: uint32
+                productId:
+                    type: integer
+                    description: 父产品ID / Product ID
+                    format: uint32
+                source:
+                    enum:
+                        - PRODUCT_FEATURE_SOURCE_UNSPECIFIED
+                        - DEFAULT
+                        - GLOBAL
+                        - LOCAL
+                    type: string
+                    description: 来源 DEFAULT/GLOBAL/LOCAL / Source
+                    format: enum
+                refFeatureId:
+                    type: integer
+                    description: 引用全局特征ID（LOCAL 时为 0）/ Referenced feature ID
+                    format: uint32
+                featureType:
+                    enum:
+                        - FEATURE_TYPE_UNSPECIFIED
+                        - PROPERTY
+                        - EVENT
+                        - SERVICE
+                        - RELATION
+                    type: string
+                    description: 特征类型（冗余）/ Feature type
+                    format: enum
+                code:
+                    type: string
+                    description: 产品内编码 / Code within product
+                identifier:
+                    type: string
+                    description: 产品内程序标识符 / Identifier within product
+                name:
+                    type: string
+                    description: 中文名 / Name (zh)
+                nameEn:
+                    type: string
+                    description: 英文名 / Name (en)
+                description:
+                    type: string
+                    description: 描述 / Description
+                featureSnapshot:
+                    allOf:
+                        - $ref: '#/components/schemas/FeatureSpec'
+                    description: 完整 spec 快照 / Full feature spec snapshot
+                overrideSpec:
+                    allOf:
+                        - $ref: '#/components/schemas/FeatureOverrideSpec'
+                    description: 稀疏覆写（白名单字段）/ Sparse override
+                effectiveSpec:
+                    allOf:
+                        - $ref: '#/components/schemas/FeatureSpec'
+                    description: 有效 spec（后端合并，只读）/ Effective spec (read-only)
+                dataType:
+                    enum:
+                        - DATA_TYPE_UNSPECIFIED
+                        - INT
+                        - FLOAT
+                        - DOUBLE
+                        - BOOL
+                        - ENUM
+                        - TEXT
+                        - DATE
+                        - STRUCT
+                        - ARRAY
+                    type: string
+                    description: property 数据类型 / Data type
+                    format: enum
+                accessMode:
+                    enum:
+                        - ACCESS_MODE_UNSPECIFIED
+                        - R
+                        - RW
+                    type: string
+                    description: property 访问模式 / Access mode
+                    format: enum
+                eventLevel:
+                    enum:
+                        - EVENT_LEVEL_UNSPECIFIED
+                        - INFO
+                        - ALERT
+                        - ERROR
+                    type: string
+                    description: event 级别 / Event level
+                    format: enum
+                callMode:
+                    enum:
+                        - CALL_MODE_UNSPECIFIED
+                        - ASYNC
+                        - SYNC
+                    type: string
+                    description: service 调用模式 / Call mode
+                    format: enum
+                relationType:
+                    type: string
+                    description: relation 关系类型 / Relation type
+                isEnabled:
+                    type: boolean
+                    description: 是否启用 / Is enabled
+                sortOrder:
+                    type: integer
+                    description: 排序号 / Sort order
+                    format: uint32
+                tenantId:
+                    type: integer
+                    description: 租户ID / Tenant ID
+                    format: uint32
+                createdBy:
+                    type: integer
+                    description: 创建者 / Created by
+                    format: uint32
+                updatedBy:
+                    type: integer
+                    description: 更新者 / Updated by
+                    format: uint32
+                deletedBy:
+                    type: integer
+                    description: 删除者 / Deleted by
+                    format: uint32
+                createdAt:
+                    type: string
+                    description: 创建时间 / Created at
+                    format: date-time
+                updatedAt:
+                    type: string
+                    description: 更新时间 / Updated at
+                    format: date-time
+                deletedAt:
+                    type: string
+                    description: 删除时间 / Deleted at
+                    format: date-time
+            description: 产品下特征条目 / Product feature entry
         PropertySpec:
             type: object
             properties:
@@ -8193,6 +9287,55 @@ components:
                 isRated:
                     type: boolean
             description: 属性 spec / Property spec
+        PublishProductRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+        PullFromDefaultRequest:
+            type: object
+            properties:
+                productId:
+                    type: integer
+                    description: 目标产品ID / Target product ID
+                    format: uint32
+                defaultFeatureIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                    description: 选定的 default_feature ID 列表（空=全部）/ Selected default feature IDs (empty=all)
+                onConflict:
+                    enum:
+                        - CONFLICT_POLICY_UNSPECIFIED
+                        - SKIP
+                        - REPLACE
+                    type: string
+                    description: 冲突策略 SKIP/REPLACE / Conflict policy
+                    format: enum
+        PullFromDefaultResponse:
+            type: object
+            properties:
+                created:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ProductFeature'
+                    description: 成功创建的产品特征列表 / Created entries
+                skipped:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/PullFromDefaultResponse_PullSkipped'
+        PullFromDefaultResponse_PullSkipped:
+            type: object
+            properties:
+                defaultFeatureId:
+                    type: integer
+                    format: uint32
+                reason:
+                    type: string
+                    description: 跳过原因：duplicate/feature_disabled/category_mismatch / Skip reason
+            description: 跳过项详情
         RegisterUserRequest:
             type: object
             properties:
@@ -8240,6 +9383,45 @@ components:
                     additionalProperties:
                         type: string
             description: 关系 spec（本体）/ Relation spec (ontology)
+        ReorderCategoryDefaultFeaturesRequest:
+            type: object
+            properties:
+                categoryId:
+                    type: integer
+                    format: uint32
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ReorderCategoryDefaultFeaturesRequest_Item'
+            description: Reorder request：拖拽后一次性提交新的 (id, sort_order) 列表
+        ReorderCategoryDefaultFeaturesRequest_Item:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                sortOrder:
+                    type: integer
+                    format: uint32
+        ReorderProductFeaturesRequest:
+            type: object
+            properties:
+                productId:
+                    type: integer
+                    format: uint32
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ReorderProductFeaturesRequest_Item'
+        ReorderProductFeaturesRequest_Item:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                sortOrder:
+                    type: integer
+                    format: uint32
         RestartAllTaskResponse:
             type: object
             properties:
@@ -8815,6 +9997,12 @@ components:
                 unitSymbol:
                     type: string
             description: 单位引用（property 顶层 + 参数级共享）/ Unit reference
+        UnpublishProductRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
         UpdateApiRequest:
             type: object
             properties:
@@ -8832,6 +10020,23 @@ components:
                     type: boolean
                     description: 如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。
             description: 更新 - 请求
+        UpdateCategoryDefaultFeatureRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                data:
+                    $ref: '#/components/schemas/CategoryDefaultFeature'
+                updateMask:
+                    example: overrideSpec,displayName,isEnabled,sortOrder
+                    type: string
+                    description: 要更新的字段列表 / Fields to update
+                    format: field-mask
+                allowMissing:
+                    type: boolean
+                    description: 若为 true，资源不存在则新增 / Insert when missing
+            description: Update request
         UpdateCategoryRequest:
             type: object
             properties:
@@ -9074,6 +10279,38 @@ components:
                     type: boolean
                     description: 如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。
             description: 更新职位 - 请求
+        UpdateProductFeatureRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                data:
+                    $ref: '#/components/schemas/ProductFeature'
+                updateMask:
+                    example: overrideSpec,description,isEnabled,sortOrder
+                    type: string
+                    description: 要更新的字段列表 / Fields to update
+                    format: field-mask
+                allowMissing:
+                    type: boolean
+                    description: 若为 true，资源不存在则新增 / Insert when missing
+        UpdateProductRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                data:
+                    $ref: '#/components/schemas/Product'
+                updateMask:
+                    example: name,manufacturer,modelNo,description,sortOrder,isEnabled
+                    type: string
+                    description: 要更新的字段列表 / Fields to update
+                    format: field-mask
+                allowMissing:
+                    type: boolean
+                    description: 若为 true，资源不存在则新增 / Insert when missing
         UpdateRoleRequest:
             type: object
             properties:
@@ -9480,6 +10717,12 @@ tags:
       description: API资源管理服务
     - name: AuthenticationService
       description: 用户后台登录认证服务
+    - name: CategoryDefaultFeatureService
+      description: |-
+        分类默认模型服务（BFF 层 REST）/ Category default feature admin service (BFF REST)
+
+         入口①：分类管理 level=4 细类的"配置默认模型" Drawer
+         详见 docs/thingmodel/sheji/模型管理/03-API与Proto设计.md §3.1
     - name: CategoryService
       description: |-
         分类管理服务（BFF 层 REST）/ Category admin service (BFF REST)
@@ -9526,6 +10769,18 @@ tags:
       description: 策略评估日志服务
     - name: PositionService
       description: 职位管理服务
+    - name: ProductFeatureService
+      description: |-
+        产品特征服务（BFF 层 REST）/ Product feature admin service (BFF REST)
+
+         入口②：产品详情页 Tab 化模型编辑器；含 PullFromDefault 核心批量操作
+         详见 docs/thingmodel/sheji/模型管理/03-API与Proto设计.md §3.3
+    - name: ProductService
+      description: |-
+        产品管理服务（BFF 层 REST）/ Product admin service (BFF REST)
+
+         入口②：物模型一级菜单下 "产品管理" 子菜单
+         详见 docs/thingmodel/sheji/模型管理/03-API与Proto设计.md §3.2
     - name: RoleService
       description: 角色管理服务
     - name: TaskService

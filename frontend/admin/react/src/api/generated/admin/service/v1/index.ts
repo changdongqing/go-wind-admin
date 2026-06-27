@@ -1419,6 +1419,491 @@ export type thingmodelservicev1_DeleteCategoryRequest = {
   ids: number[] | undefined;
 };
 
+// 分类默认模型服务（BFF 层 REST）/ Category default feature admin service (BFF REST)
+// 入口①：分类管理 level=4 细类的"配置默认模型" Drawer
+// 详见 docs/thingmodel/sheji/模型管理/03-API与Proto设计.md §3.1
+export interface CategoryDefaultFeatureService {
+  // 分页查询 / List
+  List(
+    request: pagination_PagingRequest,
+  ): Promise<thingmodelservicev1_ListCategoryDefaultFeatureResponse>;
+  // 详情 / Get
+  Get(
+    request: thingmodelservicev1_GetCategoryDefaultFeatureRequest,
+  ): Promise<thingmodelservicev1_CategoryDefaultFeature>;
+  // 创建单条 / Create
+  Create(
+    request: thingmodelservicev1_CreateCategoryDefaultFeatureRequest,
+  ): Promise<wellKnownEmpty>;
+  // 批量添加（一次性把多个 feature 绑定到 category）/ Batch add
+  BatchAdd(
+    request: thingmodelservicev1_BatchAddCategoryDefaultFeaturesRequest,
+  ): Promise<thingmodelservicev1_BatchAddCategoryDefaultFeaturesResponse>;
+  // 更新（FieldMask）/ Update
+  Update(
+    request: thingmodelservicev1_UpdateCategoryDefaultFeatureRequest,
+  ): Promise<wellKnownEmpty>;
+  // 删除（批量）/ Delete
+  Delete(
+    request: thingmodelservicev1_DeleteCategoryDefaultFeatureRequest,
+  ): Promise<wellKnownEmpty>;
+  // 拖拽排序 / Reorder
+  Reorder(
+    request: thingmodelservicev1_ReorderCategoryDefaultFeaturesRequest,
+  ): Promise<wellKnownEmpty>;
+}
+
+export function createCategoryDefaultFeatureServiceClient(
+  transport: ClientTransport,
+): CategoryDefaultFeatureService {
+  return {
+    List(request) {
+      const path = `admin/v1/thingmodel/category-default-features`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.page) {
+        queryParams.push(
+          `page=${encodeURIComponent(request.page.toString())}`,
+        );
+      }
+      if (request.pageSize) {
+        queryParams.push(
+          `pageSize=${encodeURIComponent(request.pageSize.toString())}`,
+        );
+      }
+      if (request.offset) {
+        queryParams.push(
+          `offset=${encodeURIComponent(request.offset.toString())}`,
+        );
+      }
+      if (request.limit) {
+        queryParams.push(
+          `limit=${encodeURIComponent(request.limit.toString())}`,
+        );
+      }
+      if (request.token) {
+        queryParams.push(
+          `token=${encodeURIComponent(request.token.toString())}`,
+        );
+      }
+      if (request.noPaging) {
+        queryParams.push(
+          `noPaging=${encodeURIComponent(request.noPaging.toString())}`,
+        );
+      }
+      if (request.query) {
+        queryParams.push(
+          `query=${encodeURIComponent(request.query.toString())}`,
+        );
+      }
+      if (request.filter) {
+        queryParams.push(
+          `filter=${encodeURIComponent(request.filter.toString())}`,
+        );
+      }
+      if (request.filterExpr?.type) {
+        queryParams.push(
+          `filterExpr.type=${encodeURIComponent(request.filterExpr.type.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.field) {
+        queryParams.push(
+          `filterExpr.conditions.field=${encodeURIComponent(request.filterExpr.conditions.field.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.op) {
+        queryParams.push(
+          `filterExpr.conditions.op=${encodeURIComponent(request.filterExpr.conditions.op.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.value) {
+        queryParams.push(
+          `filterExpr.conditions.value=${encodeURIComponent(request.filterExpr.conditions.value.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonValue) {
+        queryParams.push(
+          `filterExpr.conditions.jsonValue=${encodeURIComponent(request.filterExpr.conditions.jsonValue.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.values) {
+        request.filterExpr.conditions.values.forEach((x) => {
+          queryParams.push(
+            `filterExpr.conditions.values=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      if (request.filterExpr?.conditions?.datePart) {
+        queryParams.push(
+          `filterExpr.conditions.datePart=${encodeURIComponent(request.filterExpr.conditions.datePart.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonPath) {
+        queryParams.push(
+          `filterExpr.conditions.jsonPath=${encodeURIComponent(request.filterExpr.conditions.jsonPath.toString())}`,
+        );
+      }
+      if (request.orderBy) {
+        queryParams.push(
+          `orderBy=${encodeURIComponent(request.orderBy.toString())}`,
+        );
+      }
+      if (request.sorting?.field) {
+        queryParams.push(
+          `sorting.field=${encodeURIComponent(request.sorting.field.toString())}`,
+        );
+      }
+      if (request.sorting?.direction) {
+        queryParams.push(
+          `sorting.direction=${encodeURIComponent(request.sorting.direction.toString())}`,
+        );
+      }
+      if (request.fieldMask) {
+        queryParams.push(
+          `fieldMask=${encodeURIComponent(request.fieldMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'CategoryDefaultFeatureService',
+        method: 'List',
+      }) as Promise<thingmodelservicev1_ListCategoryDefaultFeatureResponse>;
+    },
+    Get(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/category-default-features/${request.id}`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.viewMask) {
+        queryParams.push(
+          `viewMask=${encodeURIComponent(request.viewMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'CategoryDefaultFeatureService',
+        method: 'Get',
+      }) as Promise<thingmodelservicev1_CategoryDefaultFeature>;
+    },
+    Create(request) {
+      const path = `admin/v1/thingmodel/category-default-features`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'CategoryDefaultFeatureService',
+        method: 'Create',
+      }) as Promise<wellKnownEmpty>;
+    },
+    BatchAdd(request) {
+      const path = `admin/v1/thingmodel/category-default-features:batch`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'CategoryDefaultFeatureService',
+        method: 'BatchAdd',
+      }) as Promise<thingmodelservicev1_BatchAddCategoryDefaultFeaturesResponse>;
+    },
+    Update(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/category-default-features/${request.id}`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'PUT', body, {
+        service: 'CategoryDefaultFeatureService',
+        method: 'Update',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Delete(request) {
+      const path = `admin/v1/thingmodel/category-default-features`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.ids) {
+        request.ids.forEach((x) => {
+          queryParams.push(
+            `ids=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'DELETE', body, {
+        service: 'CategoryDefaultFeatureService',
+        method: 'Delete',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Reorder(request) {
+      const path = `admin/v1/thingmodel/category-default-features:reorder`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'CategoryDefaultFeatureService',
+        method: 'Reorder',
+      }) as Promise<wellKnownEmpty>;
+    },
+  };
+}
+// List response
+export type thingmodelservicev1_ListCategoryDefaultFeatureResponse = {
+  items: thingmodelservicev1_CategoryDefaultFeature[] | undefined;
+  total: number | undefined;
+};
+
+// 分类默认模型条目 / Category default feature entry
+export type thingmodelservicev1_CategoryDefaultFeature = {
+  categoryId?: number;
+  createdAt?: wellKnownTimestamp;
+  createdBy?: number;
+  deletedAt?: wellKnownTimestamp;
+  deletedBy?: number;
+  displayName?: string;
+  // ===== 关联只读字段（List/Get 时由后端 join 填充）/ Joined read-only fields =====
+  featureCode?: string;
+  featureId?: number;
+  featureIdentifier?: string;
+  featureName?: string;
+  featureSnapshotPreview?: thingmodelservicev1_FeatureSpec;
+  featureType?: thingmodelservicev1_FeatureType;
+  id?: number;
+  isEnabled?: boolean;
+  // ===== 自有字段 / Own fields =====
+  overrideSpec?: thingmodelservicev1_FeatureOverrideSpec;
+  sortOrder?: number;
+  tenantId?: number;
+  updatedAt?: wellKnownTimestamp;
+  updatedBy?: number;
+};
+
+// 特征类型 / Feature type
+export type thingmodelservicev1_FeatureType =
+  | 'EVENT'
+  | 'FEATURE_TYPE_UNSPECIFIED'
+  | 'PROPERTY'
+  | 'RELATION'
+  | 'SERVICE';
+// 特征 spec（按 feature_type 取 oneof 分支）/ Feature spec (oneof by feature_type)
+export type thingmodelservicev1_FeatureSpec = {
+  event?: thingmodelservicev1_EventSpec;
+  property?: thingmodelservicev1_PropertySpec;
+  relation?: thingmodelservicev1_RelationSpec;
+  service?: thingmodelservicev1_ServiceSpec;
+};
+
+// 属性 spec / Property spec
+export type thingmodelservicev1_PropertySpec = {
+  accessMode?: thingmodelservicev1_AccessMode;
+  arraySpec?: thingmodelservicev1_ArraySpec;
+  boolLabels?: thingmodelservicev1_BoolLabels;
+  category?: string;
+  constraints?: thingmodelservicev1_ValueConstraints;
+  dataType?: thingmodelservicev1_DataType;
+  enumItems: thingmodelservicev1_EnumItem[] | undefined;
+  isRated?: boolean;
+  structFields: thingmodelservicev1_ParamSpec[] | undefined;
+  textMaxLength?: number;
+  unit?: thingmodelservicev1_UnitRef;
+};
+
+// 属性数据类型 / Property data type
+export type thingmodelservicev1_DataType =
+  | 'ARRAY'
+  | 'BOOL'
+  | 'DATA_TYPE_UNSPECIFIED'
+  | 'DATE'
+  | 'DOUBLE'
+  | 'ENUM'
+  | 'FLOAT'
+  | 'INT'
+  | 'STRUCT'
+  | 'TEXT';
+// 属性访问模式 / Property access mode
+export type thingmodelservicev1_AccessMode =
+  | 'ACCESS_MODE_UNSPECIFIED'
+  | 'R'
+  | 'RW';
+// 单位引用（property 顶层 + 参数级共享）/ Unit reference
+export type thingmodelservicev1_UnitRef = {
+  unitCode?: string;
+  unitId?: number;
+  unitSymbol?: string;
+};
+
+// 数值约束 / Value constraints
+export type thingmodelservicev1_ValueConstraints = {
+  defaultValue?: string;
+  max?: number;
+  min?: number;
+  step?: number;
+};
+
+// 枚举项 / Enum item
+export type thingmodelservicev1_EnumItem = {
+  label: string | undefined;
+  value: number | undefined;
+};
+
+// 布尔标签 / Bool labels
+export type thingmodelservicev1_BoolLabels = {
+  false: string | undefined;
+  true: string | undefined;
+};
+
+// 通用参数 spec（事件/服务/struct 子字段共享，自递归）
+// Generic param spec (shared by event output / service input/output / struct fields, self-recursive)
+export type thingmodelservicev1_ParamSpec = {
+  arraySpec?: thingmodelservicev1_ArraySpec;
+  boolLabels?: thingmodelservicev1_BoolLabels;
+  constraints?: thingmodelservicev1_ValueConstraints;
+  dataType?: thingmodelservicev1_DataType;
+  defaultValue?: string;
+  enumItems: thingmodelservicev1_EnumItem[] | undefined;
+  key?: string;
+  name?: string;
+  required?: boolean;
+  structFields: thingmodelservicev1_ParamSpec[] | undefined;
+  textMaxLength?: number;
+  unit?: thingmodelservicev1_UnitRef;
+};
+
+// 数组 spec / Array spec
+export type thingmodelservicev1_ArraySpec = {
+  element?: thingmodelservicev1_ParamSpec;
+  size?: number;
+};
+
+// 事件 spec / Event spec
+export type thingmodelservicev1_EventSpec = {
+  level?: thingmodelservicev1_EventLevel;
+  outputParams: thingmodelservicev1_ParamSpec[] | undefined;
+  severity?: number;
+  triggerCondition?: string;
+};
+
+// 事件级别 / Event level
+export type thingmodelservicev1_EventLevel =
+  | 'ALERT'
+  | 'ERROR'
+  | 'EVENT_LEVEL_UNSPECIFIED'
+  | 'INFO';
+// 服务 spec / Service spec
+export type thingmodelservicev1_ServiceSpec = {
+  callMode?: thingmodelservicev1_CallMode;
+  description?: string;
+  inputParams: thingmodelservicev1_ParamSpec[] | undefined;
+  outputParams: thingmodelservicev1_ParamSpec[] | undefined;
+  timeout?: number;
+};
+
+// 服务调用模式 / Service call mode
+export type thingmodelservicev1_CallMode =
+  | 'ASYNC'
+  | 'CALL_MODE_UNSPECIFIED'
+  | 'SYNC';
+// 关系 spec（本体）/ Relation spec (ontology)
+export type thingmodelservicev1_RelationSpec = {
+  cardinality?: string;
+  directional?: boolean;
+  properties: { [key: string]: string } | undefined;
+  relationType?: string;
+  source?: thingmodelservicev1_EntityRef;
+  target?: thingmodelservicev1_EntityRef;
+};
+
+// 关系实体引用 / Relation entity reference
+export type thingmodelservicev1_EntityRef = {
+  code?: string;
+  id?: number;
+  identifier?: string;
+  kind?: string;
+  type?: string;
+};
+
+// 特征覆写规约（白名单字段）/ Feature override spec (whitelist fields only)
+// 用于：
+// thingmodel_category_default_features.override_spec —— 分类层覆写
+// thingmodel_product_features.override_spec        —— 产品层覆写
+// 设计目标：proto schema 即白名单——结构上只允许 6 个字段，
+// 杜绝试图通过 wire 传 dataType/accessMode/enumItems 等结构性字段进行覆写。
+// 详见 docs/thingmodel/sheji/模型管理/01-架构决策.md §4
+export type thingmodelservicev1_FeatureOverrideSpec = {
+  // 覆写数值约束（min/max/step），仅 property 有效
+  constraints?: thingmodelservicev1_ValueConstraints;
+  // 覆写默认值（字符串形式，由消费方按 dataType 解析）
+  defaultValue?: string;
+  // 覆写描述/备注
+  description?: string;
+  // 在分类/产品作用域内的展示别名（不修改原 feature.name）
+  displayName?: string;
+  // 覆写 required 标记（仅 service.inputParams 子项语义有效）
+  required?: wellKnownBoolValue;
+  // 覆写单位引用（含 unitId 时维护 reference_count），仅 property 有效
+  unit?: thingmodelservicev1_UnitRef;
+};
+
+type wellKnownBoolValue = null | boolean;
+
+// Get request
+export type thingmodelservicev1_GetCategoryDefaultFeatureRequest = {
+  id: number | undefined;
+  viewMask?: wellKnownFieldMask;
+};
+
+// Create request
+export type thingmodelservicev1_CreateCategoryDefaultFeatureRequest = {
+  data: thingmodelservicev1_CategoryDefaultFeature | undefined;
+};
+
+// BatchAdd request：一次性把多个 feature_id 挂到同一个 category_id 下
+export type thingmodelservicev1_BatchAddCategoryDefaultFeaturesRequest = {
+  categoryId: number | undefined;
+  items: thingmodelservicev1_BatchAddCategoryDefaultFeaturesRequest_Item[] | undefined;
+};
+
+// 单项：要绑定的 feature + 可选 override + 可选 display_name + 可选 sort_order
+export type thingmodelservicev1_BatchAddCategoryDefaultFeaturesRequest_Item = {
+  displayName?: string;
+  featureId: number | undefined;
+  overrideSpec?: thingmodelservicev1_FeatureOverrideSpec;
+  sortOrder?: number;
+};
+
+// BatchAdd response：返回创建成功的列表 + 因 (category,feature) 唯一冲突而跳过的特征编码
+export type thingmodelservicev1_BatchAddCategoryDefaultFeaturesResponse = {
+  created: thingmodelservicev1_CategoryDefaultFeature[] | undefined;
+  skippedDuplicateFeatureCodes: string[] | undefined;
+};
+
+// Update request
+export type thingmodelservicev1_UpdateCategoryDefaultFeatureRequest = {
+  allowMissing?: boolean;
+  data: thingmodelservicev1_CategoryDefaultFeature | undefined;
+  id: number | undefined;
+  updateMask: undefined | wellKnownFieldMask;
+};
+
+// Delete request：支持单条或批量
+export type thingmodelservicev1_DeleteCategoryDefaultFeatureRequest = {
+  ids: number[] | undefined;
+};
+
+// Reorder request：拖拽后一次性提交新的 (id, sort_order) 列表
+export type thingmodelservicev1_ReorderCategoryDefaultFeaturesRequest = {
+  categoryId: number | undefined;
+  items: thingmodelservicev1_ReorderCategoryDefaultFeaturesRequest_Item[] | undefined;
+};
+
+export type thingmodelservicev1_ReorderCategoryDefaultFeaturesRequest_Item = {
+  id: number | undefined;
+  sortOrder: number | undefined;
+};
+
 // 数据访问审计日志管理服务
 export interface DataAccessAuditLogService {
   // 查询数据访问审计日志列表
@@ -2471,150 +2956,6 @@ export type thingmodelservicev1_Feature = {
   tenantName?: string;
   updatedAt?: wellKnownTimestamp;
   updatedBy?: number;
-};
-
-// 特征类型 / Feature type
-export type thingmodelservicev1_FeatureType =
-  | 'EVENT'
-  | 'FEATURE_TYPE_UNSPECIFIED'
-  | 'PROPERTY'
-  | 'RELATION'
-  | 'SERVICE';
-// 属性数据类型 / Property data type
-export type thingmodelservicev1_DataType =
-  | 'ARRAY'
-  | 'BOOL'
-  | 'DATA_TYPE_UNSPECIFIED'
-  | 'DATE'
-  | 'DOUBLE'
-  | 'ENUM'
-  | 'FLOAT'
-  | 'INT'
-  | 'STRUCT'
-  | 'TEXT';
-// 属性访问模式 / Property access mode
-export type thingmodelservicev1_AccessMode =
-  | 'ACCESS_MODE_UNSPECIFIED'
-  | 'R'
-  | 'RW';
-// 事件级别 / Event level
-export type thingmodelservicev1_EventLevel =
-  | 'ALERT'
-  | 'ERROR'
-  | 'EVENT_LEVEL_UNSPECIFIED'
-  | 'INFO';
-// 服务调用模式 / Service call mode
-export type thingmodelservicev1_CallMode =
-  | 'ASYNC'
-  | 'CALL_MODE_UNSPECIFIED'
-  | 'SYNC';
-// 特征 spec（按 feature_type 取 oneof 分支）/ Feature spec (oneof by feature_type)
-export type thingmodelservicev1_FeatureSpec = {
-  event?: thingmodelservicev1_EventSpec;
-  property?: thingmodelservicev1_PropertySpec;
-  relation?: thingmodelservicev1_RelationSpec;
-  service?: thingmodelservicev1_ServiceSpec;
-};
-
-// 属性 spec / Property spec
-export type thingmodelservicev1_PropertySpec = {
-  accessMode?: thingmodelservicev1_AccessMode;
-  arraySpec?: thingmodelservicev1_ArraySpec;
-  boolLabels?: thingmodelservicev1_BoolLabels;
-  category?: string;
-  constraints?: thingmodelservicev1_ValueConstraints;
-  dataType?: thingmodelservicev1_DataType;
-  enumItems: thingmodelservicev1_EnumItem[] | undefined;
-  isRated?: boolean;
-  structFields: thingmodelservicev1_ParamSpec[] | undefined;
-  textMaxLength?: number;
-  unit?: thingmodelservicev1_UnitRef;
-};
-
-// 单位引用（property 顶层 + 参数级共享）/ Unit reference
-export type thingmodelservicev1_UnitRef = {
-  unitCode?: string;
-  unitId?: number;
-  unitSymbol?: string;
-};
-
-// 数值约束 / Value constraints
-export type thingmodelservicev1_ValueConstraints = {
-  defaultValue?: string;
-  max?: number;
-  min?: number;
-  step?: number;
-};
-
-// 枚举项 / Enum item
-export type thingmodelservicev1_EnumItem = {
-  label: string | undefined;
-  value: number | undefined;
-};
-
-// 布尔标签 / Bool labels
-export type thingmodelservicev1_BoolLabels = {
-  false: string | undefined;
-  true: string | undefined;
-};
-
-// 通用参数 spec（事件/服务/struct 子字段共享，自递归）
-// Generic param spec (shared by event output / service input/output / struct fields, self-recursive)
-export type thingmodelservicev1_ParamSpec = {
-  arraySpec?: thingmodelservicev1_ArraySpec;
-  boolLabels?: thingmodelservicev1_BoolLabels;
-  constraints?: thingmodelservicev1_ValueConstraints;
-  dataType?: thingmodelservicev1_DataType;
-  defaultValue?: string;
-  enumItems: thingmodelservicev1_EnumItem[] | undefined;
-  key?: string;
-  name?: string;
-  required?: boolean;
-  structFields: thingmodelservicev1_ParamSpec[] | undefined;
-  textMaxLength?: number;
-  unit?: thingmodelservicev1_UnitRef;
-};
-
-// 数组 spec / Array spec
-export type thingmodelservicev1_ArraySpec = {
-  element?: thingmodelservicev1_ParamSpec;
-  size?: number;
-};
-
-// 事件 spec / Event spec
-export type thingmodelservicev1_EventSpec = {
-  level?: thingmodelservicev1_EventLevel;
-  outputParams: thingmodelservicev1_ParamSpec[] | undefined;
-  severity?: number;
-  triggerCondition?: string;
-};
-
-// 服务 spec / Service spec
-export type thingmodelservicev1_ServiceSpec = {
-  callMode?: thingmodelservicev1_CallMode;
-  description?: string;
-  inputParams: thingmodelservicev1_ParamSpec[] | undefined;
-  outputParams: thingmodelservicev1_ParamSpec[] | undefined;
-  timeout?: number;
-};
-
-// 关系 spec（本体）/ Relation spec (ontology)
-export type thingmodelservicev1_RelationSpec = {
-  cardinality?: string;
-  directional?: boolean;
-  properties: { [key: string]: string } | undefined;
-  relationType?: string;
-  source?: thingmodelservicev1_EntityRef;
-  target?: thingmodelservicev1_EntityRef;
-};
-
-// 关系实体引用 / Relation entity reference
-export type thingmodelservicev1_EntityRef = {
-  code?: string;
-  id?: number;
-  identifier?: string;
-  kind?: string;
-  type?: string;
 };
 
 // 查询特征详情 - 请求 / Get request
@@ -6587,6 +6928,673 @@ export type identityservicev1_DeletePositionRequest = {
   id?: number;
 };
 
+// 产品管理服务（BFF 层 REST）/ Product admin service (BFF REST)
+// 入口②：物模型一级菜单下 "产品管理" 子菜单
+// 详见 docs/thingmodel/sheji/模型管理/03-API与Proto设计.md §3.2
+export interface ProductService {
+  // 分页查询 / List
+  List(
+    request: pagination_PagingRequest,
+  ): Promise<thingmodelservicev1_ListProductResponse>;
+  // 详情 / Get（支持 id 或 code 查询）
+  Get(
+    request: thingmodelservicev1_GetProductRequest,
+  ): Promise<thingmodelservicev1_Product>;
+  // 创建 / Create
+  Create(
+    request: thingmodelservicev1_CreateProductRequest,
+  ): Promise<wellKnownEmpty>;
+  // 更新（FieldMask）/ Update
+  Update(
+    request: thingmodelservicev1_UpdateProductRequest,
+  ): Promise<wellKnownEmpty>;
+  // 删除（批量）/ Delete
+  Delete(
+    request: thingmodelservicev1_DeleteProductRequest,
+  ): Promise<wellKnownEmpty>;
+  // 发布（DRAFT → PUBLISHED）/ Publish
+  Publish(
+    request: thingmodelservicev1_PublishProductRequest,
+  ): Promise<wellKnownEmpty>;
+  // 撤销发布（PUBLISHED → DRAFT）/ Unpublish
+  Unpublish(
+    request: thingmodelservicev1_UnpublishProductRequest,
+  ): Promise<wellKnownEmpty>;
+}
+
+export function createProductServiceClient(
+  transport: ClientTransport,
+): ProductService {
+  return {
+    List(request) {
+      const path = `admin/v1/thingmodel/products`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.page) {
+        queryParams.push(
+          `page=${encodeURIComponent(request.page.toString())}`,
+        );
+      }
+      if (request.pageSize) {
+        queryParams.push(
+          `pageSize=${encodeURIComponent(request.pageSize.toString())}`,
+        );
+      }
+      if (request.offset) {
+        queryParams.push(
+          `offset=${encodeURIComponent(request.offset.toString())}`,
+        );
+      }
+      if (request.limit) {
+        queryParams.push(
+          `limit=${encodeURIComponent(request.limit.toString())}`,
+        );
+      }
+      if (request.token) {
+        queryParams.push(
+          `token=${encodeURIComponent(request.token.toString())}`,
+        );
+      }
+      if (request.noPaging) {
+        queryParams.push(
+          `noPaging=${encodeURIComponent(request.noPaging.toString())}`,
+        );
+      }
+      if (request.query) {
+        queryParams.push(
+          `query=${encodeURIComponent(request.query.toString())}`,
+        );
+      }
+      if (request.filter) {
+        queryParams.push(
+          `filter=${encodeURIComponent(request.filter.toString())}`,
+        );
+      }
+      if (request.filterExpr?.type) {
+        queryParams.push(
+          `filterExpr.type=${encodeURIComponent(request.filterExpr.type.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.field) {
+        queryParams.push(
+          `filterExpr.conditions.field=${encodeURIComponent(request.filterExpr.conditions.field.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.op) {
+        queryParams.push(
+          `filterExpr.conditions.op=${encodeURIComponent(request.filterExpr.conditions.op.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.value) {
+        queryParams.push(
+          `filterExpr.conditions.value=${encodeURIComponent(request.filterExpr.conditions.value.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonValue) {
+        queryParams.push(
+          `filterExpr.conditions.jsonValue=${encodeURIComponent(request.filterExpr.conditions.jsonValue.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.values) {
+        request.filterExpr.conditions.values.forEach((x) => {
+          queryParams.push(
+            `filterExpr.conditions.values=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      if (request.filterExpr?.conditions?.datePart) {
+        queryParams.push(
+          `filterExpr.conditions.datePart=${encodeURIComponent(request.filterExpr.conditions.datePart.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonPath) {
+        queryParams.push(
+          `filterExpr.conditions.jsonPath=${encodeURIComponent(request.filterExpr.conditions.jsonPath.toString())}`,
+        );
+      }
+      if (request.orderBy) {
+        queryParams.push(
+          `orderBy=${encodeURIComponent(request.orderBy.toString())}`,
+        );
+      }
+      if (request.sorting?.field) {
+        queryParams.push(
+          `sorting.field=${encodeURIComponent(request.sorting.field.toString())}`,
+        );
+      }
+      if (request.sorting?.direction) {
+        queryParams.push(
+          `sorting.direction=${encodeURIComponent(request.sorting.direction.toString())}`,
+        );
+      }
+      if (request.fieldMask) {
+        queryParams.push(
+          `fieldMask=${encodeURIComponent(request.fieldMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'ProductService',
+        method: 'List',
+      }) as Promise<thingmodelservicev1_ListProductResponse>;
+    },
+    Get(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/products/${request.id}`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.code) {
+        queryParams.push(
+          `code=${encodeURIComponent(request.code.toString())}`,
+        );
+      }
+      if (request.viewMask) {
+        queryParams.push(
+          `viewMask=${encodeURIComponent(request.viewMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'ProductService',
+        method: 'Get',
+      }) as Promise<thingmodelservicev1_Product>;
+    },
+    Create(request) {
+      const path = `admin/v1/thingmodel/products`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'ProductService',
+        method: 'Create',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Update(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/products/${request.id}`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'PUT', body, {
+        service: 'ProductService',
+        method: 'Update',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Delete(request) {
+      const path = `admin/v1/thingmodel/products`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.ids) {
+        request.ids.forEach((x) => {
+          queryParams.push(
+            `ids=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'DELETE', body, {
+        service: 'ProductService',
+        method: 'Delete',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Publish(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/products/${request.id}:publish`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'ProductService',
+        method: 'Publish',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Unpublish(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/products/${request.id}:unpublish`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'ProductService',
+        method: 'Unpublish',
+      }) as Promise<wellKnownEmpty>;
+    },
+  };
+}
+export type thingmodelservicev1_ListProductResponse = {
+  items: thingmodelservicev1_Product[] | undefined;
+  total: number | undefined;
+};
+
+// 产品 / Product
+export type thingmodelservicev1_Product = {
+  // ===== 关联只读字段（List/Get 时由后端 join 填充）/ Joined fields =====
+  categoryCode?: string;
+  categoryId?: number;
+  categoryName?: string;
+  code?: string;
+  createdAt?: wellKnownTimestamp;
+  createdBy?: number;
+  deletedAt?: wellKnownTimestamp;
+  deletedBy?: number;
+  description?: string;
+  // ===== 统计字段（List 时返回）=====
+  featureCount?: number;
+  icon?: string;
+  id?: number;
+  isEnabled?: boolean;
+  // ===== 自有字段 =====
+  manufacturer?: string;
+  modelNo?: string;
+  name?: string;
+  nameEn?: string;
+  referenceCount?: number;
+  sortOrder?: number;
+  status?: thingmodelservicev1_ProductStatus;
+  tenantId?: number;
+  tenantName?: string;
+  updatedAt?: wellKnownTimestamp;
+  updatedBy?: number;
+};
+
+// 产品发布状态 / Product lifecycle status
+export type thingmodelservicev1_ProductStatus =
+  | 'DRAFT'
+  | 'PRODUCT_STATUS_UNSPECIFIED'
+  | 'PUBLISHED';
+export type thingmodelservicev1_GetProductRequest = {
+  code?: string;
+  id?: number;
+  viewMask?: wellKnownFieldMask;
+};
+
+export type thingmodelservicev1_CreateProductRequest = {
+  data: thingmodelservicev1_Product | undefined;
+};
+
+export type thingmodelservicev1_UpdateProductRequest = {
+  allowMissing?: boolean;
+  data: thingmodelservicev1_Product | undefined;
+  id: number | undefined;
+  updateMask: undefined | wellKnownFieldMask;
+};
+
+export type thingmodelservicev1_DeleteProductRequest = {
+  ids: number[] | undefined;
+};
+
+export type thingmodelservicev1_PublishProductRequest = {
+  id: number | undefined;
+};
+
+export type thingmodelservicev1_UnpublishProductRequest = {
+  id: number | undefined;
+};
+
+// 产品特征服务（BFF 层 REST）/ Product feature admin service (BFF REST)
+// 入口②：产品详情页 Tab 化模型编辑器；含 PullFromDefault 核心批量操作
+// 详见 docs/thingmodel/sheji/模型管理/03-API与Proto设计.md §3.3
+export interface ProductFeatureService {
+  // 分页查询 / List
+  List(
+    request: pagination_PagingRequest,
+  ): Promise<thingmodelservicev1_ListProductFeatureResponse>;
+  // 详情（返回 effective_spec）/ Get
+  Get(
+    request: thingmodelservicev1_GetProductFeatureRequest,
+  ): Promise<thingmodelservicev1_ProductFeature>;
+  // 创建（source=GLOBAL/LOCAL）/ Create
+  Create(
+    request: thingmodelservicev1_CreateProductFeatureRequest,
+  ): Promise<wellKnownEmpty>;
+  // ⭐ 批量从分类默认模型拉取 / Pull from default
+  PullFromDefault(
+    request: thingmodelservicev1_PullFromDefaultRequest,
+  ): Promise<thingmodelservicev1_PullFromDefaultResponse>;
+  // 从另一产品克隆全部特征（含 LOCAL）/ Clone from another product
+  CloneFromProduct(
+    request: thingmodelservicev1_CloneFromProductRequest,
+  ): Promise<thingmodelservicev1_CloneFromProductResponse>;
+  // 更新（仅白名单字段；PUBLISHED 产品禁改结构）/ Update via FieldMask
+  Update(
+    request: thingmodelservicev1_UpdateProductFeatureRequest,
+  ): Promise<wellKnownEmpty>;
+  // 删除（批量）/ Delete
+  Delete(
+    request: thingmodelservicev1_DeleteProductFeatureRequest,
+  ): Promise<wellKnownEmpty>;
+  // 拖拽排序 / Reorder
+  Reorder(
+    request: thingmodelservicev1_ReorderProductFeaturesRequest,
+  ): Promise<wellKnownEmpty>;
+}
+
+export function createProductFeatureServiceClient(
+  transport: ClientTransport,
+): ProductFeatureService {
+  return {
+    List(request) {
+      const path = `admin/v1/thingmodel/product-features`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.page) {
+        queryParams.push(
+          `page=${encodeURIComponent(request.page.toString())}`,
+        );
+      }
+      if (request.pageSize) {
+        queryParams.push(
+          `pageSize=${encodeURIComponent(request.pageSize.toString())}`,
+        );
+      }
+      if (request.offset) {
+        queryParams.push(
+          `offset=${encodeURIComponent(request.offset.toString())}`,
+        );
+      }
+      if (request.limit) {
+        queryParams.push(
+          `limit=${encodeURIComponent(request.limit.toString())}`,
+        );
+      }
+      if (request.token) {
+        queryParams.push(
+          `token=${encodeURIComponent(request.token.toString())}`,
+        );
+      }
+      if (request.noPaging) {
+        queryParams.push(
+          `noPaging=${encodeURIComponent(request.noPaging.toString())}`,
+        );
+      }
+      if (request.query) {
+        queryParams.push(
+          `query=${encodeURIComponent(request.query.toString())}`,
+        );
+      }
+      if (request.filter) {
+        queryParams.push(
+          `filter=${encodeURIComponent(request.filter.toString())}`,
+        );
+      }
+      if (request.filterExpr?.type) {
+        queryParams.push(
+          `filterExpr.type=${encodeURIComponent(request.filterExpr.type.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.field) {
+        queryParams.push(
+          `filterExpr.conditions.field=${encodeURIComponent(request.filterExpr.conditions.field.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.op) {
+        queryParams.push(
+          `filterExpr.conditions.op=${encodeURIComponent(request.filterExpr.conditions.op.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.value) {
+        queryParams.push(
+          `filterExpr.conditions.value=${encodeURIComponent(request.filterExpr.conditions.value.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonValue) {
+        queryParams.push(
+          `filterExpr.conditions.jsonValue=${encodeURIComponent(request.filterExpr.conditions.jsonValue.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.values) {
+        request.filterExpr.conditions.values.forEach((x) => {
+          queryParams.push(
+            `filterExpr.conditions.values=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      if (request.filterExpr?.conditions?.datePart) {
+        queryParams.push(
+          `filterExpr.conditions.datePart=${encodeURIComponent(request.filterExpr.conditions.datePart.toString())}`,
+        );
+      }
+      if (request.filterExpr?.conditions?.jsonPath) {
+        queryParams.push(
+          `filterExpr.conditions.jsonPath=${encodeURIComponent(request.filterExpr.conditions.jsonPath.toString())}`,
+        );
+      }
+      if (request.orderBy) {
+        queryParams.push(
+          `orderBy=${encodeURIComponent(request.orderBy.toString())}`,
+        );
+      }
+      if (request.sorting?.field) {
+        queryParams.push(
+          `sorting.field=${encodeURIComponent(request.sorting.field.toString())}`,
+        );
+      }
+      if (request.sorting?.direction) {
+        queryParams.push(
+          `sorting.direction=${encodeURIComponent(request.sorting.direction.toString())}`,
+        );
+      }
+      if (request.fieldMask) {
+        queryParams.push(
+          `fieldMask=${encodeURIComponent(request.fieldMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'ProductFeatureService',
+        method: 'List',
+      }) as Promise<thingmodelservicev1_ListProductFeatureResponse>;
+    },
+    Get(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/product-features/${request.id}`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.viewMask) {
+        queryParams.push(
+          `viewMask=${encodeURIComponent(request.viewMask.toString())}`,
+        );
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'GET', body, {
+        service: 'ProductFeatureService',
+        method: 'Get',
+      }) as Promise<thingmodelservicev1_ProductFeature>;
+    },
+    Create(request) {
+      const path = `admin/v1/thingmodel/product-features`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'ProductFeatureService',
+        method: 'Create',
+      }) as Promise<wellKnownEmpty>;
+    },
+    PullFromDefault(request) {
+      const path = `admin/v1/thingmodel/product-features:pull-from-default`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'ProductFeatureService',
+        method: 'PullFromDefault',
+      }) as Promise<thingmodelservicev1_PullFromDefaultResponse>;
+    },
+    CloneFromProduct(request) {
+      const path = `admin/v1/thingmodel/product-features:clone-from`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'ProductFeatureService',
+        method: 'CloneFromProduct',
+      }) as Promise<thingmodelservicev1_CloneFromProductResponse>;
+    },
+    Update(request) {
+      if (request.id === undefined || request.id === null) {
+        throw new Error('missing required field request.id');
+      }
+      const path = `admin/v1/thingmodel/product-features/${request.id}`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'PUT', body, {
+        service: 'ProductFeatureService',
+        method: 'Update',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Delete(request) {
+      const path = `admin/v1/thingmodel/product-features`;
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.ids) {
+        request.ids.forEach((x) => {
+          queryParams.push(
+            `ids=${encodeURIComponent(x.toString())}`,
+          );
+        });
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join('&')}`;
+      }
+      return transport.unary(uri, 'DELETE', body, {
+        service: 'ProductFeatureService',
+        method: 'Delete',
+      }) as Promise<wellKnownEmpty>;
+    },
+    Reorder(request) {
+      const path = `admin/v1/thingmodel/product-features:reorder`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'ProductFeatureService',
+        method: 'Reorder',
+      }) as Promise<wellKnownEmpty>;
+    },
+  };
+}
+export type thingmodelservicev1_ListProductFeatureResponse = {
+  items: thingmodelservicev1_ProductFeature[] | undefined;
+  total: number | undefined;
+};
+
+// 产品下特征条目 / Product feature entry
+export type thingmodelservicev1_ProductFeature = {
+  accessMode?: thingmodelservicev1_AccessMode;
+  callMode?: thingmodelservicev1_CallMode;
+  code?: string;
+  createdAt?: wellKnownTimestamp;
+  createdBy?: number;
+  // ===== 冗余特化列（与 thing_features 的对应列同义，便于筛选）=====
+  dataType?: thingmodelservicev1_DataType;
+  deletedAt?: wellKnownTimestamp;
+  deletedBy?: number;
+  description?: string;
+  // 运行时有效 spec = snapshot deepmerged with override；后端在 Get 时填充，写入时忽略
+  effectiveSpec?: thingmodelservicev1_FeatureSpec;
+  eventLevel?: thingmodelservicev1_EventLevel;
+  // 完整 FeatureSpec 快照（产品自洽核心）/ Full spec snapshot
+  featureSnapshot?: thingmodelservicev1_FeatureSpec;
+  featureType?: thingmodelservicev1_FeatureType;
+  id?: number;
+  identifier?: string;
+  isEnabled?: boolean;
+  name?: string;
+  nameEn?: string;
+  // 稀疏覆写 / Sparse override
+  overrideSpec?: thingmodelservicev1_FeatureOverrideSpec;
+  productId?: number;
+  refFeatureId?: number;
+  relationType?: string;
+  sortOrder?: number;
+  source?: thingmodelservicev1_ProductFeatureSource;
+  tenantId?: number;
+  updatedAt?: wellKnownTimestamp;
+  updatedBy?: number;
+};
+
+// 产品特征来源 / Product feature source
+export type thingmodelservicev1_ProductFeatureSource =
+  | 'DEFAULT'
+  | 'GLOBAL'
+  | 'LOCAL'
+  | 'PRODUCT_FEATURE_SOURCE_UNSPECIFIED';
+export type thingmodelservicev1_GetProductFeatureRequest = {
+  id: number | undefined;
+  viewMask?: wellKnownFieldMask;
+};
+
+export type thingmodelservicev1_CreateProductFeatureRequest = {
+  data: thingmodelservicev1_ProductFeature | undefined;
+};
+
+export type thingmodelservicev1_PullFromDefaultRequest = {
+  // 要拉取的默认条目 ID 列表；空表示"全部拉取"
+  defaultFeatureIds: number[] | undefined;
+  // 冲突策略
+  onConflict?: thingmodelservicev1_ConflictPolicy;
+  productId: number | undefined;
+};
+
+// PullFromDefault 冲突策略 / Conflict policy
+export type thingmodelservicev1_ConflictPolicy =
+  | 'CONFLICT_POLICY_UNSPECIFIED'
+  | 'REPLACE'
+  | 'SKIP';
+export type thingmodelservicev1_PullFromDefaultResponse = {
+  created: thingmodelservicev1_ProductFeature[] | undefined;
+  skipped: thingmodelservicev1_PullFromDefaultResponse_PullSkipped[] | undefined;
+};
+
+// 跳过项详情
+export type thingmodelservicev1_PullFromDefaultResponse_PullSkipped = {
+  defaultFeatureId: number | undefined;
+  reason: string | undefined;
+};
+
+export type thingmodelservicev1_CloneFromProductRequest = {
+  // 冲突策略（与 PullFromDefault 复用）
+  onConflict?: thingmodelservicev1_ConflictPolicy;
+  productId: number | undefined;
+  sourceProductId: number | undefined;
+};
+
+export type thingmodelservicev1_CloneFromProductResponse = {
+  created: thingmodelservicev1_ProductFeature[] | undefined;
+  skippedCount: number | undefined;
+};
+
+export type thingmodelservicev1_UpdateProductFeatureRequest = {
+  allowMissing?: boolean;
+  data: thingmodelservicev1_ProductFeature | undefined;
+  id: number | undefined;
+  updateMask: undefined | wellKnownFieldMask;
+};
+
+export type thingmodelservicev1_DeleteProductFeatureRequest = {
+  ids: number[] | undefined;
+};
+
+export type thingmodelservicev1_ReorderProductFeaturesRequest = {
+  items: thingmodelservicev1_ReorderProductFeaturesRequest_Item[] | undefined;
+  productId: number | undefined;
+};
+
+export type thingmodelservicev1_ReorderProductFeaturesRequest_Item = {
+  id: number | undefined;
+  sortOrder: number | undefined;
+};
+
 // 角色管理服务
 export interface RoleService {
   // 查询角色列表
@@ -8715,6 +9723,7 @@ export class ApiClient {
   private _apiAuditLogService?: ApiAuditLogService;
   private _apiService?: ApiService;
   private _authenticationService?: AuthenticationService;
+  private _categoryDefaultFeatureService?: CategoryDefaultFeatureService;
   private _categoryService?: CategoryService;
   private _dataAccessAuditLogService?: DataAccessAuditLogService;
   private _dictEntryService?: DictEntryService;
@@ -8736,6 +9745,8 @@ export class ApiClient {
   private _permissionService?: PermissionService;
   private _policyEvaluationLogService?: PolicyEvaluationLogService;
   private _positionService?: PositionService;
+  private _productFeatureService?: ProductFeatureService;
+  private _productService?: ProductService;
   private _roleService?: RoleService;
   private _taskService?: TaskService;
   private _tenantService?: TenantService;
@@ -8763,6 +9774,10 @@ export class ApiClient {
 
   get authenticationService(): AuthenticationService {
     return this._authenticationService ??= createAuthenticationServiceClient(this._transport);
+  }
+
+  get categoryDefaultFeatureService(): CategoryDefaultFeatureService {
+    return this._categoryDefaultFeatureService ??= createCategoryDefaultFeatureServiceClient(this._transport);
   }
 
   get categoryService(): CategoryService {
@@ -8847,6 +9862,14 @@ export class ApiClient {
 
   get positionService(): PositionService {
     return this._positionService ??= createPositionServiceClient(this._transport);
+  }
+
+  get productFeatureService(): ProductFeatureService {
+    return this._productFeatureService ??= createProductFeatureServiceClient(this._transport);
+  }
+
+  get productService(): ProductService {
+    return this._productService ??= createProductServiceClient(this._transport);
   }
 
   get roleService(): RoleService {

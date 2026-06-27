@@ -1172,3 +1172,311 @@ func IsCategoryImmutableField(err error) bool {
 func ErrorCategoryImmutableField(format string, args ...interface{}) *errors.Error {
 	return errors.New(400, ThingModelErrorReason_CATEGORY_IMMUTABLE_FIELD.String(), fmt.Sprintf(format, args...))
 }
+
+// ===== 模型管理 - 分类默认模型 / Category default feature =====
+func IsCatDefaultFeatureNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CAT_DEFAULT_FEATURE_NOT_FOUND.String() && e.Code == 404
+}
+
+// ===== 模型管理 - 分类默认模型 / Category default feature =====
+func ErrorCatDefaultFeatureNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, ThingModelErrorReason_CAT_DEFAULT_FEATURE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+// 仅 level=4 细类可挂默认模型 / Category must be level=4
+func IsCatDefaultFeatureCategoryNotLeaf(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF.String() && e.Code == 400
+}
+
+// 仅 level=4 细类可挂默认模型 / Category must be level=4
+func ErrorCatDefaultFeatureCategoryNotLeaf(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF.String(), fmt.Sprintf(format, args...))
+}
+
+// (category, feature) 已存在 / Duplicate (category, feature)
+func IsCatDefaultFeatureDuplicate(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CAT_DEFAULT_FEATURE_DUPLICATE.String() && e.Code == 409
+}
+
+// (category, feature) 已存在 / Duplicate (category, feature)
+func ErrorCatDefaultFeatureDuplicate(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_CAT_DEFAULT_FEATURE_DUPLICATE.String(), fmt.Sprintf(format, args...))
+}
+
+// override_spec 非法 / Invalid override spec
+func IsCatDefaultFeatureOverrideInvalid(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CAT_DEFAULT_FEATURE_OVERRIDE_INVALID.String() && e.Code == 400
+}
+
+// override_spec 非法 / Invalid override spec
+func ErrorCatDefaultFeatureOverrideInvalid(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CAT_DEFAULT_FEATURE_OVERRIDE_INVALID.String(), fmt.Sprintf(format, args...))
+}
+
+// 引用的全局特征已停用 / Referenced feature disabled
+func IsCatDefaultFeatureFeatureDisabled(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_CAT_DEFAULT_FEATURE_FEATURE_DISABLED.String() && e.Code == 400
+}
+
+// 引用的全局特征已停用 / Referenced feature disabled
+func ErrorCatDefaultFeatureFeatureDisabled(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_CAT_DEFAULT_FEATURE_FEATURE_DISABLED.String(), fmt.Sprintf(format, args...))
+}
+
+// ===== 模型管理 - 产品 / Product =====
+func IsProductNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PRODUCT_NOT_FOUND.String() && e.Code == 404
+}
+
+// ===== 模型管理 - 产品 / Product =====
+func ErrorProductNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, ThingModelErrorReason_PRODUCT_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+// 产品分类必须 level=4 / Category must be level=4
+func IsProductCategoryNotLeaf(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PRODUCT_CATEGORY_NOT_LEAF.String() && e.Code == 400
+}
+
+// 产品分类必须 level=4 / Category must be level=4
+func ErrorProductCategoryNotLeaf(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PRODUCT_CATEGORY_NOT_LEAF.String(), fmt.Sprintf(format, args...))
+}
+
+// (tenant, code) 冲突 / Code duplicated
+func IsProductCodeDuplicated(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PRODUCT_CODE_DUPLICATED.String() && e.Code == 409
+}
+
+// (tenant, code) 冲突 / Code duplicated
+func ErrorProductCodeDuplicated(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_PRODUCT_CODE_DUPLICATED.String(), fmt.Sprintf(format, args...))
+}
+
+// (tenant, category, name) 冲突 / Name duplicated within category
+func IsProductNameDuplicated(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PRODUCT_NAME_DUPLICATED.String() && e.Code == 409
+}
+
+// (tenant, category, name) 冲突 / Name duplicated within category
+func ErrorProductNameDuplicated(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_PRODUCT_NAME_DUPLICATED.String(), fmt.Sprintf(format, args...))
+}
+
+// 被设备实例引用，不可物理删除 / In use cannot delete
+func IsProductInUseCannotDelete(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PRODUCT_IN_USE_CANNOT_DELETE.String() && e.Code == 409
+}
+
+// 被设备实例引用，不可物理删除 / In use cannot delete
+func ErrorProductInUseCannotDelete(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_PRODUCT_IN_USE_CANNOT_DELETE.String(), fmt.Sprintf(format, args...))
+}
+
+// 当前状态非 DRAFT，不可执行此操作 / Status not DRAFT
+func IsProductStatusNotDraft(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PRODUCT_STATUS_NOT_DRAFT.String() && e.Code == 400
+}
+
+// 当前状态非 DRAFT，不可执行此操作 / Status not DRAFT
+func ErrorProductStatusNotDraft(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PRODUCT_STATUS_NOT_DRAFT.String(), fmt.Sprintf(format, args...))
+}
+
+// 当前状态非 PUBLISHED / Status not PUBLISHED
+func IsProductStatusNotPublished(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PRODUCT_STATUS_NOT_PUBLISHED.String() && e.Code == 400
+}
+
+// 当前状态非 PUBLISHED / Status not PUBLISHED
+func ErrorProductStatusNotPublished(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PRODUCT_STATUS_NOT_PUBLISHED.String(), fmt.Sprintf(format, args...))
+}
+
+// 试图修改不可变字段（code/category_id）/ Immutable field
+func IsProductImmutableField(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PRODUCT_IMMUTABLE_FIELD.String() && e.Code == 400
+}
+
+// 试图修改不可变字段（code/category_id）/ Immutable field
+func ErrorProductImmutableField(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PRODUCT_IMMUTABLE_FIELD.String(), fmt.Sprintf(format, args...))
+}
+
+// ===== 模型管理 - 产品特征 / Product feature =====
+func IsProductFeatureNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PRODUCT_FEATURE_NOT_FOUND.String() && e.Code == 404
+}
+
+// ===== 模型管理 - 产品特征 / Product feature =====
+func ErrorProductFeatureNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, ThingModelErrorReason_PRODUCT_FEATURE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+// source 与 ref_feature_id 配合非法 / source/ref mismatch
+func IsPfSourceRefMismatch(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PF_SOURCE_REF_MISMATCH.String() && e.Code == 400
+}
+
+// source 与 ref_feature_id 配合非法 / source/ref mismatch
+func ErrorPfSourceRefMismatch(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PF_SOURCE_REF_MISMATCH.String(), fmt.Sprintf(format, args...))
+}
+
+// (product, code) 冲突 / Code duplicated within product
+func IsPfDuplicateCode(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PF_DUPLICATE_CODE.String() && e.Code == 409
+}
+
+// (product, code) 冲突 / Code duplicated within product
+func ErrorPfDuplicateCode(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_PF_DUPLICATE_CODE.String(), fmt.Sprintf(format, args...))
+}
+
+// (product, identifier) 冲突 / Identifier duplicated
+func IsPfDuplicateIdentifier(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PF_DUPLICATE_IDENTIFIER.String() && e.Code == 409
+}
+
+// (product, identifier) 冲突 / Identifier duplicated
+func ErrorPfDuplicateIdentifier(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, ThingModelErrorReason_PF_DUPLICATE_IDENTIFIER.String(), fmt.Sprintf(format, args...))
+}
+
+// feature_snapshot 与 feature_type 不一致 / Spec/type mismatch
+func IsPfSpecTypeMismatch(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PF_SPEC_TYPE_MISMATCH.String() && e.Code == 400
+}
+
+// feature_snapshot 与 feature_type 不一致 / Spec/type mismatch
+func ErrorPfSpecTypeMismatch(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PF_SPEC_TYPE_MISMATCH.String(), fmt.Sprintf(format, args...))
+}
+
+// override_spec 非法 / Invalid override spec
+func IsPfOverrideInvalid(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PF_OVERRIDE_INVALID.String() && e.Code == 400
+}
+
+// override_spec 非法 / Invalid override spec
+func ErrorPfOverrideInvalid(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PF_OVERRIDE_INVALID.String(), fmt.Sprintf(format, args...))
+}
+
+// 产品已发布，结构禁止变更 / Product published, structure frozen
+func IsPfProductPublished(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PF_PRODUCT_PUBLISHED.String() && e.Code == 400
+}
+
+// 产品已发布，结构禁止变更 / Product published, structure frozen
+func ErrorPfProductPublished(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PF_PRODUCT_PUBLISHED.String(), fmt.Sprintf(format, args...))
+}
+
+// 引用的全局特征已停用 / Referenced feature disabled
+func IsPfFeatureDisabled(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PF_FEATURE_DISABLED.String() && e.Code == 400
+}
+
+// 引用的全局特征已停用 / Referenced feature disabled
+func ErrorPfFeatureDisabled(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PF_FEATURE_DISABLED.String(), fmt.Sprintf(format, args...))
+}
+
+// source=DEFAULT 必须通过 PullFromDefault 创建 / DEFAULT must use PullFromDefault
+func IsPfDefaultViaPullOnly(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ThingModelErrorReason_PF_DEFAULT_VIA_PULL_ONLY.String() && e.Code == 400
+}
+
+// source=DEFAULT 必须通过 PullFromDefault 创建 / DEFAULT must use PullFromDefault
+func ErrorPfDefaultViaPullOnly(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ThingModelErrorReason_PF_DEFAULT_VIA_PULL_ONLY.String(), fmt.Sprintf(format, args...))
+}
