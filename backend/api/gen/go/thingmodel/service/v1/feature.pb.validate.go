@@ -3611,3 +3611,369 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ValidateFeatureSpecResponseValidationError{}
+
+// Validate checks the field values on ImportFeatureRow with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ImportFeatureRow) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ImportFeatureRow with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ImportFeatureRowMultiError, or nil if none found.
+func (m *ImportFeatureRow) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ImportFeatureRow) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for FeatureType
+
+	// no validation rules for Code
+
+	// no validation rules for Identifier
+
+	// no validation rules for Name
+
+	// no validation rules for NameEn
+
+	// no validation rules for Description
+
+	// no validation rules for ApplicableScope
+
+	// no validation rules for SortOrder
+
+	// no validation rules for SpecJson
+
+	if len(errors) > 0 {
+		return ImportFeatureRowMultiError(errors)
+	}
+
+	return nil
+}
+
+// ImportFeatureRowMultiError is an error wrapping multiple validation errors
+// returned by ImportFeatureRow.ValidateAll() if the designated constraints
+// aren't met.
+type ImportFeatureRowMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ImportFeatureRowMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ImportFeatureRowMultiError) AllErrors() []error { return m }
+
+// ImportFeatureRowValidationError is the validation error returned by
+// ImportFeatureRow.Validate if the designated constraints aren't met.
+type ImportFeatureRowValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ImportFeatureRowValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ImportFeatureRowValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ImportFeatureRowValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ImportFeatureRowValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ImportFeatureRowValidationError) ErrorName() string { return "ImportFeatureRowValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ImportFeatureRowValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sImportFeatureRow.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ImportFeatureRowValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ImportFeatureRowValidationError{}
+
+// Validate checks the field values on ImportFeaturesRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ImportFeaturesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ImportFeaturesRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ImportFeaturesRequestMultiError, or nil if none found.
+func (m *ImportFeaturesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ImportFeaturesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetRows() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ImportFeaturesRequestValidationError{
+						field:  fmt.Sprintf("Rows[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ImportFeaturesRequestValidationError{
+						field:  fmt.Sprintf("Rows[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ImportFeaturesRequestValidationError{
+					field:  fmt.Sprintf("Rows[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if m.SkipInvalid != nil {
+		// no validation rules for SkipInvalid
+	}
+
+	if len(errors) > 0 {
+		return ImportFeaturesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ImportFeaturesRequestMultiError is an error wrapping multiple validation
+// errors returned by ImportFeaturesRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ImportFeaturesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ImportFeaturesRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ImportFeaturesRequestMultiError) AllErrors() []error { return m }
+
+// ImportFeaturesRequestValidationError is the validation error returned by
+// ImportFeaturesRequest.Validate if the designated constraints aren't met.
+type ImportFeaturesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ImportFeaturesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ImportFeaturesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ImportFeaturesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ImportFeaturesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ImportFeaturesRequestValidationError) ErrorName() string {
+	return "ImportFeaturesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ImportFeaturesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sImportFeaturesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ImportFeaturesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ImportFeaturesRequestValidationError{}
+
+// Validate checks the field values on ImportFeaturesResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ImportFeaturesResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ImportFeaturesResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ImportFeaturesResponseMultiError, or nil if none found.
+func (m *ImportFeaturesResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ImportFeaturesResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Total
+
+	// no validation rules for Succeeded
+
+	// no validation rules for Failed
+
+	if len(errors) > 0 {
+		return ImportFeaturesResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ImportFeaturesResponseMultiError is an error wrapping multiple validation
+// errors returned by ImportFeaturesResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ImportFeaturesResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ImportFeaturesResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ImportFeaturesResponseMultiError) AllErrors() []error { return m }
+
+// ImportFeaturesResponseValidationError is the validation error returned by
+// ImportFeaturesResponse.Validate if the designated constraints aren't met.
+type ImportFeaturesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ImportFeaturesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ImportFeaturesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ImportFeaturesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ImportFeaturesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ImportFeaturesResponseValidationError) ErrorName() string {
+	return "ImportFeaturesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ImportFeaturesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sImportFeaturesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ImportFeaturesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ImportFeaturesResponseValidationError{}

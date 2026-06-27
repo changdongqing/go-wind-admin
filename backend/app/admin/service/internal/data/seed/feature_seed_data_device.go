@@ -145,7 +145,9 @@ var elProperties = []SeedFeature{
 // ===========================================================================
 
 var fpProperties = []SeedFeature{
-	{ftProperty, "P-FP-0001", "pipePressure", "管网压力", "Pipe Pressure", "消防管网压力", "消防水泵/消火栓", 6401,
+	// identifier 使用 firePipePressure 以避免与给排水 property P-WP-0003 的 pipePressure 冲突
+	// （二者语义不同：消防管网 vs 给排水管网，identifier 区分更清晰）。
+	{ftProperty, "P-FP-0001", "firePipePressure", "管网压力", "Pipe Pressure", "消防管网压力", "消防水泵/消火栓", 6401,
 		pp("DOUBLE", "R", "measurement", map[string]any{"unit": uref("megapascal", "MPa")}, cs(0, 5))},
 	{ftProperty, "P-FP-0002", "fireWaterLevel", "消防水池液位", "Fire Water Level", "消防水池液位", "消防水箱", 6402,
 		pp("DOUBLE", "R", "measurement", map[string]any{"unit": uref("meter", "m")}, cs(0, 10))},
@@ -321,7 +323,9 @@ var deviceEvents = []SeedFeature{
 
 var deviceServices = []SeedFeature{
 	// 8.1 HVAC
-	{ftService, "S-HVAC-0001", "setTemperature", "设定温度", "Set Temperature", "设定目标温度", "空调末端", 8101,
+	// identifier 使用 setTemperatureSvc 以避免与同名 property P-HVAC-0007 冲突
+	// (tenant_id, identifier) 有唯一索引；upsert 只按 code 处理冲突，跨类型重名会被 DB 拒绝。
+	{ftService, "S-HVAC-0001", "setTemperatureSvc", "设定温度", "Set Temperature", "设定目标温度", "空调末端", 8101,
 		svc("ASYNC",
 			[]map[string]any{pm("temperature", "DOUBLE", map[string]any{"unit": uref("celsius", "℃")}, cs(-20, 60))},
 			[]map[string]any{pm("success", "BOOL")})},
@@ -339,7 +343,8 @@ var deviceServices = []SeedFeature{
 		svc("ASYNC",
 			[]map[string]any{pm("frequency", "DOUBLE", map[string]any{"unit": uref("hertz", "Hz")}, cs(0, 100))},
 			[]map[string]any{pm("success", "BOOL")})},
-	{ftService, "S-HVAC-0006", "setFanSpeed", "设定风速", "Set Fan Speed", "设定风机档位", "空调末端", 8106,
+	// identifier 使用 setFanSpeedSvc 以避免与同名 property P-HVAC-0028 冲突（见上 S-HVAC-0001 说明）。
+	{ftService, "S-HVAC-0006", "setFanSpeedSvc", "设定风速", "Set Fan Speed", "设定风机档位", "空调末端", 8106,
 		svc("ASYNC", []map[string]any{pm("speed", "ENUM")}, []map[string]any{pm("success", "BOOL")})},
 
 	// 8.2 WP
@@ -347,7 +352,8 @@ var deviceServices = []SeedFeature{
 		svc("ASYNC",
 			[]map[string]any{pm("frequency", "DOUBLE", map[string]any{"unit": uref("hertz", "Hz")}, cs(0, 100))},
 			[]map[string]any{pm("success", "BOOL")})},
-	{ftService, "S-WP-0002", "setWaterTemp", "设定水温", "Set Water Temp", "设定目标热水温度", "热水设备", 8202,
+	// identifier 使用 setWaterTempSvc 以避免与同名 property P-WP-0009 冲突（见上 S-HVAC-0001 说明）。
+	{ftService, "S-WP-0002", "setWaterTempSvc", "设定水温", "Set Water Temp", "设定目标热水温度", "热水设备", 8202,
 		svc("ASYNC",
 			[]map[string]any{pm("temperature", "DOUBLE", map[string]any{"unit": uref("celsius", "℃")}, cs(20, 80))},
 			[]map[string]any{pm("success", "BOOL")})},

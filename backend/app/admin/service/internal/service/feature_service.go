@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/log"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
@@ -10,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
+	"go-wind-admin/app/admin/service/internal/data/seed"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	thingmodelV1 "go-wind-admin/api/gen/go/thingmodel/service/v1"
@@ -197,6 +201,126 @@ func (s *FeatureService) Delete(ctx context.Context, req *thingmodelV1.DeleteFea
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+// ImportFeatures 批量导入特征（保底方案：种子未初始化或需补录时用 Excel 导入）。
+// ImportFeatures imports features in bulk (idempotent by code).
+//
+// 数据来源：前端解析 Excel 后按行提交（见 ImportFeatureRow）。
+// specJson 是与种子 map 同构的 JSON 字符串，这里复用 seed.BuildFeatureSpecFromMap
+// 还原为 proto FeatureSpec oneof，保证导入与种子走同一套 spec 构造/校验逻辑。
+//
+// 行为：
+//   - 每行先做 spec 校验（validateFeatureSpecForType）+ 特化列同步，再按 code 幂等 upsert；
+//   - skip_invalid=true：单行失败收集后继续，末尾汇总（默认，推荐用于大批量导入）；
+//   - skip_invalid=false：遇第一条错误即整批中止返回。
+//   - identifier 的 (tenant_id, identifier) 唯一性由 DB 索引兜底；导入前不额外预检
+//     （与种子同策略），重复会在该行报错并按 skip_invalid 处理。
+func (s *FeatureService) ImportFeatures(ctx context.Context, req *thingmodelV1.ImportFeaturesRequest) (*thingmodelV1.ImportFeaturesResponse, error) {
+	if req == nil {
+		return nil, thingmodelV1.ErrorBadRequest("invalid parameter")
+	}
+	rows := req.GetRows()
+	resp := &thingmodelV1.ImportFeaturesResponse{Total: uint32(len(rows))}
+	if len(rows) == 0 {
+		return resp, nil
+	}
+
+	operator, err := auth.FromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	skipInvalid := req.GetSkipInvalid() // 默认 false；前端默认传 true
+
+	var errs []string
+	for i, row := range rows {
+		code := row.GetCode()
+		if code == "" {
+			// 行号从 2 起（Excel 第 1 行是表头）
+			msg := fmt.Sprintf("第%d行: code 为空", i+2)
+			if !skipInvalid {
+				return nil, thingmodelV1.ErrorBadRequest("%s", msg)
+			}
+			errs = append(errs, msg)
+			continue
+		}
+
+		feature, perr := buildFeatureFromImportRow(ctx, row, operator.UserId)
+		if perr != nil {
+			if !skipInvalid {
+				return nil, thingmodelV1.ErrorFeatureSpecInvalid("%s: %v", code, perr)
+			}
+			errs = append(errs, fmt.Sprintf("%s: %v", code, perr))
+			continue
+		}
+
+		if err := s.repo.UpsertByCode(ctx, feature); err != nil {
+			if !skipInvalid {
+				return nil, err
+			}
+			errs = append(errs, fmt.Sprintf("%s: %v", code, err))
+			continue
+		}
+		resp.Succeeded++
+	}
+	resp.Failed = uint32(len(errs))
+	// 失败明细截断到前 20 条，避免响应体过大
+	if len(errs) > 20 {
+		resp.Errors = append(resp.Errors, errs[:20]...)
+		resp.Errors = append(resp.Errors, fmt.Sprintf("...共 %d 条失败，仅展示前 20 条", len(errs)))
+	} else {
+		resp.Errors = errs
+	}
+	return resp, nil
+}
+
+// buildFeatureFromImportRow 把单行导入数据组装为可落库的 Feature：
+// 解析 specJson → 构造 FeatureSpec oneof → spec 校验 → 同步特化列 → 设置公共字段。
+// 纯函数（不访问 DB / 不依赖 receiver），便于单测覆盖导入解析与校验逻辑。
+func buildFeatureFromImportRow(_ context.Context, row *thingmodelV1.ImportFeatureRow, userID uint32) (*thingmodelV1.Feature, error) {
+	featureType := seedParseFeatureType(row.GetFeatureType())
+	if featureType == thingmodelV1.FeatureType_FEATURE_TYPE_UNSPECIFIED {
+		return nil, fmt.Errorf("featureType 非法: %q", row.GetFeatureType())
+	}
+
+	// 解析 specJson → map → proto FeatureSpec（复用种子构造逻辑）
+	var specMap map[string]any
+	if j := strings.TrimSpace(row.GetSpecJson()); j != "" {
+		if err := json.Unmarshal([]byte(j), &specMap); err != nil {
+			return nil, fmt.Errorf("specJson 解析失败: %v", err)
+		}
+	}
+	specProto := seed.BuildFeatureSpecFromMap(row.GetFeatureType(), specMap)
+
+	// spec 校验（与 Create 同一套规则）
+	if errs := validateFeatureSpecForType(featureType, specProto); len(errs) > 0 {
+		return nil, fmt.Errorf("spec 校验失败: %s", strings.Join(errs, "; "))
+	}
+
+	feature := &thingmodelV1.Feature{
+		FeatureType:     &featureType,
+		Code:            trans.Ptr(row.GetCode()),
+		Identifier:      trans.Ptr(row.GetIdentifier()),
+		Name:            trans.Ptr(row.GetName()),
+		NameEn:          trans.Ptr(row.GetNameEn()),
+		Description:     trans.Ptr(row.GetDescription()),
+		ApplicableScope: trans.Ptr(row.GetApplicableScope()),
+		SortOrder:       trans.Ptr(row.GetSortOrder()),
+		IsEnabled:       trans.Ptr(true),
+		Spec:            specProto,
+		CreatedBy:       trans.Ptr(userID),
+	}
+	// 同步特化列（spec → 抽取列，与 Create 一致）
+	syncSpecializedColumns(feature)
+	return feature, nil
+}
+
+// seedParseFeatureType 解析 featureType 字符串为 proto 枚举（本地小工具，避免与 seed 包循环引用）。
+func seedParseFeatureType(s string) thingmodelV1.FeatureType {
+	if v, ok := thingmodelV1.FeatureType_value[s]; ok {
+		return thingmodelV1.FeatureType(v)
+	}
+	return thingmodelV1.FeatureType_FEATURE_TYPE_UNSPECIFIED
 }
 
 // ===== 特化列同步 / Sync specialized columns =====

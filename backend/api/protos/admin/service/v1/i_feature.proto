@@ -67,4 +67,12 @@ service FeatureService {
       body: "*"
     };
   }
+
+  // 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+  rpc ImportFeatures (thingmodel.service.v1.ImportFeaturesRequest) returns (thingmodel.service.v1.ImportFeaturesResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/thingmodel/features:import"
+      body: "*"
+    };
+  }
 }

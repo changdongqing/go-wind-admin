@@ -1910,6 +1910,10 @@ export interface FeatureService {
   ValidateSpec(
     request: thingmodelservicev1_ValidateFeatureSpecRequest,
   ): Promise<thingmodelservicev1_ValidateFeatureSpecResponse>;
+  // 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+  ImportFeatures(
+    request: thingmodelservicev1_ImportFeaturesRequest,
+  ): Promise<thingmodelservicev1_ImportFeaturesResponse>;
 }
 
 export function createFeatureServiceClient(
@@ -2134,6 +2138,14 @@ export function createFeatureServiceClient(
         service: 'FeatureService',
         method: 'ValidateSpec',
       }) as Promise<thingmodelservicev1_ValidateFeatureSpecResponse>;
+    },
+    ImportFeatures(request) {
+      const path = `admin/v1/thingmodel/features:import`;
+      const body = JSON.stringify(request);
+      return transport.unary(path, 'POST', body, {
+        service: 'FeatureService',
+        method: 'ImportFeatures',
+      }) as Promise<thingmodelservicev1_ImportFeaturesResponse>;
     },
   };
 }
@@ -2360,6 +2372,34 @@ export type thingmodelservicev1_ValidateFeatureSpecRequest = {
 export type thingmodelservicev1_ValidateFeatureSpecResponse = {
   errors: string[] | undefined;
   valid: boolean | undefined;
+};
+
+// 批量导入 - 请求 / Import request
+export type thingmodelservicev1_ImportFeaturesRequest = {
+  rows: thingmodelservicev1_ImportFeatureRow[] | undefined;
+  skipInvalid?: boolean;
+};
+
+// 导入单行（对应 Excel 一行；spec_json 是 spec map 的 JSON 字符串，与种子同构）
+// One import row; spec_json is the JSON of a spec map (same shape as seed data).
+export type thingmodelservicev1_ImportFeatureRow = {
+  applicableScope: string | undefined;
+  code: string | undefined;
+  description: string | undefined;
+  featureType: string | undefined;
+  identifier: string | undefined;
+  name: string | undefined;
+  nameEn: string | undefined;
+  sortOrder: number | undefined;
+  specJson: string | undefined;
+};
+
+// 批量导入 - 回应 / Import response
+export type thingmodelservicev1_ImportFeaturesResponse = {
+  errors: string[] | undefined;
+  failed: number | undefined;
+  succeeded: number | undefined;
+  total: number | undefined;
 };
 
 // 文件管理服务

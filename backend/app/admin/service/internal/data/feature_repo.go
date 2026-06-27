@@ -391,6 +391,114 @@ func (r *FeatureRepo) Create(ctx context.Context, req *thingmodelV1.CreateFeatur
 	return nil
 }
 
+// UpsertByCode 按 (tenant_id, code) 幂等 upsert（导入专用）。
+// UpsertByCode upserts a feature idempotently by (tenant_id, code).
+//
+// 与 Create 的差异：code 已存在时整体覆盖（spec/特化列/公共字段），保证"导入即权威"。
+// tenant_id 取自 f.TenantId（导入场景通常为当前租户；种子是 0）。
+// 注意：(tenant_id, identifier) 也有唯一索引，若 identifier 与其它行冲突仍会报错——
+// 调用方（service.ImportFeatures）负责在入库前保证 identifier 不重复。
+func (r *FeatureRepo) UpsertByCode(ctx context.Context, f *thingmodelV1.Feature) error {
+	if f == nil {
+		return thingmodelV1.ErrorBadRequest("invalid parameter")
+	}
+	if f.GetCode() == "" {
+		return thingmodelV1.ErrorBadRequest("code is required for upsert")
+	}
+
+	builder := r.entClient.Client().Feature.Create().
+		SetNillableTenantID(f.TenantId).
+		SetNillableCode(f.Code).
+		SetNillableIdentifier(f.Identifier).
+		SetNillableName(f.Name).
+		SetNillableNameEn(f.NameEn).
+		SetNillableDescription(f.Description).
+		SetNillableApplicableScope(f.ApplicableScope).
+		SetNillableRelationType(f.RelationType).
+		SetNillableSortOrder(f.SortOrder).
+		SetNillableIsEnabled(f.IsEnabled).
+		SetNillableCreatedBy(f.CreatedBy).
+		SetCreatedAt(time.Now())
+
+	// 枚举字段：proto → ent
+	if f.FeatureType != nil {
+		if v, ok := protoToEntFeatureType(f.GetFeatureType()); ok {
+			builder.SetFeatureType(v)
+		}
+	}
+	if f.DataType != nil {
+		if v, ok := protoToEntDataType(f.GetDataType()); ok {
+			builder.SetDataType(v)
+		}
+	}
+	if f.AccessMode != nil {
+		if v, ok := protoToEntAccessMode(f.GetAccessMode()); ok {
+			builder.SetAccessMode(v)
+		}
+	}
+	if f.EventLevel != nil {
+		if v, ok := protoToEntEventLevel(f.GetEventLevel()); ok {
+			builder.SetEventLevel(v)
+		}
+	}
+	if f.CallMode != nil {
+		if v, ok := protoToEntCallMode(f.GetCallMode()); ok {
+			builder.SetCallMode(v)
+		}
+	}
+
+	// spec：proto FeatureSpec 作为 JSON 强类型目标
+	if f.Spec != nil {
+		builder.SetSpec(schema.WrapFeatureSpec(f.Spec))
+	}
+
+	// 幂等：按 (tenant_id, code) 冲突则整体覆盖（含 spec/特化列）。
+	return builder.
+		OnConflictColumns(feature.FieldTenantID, feature.FieldCode).
+		Update(func(up *ent.FeatureUpsert) {
+			up.UpdateIdentifier().
+				UpdateName().
+				UpdateNameEn().
+				UpdateDescription().
+				UpdateApplicableScope().
+				UpdateSortOrder().
+				UpdateIsEnabled().
+				SetUpdatedAt(time.Now())
+
+			// 特化列与 spec 强制覆盖（导入为权威源）
+			if f.FeatureType != nil {
+				if v, ok := protoToEntFeatureType(f.GetFeatureType()); ok {
+					up.SetFeatureType(v)
+				}
+			}
+			if f.DataType != nil {
+				if v, ok := protoToEntDataType(f.GetDataType()); ok {
+					up.SetDataType(v)
+				}
+			}
+			if f.AccessMode != nil {
+				if v, ok := protoToEntAccessMode(f.GetAccessMode()); ok {
+					up.SetAccessMode(v)
+				}
+			}
+			if f.EventLevel != nil {
+				if v, ok := protoToEntEventLevel(f.GetEventLevel()); ok {
+					up.SetEventLevel(v)
+				}
+			}
+			if f.CallMode != nil {
+				if v, ok := protoToEntCallMode(f.GetCallMode()); ok {
+					up.SetCallMode(v)
+				}
+			}
+			up.UpdateRelationType()
+			if f.Spec != nil {
+				up.SetSpec(schema.WrapFeatureSpec(f.Spec))
+			}
+		}).
+		Exec(ctx)
+}
+
 // Update 更新 / Update
 func (r *FeatureRepo) Update(ctx context.Context, req *thingmodelV1.UpdateFeatureRequest) (err error) {
 	if req == nil || req.Data == nil {

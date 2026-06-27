@@ -2039,6 +2039,238 @@ func (x *ValidateFeatureSpecResponse) GetErrors() []string {
 	return nil
 }
 
+// 导入单行（对应 Excel 一行；spec_json 是 spec map 的 JSON 字符串，与种子同构）
+// One import row; spec_json is the JSON of a spec map (same shape as seed data).
+type ImportFeatureRow struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	FeatureType     string                 `protobuf:"bytes,1,opt,name=feature_type,json=featureType,proto3" json:"feature_type,omitempty"`
+	Code            string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	Identifier      string                 `protobuf:"bytes,3,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	Name            string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	NameEn          string                 `protobuf:"bytes,5,opt,name=name_en,json=nameEn,proto3" json:"name_en,omitempty"`
+	Description     string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
+	ApplicableScope string                 `protobuf:"bytes,7,opt,name=applicable_scope,json=applicableScope,proto3" json:"applicable_scope,omitempty"`
+	SortOrder       uint32                 `protobuf:"varint,8,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	SpecJson        string                 `protobuf:"bytes,9,opt,name=spec_json,json=specJson,proto3" json:"spec_json,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ImportFeatureRow) Reset() {
+	*x = ImportFeatureRow{}
+	mi := &file_thingmodel_service_v1_feature_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportFeatureRow) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportFeatureRow) ProtoMessage() {}
+
+func (x *ImportFeatureRow) ProtoReflect() protoreflect.Message {
+	mi := &file_thingmodel_service_v1_feature_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportFeatureRow.ProtoReflect.Descriptor instead.
+func (*ImportFeatureRow) Descriptor() ([]byte, []int) {
+	return file_thingmodel_service_v1_feature_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ImportFeatureRow) GetFeatureType() string {
+	if x != nil {
+		return x.FeatureType
+	}
+	return ""
+}
+
+func (x *ImportFeatureRow) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *ImportFeatureRow) GetIdentifier() string {
+	if x != nil {
+		return x.Identifier
+	}
+	return ""
+}
+
+func (x *ImportFeatureRow) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ImportFeatureRow) GetNameEn() string {
+	if x != nil {
+		return x.NameEn
+	}
+	return ""
+}
+
+func (x *ImportFeatureRow) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *ImportFeatureRow) GetApplicableScope() string {
+	if x != nil {
+		return x.ApplicableScope
+	}
+	return ""
+}
+
+func (x *ImportFeatureRow) GetSortOrder() uint32 {
+	if x != nil {
+		return x.SortOrder
+	}
+	return 0
+}
+
+func (x *ImportFeatureRow) GetSpecJson() string {
+	if x != nil {
+		return x.SpecJson
+	}
+	return ""
+}
+
+// 批量导入 - 请求 / Import request
+type ImportFeaturesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Rows          []*ImportFeatureRow    `protobuf:"bytes,1,rep,name=rows,proto3" json:"rows,omitempty"`
+	SkipInvalid   *bool                  `protobuf:"varint,2,opt,name=skip_invalid,json=skipInvalid,proto3,oneof" json:"skip_invalid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportFeaturesRequest) Reset() {
+	*x = ImportFeaturesRequest{}
+	mi := &file_thingmodel_service_v1_feature_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportFeaturesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportFeaturesRequest) ProtoMessage() {}
+
+func (x *ImportFeaturesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thingmodel_service_v1_feature_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportFeaturesRequest.ProtoReflect.Descriptor instead.
+func (*ImportFeaturesRequest) Descriptor() ([]byte, []int) {
+	return file_thingmodel_service_v1_feature_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *ImportFeaturesRequest) GetRows() []*ImportFeatureRow {
+	if x != nil {
+		return x.Rows
+	}
+	return nil
+}
+
+func (x *ImportFeaturesRequest) GetSkipInvalid() bool {
+	if x != nil && x.SkipInvalid != nil {
+		return *x.SkipInvalid
+	}
+	return false
+}
+
+// 批量导入 - 回应 / Import response
+type ImportFeaturesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         uint32                 `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	Succeeded     uint32                 `protobuf:"varint,2,opt,name=succeeded,proto3" json:"succeeded,omitempty"`
+	Failed        uint32                 `protobuf:"varint,3,opt,name=failed,proto3" json:"failed,omitempty"`
+	Errors        []string               `protobuf:"bytes,4,rep,name=errors,proto3" json:"errors,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportFeaturesResponse) Reset() {
+	*x = ImportFeaturesResponse{}
+	mi := &file_thingmodel_service_v1_feature_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportFeaturesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportFeaturesResponse) ProtoMessage() {}
+
+func (x *ImportFeaturesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thingmodel_service_v1_feature_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportFeaturesResponse.ProtoReflect.Descriptor instead.
+func (*ImportFeaturesResponse) Descriptor() ([]byte, []int) {
+	return file_thingmodel_service_v1_feature_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *ImportFeaturesResponse) GetTotal() uint32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *ImportFeaturesResponse) GetSucceeded() uint32 {
+	if x != nil {
+		return x.Succeeded
+	}
+	return 0
+}
+
+func (x *ImportFeaturesResponse) GetFailed() uint32 {
+	if x != nil {
+		return x.Failed
+	}
+	return 0
+}
+
+func (x *ImportFeaturesResponse) GetErrors() []string {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
 var File_thingmodel_service_v1_feature_proto protoreflect.FileDescriptor
 
 const file_thingmodel_service_v1_feature_proto_rawDesc = "" +
@@ -2293,7 +2525,29 @@ const file_thingmodel_service_v1_feature_proto_rawDesc = "" +
 	"\x04spec\x18\x02 \x01(\v2\".thingmodel.service.v1.FeatureSpecR\x04spec\"K\n" +
 	"\x1bValidateFeatureSpecResponse\x12\x14\n" +
 	"\x05valid\x18\x01 \x01(\bR\x05valid\x12\x16\n" +
-	"\x06errors\x18\x02 \x03(\tR\x06errors*_\n" +
+	"\x06errors\x18\x02 \x03(\tR\x06errors\"\xe6\x05\n" +
+	"\x10ImportFeatureRow\x12d\n" +
+	"\ffeature_type\x18\x01 \x01(\tBA\xbaG>\x92\x02;特征类型 PROPERTY/EVENT/SERVICE/RELATION / Feature typeR\vfeatureType\x12M\n" +
+	"\x04code\x18\x02 \x01(\tB9\xbaG6\x92\x023清单编码（不可变，租户内唯一）/ CodeR\x04code\x12^\n" +
+	"\n" +
+	"identifier\x18\x03 \x01(\tB>\xbaG;\x92\x028程序标识符（租户内唯一）/ Program identifierR\n" +
+	"identifier\x12/\n" +
+	"\x04name\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15中文名 / Name (zh)R\x04name\x124\n" +
+	"\aname_en\x18\x05 \x01(\tB\x1b\xbaG\x18\x92\x02\x15英文名 / Name (en)R\x06nameEn\x12 \n" +
+	"\vdescription\x18\x06 \x01(\tR\vdescription\x12]\n" +
+	"\x10applicable_scope\x18\a \x01(\tB2\xbaG/\x92\x02,适用设备范围 / Applicable device scopeR\x0fapplicableScope\x12;\n" +
+	"\n" +
+	"sort_order\x18\b \x01(\rB\x1c\xbaG\x19\x92\x02\x16排序号 / Sort orderR\tsortOrder\x12\x97\x01\n" +
+	"\tspec_json\x18\t \x01(\tBz\xbaGw\x92\x02tspec 的 JSON 字符串（与种子 map 同构，按 featureType 还原为 FeatureSpec oneof）/ Spec as JSON stringR\bspecJson\"\x85\x02\n" +
+	"\x15ImportFeaturesRequest\x12;\n" +
+	"\x04rows\x18\x01 \x03(\v2'.thingmodel.service.v1.ImportFeatureRowR\x04rows\x12\x9d\x01\n" +
+	"\fskip_invalid\x18\x02 \x01(\bBu\xbaGr\x92\x02otrue=跳过非法行继续导入并汇总错误；false=遇错即停 / Skip invalid rows or stop on first errorH\x00R\vskipInvalid\x88\x01\x01B\x0f\n" +
+	"\r_skip_invalid\"\xcd\x02\n" +
+	"\x16ImportFeaturesResponse\x12A\n" +
+	"\x05total\x18\x01 \x01(\rB+\xbaG(\x92\x02%接收总行数 / Total rows receivedR\x05total\x12F\n" +
+	"\tsucceeded\x18\x02 \x01(\rB(\xbaG%\x92\x02\"成功写入行数 / Rows upsertedR\tsucceeded\x128\n" +
+	"\x06failed\x18\x03 \x01(\rB \xbaG\x1d\x92\x02\x1a失败行数 / Rows failedR\x06failed\x12n\n" +
+	"\x06errors\x18\x04 \x03(\tBV\xbaGS\x92\x02P失败明细（code: 原因），截断到前 20 条 / Failure detail (first 20)R\x06errors*_\n" +
 	"\vFeatureType\x12\x1c\n" +
 	"\x18FEATURE_TYPE_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bPROPERTY\x10\x01\x12\t\n" +
@@ -2327,7 +2581,7 @@ const file_thingmodel_service_v1_feature_proto_rawDesc = "" +
 	"\x04DATE\x10\a\x12\n" +
 	"\n" +
 	"\x06STRUCT\x10\b\x12\t\n" +
-	"\x05ARRAY\x10\t2\xe0\x05\n" +
+	"\x05ARRAY\x10\t2\xd1\x06\n" +
 	"\x0eFeatureService\x12O\n" +
 	"\x04List\x12\x19.pagination.PagingRequest\x1a*.thingmodel.service.v1.ListFeatureResponse\"\x00\x12Q\n" +
 	"\x05Count\x12\x19.pagination.PagingRequest\x1a+.thingmodel.service.v1.CountFeatureResponse\"\x00\x12Q\n" +
@@ -2337,7 +2591,8 @@ const file_thingmodel_service_v1_feature_proto_rawDesc = "" +
 	"\x06Delete\x12+.thingmodel.service.v1.DeleteFeatureRequest\x1a\x16.google.protobuf.Empty\"\x00\x12k\n" +
 	"\n" +
 	"ListByType\x12/.thingmodel.service.v1.ListFeatureByTypeRequest\x1a*.thingmodel.service.v1.ListFeatureResponse\"\x00\x12w\n" +
-	"\fValidateSpec\x121.thingmodel.service.v1.ValidateFeatureSpecRequest\x1a2.thingmodel.service.v1.ValidateFeatureSpecResponse\"\x00B\xdc\x01\n" +
+	"\fValidateSpec\x121.thingmodel.service.v1.ValidateFeatureSpecRequest\x1a2.thingmodel.service.v1.ValidateFeatureSpecResponse\"\x00\x12o\n" +
+	"\x0eImportFeatures\x12,.thingmodel.service.v1.ImportFeaturesRequest\x1a-.thingmodel.service.v1.ImportFeaturesResponse\"\x00B\xdc\x01\n" +
 	"\x19com.thingmodel.service.v1B\fFeatureProtoP\x01Z;go-wind-admin/api/gen/go/thingmodel/service/v1;thingmodelpb\xa2\x02\x03TSX\xaa\x02\x15Thingmodel.Service.V1\xca\x02\x15Thingmodel\\Service\\V1\xe2\x02!Thingmodel\\Service\\V1\\GPBMetadata\xea\x02\x17Thingmodel::Service::V1b\x06proto3"
 
 var (
@@ -2353,7 +2608,7 @@ func file_thingmodel_service_v1_feature_proto_rawDescGZIP() []byte {
 }
 
 var file_thingmodel_service_v1_feature_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_thingmodel_service_v1_feature_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_thingmodel_service_v1_feature_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_thingmodel_service_v1_feature_proto_goTypes = []any{
 	(FeatureType)(0),                    // 0: thingmodel.service.v1.FeatureType
 	(AccessMode)(0),                     // 1: thingmodel.service.v1.AccessMode
@@ -2382,11 +2637,14 @@ var file_thingmodel_service_v1_feature_proto_goTypes = []any{
 	(*ListFeatureByTypeRequest)(nil),    // 24: thingmodel.service.v1.ListFeatureByTypeRequest
 	(*ValidateFeatureSpecRequest)(nil),  // 25: thingmodel.service.v1.ValidateFeatureSpecRequest
 	(*ValidateFeatureSpecResponse)(nil), // 26: thingmodel.service.v1.ValidateFeatureSpecResponse
-	nil,                                 // 27: thingmodel.service.v1.RelationSpec.PropertiesEntry
-	(*timestamppb.Timestamp)(nil),       // 28: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),       // 29: google.protobuf.FieldMask
-	(*v1.PagingRequest)(nil),            // 30: pagination.PagingRequest
-	(*emptypb.Empty)(nil),               // 31: google.protobuf.Empty
+	(*ImportFeatureRow)(nil),            // 27: thingmodel.service.v1.ImportFeatureRow
+	(*ImportFeaturesRequest)(nil),       // 28: thingmodel.service.v1.ImportFeaturesRequest
+	(*ImportFeaturesResponse)(nil),      // 29: thingmodel.service.v1.ImportFeaturesResponse
+	nil,                                 // 30: thingmodel.service.v1.RelationSpec.PropertiesEntry
+	(*timestamppb.Timestamp)(nil),       // 31: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),       // 32: google.protobuf.FieldMask
+	(*v1.PagingRequest)(nil),            // 33: pagination.PagingRequest
+	(*emptypb.Empty)(nil),               // 34: google.protobuf.Empty
 }
 var file_thingmodel_service_v1_feature_proto_depIdxs = []int32{
 	6,  // 0: thingmodel.service.v1.FeatureSpec.property:type_name -> thingmodel.service.v1.PropertySpec
@@ -2408,7 +2666,7 @@ var file_thingmodel_service_v1_feature_proto_depIdxs = []int32{
 	10, // 16: thingmodel.service.v1.ServiceSpec.output_params:type_name -> thingmodel.service.v1.ParamSpec
 	12, // 17: thingmodel.service.v1.RelationSpec.source:type_name -> thingmodel.service.v1.EntityRef
 	12, // 18: thingmodel.service.v1.RelationSpec.target:type_name -> thingmodel.service.v1.EntityRef
-	27, // 19: thingmodel.service.v1.RelationSpec.properties:type_name -> thingmodel.service.v1.RelationSpec.PropertiesEntry
+	30, // 19: thingmodel.service.v1.RelationSpec.properties:type_name -> thingmodel.service.v1.RelationSpec.PropertiesEntry
 	4,  // 20: thingmodel.service.v1.ParamSpec.data_type:type_name -> thingmodel.service.v1.DataType
 	11, // 21: thingmodel.service.v1.ParamSpec.unit:type_name -> thingmodel.service.v1.UnitRef
 	13, // 22: thingmodel.service.v1.ParamSpec.constraints:type_name -> thingmodel.service.v1.ValueConstraints
@@ -2423,38 +2681,41 @@ var file_thingmodel_service_v1_feature_proto_depIdxs = []int32{
 	2,  // 31: thingmodel.service.v1.Feature.event_level:type_name -> thingmodel.service.v1.EventLevel
 	3,  // 32: thingmodel.service.v1.Feature.call_mode:type_name -> thingmodel.service.v1.CallMode
 	5,  // 33: thingmodel.service.v1.Feature.spec:type_name -> thingmodel.service.v1.FeatureSpec
-	28, // 34: thingmodel.service.v1.Feature.created_at:type_name -> google.protobuf.Timestamp
-	28, // 35: thingmodel.service.v1.Feature.updated_at:type_name -> google.protobuf.Timestamp
-	28, // 36: thingmodel.service.v1.Feature.deleted_at:type_name -> google.protobuf.Timestamp
+	31, // 34: thingmodel.service.v1.Feature.created_at:type_name -> google.protobuf.Timestamp
+	31, // 35: thingmodel.service.v1.Feature.updated_at:type_name -> google.protobuf.Timestamp
+	31, // 36: thingmodel.service.v1.Feature.deleted_at:type_name -> google.protobuf.Timestamp
 	17, // 37: thingmodel.service.v1.ListFeatureResponse.items:type_name -> thingmodel.service.v1.Feature
-	29, // 38: thingmodel.service.v1.GetFeatureRequest.view_mask:type_name -> google.protobuf.FieldMask
+	32, // 38: thingmodel.service.v1.GetFeatureRequest.view_mask:type_name -> google.protobuf.FieldMask
 	17, // 39: thingmodel.service.v1.CreateFeatureRequest.data:type_name -> thingmodel.service.v1.Feature
 	17, // 40: thingmodel.service.v1.UpdateFeatureRequest.data:type_name -> thingmodel.service.v1.Feature
-	29, // 41: thingmodel.service.v1.UpdateFeatureRequest.update_mask:type_name -> google.protobuf.FieldMask
+	32, // 41: thingmodel.service.v1.UpdateFeatureRequest.update_mask:type_name -> google.protobuf.FieldMask
 	0,  // 42: thingmodel.service.v1.ListFeatureByTypeRequest.feature_type:type_name -> thingmodel.service.v1.FeatureType
 	0,  // 43: thingmodel.service.v1.ValidateFeatureSpecRequest.feature_type:type_name -> thingmodel.service.v1.FeatureType
 	5,  // 44: thingmodel.service.v1.ValidateFeatureSpecRequest.spec:type_name -> thingmodel.service.v1.FeatureSpec
-	30, // 45: thingmodel.service.v1.FeatureService.List:input_type -> pagination.PagingRequest
-	30, // 46: thingmodel.service.v1.FeatureService.Count:input_type -> pagination.PagingRequest
-	20, // 47: thingmodel.service.v1.FeatureService.Get:input_type -> thingmodel.service.v1.GetFeatureRequest
-	21, // 48: thingmodel.service.v1.FeatureService.Create:input_type -> thingmodel.service.v1.CreateFeatureRequest
-	22, // 49: thingmodel.service.v1.FeatureService.Update:input_type -> thingmodel.service.v1.UpdateFeatureRequest
-	23, // 50: thingmodel.service.v1.FeatureService.Delete:input_type -> thingmodel.service.v1.DeleteFeatureRequest
-	24, // 51: thingmodel.service.v1.FeatureService.ListByType:input_type -> thingmodel.service.v1.ListFeatureByTypeRequest
-	25, // 52: thingmodel.service.v1.FeatureService.ValidateSpec:input_type -> thingmodel.service.v1.ValidateFeatureSpecRequest
-	18, // 53: thingmodel.service.v1.FeatureService.List:output_type -> thingmodel.service.v1.ListFeatureResponse
-	19, // 54: thingmodel.service.v1.FeatureService.Count:output_type -> thingmodel.service.v1.CountFeatureResponse
-	17, // 55: thingmodel.service.v1.FeatureService.Get:output_type -> thingmodel.service.v1.Feature
-	31, // 56: thingmodel.service.v1.FeatureService.Create:output_type -> google.protobuf.Empty
-	31, // 57: thingmodel.service.v1.FeatureService.Update:output_type -> google.protobuf.Empty
-	31, // 58: thingmodel.service.v1.FeatureService.Delete:output_type -> google.protobuf.Empty
-	18, // 59: thingmodel.service.v1.FeatureService.ListByType:output_type -> thingmodel.service.v1.ListFeatureResponse
-	26, // 60: thingmodel.service.v1.FeatureService.ValidateSpec:output_type -> thingmodel.service.v1.ValidateFeatureSpecResponse
-	53, // [53:61] is the sub-list for method output_type
-	45, // [45:53] is the sub-list for method input_type
-	45, // [45:45] is the sub-list for extension type_name
-	45, // [45:45] is the sub-list for extension extendee
-	0,  // [0:45] is the sub-list for field type_name
+	27, // 45: thingmodel.service.v1.ImportFeaturesRequest.rows:type_name -> thingmodel.service.v1.ImportFeatureRow
+	33, // 46: thingmodel.service.v1.FeatureService.List:input_type -> pagination.PagingRequest
+	33, // 47: thingmodel.service.v1.FeatureService.Count:input_type -> pagination.PagingRequest
+	20, // 48: thingmodel.service.v1.FeatureService.Get:input_type -> thingmodel.service.v1.GetFeatureRequest
+	21, // 49: thingmodel.service.v1.FeatureService.Create:input_type -> thingmodel.service.v1.CreateFeatureRequest
+	22, // 50: thingmodel.service.v1.FeatureService.Update:input_type -> thingmodel.service.v1.UpdateFeatureRequest
+	23, // 51: thingmodel.service.v1.FeatureService.Delete:input_type -> thingmodel.service.v1.DeleteFeatureRequest
+	24, // 52: thingmodel.service.v1.FeatureService.ListByType:input_type -> thingmodel.service.v1.ListFeatureByTypeRequest
+	25, // 53: thingmodel.service.v1.FeatureService.ValidateSpec:input_type -> thingmodel.service.v1.ValidateFeatureSpecRequest
+	28, // 54: thingmodel.service.v1.FeatureService.ImportFeatures:input_type -> thingmodel.service.v1.ImportFeaturesRequest
+	18, // 55: thingmodel.service.v1.FeatureService.List:output_type -> thingmodel.service.v1.ListFeatureResponse
+	19, // 56: thingmodel.service.v1.FeatureService.Count:output_type -> thingmodel.service.v1.CountFeatureResponse
+	17, // 57: thingmodel.service.v1.FeatureService.Get:output_type -> thingmodel.service.v1.Feature
+	34, // 58: thingmodel.service.v1.FeatureService.Create:output_type -> google.protobuf.Empty
+	34, // 59: thingmodel.service.v1.FeatureService.Update:output_type -> google.protobuf.Empty
+	34, // 60: thingmodel.service.v1.FeatureService.Delete:output_type -> google.protobuf.Empty
+	18, // 61: thingmodel.service.v1.FeatureService.ListByType:output_type -> thingmodel.service.v1.ListFeatureResponse
+	26, // 62: thingmodel.service.v1.FeatureService.ValidateSpec:output_type -> thingmodel.service.v1.ValidateFeatureSpecResponse
+	29, // 63: thingmodel.service.v1.FeatureService.ImportFeatures:output_type -> thingmodel.service.v1.ImportFeaturesResponse
+	55, // [55:64] is the sub-list for method output_type
+	46, // [46:55] is the sub-list for method input_type
+	46, // [46:46] is the sub-list for extension type_name
+	46, // [46:46] is the sub-list for extension extendee
+	0,  // [0:46] is the sub-list for field type_name
 }
 
 func init() { file_thingmodel_service_v1_feature_proto_init() }
@@ -2485,13 +2746,14 @@ func file_thingmodel_service_v1_feature_proto_init() {
 	}
 	file_thingmodel_service_v1_feature_proto_msgTypes[17].OneofWrappers = []any{}
 	file_thingmodel_service_v1_feature_proto_msgTypes[19].OneofWrappers = []any{}
+	file_thingmodel_service_v1_feature_proto_msgTypes[23].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_thingmodel_service_v1_feature_proto_rawDesc), len(file_thingmodel_service_v1_feature_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   23,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

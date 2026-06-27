@@ -88,6 +88,9 @@ service FeatureService {
 
   // 校验 spec（不落库，返回校验结果）/ Validate spec without persisting
   rpc ValidateSpec (ValidateFeatureSpecRequest) returns (ValidateFeatureSpecResponse) {}
+
+  // 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+  rpc ImportFeatures (ImportFeaturesRequest) returns (ImportFeaturesResponse) {}
 }
 
 // ============================================================================
@@ -386,4 +389,76 @@ message ValidateFeatureSpecRequest {
 message ValidateFeatureSpecResponse {
   bool valid = 1 [json_name = "valid"];
   repeated string errors = 2 [json_name = "errors"];
+}
+
+// ============================================================================
+// Import / 批量导入
+// ============================================================================
+
+// 导入单行（对应 Excel 一行；spec_json 是 spec map 的 JSON 字符串，与种子同构）
+// One import row; spec_json is the JSON of a spec map (same shape as seed data).
+message ImportFeatureRow {
+  string feature_type = 1 [   // PROPERTY / EVENT / SERVICE / RELATION
+    json_name = "featureType",
+    (gnostic.openapi.v3.property) = {description: "特征类型 PROPERTY/EVENT/SERVICE/RELATION / Feature type"}
+  ];
+  string code = 2 [
+    json_name = "code",
+    (gnostic.openapi.v3.property) = {description: "清单编码（不可变，租户内唯一）/ Code"}
+  ];
+  string identifier = 3 [
+    json_name = "identifier",
+    (gnostic.openapi.v3.property) = {description: "程序标识符（租户内唯一）/ Program identifier"}
+  ];
+  string name = 4 [
+    json_name = "name",
+    (gnostic.openapi.v3.property) = {description: "中文名 / Name (zh)"}
+  ];
+  string name_en = 5 [
+    json_name = "nameEn",
+    (gnostic.openapi.v3.property) = {description: "英文名 / Name (en)"}
+  ];
+  string description = 6 [json_name = "description"];
+  string applicable_scope = 7 [
+    json_name = "applicableScope",
+    (gnostic.openapi.v3.property) = {description: "适用设备范围 / Applicable device scope"}
+  ];
+  uint32 sort_order = 8 [
+    json_name = "sortOrder",
+    (gnostic.openapi.v3.property) = {description: "排序号 / Sort order"}
+  ];
+  string spec_json = 9 [
+    json_name = "specJson",
+    (gnostic.openapi.v3.property) = {description: "spec 的 JSON 字符串（与种子 map 同构，按 featureType 还原为 FeatureSpec oneof）/ Spec as JSON string"}
+  ];
+}
+
+// 批量导入 - 请求 / Import request
+message ImportFeaturesRequest {
+  repeated ImportFeatureRow rows = 1 [json_name = "rows"];
+
+  optional bool skip_invalid = 2 [
+    json_name = "skipInvalid",
+    (gnostic.openapi.v3.property) = {description: "true=跳过非法行继续导入并汇总错误；false=遇错即停 / Skip invalid rows or stop on first error"}
+  ];
+}
+
+// 批量导入 - 回应 / Import response
+message ImportFeaturesResponse {
+  uint32 total = 1 [     // 接收总行数 / total rows received
+    json_name = "total",
+    (gnostic.openapi.v3.property) = {description: "接收总行数 / Total rows received"}
+  ];
+  uint32 succeeded = 2 [ // 成功 upsert 行数 / rows upserted
+    json_name = "succeeded",
+    (gnostic.openapi.v3.property) = {description: "成功写入行数 / Rows upserted"}
+  ];
+  uint32 failed = 3 [    // 失败行数 / rows failed
+    json_name = "failed",
+    (gnostic.openapi.v3.property) = {description: "失败行数 / Rows failed"}
+  ];
+  repeated string errors = 4 [ // 失败明细（code: 原因），截断到前 20 条 / failure detail
+    json_name = "errors",
+    (gnostic.openapi.v3.property) = {description: "失败明细（code: 原因），截断到前 20 条 / Failure detail (first 20)"}
+  ];
 }

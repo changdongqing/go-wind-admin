@@ -172,5 +172,23 @@
   "selectTypeFirst": "请在左侧选择一个特征类型",
   "specSection": "结构化约束（spec）",
   "commonSection": "公共字段",
-  "governanceSection": "治理"
+  "governanceSection": "治理",
+
+  "import": "导入",
+  "importTitle": "导入特征（Excel）",
+  "importDesc": "上传 .xlsx 文件，按 code 幂等导入（已存在则覆盖）。列：featureType / code / identifier / name / nameEn / description / applicableScope / sortOrder / specJson",
+  "importDragHint": "点击或拖拽 .xlsx 文件到此区域",
+  "importSelectFile": "选择文件",
+  "importSelected": "已选择：{{name}}",
+  "importParsed": "已解析 {{count}} 行，确认导入？",
+  "importStart": "开始导入",
+  "importSuccess": "导入完成：成功 {{succeeded}} / 失败 {{failed}}（共 {{total}}）",
+  "importPartialFail": "导入完成但有失败行，详情见下方列表",
+  "importFailed": "导入失败：{{error}}",
+  "importNoData": "文件中没有可导入的数据",
+  "importReadFailed": "读取 Excel 失败：{{error}}",
+  "importDownloadTemplate": "下载模板（含示例）",
+  "importDownloadFullSeed": "下载完整种子（255 条）",
+  "importErrorListTitle": "失败明细（前 20 条）",
+  "importConfirmRetry": "重新选择"
 }

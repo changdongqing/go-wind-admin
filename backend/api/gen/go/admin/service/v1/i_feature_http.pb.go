@@ -25,6 +25,7 @@ const _ = http.SupportPackageIsVersion1
 const OperationFeatureServiceCreate = "/admin.service.v1.FeatureService/Create"
 const OperationFeatureServiceDelete = "/admin.service.v1.FeatureService/Delete"
 const OperationFeatureServiceGet = "/admin.service.v1.FeatureService/Get"
+const OperationFeatureServiceImportFeatures = "/admin.service.v1.FeatureService/ImportFeatures"
 const OperationFeatureServiceList = "/admin.service.v1.FeatureService/List"
 const OperationFeatureServiceListByType = "/admin.service.v1.FeatureService/ListByType"
 const OperationFeatureServiceUpdate = "/admin.service.v1.FeatureService/Update"
@@ -37,6 +38,8 @@ type FeatureServiceHTTPServer interface {
 	Delete(context.Context, *v11.DeleteFeatureRequest) (*emptypb.Empty, error)
 	// Get 查询特征详情 / Get feature
 	Get(context.Context, *v11.GetFeatureRequest) (*v11.Feature, error)
+	// ImportFeatures 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	ImportFeatures(context.Context, *v11.ImportFeaturesRequest) (*v11.ImportFeaturesResponse, error)
 	// List 分页查询特征列表 / List features
 	List(context.Context, *v1.PagingRequest) (*v11.ListFeatureResponse, error)
 	// ListByType 按特征类型查询（左侧树选类型联动右侧列表）/ List features by type
@@ -58,6 +61,7 @@ func RegisterFeatureServiceHTTPServer(s *http.Server, srv FeatureServiceHTTPServ
 	r.DELETE("/admin/v1/thingmodel/features", _FeatureService_Delete3_HTTP_Handler(srv))
 	r.GET("/admin/v1/thingmodel/features/types/{feature_type}", _FeatureService_ListByType0_HTTP_Handler(srv))
 	r.POST("/admin/v1/thingmodel/features:validateSpec", _FeatureService_ValidateSpec0_HTTP_Handler(srv))
+	r.POST("/admin/v1/thingmodel/features:import", _FeatureService_ImportFeatures0_HTTP_Handler(srv))
 }
 
 func _FeatureService_List5_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
@@ -255,6 +259,28 @@ func _FeatureService_ValidateSpec0_HTTP_Handler(srv FeatureServiceHTTPServer) fu
 	}
 }
 
+func _FeatureService_ImportFeatures0_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v11.ImportFeaturesRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationFeatureServiceImportFeatures)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ImportFeatures(ctx, req.(*v11.ImportFeaturesRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v11.ImportFeaturesResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type FeatureServiceHTTPClient interface {
 	// Create 创建特征 / Create feature
 	Create(ctx context.Context, req *v11.CreateFeatureRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -262,6 +288,8 @@ type FeatureServiceHTTPClient interface {
 	Delete(ctx context.Context, req *v11.DeleteFeatureRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// Get 查询特征详情 / Get feature
 	Get(ctx context.Context, req *v11.GetFeatureRequest, opts ...http.CallOption) (rsp *v11.Feature, err error)
+	// ImportFeatures 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	ImportFeatures(ctx context.Context, req *v11.ImportFeaturesRequest, opts ...http.CallOption) (rsp *v11.ImportFeaturesResponse, err error)
 	// List 分页查询特征列表 / List features
 	List(ctx context.Context, req *v1.PagingRequest, opts ...http.CallOption) (rsp *v11.ListFeatureResponse, err error)
 	// ListByType 按特征类型查询（左侧树选类型联动右侧列表）/ List features by type
@@ -316,6 +344,20 @@ func (c *FeatureServiceHTTPClientImpl) Get(ctx context.Context, in *v11.GetFeatu
 	opts = append(opts, http.Operation(OperationFeatureServiceGet))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ImportFeatures 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+func (c *FeatureServiceHTTPClientImpl) ImportFeatures(ctx context.Context, in *v11.ImportFeaturesRequest, opts ...http.CallOption) (*v11.ImportFeaturesResponse, error) {
+	var out v11.ImportFeaturesResponse
+	pattern := "/admin/v1/thingmodel/features:import"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationFeatureServiceImportFeatures))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

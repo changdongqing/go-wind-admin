@@ -28,7 +28,7 @@ var File_admin_service_v1_i_feature_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_feature_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/i_feature.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1epagination/v1/pagination.proto\x1a#thingmodel/service/v1/feature.proto2\xb0\b\n" +
+	" admin/service/v1/i_feature.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1epagination/v1/pagination.proto\x1a#thingmodel/service/v1/feature.proto2\xd1\t\n" +
 	"\x0eFeatureService\x12t\n" +
 	"\x04List\x12\x19.pagination.PagingRequest\x1a*.thingmodel.service.v1.ListFeatureResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/admin/v1/thingmodel/features\x12\xe3\x01\n" +
 	"\x03Get\x12(.thingmodel.service.v1.GetFeatureRequest\x1a\x1e.thingmodel.service.v1.Feature\"\x91\x01\x82\xd3\xe4\x93\x02\x8a\x01Z+\x12)/admin/v1/thingmodel/features/code/{code}Z7\x125/admin/v1/thingmodel/features/identifier/{identifier}\x12\"/admin/v1/thingmodel/features/{id}\x12w\n" +
@@ -37,7 +37,8 @@ const file_admin_service_v1_i_feature_proto_rawDesc = "" +
 	"\x06Delete\x12+.thingmodel.service.v1.DeleteFeatureRequest\x1a\x16.google.protobuf.Empty\"%\x82\xd3\xe4\x93\x02\x1f*\x1d/admin/v1/thingmodel/features\x12\xa5\x01\n" +
 	"\n" +
 	"ListByType\x12/.thingmodel.service.v1.ListFeatureByTypeRequest\x1a*.thingmodel.service.v1.ListFeatureResponse\":\x82\xd3\xe4\x93\x024\x122/admin/v1/thingmodel/features/types/{feature_type}\x12\xac\x01\n" +
-	"\fValidateSpec\x121.thingmodel.service.v1.ValidateFeatureSpecRequest\x1a2.thingmodel.service.v1.ValidateFeatureSpecResponse\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/admin/v1/thingmodel/features:validateSpecB\xba\x01\n" +
+	"\fValidateSpec\x121.thingmodel.service.v1.ValidateFeatureSpecRequest\x1a2.thingmodel.service.v1.ValidateFeatureSpecResponse\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/admin/v1/thingmodel/features:validateSpec\x12\x9e\x01\n" +
+	"\x0eImportFeatures\x12,.thingmodel.service.v1.ImportFeaturesRequest\x1a-.thingmodel.service.v1.ImportFeaturesResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/admin/v1/thingmodel/features:importB\xba\x01\n" +
 	"\x14com.admin.service.v1B\rIFeatureProtoP\x01Z1go-wind-admin/api/gen/go/admin/service/v1;adminpb\xa2\x02\x03ASX\xaa\x02\x10Admin.Service.V1\xca\x02\x10Admin\\Service\\V1\xe2\x02\x1cAdmin\\Service\\V1\\GPBMetadata\xea\x02\x12Admin::Service::V1b\x06proto3"
 
 var file_admin_service_v1_i_feature_proto_goTypes = []any{
@@ -48,10 +49,12 @@ var file_admin_service_v1_i_feature_proto_goTypes = []any{
 	(*v11.DeleteFeatureRequest)(nil),        // 4: thingmodel.service.v1.DeleteFeatureRequest
 	(*v11.ListFeatureByTypeRequest)(nil),    // 5: thingmodel.service.v1.ListFeatureByTypeRequest
 	(*v11.ValidateFeatureSpecRequest)(nil),  // 6: thingmodel.service.v1.ValidateFeatureSpecRequest
-	(*v11.ListFeatureResponse)(nil),         // 7: thingmodel.service.v1.ListFeatureResponse
-	(*v11.Feature)(nil),                     // 8: thingmodel.service.v1.Feature
-	(*emptypb.Empty)(nil),                   // 9: google.protobuf.Empty
-	(*v11.ValidateFeatureSpecResponse)(nil), // 10: thingmodel.service.v1.ValidateFeatureSpecResponse
+	(*v11.ImportFeaturesRequest)(nil),       // 7: thingmodel.service.v1.ImportFeaturesRequest
+	(*v11.ListFeatureResponse)(nil),         // 8: thingmodel.service.v1.ListFeatureResponse
+	(*v11.Feature)(nil),                     // 9: thingmodel.service.v1.Feature
+	(*emptypb.Empty)(nil),                   // 10: google.protobuf.Empty
+	(*v11.ValidateFeatureSpecResponse)(nil), // 11: thingmodel.service.v1.ValidateFeatureSpecResponse
+	(*v11.ImportFeaturesResponse)(nil),      // 12: thingmodel.service.v1.ImportFeaturesResponse
 }
 var file_admin_service_v1_i_feature_proto_depIdxs = []int32{
 	0,  // 0: admin.service.v1.FeatureService.List:input_type -> pagination.PagingRequest
@@ -61,15 +64,17 @@ var file_admin_service_v1_i_feature_proto_depIdxs = []int32{
 	4,  // 4: admin.service.v1.FeatureService.Delete:input_type -> thingmodel.service.v1.DeleteFeatureRequest
 	5,  // 5: admin.service.v1.FeatureService.ListByType:input_type -> thingmodel.service.v1.ListFeatureByTypeRequest
 	6,  // 6: admin.service.v1.FeatureService.ValidateSpec:input_type -> thingmodel.service.v1.ValidateFeatureSpecRequest
-	7,  // 7: admin.service.v1.FeatureService.List:output_type -> thingmodel.service.v1.ListFeatureResponse
-	8,  // 8: admin.service.v1.FeatureService.Get:output_type -> thingmodel.service.v1.Feature
-	9,  // 9: admin.service.v1.FeatureService.Create:output_type -> google.protobuf.Empty
-	9,  // 10: admin.service.v1.FeatureService.Update:output_type -> google.protobuf.Empty
-	9,  // 11: admin.service.v1.FeatureService.Delete:output_type -> google.protobuf.Empty
-	7,  // 12: admin.service.v1.FeatureService.ListByType:output_type -> thingmodel.service.v1.ListFeatureResponse
-	10, // 13: admin.service.v1.FeatureService.ValidateSpec:output_type -> thingmodel.service.v1.ValidateFeatureSpecResponse
-	7,  // [7:14] is the sub-list for method output_type
-	0,  // [0:7] is the sub-list for method input_type
+	7,  // 7: admin.service.v1.FeatureService.ImportFeatures:input_type -> thingmodel.service.v1.ImportFeaturesRequest
+	8,  // 8: admin.service.v1.FeatureService.List:output_type -> thingmodel.service.v1.ListFeatureResponse
+	9,  // 9: admin.service.v1.FeatureService.Get:output_type -> thingmodel.service.v1.Feature
+	10, // 10: admin.service.v1.FeatureService.Create:output_type -> google.protobuf.Empty
+	10, // 11: admin.service.v1.FeatureService.Update:output_type -> google.protobuf.Empty
+	10, // 12: admin.service.v1.FeatureService.Delete:output_type -> google.protobuf.Empty
+	8,  // 13: admin.service.v1.FeatureService.ListByType:output_type -> thingmodel.service.v1.ListFeatureResponse
+	11, // 14: admin.service.v1.FeatureService.ValidateSpec:output_type -> thingmodel.service.v1.ValidateFeatureSpecResponse
+	12, // 15: admin.service.v1.FeatureService.ImportFeatures:output_type -> thingmodel.service.v1.ImportFeaturesResponse
+	8,  // [8:16] is the sub-list for method output_type
+	0,  // [0:8] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

@@ -21,14 +21,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FeatureService_List_FullMethodName         = "/thingmodel.service.v1.FeatureService/List"
-	FeatureService_Count_FullMethodName        = "/thingmodel.service.v1.FeatureService/Count"
-	FeatureService_Get_FullMethodName          = "/thingmodel.service.v1.FeatureService/Get"
-	FeatureService_Create_FullMethodName       = "/thingmodel.service.v1.FeatureService/Create"
-	FeatureService_Update_FullMethodName       = "/thingmodel.service.v1.FeatureService/Update"
-	FeatureService_Delete_FullMethodName       = "/thingmodel.service.v1.FeatureService/Delete"
-	FeatureService_ListByType_FullMethodName   = "/thingmodel.service.v1.FeatureService/ListByType"
-	FeatureService_ValidateSpec_FullMethodName = "/thingmodel.service.v1.FeatureService/ValidateSpec"
+	FeatureService_List_FullMethodName           = "/thingmodel.service.v1.FeatureService/List"
+	FeatureService_Count_FullMethodName          = "/thingmodel.service.v1.FeatureService/Count"
+	FeatureService_Get_FullMethodName            = "/thingmodel.service.v1.FeatureService/Get"
+	FeatureService_Create_FullMethodName         = "/thingmodel.service.v1.FeatureService/Create"
+	FeatureService_Update_FullMethodName         = "/thingmodel.service.v1.FeatureService/Update"
+	FeatureService_Delete_FullMethodName         = "/thingmodel.service.v1.FeatureService/Delete"
+	FeatureService_ListByType_FullMethodName     = "/thingmodel.service.v1.FeatureService/ListByType"
+	FeatureService_ValidateSpec_FullMethodName   = "/thingmodel.service.v1.FeatureService/ValidateSpec"
+	FeatureService_ImportFeatures_FullMethodName = "/thingmodel.service.v1.FeatureService/ImportFeatures"
 )
 
 // FeatureServiceClient is the client API for FeatureService service.
@@ -53,6 +54,8 @@ type FeatureServiceClient interface {
 	ListByType(ctx context.Context, in *ListFeatureByTypeRequest, opts ...grpc.CallOption) (*ListFeatureResponse, error)
 	// 校验 spec（不落库，返回校验结果）/ Validate spec without persisting
 	ValidateSpec(ctx context.Context, in *ValidateFeatureSpecRequest, opts ...grpc.CallOption) (*ValidateFeatureSpecResponse, error)
+	// 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	ImportFeatures(ctx context.Context, in *ImportFeaturesRequest, opts ...grpc.CallOption) (*ImportFeaturesResponse, error)
 }
 
 type featureServiceClient struct {
@@ -143,6 +146,16 @@ func (c *featureServiceClient) ValidateSpec(ctx context.Context, in *ValidateFea
 	return out, nil
 }
 
+func (c *featureServiceClient) ImportFeatures(ctx context.Context, in *ImportFeaturesRequest, opts ...grpc.CallOption) (*ImportFeaturesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ImportFeaturesResponse)
+	err := c.cc.Invoke(ctx, FeatureService_ImportFeatures_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FeatureServiceServer is the server API for FeatureService service.
 // All implementations must embed UnimplementedFeatureServiceServer
 // for forward compatibility.
@@ -165,6 +178,8 @@ type FeatureServiceServer interface {
 	ListByType(context.Context, *ListFeatureByTypeRequest) (*ListFeatureResponse, error)
 	// 校验 spec（不落库，返回校验结果）/ Validate spec without persisting
 	ValidateSpec(context.Context, *ValidateFeatureSpecRequest) (*ValidateFeatureSpecResponse, error)
+	// 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	ImportFeatures(context.Context, *ImportFeaturesRequest) (*ImportFeaturesResponse, error)
 	mustEmbedUnimplementedFeatureServiceServer()
 }
 
@@ -198,6 +213,9 @@ func (UnimplementedFeatureServiceServer) ListByType(context.Context, *ListFeatur
 }
 func (UnimplementedFeatureServiceServer) ValidateSpec(context.Context, *ValidateFeatureSpecRequest) (*ValidateFeatureSpecResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ValidateSpec not implemented")
+}
+func (UnimplementedFeatureServiceServer) ImportFeatures(context.Context, *ImportFeaturesRequest) (*ImportFeaturesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ImportFeatures not implemented")
 }
 func (UnimplementedFeatureServiceServer) mustEmbedUnimplementedFeatureServiceServer() {}
 func (UnimplementedFeatureServiceServer) testEmbeddedByValue()                        {}
@@ -364,6 +382,24 @@ func _FeatureService_ValidateSpec_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FeatureService_ImportFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImportFeaturesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FeatureServiceServer).ImportFeatures(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FeatureService_ImportFeatures_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FeatureServiceServer).ImportFeatures(ctx, req.(*ImportFeaturesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FeatureService_ServiceDesc is the grpc.ServiceDesc for FeatureService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -402,6 +438,10 @@ var FeatureService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ValidateSpec",
 			Handler:    _FeatureService_ValidateSpec_Handler,
+		},
+		{
+			MethodName: "ImportFeatures",
+			Handler:    _FeatureService_ImportFeatures_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

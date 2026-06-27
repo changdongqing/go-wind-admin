@@ -172,5 +172,23 @@
   "selectTypeFirst": "Select a feature type on the left",
   "specSection": "Structured Spec",
   "commonSection": "Common Fields",
-  "governanceSection": "Governance"
+  "governanceSection": "Governance",
+
+  "import": "Import",
+  "importTitle": "Import Features (Excel)",
+  "importDesc": "Upload a .xlsx file; idempotent by code (existing rows are overwritten). Columns: featureType / code / identifier / name / nameEn / description / applicableScope / sortOrder / specJson",
+  "importDragHint": "Click or drag a .xlsx file here",
+  "importSelectFile": "Select file",
+  "importSelected": "Selected: {{name}}",
+  "importParsed": "Parsed {{count}} rows. Confirm import?",
+  "importStart": "Start import",
+  "importSuccess": "Import done: {{succeeded}} succeeded / {{failed}} failed ({{total}} total)",
+  "importPartialFail": "Import finished with failures; see details below",
+  "importFailed": "Import failed: {{error}}",
+  "importNoData": "No data to import in the file",
+  "importReadFailed": "Failed to read Excel: {{error}}",
+  "importDownloadTemplate": "Download template (with examples)",
+  "importDownloadFullSeed": "Download full seed (255 rows)",
+  "importErrorListTitle": "Failure detail (first 20)",
+  "importConfirmRetry": "Choose again"
 }

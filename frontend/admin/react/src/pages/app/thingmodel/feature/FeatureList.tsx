@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import type { ProColumns, ActionType } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
 import { Button, Popconfirm, Tag, App } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, ImportOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -22,6 +22,7 @@ import {
   type FeatureType,
 } from './constants';
 import FeatureDrawer from './FeatureDrawer';
+import ImportFeaturesModal from './ImportFeaturesModal';
 
 interface FeatureListProps {
   featureType: FeatureType;
@@ -44,6 +45,7 @@ const FeatureList: React.FC<FeatureListProps> = ({ featureType }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'create' | 'edit'>('create');
   const [editing, setEditing] = useState<any>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   useEffect(() => {
     actionRef.current?.reload();
@@ -264,6 +266,14 @@ const FeatureList: React.FC<FeatureListProps> = ({ featureType }) => {
           }}
           toolBarRender={() => [
             <Button
+              key="import"
+              icon={<ImportOutlined />}
+              size="small"
+              onClick={() => setImportOpen(true)}
+            >
+              {t('import')}
+            </Button>,
+            <Button
               key="create"
               type="primary"
               icon={<PlusOutlined />}
@@ -295,6 +305,16 @@ const FeatureList: React.FC<FeatureListProps> = ({ featureType }) => {
           setEditing(null);
         }}
         onSuccess={() => actionRef.current?.reload()}
+      />
+
+      <ImportFeaturesModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onSuccess={() => {
+          actionRef.current?.reload();
+          queryClient.invalidateQueries({ queryKey: ['listFeatures'] });
+          queryClient.invalidateQueries({ queryKey: ['listFeaturesByType'] });
+        }}
       />
     </>
   );

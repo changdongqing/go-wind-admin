@@ -342,6 +342,25 @@ func resolveRelationRefs(spec map[string]any, idx map[string]uint32) {
 // 把 map spec → proto FeatureSpec（oneof）
 // ===========================================================================
 
+// BuildFeatureSpecFromMap 把「featureType 字符串 + spec map」构造为 proto FeatureSpec oneof。
+// BuildFeatureSpecFromMap builds a proto FeatureSpec from a feature-type string + spec map.
+//
+// 这是种子构造逻辑的公开入口，供导入功能（service.ImportFeatures）复用，避免重复实现
+// map→proto oneof 的映射。featureType 取 "PROPERTY"/"EVENT"/"SERVICE"/"RELATION"；
+// spec map 的键约定见 feature_seed_data.go（dataType/accessMode/category/unit/constraints/...）。
+// 未知 featureType 返回 nil。
+func BuildFeatureSpecFromMap(featureType string, spec map[string]any) *thingmodelV1.FeatureSpec {
+	return buildFeatureSpecProto(SeedFeature{FeatureType: parseFeatureType(featureType), Spec: spec})
+}
+
+// parseFeatureType 把字符串（如 "PROPERTY"）解析为 proto FeatureType。
+func parseFeatureType(s string) thingmodelV1.FeatureType {
+	if v, ok := thingmodelV1.FeatureType_value[s]; ok {
+		return thingmodelV1.FeatureType(v)
+	}
+	return thingmodelV1.FeatureType_FEATURE_TYPE_UNSPECIFIED
+}
+
 // buildFeatureSpecProto 把 SeedFeature.Spec (map) 构造为 proto FeatureSpec oneof。
 // 注：DB 字段是强类型 *thingmodelV1.FeatureSpec；JSON 编码由 Ent 自动处理。
 func buildFeatureSpecProto(f SeedFeature) *thingmodelV1.FeatureSpec {

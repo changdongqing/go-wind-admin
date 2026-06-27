@@ -19,6 +19,9 @@ import {
   type thingmodelservicev1_ListFeatureByTypeRequest,
   type thingmodelservicev1_ValidateFeatureSpecRequest,
   type thingmodelservicev1_ValidateFeatureSpecResponse,
+  type thingmodelservicev1_ImportFeaturesRequest,
+  type thingmodelservicev1_ImportFeaturesResponse,
+  type thingmodelservicev1_ImportFeatureRow,
 } from '@/api/generated/admin/service/v1';
 import { makeUpdateMask, type PaginationQuery } from '@/core/transport/rest';
 import { queryClient } from '@/core';
@@ -128,6 +131,30 @@ export function useValidateFeatureSpec(
 ) {
   return useMutation({
     mutationFn: (data) => apiClient.featureService.ValidateSpec(data),
+    ...options,
+  });
+}
+
+// ==============================
+// 批量导入（保底方案：种子未初始化或需补录时用 Excel 导入）
+// Batch import (fallback when seed didn't initialize or for bulk补录)
+// ==============================
+
+/**
+ * 批量导入特征。按 code 幂等 upsert，失败行汇总返回。
+ * rows 由前端从 Excel 解析得到（列顺序见 ImportFeaturesModal）。
+ */
+export function useImportFeatures(
+  options?: UseMutationOptions<
+    thingmodelservicev1_ImportFeaturesResponse,
+    Error,
+    thingmodelservicev1_ImportFeatureRow[]
+  >,
+) {
+  return useMutation({
+    // 默认 skipInvalid=true：单行失败不阻断整批，适合大批量导入
+    mutationFn: (rows) =>
+      apiClient.featureService.ImportFeatures({ rows, skipInvalid: true }),
     ...options,
   });
 }
