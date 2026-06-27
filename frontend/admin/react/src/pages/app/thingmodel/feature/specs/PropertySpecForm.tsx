@@ -8,6 +8,10 @@ import {
   propertyCategoryOptions,
   type DataType,
 } from '../constants';
+import UnitSelect from '../components/UnitSelect';
+
+/** 仅这些数据类型在物模型语义上需要带物理单位 */
+const UNIT_BEARING_TYPES: ReadonlySet<DataType> = new Set(['INT', 'FLOAT', 'DOUBLE']);
 
 interface PropertySpecFormProps {
   /** Form 字段名前缀（spec.property）/ Form field name prefix */
@@ -28,6 +32,7 @@ interface PropertySpecFormProps {
  */
 const PropertySpecForm: React.FC<PropertySpecFormProps> = ({ namePath }) => {
   const { t } = useTranslation('feature');
+  const form = Form.useFormInstance();
 
   return (
     <>
@@ -59,27 +64,40 @@ const PropertySpecForm: React.FC<PropertySpecFormProps> = ({ namePath }) => {
         <Switch />
       </Form.Item>
 
-      {/* unit：单位引用（unitCode + unitSymbol；unitId 由后端按 code 解析或前端用单位选择器赋值） */}
-      <Divider plain style={{ margin: '4px 0' }}>
-        {t('unit')}
-      </Divider>
-      <Space.Compact block>
-        <Form.Item
-          label={t('unit')}
-          name={[...namePath, 'unit', 'unitCode']}
-          style={{ flex: 1 }}
-          tooltip="例 celsius；后端按 code 自动解析 unitId"
-        >
-          <Input placeholder="unitCode" />
-        </Form.Item>
-        <Form.Item
-          label={t('unit') + ' (symbol)'}
-          name={[...namePath, 'unit', 'unitSymbol']}
-          style={{ flex: 1 }}
-        >
-          <Input placeholder="℃ / kW / s ..." />
-        </Form.Item>
-      </Space.Compact>
+      {/* unit：单位引用（unitCode 由下拉选择，unitSymbol 自动回填；unitId 由后端按 code 解析） */}
+      <Form.Item
+        noStyle
+        shouldUpdate={(prev, cur) =>
+          prev?.spec?.property?.dataType !== cur?.spec?.property?.dataType
+        }
+      >
+        {({ getFieldValue }) => {
+          const dt: DataType | undefined = getFieldValue([...namePath, 'dataType']);
+          if (!dt || !UNIT_BEARING_TYPES.has(dt)) return null;
+          return (
+            <>
+              <Divider plain style={{ margin: '4px 0' }}>
+                {t('unit')}
+              </Divider>
+              <Form.Item
+                label={t('unit')}
+                name={[...namePath, 'unit', 'unitCode']}
+                tooltip="按编码选择已登记的单位，名称/符号自动同步"
+              >
+                <UnitSelect
+                  onUnitChange={(u) =>
+                    form.setFieldValue([...namePath, 'unit', 'unitSymbol'], u?.symbol)
+                  }
+                />
+              </Form.Item>
+              {/* 隐藏字段：保存 symbol，提交时随 spec 一起回传后端 */}
+              <Form.Item name={[...namePath, 'unit', 'unitSymbol']} hidden>
+                <Input />
+              </Form.Item>
+            </>
+          );
+        }}
+      </Form.Item>
 
       <Divider plain style={{ margin: '4px 0' }}>
         {t('constraints')}
@@ -214,10 +232,20 @@ const PropertySpecForm: React.FC<PropertySpecFormProps> = ({ namePath }) => {
                               <Select options={dataTypeOptions(t)} placeholder={t('dataType')} />
                             </Form.Item>
                             <Form.Item
-                              name={[f.name, 'unit', 'unitSymbol']}
+                              name={[f.name, 'unit', 'unitCode']}
                               style={{ flex: 1, marginBottom: 0 }}
                             >
-                              <Input placeholder="unitSymbol" />
+                              <UnitSelect
+                                onUnitChange={(u) =>
+                                  form.setFieldValue(
+                                    [...namePath, 'structFields', f.name, 'unit', 'unitSymbol'],
+                                    u?.symbol,
+                                  )
+                                }
+                              />
+                            </Form.Item>
+                            <Form.Item name={[f.name, 'unit', 'unitSymbol']} hidden>
+                              <Input />
                             </Form.Item>
                             <Button
                               type="text"

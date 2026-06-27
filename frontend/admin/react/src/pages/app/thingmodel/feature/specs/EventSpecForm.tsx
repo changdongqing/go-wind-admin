@@ -3,6 +3,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import { dataTypeOptions, eventLevelOptions } from '../constants';
+import UnitSelect from '../components/UnitSelect';
 
 interface EventSpecFormProps {
   namePath: (string | number)[];
@@ -15,6 +16,7 @@ interface EventSpecFormProps {
  */
 const EventSpecForm: React.FC<EventSpecFormProps> = ({ namePath }) => {
   const { t } = useTranslation('feature');
+  const form = Form.useFormInstance();
 
   return (
     <>
@@ -55,10 +57,20 @@ const EventSpecForm: React.FC<EventSpecFormProps> = ({ namePath }) => {
                     <Select options={dataTypeOptions(t)} placeholder={t('dataType')} />
                   </Form.Item>
                   <Form.Item
-                    name={[f.name, 'unit', 'unitSymbol']}
+                    name={[f.name, 'unit', 'unitCode']}
                     style={{ flex: 1, marginBottom: 0 }}
                   >
-                    <Input placeholder="unitSymbol" />
+                    <UnitSelect
+                      onUnitChange={(u) =>
+                        form.setFieldValue(
+                          [...namePath, 'outputParams', f.name, 'unit', 'unitSymbol'],
+                          u?.symbol,
+                        )
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item name={[f.name, 'unit', 'unitSymbol']} hidden>
+                    <Input />
                   </Form.Item>
                   <Button
                     type="text"

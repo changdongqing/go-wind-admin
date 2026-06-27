@@ -3,6 +3,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import { callModeOptions, dataTypeOptions } from '../constants';
+import UnitSelect from '../components/UnitSelect';
 
 interface ServiceSpecFormProps {
   namePath: (string | number)[];
@@ -15,6 +16,7 @@ interface ServiceSpecFormProps {
  */
 const ServiceSpecForm: React.FC<ServiceSpecFormProps> = ({ namePath }) => {
   const { t } = useTranslation('feature');
+  const form = Form.useFormInstance();
 
   const paramListRow = (parentKey: 'inputParams' | 'outputParams', titleKey: string) => (
     <Form.Item label={t(titleKey)}>
@@ -38,10 +40,20 @@ const ServiceSpecForm: React.FC<ServiceSpecFormProps> = ({ namePath }) => {
                   <Select options={dataTypeOptions(t)} placeholder={t('dataType')} />
                 </Form.Item>
                 <Form.Item
-                  name={[f.name, 'unit', 'unitSymbol']}
+                  name={[f.name, 'unit', 'unitCode']}
                   style={{ flex: 1, marginBottom: 0 }}
                 >
-                  <Input placeholder="unitSymbol" />
+                  <UnitSelect
+                    onUnitChange={(u) =>
+                      form.setFieldValue(
+                        [...namePath, parentKey, f.name, 'unit', 'unitSymbol'],
+                        u?.symbol,
+                      )
+                    }
+                  />
+                </Form.Item>
+                <Form.Item name={[f.name, 'unit', 'unitSymbol']} hidden>
+                  <Input />
                 </Form.Item>
                 {parentKey === 'inputParams' && (
                   <Form.Item
