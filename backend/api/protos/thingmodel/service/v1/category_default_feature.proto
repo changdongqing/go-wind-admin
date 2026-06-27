@@ -1,0 +1,202 @@
+syntax = "proto3";
+
+package thingmodel.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+import "pagination/v1/pagination.proto";
+import "thingmodel/service/v1/feature.proto";              // FeatureType / FeatureSpec
+import "thingmodel/service/v1/feature_override_spec.proto"; // FeatureOverrideSpec
+
+// 分类默认模型服务（源领域层，无 HTTP 注解）/ Category default feature service (domain)
+//
+// 每条 CategoryDefaultFeature = "分类 X 的默认模型中应当包含特征 Y"。
+// 仅 level=4 细类可挂默认模型条目（Service 校验，DB 不约束）。
+// 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.1
+service CategoryDefaultFeatureService {
+  // 分页查询分类默认模型条目（业务过滤通过 PagingRequest.query 传入：category_id/feature_type/is_enabled）
+  rpc List (pagination.PagingRequest) returns (ListCategoryDefaultFeatureResponse) {}
+
+  // 统计 / Count
+  rpc Count (pagination.PagingRequest) returns (CountCategoryDefaultFeatureResponse) {}
+
+  // 查询详情 / Get
+  rpc Get (GetCategoryDefaultFeatureRequest) returns (CategoryDefaultFeature) {}
+
+  // 创建单条 / Create
+  rpc Create (CreateCategoryDefaultFeatureRequest) returns (google.protobuf.Empty) {}
+
+  // 批量加多条（分类 Drawer 内一次性勾选 N 个特征）/ Batch add
+  rpc BatchAdd (BatchAddCategoryDefaultFeaturesRequest) returns (BatchAddCategoryDefaultFeaturesResponse) {}
+
+  // 更新（override_spec/display_name/sort/enabled）/ Update via FieldMask
+  rpc Update (UpdateCategoryDefaultFeatureRequest) returns (google.protobuf.Empty) {}
+
+  // 删除单条或批量 / Delete
+  rpc Delete (DeleteCategoryDefaultFeatureRequest) returns (google.protobuf.Empty) {}
+
+  // 拖拽排序 / Reorder
+  rpc Reorder (ReorderCategoryDefaultFeaturesRequest) returns (google.protobuf.Empty) {}
+}
+
+// 分类默认模型条目 / Category default feature entry
+message CategoryDefaultFeature {
+  optional uint32 id = 1 [
+    json_name = "id",
+    (gnostic.openapi.v3.property) = {description: "条目ID / Entry ID"}
+  ];
+
+  optional uint32 category_id = 2 [
+    json_name = "categoryId",
+    (gnostic.openapi.v3.property) = {description: "分类ID（必须 level=4）/ Category ID, must be level=4"}
+  ];
+
+  optional uint32 feature_id = 3 [
+    json_name = "featureId",
+    (gnostic.openapi.v3.property) = {description: "全局特征ID / Global feature ID"}
+  ];
+
+  // ===== 关联只读字段（List/Get 时由后端 join 填充）/ Joined read-only fields =====
+  optional string feature_code = 10 [
+    json_name = "featureCode",
+    (gnostic.openapi.v3.property) = {description: "全局特征编码（冗余）/ Feature code (denormalized)"}
+  ];
+  optional string feature_identifier = 11 [
+    json_name = "featureIdentifier",
+    (gnostic.openapi.v3.property) = {description: "全局特征标识符（冗余）/ Feature identifier (denormalized)"}
+  ];
+  optional string feature_name = 12 [
+    json_name = "featureName",
+    (gnostic.openapi.v3.property) = {description: "全局特征名称（冗余）/ Feature name (denormalized)"}
+  ];
+  optional FeatureType feature_type = 13 [
+    json_name = "featureType",
+    (gnostic.openapi.v3.property) = {description: "特征类型（冗余）/ Feature type (denormalized)"}
+  ];
+  optional FeatureSpec feature_snapshot_preview = 14 [
+    json_name = "featureSnapshotPreview",
+    (gnostic.openapi.v3.property) = {description: "全局特征 spec 预览（来自 thing_features.spec）/ Feature spec preview"}
+  ];
+
+  // ===== 自有字段 / Own fields =====
+  optional FeatureOverrideSpec override_spec = 20 [
+    json_name = "overrideSpec",
+    (gnostic.openapi.v3.property) = {description: "稀疏覆写（白名单字段）/ Sparse override spec"}
+  ];
+
+  optional string display_name = 21 [
+    json_name = "displayName",
+    (gnostic.openapi.v3.property) = {description: "分类内展示别名 / Display alias within category"}
+  ];
+
+  optional bool is_enabled = 22 [
+    json_name = "isEnabled",
+    (gnostic.openapi.v3.property) = {description: "是否启用 / Is enabled"}
+  ];
+
+  optional uint32 sort_order = 23 [
+    json_name = "sortOrder",
+    (gnostic.openapi.v3.property) = {description: "排序号，越小越靠前 / Sort order"}
+  ];
+
+  optional uint32 tenant_id = 100 [
+    json_name = "tenantId",
+    (gnostic.openapi.v3.property) = {description: "租户ID，0=系统全局 / Tenant ID, 0=system global"}
+  ];
+
+  optional uint32 created_by = 200 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "创建者 / Created by"}];
+  optional uint32 updated_by = 201 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "更新者 / Updated by"}];
+  optional uint32 deleted_by = 202 [json_name = "deletedBy", (gnostic.openapi.v3.property) = {description: "删除者 / Deleted by"}];
+
+  optional google.protobuf.Timestamp created_at = 300 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "创建时间 / Created at"}];
+  optional google.protobuf.Timestamp updated_at = 301 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "更新时间 / Updated at"}];
+  optional google.protobuf.Timestamp deleted_at = 302 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "删除时间 / Deleted at"}];
+}
+
+// List response
+message ListCategoryDefaultFeatureResponse {
+  repeated CategoryDefaultFeature items = 1;
+  uint64 total = 2;
+}
+
+// Count response
+message CountCategoryDefaultFeatureResponse {
+  uint64 count = 1;
+}
+
+// Get request
+message GetCategoryDefaultFeatureRequest {
+  uint32 id = 1;
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {description: "视图字段过滤器 / View field mask"}
+  ];
+}
+
+// Create request
+message CreateCategoryDefaultFeatureRequest {
+  CategoryDefaultFeature data = 1;
+}
+
+// BatchAdd request：一次性把多个 feature_id 挂到同一个 category_id 下
+message BatchAddCategoryDefaultFeaturesRequest {
+  uint32 category_id = 1 [json_name = "categoryId"];
+
+  // 单项：要绑定的 feature + 可选 override + 可选 display_name + 可选 sort_order
+  message Item {
+    uint32 feature_id = 1 [json_name = "featureId"];
+    optional FeatureOverrideSpec override_spec = 2 [json_name = "overrideSpec"];
+    optional string display_name = 3 [json_name = "displayName"];
+    optional uint32 sort_order = 4 [json_name = "sortOrder"];
+  }
+  repeated Item items = 2;
+}
+
+// BatchAdd response：返回创建成功的列表 + 因 (category,feature) 唯一冲突而跳过的特征编码
+message BatchAddCategoryDefaultFeaturesResponse {
+  repeated CategoryDefaultFeature created = 1;
+  repeated string skipped_duplicate_feature_codes = 2 [json_name = "skippedDuplicateFeatureCodes"];
+}
+
+// Update request
+message UpdateCategoryDefaultFeatureRequest {
+  uint32 id = 1;
+
+  CategoryDefaultFeature data = 2;
+
+  google.protobuf.FieldMask update_mask = 3 [
+    json_name = "updateMask",
+    (gnostic.openapi.v3.property) = {
+      description: "要更新的字段列表 / Fields to update",
+      example: {yaml: "overrideSpec,displayName,isEnabled,sortOrder"}
+    }
+  ];
+
+  optional bool allow_missing = 4 [
+    json_name = "allowMissing",
+    (gnostic.openapi.v3.property) = {description: "若为 true，资源不存在则新增 / Insert when missing"}
+  ];
+}
+
+// Delete request：支持单条或批量
+message DeleteCategoryDefaultFeatureRequest {
+  repeated uint32 ids = 1 [
+    (gnostic.openapi.v3.property) = {description: "要删除的条目ID列表 / Entry IDs to delete"}
+  ];
+}
+
+// Reorder request：拖拽后一次性提交新的 (id, sort_order) 列表
+message ReorderCategoryDefaultFeaturesRequest {
+  uint32 category_id = 1 [json_name = "categoryId"];
+
+  message Item {
+    uint32 id = 1;
+    uint32 sort_order = 2 [json_name = "sortOrder"];
+  }
+  repeated Item items = 2;
+}
