@@ -1,0 +1,46 @@
+{
+  "pageTitle": "产品管理",
+  "moduleName": "产品",
+  "code": "产品编码",
+  "name": "产品名称",
+  "nameEn": "英文名",
+  "category": "分类",
+  "categoryRequired": "请选择分类",
+  "categoryPlaceholder": "请选择（kind=FACILITY，4 层级联）",
+  "manufacturer": "制造商",
+  "modelNo": "型号",
+  "description": "描述",
+  "status": "状态",
+  "isEnabled": "启停",
+  "createProduct": "新增产品",
+  "createSuccess": "产品创建成功",
+  "pullSuccess": "拉取默认模型成功",
+  "noDefaultModel": "该分类下没有默认模型可拉取",
+  "confirmPublish": "确认发布",
+  "publishHint": "发布后将冻结物模型结构：不能再增/删特征条目，不能再修改特征结构（仅可调整覆写）。确定继续吗？",
+  "publishSuccess": "发布成功",
+  "unpublishSuccess": "已撤销发布",
+  "status": {
+    "DRAFT": "草稿",
+    "PUBLISHED": "已发布"
+  },
+  "publish": "发布",
+  "unpublish": "撤销发布",
+  "addFeature": "添加特征",
+  "addFrom": {
+    "pull": "从分类默认模型拉取",
+    "global": "从全局特征库添加",
+    "local": "新建产品本地特征"
+  },
+  "wizard": {
+    "step1": "基本信息",
+    "step2": "拉取默认模型",
+    "pullDescription": "勾选要从默认模型拷贝的特征（默认全选）",
+    "onConflict": "冲突策略",
+    "skip": "跳过冲突",
+    "replace": "覆盖冲突",
+    "skipPull": "跳过",
+    "createAndPull": "创建产品并拉取"
+  },
+  "hasOverride": "已覆写"
+}

@@ -59,6 +59,31 @@ export const thingmodelRoutes: AppRouteObject[] = [
           // authority: ['category:view'],
         },
       },
+      {
+        // 产品管理（模型管理入口②）/ Product management (Model management entry ②)
+        // 设计依据 / Design ref: docs/thingmodel/sheji/模型管理/05-前端实现设计.md §3.1
+        // 注意：分类默认模型（入口①）不单独建菜单，复用 thingmodel:category:edit 权限码
+        name: 'thingmodel-product',
+        path: 'product',
+        element: createLazyRoute(() => import('@/pages/app/thingmodel/product')),
+        meta: {
+          title: 'routes:thingmodelProduct',
+          icon: 'carbon:product',
+          order: 4,
+        },
+      },
+      {
+        // 产品详情页（隐藏菜单，通过列表点入）
+        // Hide from menu; reached by clicking a row in the list.
+        name: 'thingmodel-product-detail',
+        path: 'product/:id',
+        element: createLazyRoute(() => import('@/pages/app/thingmodel/product/ProductDetailPage')),
+        meta: {
+          title: 'routes:thingmodelProduct',
+          hideInMenu: true,
+          activePath: '/thingmodel/product',
+        },
+      },
     ],
   },
 ];

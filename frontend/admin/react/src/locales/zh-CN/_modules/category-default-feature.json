@@ -1,0 +1,19 @@
+{
+  "drawerTitle": "配置默认模型",
+  "addFeature": "新增特征",
+  "addSuccess": "添加成功",
+  "featureCode": "编码",
+  "featureIdentifier": "标识符",
+  "featureName": "名称",
+  "featureType": "类型",
+  "overridden": "覆写",
+  "yes": "已",
+  "editOverride": "编辑覆写",
+  "tab": {
+    "all": "全部",
+    "property": "属性",
+    "event": "事件",
+    "service": "服务",
+    "relation": "关系"
+  }
+}

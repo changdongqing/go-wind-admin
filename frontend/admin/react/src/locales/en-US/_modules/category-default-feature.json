@@ -1,0 +1,19 @@
+{
+  "drawerTitle": "Configure Default Model",
+  "addFeature": "Add Feature",
+  "addSuccess": "Added",
+  "featureCode": "Code",
+  "featureIdentifier": "Identifier",
+  "featureName": "Name",
+  "featureType": "Type",
+  "overridden": "Override",
+  "yes": "yes",
+  "editOverride": "Edit Override",
+  "tab": {
+    "all": "All",
+    "property": "Property",
+    "event": "Event",
+    "service": "Service",
+    "relation": "Relation"
+  }
+}

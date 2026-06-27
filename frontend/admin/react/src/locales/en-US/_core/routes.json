@@ -33,6 +33,7 @@
   "thingmodelUnit": "Unit Management",
   "thingmodelFeature": "Feature Management",
   "thingmodelCategory": "Category Management",
+  "thingmodelProduct": "Product Management",
   "auth": "Authentication",
   "login": "Login",
   "register": "Register",

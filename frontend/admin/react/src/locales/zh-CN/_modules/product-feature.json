@@ -1,0 +1,38 @@
+{
+  "moduleName": "产品特征",
+  "source": {
+    "DEFAULT": "默认模型",
+    "GLOBAL": "全局特征",
+    "LOCAL": "本地特征"
+  },
+  "code": "编码",
+  "identifier": "标识符",
+  "name": "名称",
+  "dataType": "数据类型",
+  "accessMode": "访问模式",
+  "overridden": "覆写",
+  "yes": "已",
+  "description": "描述",
+  "type": {
+    "PROPERTY": "属性",
+    "EVENT": "事件",
+    "SERVICE": "服务",
+    "RELATION": "关系"
+  },
+  "editFeature": "编辑产品特征",
+  "createLocalFeature": "新建产品本地特征",
+  "createGlobalFeature": "从全局特征库添加",
+  "overrideSection": "覆写约束（白名单）",
+  "publishedReadonlyWarning": "产品已发布：结构禁止变更，仅可调整覆写、排序、启停。",
+  "batchAddPartial": "批量添加部分成功：成功 {{done}} 条、失败 {{failed}} 条",
+  "override": {
+    "displayName": "展示别名",
+    "displayNamePlaceholder": "作用域内展示别名",
+    "description": "覆写描述",
+    "constraintsRange": "取值范围 min/max/step",
+    "defaultValue": "默认值",
+    "required": "required（service 输入参数用）",
+    "nonPropertyHint": "非属性类型不支持覆写 constraints / unit / defaultValue",
+    "snapshotPreview": "原始范围"
+  }
+}

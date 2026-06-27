@@ -33,6 +33,7 @@
   "thingmodelUnit": "单位管理",
   "thingmodelFeature": "特征管理",
   "thingmodelCategory": "分类管理",
+  "thingmodelProduct": "产品管理",
   "auth": "认证",
   "login": "登录",
   "register": "注册",

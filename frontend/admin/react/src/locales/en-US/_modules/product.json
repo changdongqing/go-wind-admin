@@ -1,0 +1,46 @@
+{
+  "pageTitle": "Product Management",
+  "moduleName": "Product",
+  "code": "Code",
+  "name": "Name",
+  "nameEn": "Name (en)",
+  "category": "Category",
+  "categoryRequired": "Please select a category",
+  "categoryPlaceholder": "Select (kind=FACILITY, 4-level cascade)",
+  "manufacturer": "Manufacturer",
+  "modelNo": "Model No.",
+  "description": "Description",
+  "status": "Status",
+  "isEnabled": "Enabled",
+  "createProduct": "Create Product",
+  "createSuccess": "Product created",
+  "pullSuccess": "Pulled from default model",
+  "noDefaultModel": "No default model found for this category",
+  "confirmPublish": "Confirm Publish",
+  "publishHint": "After publishing the model structure is frozen: you can no longer add/remove feature entries or change their structure (override only). Continue?",
+  "publishSuccess": "Published",
+  "unpublishSuccess": "Unpublished",
+  "status": {
+    "DRAFT": "Draft",
+    "PUBLISHED": "Published"
+  },
+  "publish": "Publish",
+  "unpublish": "Unpublish",
+  "addFeature": "Add Feature",
+  "addFrom": {
+    "pull": "Pull from default model",
+    "global": "Add from global library",
+    "local": "Create local feature"
+  },
+  "wizard": {
+    "step1": "Basic Info",
+    "step2": "Pull Default Model",
+    "pullDescription": "Select features to copy from the default model (all selected by default)",
+    "onConflict": "On conflict",
+    "skip": "Skip",
+    "replace": "Replace",
+    "skipPull": "Skip",
+    "createAndPull": "Create & Pull"
+  },
+  "hasOverride": "overridden"
+}

@@ -1,0 +1,38 @@
+{
+  "moduleName": "Product Feature",
+  "source": {
+    "DEFAULT": "Default Model",
+    "GLOBAL": "Global Library",
+    "LOCAL": "Local"
+  },
+  "code": "Code",
+  "identifier": "Identifier",
+  "name": "Name",
+  "dataType": "Data Type",
+  "accessMode": "Access Mode",
+  "overridden": "Override",
+  "yes": "yes",
+  "description": "Description",
+  "type": {
+    "PROPERTY": "Property",
+    "EVENT": "Event",
+    "SERVICE": "Service",
+    "RELATION": "Relation"
+  },
+  "editFeature": "Edit Product Feature",
+  "createLocalFeature": "Create Local Feature",
+  "createGlobalFeature": "Add from Global Library",
+  "overrideSection": "Override Constraints (whitelist)",
+  "publishedReadonlyWarning": "Product published: structure is frozen; only override / sort / enable can change.",
+  "batchAddPartial": "Batch add partial: succeeded {{done}}, failed {{failed}}",
+  "override": {
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "Display alias within scope",
+    "description": "Override Description",
+    "constraintsRange": "Range min/max/step",
+    "defaultValue": "Default Value",
+    "required": "required (service input params)",
+    "nonPropertyHint": "Non-property types do not support overriding constraints / unit / defaultValue",
+    "snapshotPreview": "Original range"
+  }
+}
