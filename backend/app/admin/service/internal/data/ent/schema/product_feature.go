@@ -18,14 +18,21 @@ import (
 //   - GLOBAL:  added directly from the global feature library; ref_feature_id non-zero
 //   - LOCAL:   product-local custom feature; ref_feature_id is null/zero
 //
-// 设计依据 / Design ref: docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.3
+// 设计依据 / Design ref:
+//   - docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.3
+//   - docs/thingmodel/sheji/修改记录/CR-001-结构化约束下沉到模型层.md
+//
+// CR-001（2026-06-29）后变更：
+//   - feature_snapshot + override_spec 两字段合并为单一 spec(FeatureSpec)；
+//   - effectiveSpec 合并函数及对应字段彻底删除（spec 即唯一来源）；
+//   - PUBLISHED 状态可改字段白名单收紧为 name/description/sort_order/is_enabled。
 //
 // 关键约束 / Invariants:
 //   - source=LOCAL ↔ ref_feature_id IS NULL；source∈{DEFAULT,GLOBAL} ↔ ref_feature_id IS NOT NULL（Service 校验）
-//   - feature_snapshot 必填，类型必须与 feature_type 一致（Service 校验）
-//   - override_spec 仅允许白名单字段（proto schema 收口）
-//   - 产品 status=PUBLISHED 后禁止增删条目；禁止改 source/code/identifier/feature_type/snapshot 结构（Service 校验器）
-//   - 删除 source=GLOBAL 行 → thing_features.reference_count--；DEFAULT/LOCAL 不动
+//   - spec 必填，其 oneof 分支必须与 feature_type 一致（Service 校验）
+//   - V1–V17 spec 完整性校验由 Service 在 Create/Update 时执行
+//   - 产品 status=PUBLISHED 后禁止增删条目；禁止改 spec 字段（Service 校验器）
+//   - 删除 source=GLOBAL/LOCAL 行 → 维护 thingmodel_units.reference_count；DEFAULT 不动
 //   - (product_id, code)、(product_id, identifier) 各自唯一
 type ProductFeature struct {
 	ent.Schema
@@ -103,16 +110,13 @@ func (ProductFeature) Fields() []ent.Field {
 			Nillable().
 			Comment("描述 / Description"),
 
-		// ===== 完整 spec 快照（产品自洽核心，protojson 编码 oneof）=====
-		field.JSON("feature_snapshot", &FeatureSpecField{}).
-			Comment("完整 FeatureSpec 快照（protojson 编码 oneof）/ Full feature spec snapshot"),
-
-		// ===== 稀疏覆写（白名单字段）=====
-		field.JSON("override_spec", &FeatureOverrideSpecField{}).
+		// ===== CR-001：单一完整 FeatureSpec（产品最终物模型）/ Single full FeatureSpec =====
+		// 用 FeatureSpecField wrapper 走 protojson 编码 oneof。
+		field.JSON("spec", &FeatureSpecField{}).
 			Optional().
-			Comment("稀疏覆写（白名单字段，protojson 编码）/ Sparse override"),
+			Comment("完整 FeatureSpec（CR-001 合并 snapshot+override+effective，protojson）/ Full feature spec"),
 
-		// ===== 冗余特化列（与 thing_features 的对应列同义，便于筛选）=====
+		// ===== 冗余特化列（从 spec 派生，便于筛选）=====
 		field.Enum("data_type").
 			NamedValues(
 				"Int", "INT",

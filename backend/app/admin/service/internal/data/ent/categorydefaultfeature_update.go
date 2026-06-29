@@ -228,15 +228,15 @@ func (_u *CategoryDefaultFeatureUpdate) SetNillableFeatureID(v *uint32) *Categor
 	return _u
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (_u *CategoryDefaultFeatureUpdate) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *CategoryDefaultFeatureUpdate {
-	_u.mutation.SetOverrideSpec(v)
+// SetSpec sets the "spec" field.
+func (_u *CategoryDefaultFeatureUpdate) SetSpec(v *schema.FeatureSpecField) *CategoryDefaultFeatureUpdate {
+	_u.mutation.SetSpec(v)
 	return _u
 }
 
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (_u *CategoryDefaultFeatureUpdate) ClearOverrideSpec() *CategoryDefaultFeatureUpdate {
-	_u.mutation.ClearOverrideSpec()
+// ClearSpec clears the value of the "spec" field.
+func (_u *CategoryDefaultFeatureUpdate) ClearSpec() *CategoryDefaultFeatureUpdate {
+	_u.mutation.ClearSpec()
 	return _u
 }
 
@@ -257,6 +257,106 @@ func (_u *CategoryDefaultFeatureUpdate) SetNillableDisplayName(v *string) *Categ
 // ClearDisplayName clears the value of the "display_name" field.
 func (_u *CategoryDefaultFeatureUpdate) ClearDisplayName() *CategoryDefaultFeatureUpdate {
 	_u.mutation.ClearDisplayName()
+	return _u
+}
+
+// SetDataType sets the "data_type" field.
+func (_u *CategoryDefaultFeatureUpdate) SetDataType(v categorydefaultfeature.DataType) *CategoryDefaultFeatureUpdate {
+	_u.mutation.SetDataType(v)
+	return _u
+}
+
+// SetNillableDataType sets the "data_type" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdate) SetNillableDataType(v *categorydefaultfeature.DataType) *CategoryDefaultFeatureUpdate {
+	if v != nil {
+		_u.SetDataType(*v)
+	}
+	return _u
+}
+
+// ClearDataType clears the value of the "data_type" field.
+func (_u *CategoryDefaultFeatureUpdate) ClearDataType() *CategoryDefaultFeatureUpdate {
+	_u.mutation.ClearDataType()
+	return _u
+}
+
+// SetAccessMode sets the "access_mode" field.
+func (_u *CategoryDefaultFeatureUpdate) SetAccessMode(v categorydefaultfeature.AccessMode) *CategoryDefaultFeatureUpdate {
+	_u.mutation.SetAccessMode(v)
+	return _u
+}
+
+// SetNillableAccessMode sets the "access_mode" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdate) SetNillableAccessMode(v *categorydefaultfeature.AccessMode) *CategoryDefaultFeatureUpdate {
+	if v != nil {
+		_u.SetAccessMode(*v)
+	}
+	return _u
+}
+
+// ClearAccessMode clears the value of the "access_mode" field.
+func (_u *CategoryDefaultFeatureUpdate) ClearAccessMode() *CategoryDefaultFeatureUpdate {
+	_u.mutation.ClearAccessMode()
+	return _u
+}
+
+// SetEventLevel sets the "event_level" field.
+func (_u *CategoryDefaultFeatureUpdate) SetEventLevel(v categorydefaultfeature.EventLevel) *CategoryDefaultFeatureUpdate {
+	_u.mutation.SetEventLevel(v)
+	return _u
+}
+
+// SetNillableEventLevel sets the "event_level" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdate) SetNillableEventLevel(v *categorydefaultfeature.EventLevel) *CategoryDefaultFeatureUpdate {
+	if v != nil {
+		_u.SetEventLevel(*v)
+	}
+	return _u
+}
+
+// ClearEventLevel clears the value of the "event_level" field.
+func (_u *CategoryDefaultFeatureUpdate) ClearEventLevel() *CategoryDefaultFeatureUpdate {
+	_u.mutation.ClearEventLevel()
+	return _u
+}
+
+// SetCallMode sets the "call_mode" field.
+func (_u *CategoryDefaultFeatureUpdate) SetCallMode(v categorydefaultfeature.CallMode) *CategoryDefaultFeatureUpdate {
+	_u.mutation.SetCallMode(v)
+	return _u
+}
+
+// SetNillableCallMode sets the "call_mode" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdate) SetNillableCallMode(v *categorydefaultfeature.CallMode) *CategoryDefaultFeatureUpdate {
+	if v != nil {
+		_u.SetCallMode(*v)
+	}
+	return _u
+}
+
+// ClearCallMode clears the value of the "call_mode" field.
+func (_u *CategoryDefaultFeatureUpdate) ClearCallMode() *CategoryDefaultFeatureUpdate {
+	_u.mutation.ClearCallMode()
+	return _u
+}
+
+// SetRelationType sets the "relation_type" field.
+func (_u *CategoryDefaultFeatureUpdate) SetRelationType(v string) *CategoryDefaultFeatureUpdate {
+	_u.mutation.SetRelationType(v)
+	return _u
+}
+
+// SetNillableRelationType sets the "relation_type" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdate) SetNillableRelationType(v *string) *CategoryDefaultFeatureUpdate {
+	if v != nil {
+		_u.SetRelationType(*v)
+	}
+	return _u
+}
+
+// ClearRelationType clears the value of the "relation_type" field.
+func (_u *CategoryDefaultFeatureUpdate) ClearRelationType() *CategoryDefaultFeatureUpdate {
+	_u.mutation.ClearRelationType()
 	return _u
 }
 
@@ -316,14 +416,34 @@ func (_u *CategoryDefaultFeatureUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *CategoryDefaultFeatureUpdate) check() error {
-	if v, ok := _u.mutation.OverrideSpec(); ok {
+	if v, ok := _u.mutation.Spec(); ok {
 		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "override_spec", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.override_spec": %w`, err)}
+			return &ValidationError{Name: "spec", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.spec": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.DisplayName(); ok {
 		if err := categorydefaultfeature.DisplayNameValidator(v); err != nil {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.display_name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DataType(); ok {
+		if err := categorydefaultfeature.DataTypeValidator(v); err != nil {
+			return &ValidationError{Name: "data_type", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.data_type": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.AccessMode(); ok {
+		if err := categorydefaultfeature.AccessModeValidator(v); err != nil {
+			return &ValidationError{Name: "access_mode", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.access_mode": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.EventLevel(); ok {
+		if err := categorydefaultfeature.EventLevelValidator(v); err != nil {
+			return &ValidationError{Name: "event_level", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.event_level": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.CallMode(); ok {
+		if err := categorydefaultfeature.CallModeValidator(v); err != nil {
+			return &ValidationError{Name: "call_mode", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.call_mode": %w`, err)}
 		}
 	}
 	if _u.mutation.CategoryCleared() && len(_u.mutation.CategoryIDs()) > 0 {
@@ -413,17 +533,47 @@ func (_u *CategoryDefaultFeatureUpdate) sqlSave(ctx context.Context) (_node int,
 	if _u.mutation.TenantIDCleared() {
 		_spec.ClearField(categorydefaultfeature.FieldTenantID, field.TypeUint32)
 	}
-	if value, ok := _u.mutation.OverrideSpec(); ok {
-		_spec.SetField(categorydefaultfeature.FieldOverrideSpec, field.TypeJSON, value)
+	if value, ok := _u.mutation.Spec(); ok {
+		_spec.SetField(categorydefaultfeature.FieldSpec, field.TypeJSON, value)
 	}
-	if _u.mutation.OverrideSpecCleared() {
-		_spec.ClearField(categorydefaultfeature.FieldOverrideSpec, field.TypeJSON)
+	if _u.mutation.SpecCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldSpec, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(categorydefaultfeature.FieldDisplayName, field.TypeString, value)
 	}
 	if _u.mutation.DisplayNameCleared() {
 		_spec.ClearField(categorydefaultfeature.FieldDisplayName, field.TypeString)
+	}
+	if value, ok := _u.mutation.DataType(); ok {
+		_spec.SetField(categorydefaultfeature.FieldDataType, field.TypeEnum, value)
+	}
+	if _u.mutation.DataTypeCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldDataType, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.AccessMode(); ok {
+		_spec.SetField(categorydefaultfeature.FieldAccessMode, field.TypeEnum, value)
+	}
+	if _u.mutation.AccessModeCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldAccessMode, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.EventLevel(); ok {
+		_spec.SetField(categorydefaultfeature.FieldEventLevel, field.TypeEnum, value)
+	}
+	if _u.mutation.EventLevelCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldEventLevel, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.CallMode(); ok {
+		_spec.SetField(categorydefaultfeature.FieldCallMode, field.TypeEnum, value)
+	}
+	if _u.mutation.CallModeCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldCallMode, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.RelationType(); ok {
+		_spec.SetField(categorydefaultfeature.FieldRelationType, field.TypeString, value)
+	}
+	if _u.mutation.RelationTypeCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldRelationType, field.TypeString)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -701,15 +851,15 @@ func (_u *CategoryDefaultFeatureUpdateOne) SetNillableFeatureID(v *uint32) *Cate
 	return _u
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (_u *CategoryDefaultFeatureUpdateOne) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *CategoryDefaultFeatureUpdateOne {
-	_u.mutation.SetOverrideSpec(v)
+// SetSpec sets the "spec" field.
+func (_u *CategoryDefaultFeatureUpdateOne) SetSpec(v *schema.FeatureSpecField) *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.SetSpec(v)
 	return _u
 }
 
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (_u *CategoryDefaultFeatureUpdateOne) ClearOverrideSpec() *CategoryDefaultFeatureUpdateOne {
-	_u.mutation.ClearOverrideSpec()
+// ClearSpec clears the value of the "spec" field.
+func (_u *CategoryDefaultFeatureUpdateOne) ClearSpec() *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.ClearSpec()
 	return _u
 }
 
@@ -730,6 +880,106 @@ func (_u *CategoryDefaultFeatureUpdateOne) SetNillableDisplayName(v *string) *Ca
 // ClearDisplayName clears the value of the "display_name" field.
 func (_u *CategoryDefaultFeatureUpdateOne) ClearDisplayName() *CategoryDefaultFeatureUpdateOne {
 	_u.mutation.ClearDisplayName()
+	return _u
+}
+
+// SetDataType sets the "data_type" field.
+func (_u *CategoryDefaultFeatureUpdateOne) SetDataType(v categorydefaultfeature.DataType) *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.SetDataType(v)
+	return _u
+}
+
+// SetNillableDataType sets the "data_type" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdateOne) SetNillableDataType(v *categorydefaultfeature.DataType) *CategoryDefaultFeatureUpdateOne {
+	if v != nil {
+		_u.SetDataType(*v)
+	}
+	return _u
+}
+
+// ClearDataType clears the value of the "data_type" field.
+func (_u *CategoryDefaultFeatureUpdateOne) ClearDataType() *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.ClearDataType()
+	return _u
+}
+
+// SetAccessMode sets the "access_mode" field.
+func (_u *CategoryDefaultFeatureUpdateOne) SetAccessMode(v categorydefaultfeature.AccessMode) *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.SetAccessMode(v)
+	return _u
+}
+
+// SetNillableAccessMode sets the "access_mode" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdateOne) SetNillableAccessMode(v *categorydefaultfeature.AccessMode) *CategoryDefaultFeatureUpdateOne {
+	if v != nil {
+		_u.SetAccessMode(*v)
+	}
+	return _u
+}
+
+// ClearAccessMode clears the value of the "access_mode" field.
+func (_u *CategoryDefaultFeatureUpdateOne) ClearAccessMode() *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.ClearAccessMode()
+	return _u
+}
+
+// SetEventLevel sets the "event_level" field.
+func (_u *CategoryDefaultFeatureUpdateOne) SetEventLevel(v categorydefaultfeature.EventLevel) *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.SetEventLevel(v)
+	return _u
+}
+
+// SetNillableEventLevel sets the "event_level" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdateOne) SetNillableEventLevel(v *categorydefaultfeature.EventLevel) *CategoryDefaultFeatureUpdateOne {
+	if v != nil {
+		_u.SetEventLevel(*v)
+	}
+	return _u
+}
+
+// ClearEventLevel clears the value of the "event_level" field.
+func (_u *CategoryDefaultFeatureUpdateOne) ClearEventLevel() *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.ClearEventLevel()
+	return _u
+}
+
+// SetCallMode sets the "call_mode" field.
+func (_u *CategoryDefaultFeatureUpdateOne) SetCallMode(v categorydefaultfeature.CallMode) *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.SetCallMode(v)
+	return _u
+}
+
+// SetNillableCallMode sets the "call_mode" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdateOne) SetNillableCallMode(v *categorydefaultfeature.CallMode) *CategoryDefaultFeatureUpdateOne {
+	if v != nil {
+		_u.SetCallMode(*v)
+	}
+	return _u
+}
+
+// ClearCallMode clears the value of the "call_mode" field.
+func (_u *CategoryDefaultFeatureUpdateOne) ClearCallMode() *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.ClearCallMode()
+	return _u
+}
+
+// SetRelationType sets the "relation_type" field.
+func (_u *CategoryDefaultFeatureUpdateOne) SetRelationType(v string) *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.SetRelationType(v)
+	return _u
+}
+
+// SetNillableRelationType sets the "relation_type" field if the given value is not nil.
+func (_u *CategoryDefaultFeatureUpdateOne) SetNillableRelationType(v *string) *CategoryDefaultFeatureUpdateOne {
+	if v != nil {
+		_u.SetRelationType(*v)
+	}
+	return _u
+}
+
+// ClearRelationType clears the value of the "relation_type" field.
+func (_u *CategoryDefaultFeatureUpdateOne) ClearRelationType() *CategoryDefaultFeatureUpdateOne {
+	_u.mutation.ClearRelationType()
 	return _u
 }
 
@@ -802,14 +1052,34 @@ func (_u *CategoryDefaultFeatureUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *CategoryDefaultFeatureUpdateOne) check() error {
-	if v, ok := _u.mutation.OverrideSpec(); ok {
+	if v, ok := _u.mutation.Spec(); ok {
 		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "override_spec", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.override_spec": %w`, err)}
+			return &ValidationError{Name: "spec", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.spec": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.DisplayName(); ok {
 		if err := categorydefaultfeature.DisplayNameValidator(v); err != nil {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.display_name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DataType(); ok {
+		if err := categorydefaultfeature.DataTypeValidator(v); err != nil {
+			return &ValidationError{Name: "data_type", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.data_type": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.AccessMode(); ok {
+		if err := categorydefaultfeature.AccessModeValidator(v); err != nil {
+			return &ValidationError{Name: "access_mode", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.access_mode": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.EventLevel(); ok {
+		if err := categorydefaultfeature.EventLevelValidator(v); err != nil {
+			return &ValidationError{Name: "event_level", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.event_level": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.CallMode(); ok {
+		if err := categorydefaultfeature.CallModeValidator(v); err != nil {
+			return &ValidationError{Name: "call_mode", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.call_mode": %w`, err)}
 		}
 	}
 	if _u.mutation.CategoryCleared() && len(_u.mutation.CategoryIDs()) > 0 {
@@ -916,17 +1186,47 @@ func (_u *CategoryDefaultFeatureUpdateOne) sqlSave(ctx context.Context) (_node *
 	if _u.mutation.TenantIDCleared() {
 		_spec.ClearField(categorydefaultfeature.FieldTenantID, field.TypeUint32)
 	}
-	if value, ok := _u.mutation.OverrideSpec(); ok {
-		_spec.SetField(categorydefaultfeature.FieldOverrideSpec, field.TypeJSON, value)
+	if value, ok := _u.mutation.Spec(); ok {
+		_spec.SetField(categorydefaultfeature.FieldSpec, field.TypeJSON, value)
 	}
-	if _u.mutation.OverrideSpecCleared() {
-		_spec.ClearField(categorydefaultfeature.FieldOverrideSpec, field.TypeJSON)
+	if _u.mutation.SpecCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldSpec, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(categorydefaultfeature.FieldDisplayName, field.TypeString, value)
 	}
 	if _u.mutation.DisplayNameCleared() {
 		_spec.ClearField(categorydefaultfeature.FieldDisplayName, field.TypeString)
+	}
+	if value, ok := _u.mutation.DataType(); ok {
+		_spec.SetField(categorydefaultfeature.FieldDataType, field.TypeEnum, value)
+	}
+	if _u.mutation.DataTypeCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldDataType, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.AccessMode(); ok {
+		_spec.SetField(categorydefaultfeature.FieldAccessMode, field.TypeEnum, value)
+	}
+	if _u.mutation.AccessModeCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldAccessMode, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.EventLevel(); ok {
+		_spec.SetField(categorydefaultfeature.FieldEventLevel, field.TypeEnum, value)
+	}
+	if _u.mutation.EventLevelCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldEventLevel, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.CallMode(); ok {
+		_spec.SetField(categorydefaultfeature.FieldCallMode, field.TypeEnum, value)
+	}
+	if _u.mutation.CallModeCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldCallMode, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.RelationType(); ok {
+		_spec.SetField(categorydefaultfeature.FieldRelationType, field.TypeString, value)
+	}
+	if _u.mutation.RelationTypeCleared() {
+		_spec.ClearField(categorydefaultfeature.FieldRelationType, field.TypeString)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{

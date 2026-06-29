@@ -2,8 +2,8 @@ import { Form, Input, InputNumber, Select, Button, Space, Switch, Divider } from
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
-import { callModeOptions, dataTypeOptions } from '../constants';
-import UnitSelect from '../components/UnitSelect';
+import { callModeOptions, dataTypeOptions } from '../../feature/constants';
+import UnitSelect from '../../feature/components/UnitSelect';
 
 interface ServiceSpecFormProps {
   namePath: (string | number)[];

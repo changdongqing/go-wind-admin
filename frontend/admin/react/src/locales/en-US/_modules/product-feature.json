@@ -27,8 +27,10 @@
   "editFeature": "Edit Product Feature",
   "createLocalFeature": "Create Local Feature",
   "createGlobalFeature": "Add from Global Library",
-  "overrideSection": "Override Constraints (whitelist)",
-  "publishedReadonlyWarning": "Product published: structure is frozen; only override / sort / enable can change.",
+  "specSection": "Structured Constraint Spec",
+  "specSummary": "Spec Summary",
+  "overrideSection": "Override Constraints (deprecated)",
+  "publishedReadonlyWarning": "Product published: basic info (name/description) editable; spec is frozen.",
   "batchAddPartial": "Batch add partial: succeeded {{done}}, failed {{failed}}",
   "override": {
     "displayName": "Display Name",

@@ -5,7 +5,7 @@ import {
   cardinalityOptions,
   entityKindOptions,
   relationTypeOptions,
-} from '../constants';
+} from '../../feature/constants';
 
 interface RelationSpecFormProps {
   namePath: (string | number)[];

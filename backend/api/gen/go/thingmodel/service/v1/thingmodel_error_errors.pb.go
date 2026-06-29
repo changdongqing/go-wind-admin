@@ -1174,6 +1174,7 @@ func ErrorCategoryImmutableField(format string, args ...interface{}) *errors.Err
 }
 
 // ===== 模型管理 - 分类默认模型 / Category default feature =====
+// CR-001：CAT_DEFAULT_FEATURE_OVERRIDE_INVALID(42013) 已废弃，由 FEATURE_SPEC_INVALID 等通用 spec 校验错误码替代
 func IsCatDefaultFeatureNotFound(err error) bool {
 	if err == nil {
 		return false
@@ -1183,6 +1184,7 @@ func IsCatDefaultFeatureNotFound(err error) bool {
 }
 
 // ===== 模型管理 - 分类默认模型 / Category default feature =====
+// CR-001：CAT_DEFAULT_FEATURE_OVERRIDE_INVALID(42013) 已废弃，由 FEATURE_SPEC_INVALID 等通用 spec 校验错误码替代
 func ErrorCatDefaultFeatureNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, ThingModelErrorReason_CAT_DEFAULT_FEATURE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
@@ -1213,20 +1215,6 @@ func IsCatDefaultFeatureDuplicate(err error) bool {
 // (category, feature) 已存在 / Duplicate (category, feature)
 func ErrorCatDefaultFeatureDuplicate(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, ThingModelErrorReason_CAT_DEFAULT_FEATURE_DUPLICATE.String(), fmt.Sprintf(format, args...))
-}
-
-// override_spec 非法 / Invalid override spec
-func IsCatDefaultFeatureOverrideInvalid(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == ThingModelErrorReason_CAT_DEFAULT_FEATURE_OVERRIDE_INVALID.String() && e.Code == 400
-}
-
-// override_spec 非法 / Invalid override spec
-func ErrorCatDefaultFeatureOverrideInvalid(format string, args ...interface{}) *errors.Error {
-	return errors.New(400, ThingModelErrorReason_CAT_DEFAULT_FEATURE_OVERRIDE_INVALID.String(), fmt.Sprintf(format, args...))
 }
 
 // 引用的全局特征已停用 / Referenced feature disabled
@@ -1356,6 +1344,7 @@ func ErrorProductImmutableField(format string, args ...interface{}) *errors.Erro
 }
 
 // ===== 模型管理 - 产品特征 / Product feature =====
+// CR-001：PF_OVERRIDE_INVALID(42215) 已废弃，由 FEATURE_SPEC_INVALID 等通用 spec 校验错误码替代
 func IsProductFeatureNotFound(err error) bool {
 	if err == nil {
 		return false
@@ -1365,6 +1354,7 @@ func IsProductFeatureNotFound(err error) bool {
 }
 
 // ===== 模型管理 - 产品特征 / Product feature =====
+// CR-001：PF_OVERRIDE_INVALID(42215) 已废弃，由 FEATURE_SPEC_INVALID 等通用 spec 校验错误码替代
 func ErrorProductFeatureNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, ThingModelErrorReason_PRODUCT_FEATURE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
@@ -1411,7 +1401,7 @@ func ErrorPfDuplicateIdentifier(format string, args ...interface{}) *errors.Erro
 	return errors.New(409, ThingModelErrorReason_PF_DUPLICATE_IDENTIFIER.String(), fmt.Sprintf(format, args...))
 }
 
-// feature_snapshot 与 feature_type 不一致 / Spec/type mismatch
+// spec 与 feature_type 不一致 / Spec/type mismatch
 func IsPfSpecTypeMismatch(err error) bool {
 	if err == nil {
 		return false
@@ -1420,23 +1410,9 @@ func IsPfSpecTypeMismatch(err error) bool {
 	return e.Reason == ThingModelErrorReason_PF_SPEC_TYPE_MISMATCH.String() && e.Code == 400
 }
 
-// feature_snapshot 与 feature_type 不一致 / Spec/type mismatch
+// spec 与 feature_type 不一致 / Spec/type mismatch
 func ErrorPfSpecTypeMismatch(format string, args ...interface{}) *errors.Error {
 	return errors.New(400, ThingModelErrorReason_PF_SPEC_TYPE_MISMATCH.String(), fmt.Sprintf(format, args...))
-}
-
-// override_spec 非法 / Invalid override spec
-func IsPfOverrideInvalid(err error) bool {
-	if err == nil {
-		return false
-	}
-	e := errors.FromError(err)
-	return e.Reason == ThingModelErrorReason_PF_OVERRIDE_INVALID.String() && e.Code == 400
-}
-
-// override_spec 非法 / Invalid override spec
-func ErrorPfOverrideInvalid(format string, args ...interface{}) *errors.Error {
-	return errors.New(400, ThingModelErrorReason_PF_OVERRIDE_INVALID.String(), fmt.Sprintf(format, args...))
 }
 
 // 产品已发布，结构禁止变更 / Product published, structure frozen

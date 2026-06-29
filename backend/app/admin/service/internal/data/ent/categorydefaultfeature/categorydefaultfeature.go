@@ -3,6 +3,8 @@
 package categorydefaultfeature
 
 import (
+	"fmt"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -35,10 +37,20 @@ const (
 	FieldCategoryID = "category_id"
 	// FieldFeatureID holds the string denoting the feature_id field in the database.
 	FieldFeatureID = "feature_id"
-	// FieldOverrideSpec holds the string denoting the override_spec field in the database.
-	FieldOverrideSpec = "override_spec"
+	// FieldSpec holds the string denoting the spec field in the database.
+	FieldSpec = "spec"
 	// FieldDisplayName holds the string denoting the display_name field in the database.
 	FieldDisplayName = "display_name"
+	// FieldDataType holds the string denoting the data_type field in the database.
+	FieldDataType = "data_type"
+	// FieldAccessMode holds the string denoting the access_mode field in the database.
+	FieldAccessMode = "access_mode"
+	// FieldEventLevel holds the string denoting the event_level field in the database.
+	FieldEventLevel = "event_level"
+	// FieldCallMode holds the string denoting the call_mode field in the database.
+	FieldCallMode = "call_mode"
+	// FieldRelationType holds the string denoting the relation_type field in the database.
+	FieldRelationType = "relation_type"
 	// EdgeCategory holds the string denoting the category edge name in mutations.
 	EdgeCategory = "category"
 	// EdgeFeature holds the string denoting the feature edge name in mutations.
@@ -75,8 +87,13 @@ var Columns = []string{
 	FieldTenantID,
 	FieldCategoryID,
 	FieldFeatureID,
-	FieldOverrideSpec,
+	FieldSpec,
 	FieldDisplayName,
+	FieldDataType,
+	FieldAccessMode,
+	FieldEventLevel,
+	FieldCallMode,
+	FieldRelationType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -108,6 +125,106 @@ var (
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(uint32) error
 )
+
+// DataType defines the type for the "data_type" enum field.
+type DataType string
+
+// DataType values.
+const (
+	DataTypeInt    DataType = "INT"
+	DataTypeFloat  DataType = "FLOAT"
+	DataTypeDouble DataType = "DOUBLE"
+	DataTypeBool   DataType = "BOOL"
+	DataTypeEnum   DataType = "ENUM"
+	DataTypeText   DataType = "TEXT"
+	DataTypeDate   DataType = "DATE"
+	DataTypeStruct DataType = "STRUCT"
+	DataTypeArray  DataType = "ARRAY"
+)
+
+func (dt DataType) String() string {
+	return string(dt)
+}
+
+// DataTypeValidator is a validator for the "data_type" field enum values. It is called by the builders before save.
+func DataTypeValidator(dt DataType) error {
+	switch dt {
+	case DataTypeInt, DataTypeFloat, DataTypeDouble, DataTypeBool, DataTypeEnum, DataTypeText, DataTypeDate, DataTypeStruct, DataTypeArray:
+		return nil
+	default:
+		return fmt.Errorf("categorydefaultfeature: invalid enum value for data_type field: %q", dt)
+	}
+}
+
+// AccessMode defines the type for the "access_mode" enum field.
+type AccessMode string
+
+// AccessMode values.
+const (
+	AccessModeR  AccessMode = "R"
+	AccessModeRW AccessMode = "RW"
+)
+
+func (am AccessMode) String() string {
+	return string(am)
+}
+
+// AccessModeValidator is a validator for the "access_mode" field enum values. It is called by the builders before save.
+func AccessModeValidator(am AccessMode) error {
+	switch am {
+	case AccessModeR, AccessModeRW:
+		return nil
+	default:
+		return fmt.Errorf("categorydefaultfeature: invalid enum value for access_mode field: %q", am)
+	}
+}
+
+// EventLevel defines the type for the "event_level" enum field.
+type EventLevel string
+
+// EventLevel values.
+const (
+	EventLevelInfo  EventLevel = "INFO"
+	EventLevelAlert EventLevel = "ALERT"
+	EventLevelError EventLevel = "ERROR"
+)
+
+func (el EventLevel) String() string {
+	return string(el)
+}
+
+// EventLevelValidator is a validator for the "event_level" field enum values. It is called by the builders before save.
+func EventLevelValidator(el EventLevel) error {
+	switch el {
+	case EventLevelInfo, EventLevelAlert, EventLevelError:
+		return nil
+	default:
+		return fmt.Errorf("categorydefaultfeature: invalid enum value for event_level field: %q", el)
+	}
+}
+
+// CallMode defines the type for the "call_mode" enum field.
+type CallMode string
+
+// CallMode values.
+const (
+	CallModeAsync CallMode = "ASYNC"
+	CallModeSync  CallMode = "SYNC"
+)
+
+func (cm CallMode) String() string {
+	return string(cm)
+}
+
+// CallModeValidator is a validator for the "call_mode" field enum values. It is called by the builders before save.
+func CallModeValidator(cm CallMode) error {
+	switch cm {
+	case CallModeAsync, CallModeSync:
+		return nil
+	default:
+		return fmt.Errorf("categorydefaultfeature: invalid enum value for call_mode field: %q", cm)
+	}
+}
 
 // OrderOption defines the ordering options for the CategoryDefaultFeature queries.
 type OrderOption func(*sql.Selector)
@@ -175,6 +292,31 @@ func ByFeatureID(opts ...sql.OrderTermOption) OrderOption {
 // ByDisplayName orders the results by the display_name field.
 func ByDisplayName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDisplayName, opts...).ToFunc()
+}
+
+// ByDataType orders the results by the data_type field.
+func ByDataType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDataType, opts...).ToFunc()
+}
+
+// ByAccessMode orders the results by the access_mode field.
+func ByAccessMode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccessMode, opts...).ToFunc()
+}
+
+// ByEventLevel orders the results by the event_level field.
+func ByEventLevel(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEventLevel, opts...).ToFunc()
+}
+
+// ByCallMode orders the results by the call_mode field.
+func ByCallMode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCallMode, opts...).ToFunc()
+}
+
+// ByRelationType orders the results by the relation_type field.
+func ByRelationType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRelationType, opts...).ToFunc()
 }
 
 // ByCategoryField orders the results by category field.

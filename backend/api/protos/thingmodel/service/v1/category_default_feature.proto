@@ -9,12 +9,14 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/field_mask.proto";
 
 import "pagination/v1/pagination.proto";
-import "thingmodel/service/v1/feature.proto";              // FeatureType / FeatureSpec
-import "thingmodel/service/v1/feature_override_spec.proto"; // FeatureOverrideSpec
+import "thingmodel/service/v1/feature.proto";  // FeatureType / FeatureSpec / DataType / AccessMode / EventLevel / CallMode
 
 // 分类默认模型服务（源领域层，无 HTTP 注解）/ Category default feature service (domain)
 //
-// 每条 CategoryDefaultFeature = "分类 X 的默认模型中应当包含特征 Y"。
+// CR-001（2026-06-29）：结构化约束 spec 整体承载于本表 `spec` 字段（完整 FeatureSpec），
+// 不再使用稀疏覆写（FeatureOverrideSpec 已废弃）。
+//
+// 每条 CategoryDefaultFeature = "分类 X 的默认模型中应当包含特征 Y，且其约束 spec 为 Z"。
 // 仅 level=4 细类可挂默认模型条目（Service 校验，DB 不约束）。
 // 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.1
 service CategoryDefaultFeatureService {
@@ -33,7 +35,7 @@ service CategoryDefaultFeatureService {
   // 批量加多条（分类 Drawer 内一次性勾选 N 个特征）/ Batch add
   rpc BatchAdd (BatchAddCategoryDefaultFeaturesRequest) returns (BatchAddCategoryDefaultFeaturesResponse) {}
 
-  // 更新（override_spec/display_name/sort/enabled）/ Update via FieldMask
+  // 更新（spec/display_name/sort/enabled）/ Update via FieldMask
   rpc Update (UpdateCategoryDefaultFeatureRequest) returns (google.protobuf.Empty) {}
 
   // 删除单条或批量 / Delete
@@ -45,6 +47,10 @@ service CategoryDefaultFeatureService {
 
 // 分类默认模型条目 / Category default feature entry
 message CategoryDefaultFeature {
+  // 保留旧 tag 防止误用（14 原为 feature_snapshot_preview，已合并至 feature 骨架字段）
+  reserved 14;
+  reserved "feature_snapshot_preview";
+
   optional uint32 id = 1 [
     json_name = "id",
     (gnostic.openapi.v3.property) = {description: "条目ID / Entry ID"}
@@ -57,7 +63,7 @@ message CategoryDefaultFeature {
 
   optional uint32 feature_id = 3 [
     json_name = "featureId",
-    (gnostic.openapi.v3.property) = {description: "全局特征ID / Global feature ID"}
+    (gnostic.openapi.v3.property) = {description: "全局特征ID（骨架来源）/ Global feature ID (skeleton source)"}
   ];
 
   // ===== 关联只读字段（List/Get 时由后端 join 填充）/ Joined read-only fields =====
@@ -77,15 +83,11 @@ message CategoryDefaultFeature {
     json_name = "featureType",
     (gnostic.openapi.v3.property) = {description: "特征类型（冗余）/ Feature type (denormalized)"}
   ];
-  optional FeatureSpec feature_snapshot_preview = 14 [
-    json_name = "featureSnapshotPreview",
-    (gnostic.openapi.v3.property) = {description: "全局特征 spec 预览（来自 thing_features.spec）/ Feature spec preview"}
-  ];
 
-  // ===== 自有字段 / Own fields =====
-  optional FeatureOverrideSpec override_spec = 20 [
-    json_name = "overrideSpec",
-    (gnostic.openapi.v3.property) = {description: "稀疏覆写（白名单字段）/ Sparse override spec"}
+  // ===== CR-001：完整 FeatureSpec（按 feature_type 解读）/ Full feature spec at category scope =====
+  optional FeatureSpec spec = 20 [
+    json_name = "spec",
+    (gnostic.openapi.v3.property) = {description: "完整 FeatureSpec（CR-001 后承载所有结构化约束）/ Full feature spec"}
   ];
 
   optional string display_name = 21 [
@@ -102,6 +104,13 @@ message CategoryDefaultFeature {
     json_name = "sortOrder",
     (gnostic.openapi.v3.property) = {description: "排序号，越小越靠前 / Sort order"}
   ];
+
+  // ===== CR-001 新增：冗余特化抽取列（从 spec 派生，便于列表筛选）/ Specialized columns (derived from spec) =====
+  optional DataType   data_type     = 30 [json_name = "dataType",     (gnostic.openapi.v3.property) = {description: "property 数据类型 / Property data type"}];
+  optional AccessMode access_mode   = 31 [json_name = "accessMode",   (gnostic.openapi.v3.property) = {description: "property 访问模式 / Access mode"}];
+  optional EventLevel event_level   = 32 [json_name = "eventLevel",   (gnostic.openapi.v3.property) = {description: "event 级别 / Event level"}];
+  optional CallMode   call_mode     = 33 [json_name = "callMode",     (gnostic.openapi.v3.property) = {description: "service 调用模式 / Call mode"}];
+  optional string     relation_type = 34 [json_name = "relationType", (gnostic.openapi.v3.property) = {description: "relation 关系类型 / Relation type"}];
 
   optional uint32 tenant_id = 100 [
     json_name = "tenantId",
@@ -147,10 +156,14 @@ message CreateCategoryDefaultFeatureRequest {
 message BatchAddCategoryDefaultFeaturesRequest {
   uint32 category_id = 1 [json_name = "categoryId"];
 
-  // 单项：要绑定的 feature + 可选 override + 可选 display_name + 可选 sort_order
+  // 单项：要绑定的 feature + 可选 spec + 可选 display_name + 可选 sort_order
+  // CR-001：原 override_spec 字段已升级为完整 spec（FeatureSpec），可为空，由用户后续编辑。
   message Item {
+    reserved 2;
+    reserved "override_spec";
+
     uint32 feature_id = 1 [json_name = "featureId"];
-    optional FeatureOverrideSpec override_spec = 2 [json_name = "overrideSpec"];
+    optional FeatureSpec spec = 5 [json_name = "spec"];
     optional string display_name = 3 [json_name = "displayName"];
     optional uint32 sort_order = 4 [json_name = "sortOrder"];
   }
@@ -173,7 +186,7 @@ message UpdateCategoryDefaultFeatureRequest {
     json_name = "updateMask",
     (gnostic.openapi.v3.property) = {
       description: "要更新的字段列表 / Fields to update",
-      example: {yaml: "overrideSpec,displayName,isEnabled,sortOrder"}
+      example: {yaml: "spec,displayName,isEnabled,sortOrder"}
     }
   ];
 

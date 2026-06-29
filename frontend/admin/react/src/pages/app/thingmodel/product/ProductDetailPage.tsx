@@ -156,9 +156,23 @@ const ProductDetailPage = () => {
     },
     { title: t('product-feature:accessMode'), dataIndex: 'accessMode', width: 90 },
     {
-      title: t('product-feature:overridden'),
-      width: 90,
-      render: (_, row) => (row.overrideSpec ? t('product-feature:yes') : '-'),
+      title: t('product-feature:specSummary', { defaultValue: 'Spec 概要' }),
+      width: 140,
+      render: (_, row) => {
+        // CR-001：用冗余特化列做摘要展示（spec 完整 JSON 太长不适合列表）
+        switch (row.featureType) {
+          case 'PROPERTY':
+            return [row.dataType, row.accessMode].filter(Boolean).join(' / ') || '-';
+          case 'EVENT':
+            return row.eventLevel || '-';
+          case 'SERVICE':
+            return row.callMode || '-';
+          case 'RELATION':
+            return row.relationType || '-';
+          default:
+            return '-';
+        }
+      },
     },
     {
       title: t('common:table.action'),

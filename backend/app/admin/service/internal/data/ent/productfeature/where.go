@@ -1045,14 +1045,14 @@ func DescriptionContainsFold(v string) predicate.ProductFeature {
 	return predicate.ProductFeature(sql.FieldContainsFold(FieldDescription, v))
 }
 
-// OverrideSpecIsNil applies the IsNil predicate on the "override_spec" field.
-func OverrideSpecIsNil() predicate.ProductFeature {
-	return predicate.ProductFeature(sql.FieldIsNull(FieldOverrideSpec))
+// SpecIsNil applies the IsNil predicate on the "spec" field.
+func SpecIsNil() predicate.ProductFeature {
+	return predicate.ProductFeature(sql.FieldIsNull(FieldSpec))
 }
 
-// OverrideSpecNotNil applies the NotNil predicate on the "override_spec" field.
-func OverrideSpecNotNil() predicate.ProductFeature {
-	return predicate.ProductFeature(sql.FieldNotNull(FieldOverrideSpec))
+// SpecNotNil applies the NotNil predicate on the "spec" field.
+func SpecNotNil() predicate.ProductFeature {
+	return predicate.ProductFeature(sql.FieldNotNull(FieldSpec))
 }
 
 // DataTypeEQ applies the EQ predicate on the "data_type" field.

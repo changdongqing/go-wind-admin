@@ -179,8 +179,13 @@ var schemaGraph = func() *sqlgraph.Schema {
 			categorydefaultfeature.FieldTenantID:     {Type: field.TypeUint32, Column: categorydefaultfeature.FieldTenantID},
 			categorydefaultfeature.FieldCategoryID:   {Type: field.TypeUint32, Column: categorydefaultfeature.FieldCategoryID},
 			categorydefaultfeature.FieldFeatureID:    {Type: field.TypeUint32, Column: categorydefaultfeature.FieldFeatureID},
-			categorydefaultfeature.FieldOverrideSpec: {Type: field.TypeJSON, Column: categorydefaultfeature.FieldOverrideSpec},
+			categorydefaultfeature.FieldSpec:         {Type: field.TypeJSON, Column: categorydefaultfeature.FieldSpec},
 			categorydefaultfeature.FieldDisplayName:  {Type: field.TypeString, Column: categorydefaultfeature.FieldDisplayName},
+			categorydefaultfeature.FieldDataType:     {Type: field.TypeEnum, Column: categorydefaultfeature.FieldDataType},
+			categorydefaultfeature.FieldAccessMode:   {Type: field.TypeEnum, Column: categorydefaultfeature.FieldAccessMode},
+			categorydefaultfeature.FieldEventLevel:   {Type: field.TypeEnum, Column: categorydefaultfeature.FieldEventLevel},
+			categorydefaultfeature.FieldCallMode:     {Type: field.TypeEnum, Column: categorydefaultfeature.FieldCallMode},
+			categorydefaultfeature.FieldRelationType: {Type: field.TypeString, Column: categorydefaultfeature.FieldRelationType},
 		},
 	}
 	graph.Nodes[4] = &sqlgraph.Node{
@@ -305,28 +310,24 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		Type: "Feature",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			feature.FieldCreatedAt:       {Type: field.TypeTime, Column: feature.FieldCreatedAt},
-			feature.FieldUpdatedAt:       {Type: field.TypeTime, Column: feature.FieldUpdatedAt},
-			feature.FieldDeletedAt:       {Type: field.TypeTime, Column: feature.FieldDeletedAt},
-			feature.FieldCreatedBy:       {Type: field.TypeUint32, Column: feature.FieldCreatedBy},
-			feature.FieldUpdatedBy:       {Type: field.TypeUint32, Column: feature.FieldUpdatedBy},
-			feature.FieldDeletedBy:       {Type: field.TypeUint32, Column: feature.FieldDeletedBy},
-			feature.FieldIsEnabled:       {Type: field.TypeBool, Column: feature.FieldIsEnabled},
-			feature.FieldSortOrder:       {Type: field.TypeUint32, Column: feature.FieldSortOrder},
-			feature.FieldTenantID:        {Type: field.TypeUint32, Column: feature.FieldTenantID},
-			feature.FieldFeatureType:     {Type: field.TypeEnum, Column: feature.FieldFeatureType},
-			feature.FieldCode:            {Type: field.TypeString, Column: feature.FieldCode},
-			feature.FieldIdentifier:      {Type: field.TypeString, Column: feature.FieldIdentifier},
-			feature.FieldName:            {Type: field.TypeString, Column: feature.FieldName},
-			feature.FieldNameEn:          {Type: field.TypeString, Column: feature.FieldNameEn},
-			feature.FieldDescription:     {Type: field.TypeString, Column: feature.FieldDescription},
-			feature.FieldApplicableScope: {Type: field.TypeString, Column: feature.FieldApplicableScope},
-			feature.FieldDataType:        {Type: field.TypeEnum, Column: feature.FieldDataType},
-			feature.FieldAccessMode:      {Type: field.TypeEnum, Column: feature.FieldAccessMode},
-			feature.FieldEventLevel:      {Type: field.TypeEnum, Column: feature.FieldEventLevel},
-			feature.FieldCallMode:        {Type: field.TypeEnum, Column: feature.FieldCallMode},
-			feature.FieldRelationType:    {Type: field.TypeString, Column: feature.FieldRelationType},
-			feature.FieldSpec:            {Type: field.TypeJSON, Column: feature.FieldSpec},
+			feature.FieldCreatedAt:                 {Type: field.TypeTime, Column: feature.FieldCreatedAt},
+			feature.FieldUpdatedAt:                 {Type: field.TypeTime, Column: feature.FieldUpdatedAt},
+			feature.FieldDeletedAt:                 {Type: field.TypeTime, Column: feature.FieldDeletedAt},
+			feature.FieldCreatedBy:                 {Type: field.TypeUint32, Column: feature.FieldCreatedBy},
+			feature.FieldUpdatedBy:                 {Type: field.TypeUint32, Column: feature.FieldUpdatedBy},
+			feature.FieldDeletedBy:                 {Type: field.TypeUint32, Column: feature.FieldDeletedBy},
+			feature.FieldIsEnabled:                 {Type: field.TypeBool, Column: feature.FieldIsEnabled},
+			feature.FieldSortOrder:                 {Type: field.TypeUint32, Column: feature.FieldSortOrder},
+			feature.FieldTenantID:                  {Type: field.TypeUint32, Column: feature.FieldTenantID},
+			feature.FieldFeatureType:               {Type: field.TypeEnum, Column: feature.FieldFeatureType},
+			feature.FieldCode:                      {Type: field.TypeString, Column: feature.FieldCode},
+			feature.FieldIdentifier:                {Type: field.TypeString, Column: feature.FieldIdentifier},
+			feature.FieldName:                      {Type: field.TypeString, Column: feature.FieldName},
+			feature.FieldNameEn:                    {Type: field.TypeString, Column: feature.FieldNameEn},
+			feature.FieldDescription:               {Type: field.TypeString, Column: feature.FieldDescription},
+			feature.FieldApplicableScope:           {Type: field.TypeString, Column: feature.FieldApplicableScope},
+			feature.FieldRecommendedUnitCategoryID: {Type: field.TypeUint32, Column: feature.FieldRecommendedUnitCategoryID},
+			feature.FieldSemanticTag:               {Type: field.TypeString, Column: feature.FieldSemanticTag},
 		},
 	}
 	graph.Nodes[9] = &sqlgraph.Node{
@@ -998,31 +999,30 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		Type: "ProductFeature",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			productfeature.FieldCreatedAt:       {Type: field.TypeTime, Column: productfeature.FieldCreatedAt},
-			productfeature.FieldUpdatedAt:       {Type: field.TypeTime, Column: productfeature.FieldUpdatedAt},
-			productfeature.FieldDeletedAt:       {Type: field.TypeTime, Column: productfeature.FieldDeletedAt},
-			productfeature.FieldCreatedBy:       {Type: field.TypeUint32, Column: productfeature.FieldCreatedBy},
-			productfeature.FieldUpdatedBy:       {Type: field.TypeUint32, Column: productfeature.FieldUpdatedBy},
-			productfeature.FieldDeletedBy:       {Type: field.TypeUint32, Column: productfeature.FieldDeletedBy},
-			productfeature.FieldIsEnabled:       {Type: field.TypeBool, Column: productfeature.FieldIsEnabled},
-			productfeature.FieldSortOrder:       {Type: field.TypeUint32, Column: productfeature.FieldSortOrder},
-			productfeature.FieldTenantID:        {Type: field.TypeUint32, Column: productfeature.FieldTenantID},
-			productfeature.FieldProductID:       {Type: field.TypeUint32, Column: productfeature.FieldProductID},
-			productfeature.FieldSource:          {Type: field.TypeEnum, Column: productfeature.FieldSource},
-			productfeature.FieldRefFeatureID:    {Type: field.TypeUint32, Column: productfeature.FieldRefFeatureID},
-			productfeature.FieldFeatureType:     {Type: field.TypeEnum, Column: productfeature.FieldFeatureType},
-			productfeature.FieldCode:            {Type: field.TypeString, Column: productfeature.FieldCode},
-			productfeature.FieldIdentifier:      {Type: field.TypeString, Column: productfeature.FieldIdentifier},
-			productfeature.FieldName:            {Type: field.TypeString, Column: productfeature.FieldName},
-			productfeature.FieldNameEn:          {Type: field.TypeString, Column: productfeature.FieldNameEn},
-			productfeature.FieldDescription:     {Type: field.TypeString, Column: productfeature.FieldDescription},
-			productfeature.FieldFeatureSnapshot: {Type: field.TypeJSON, Column: productfeature.FieldFeatureSnapshot},
-			productfeature.FieldOverrideSpec:    {Type: field.TypeJSON, Column: productfeature.FieldOverrideSpec},
-			productfeature.FieldDataType:        {Type: field.TypeEnum, Column: productfeature.FieldDataType},
-			productfeature.FieldAccessMode:      {Type: field.TypeEnum, Column: productfeature.FieldAccessMode},
-			productfeature.FieldEventLevel:      {Type: field.TypeEnum, Column: productfeature.FieldEventLevel},
-			productfeature.FieldCallMode:        {Type: field.TypeEnum, Column: productfeature.FieldCallMode},
-			productfeature.FieldRelationType:    {Type: field.TypeString, Column: productfeature.FieldRelationType},
+			productfeature.FieldCreatedAt:    {Type: field.TypeTime, Column: productfeature.FieldCreatedAt},
+			productfeature.FieldUpdatedAt:    {Type: field.TypeTime, Column: productfeature.FieldUpdatedAt},
+			productfeature.FieldDeletedAt:    {Type: field.TypeTime, Column: productfeature.FieldDeletedAt},
+			productfeature.FieldCreatedBy:    {Type: field.TypeUint32, Column: productfeature.FieldCreatedBy},
+			productfeature.FieldUpdatedBy:    {Type: field.TypeUint32, Column: productfeature.FieldUpdatedBy},
+			productfeature.FieldDeletedBy:    {Type: field.TypeUint32, Column: productfeature.FieldDeletedBy},
+			productfeature.FieldIsEnabled:    {Type: field.TypeBool, Column: productfeature.FieldIsEnabled},
+			productfeature.FieldSortOrder:    {Type: field.TypeUint32, Column: productfeature.FieldSortOrder},
+			productfeature.FieldTenantID:     {Type: field.TypeUint32, Column: productfeature.FieldTenantID},
+			productfeature.FieldProductID:    {Type: field.TypeUint32, Column: productfeature.FieldProductID},
+			productfeature.FieldSource:       {Type: field.TypeEnum, Column: productfeature.FieldSource},
+			productfeature.FieldRefFeatureID: {Type: field.TypeUint32, Column: productfeature.FieldRefFeatureID},
+			productfeature.FieldFeatureType:  {Type: field.TypeEnum, Column: productfeature.FieldFeatureType},
+			productfeature.FieldCode:         {Type: field.TypeString, Column: productfeature.FieldCode},
+			productfeature.FieldIdentifier:   {Type: field.TypeString, Column: productfeature.FieldIdentifier},
+			productfeature.FieldName:         {Type: field.TypeString, Column: productfeature.FieldName},
+			productfeature.FieldNameEn:       {Type: field.TypeString, Column: productfeature.FieldNameEn},
+			productfeature.FieldDescription:  {Type: field.TypeString, Column: productfeature.FieldDescription},
+			productfeature.FieldSpec:         {Type: field.TypeJSON, Column: productfeature.FieldSpec},
+			productfeature.FieldDataType:     {Type: field.TypeEnum, Column: productfeature.FieldDataType},
+			productfeature.FieldAccessMode:   {Type: field.TypeEnum, Column: productfeature.FieldAccessMode},
+			productfeature.FieldEventLevel:   {Type: field.TypeEnum, Column: productfeature.FieldEventLevel},
+			productfeature.FieldCallMode:     {Type: field.TypeEnum, Column: productfeature.FieldCallMode},
+			productfeature.FieldRelationType: {Type: field.TypeString, Column: productfeature.FieldRelationType},
 		},
 	}
 	graph.Nodes[33] = &sqlgraph.Node{
@@ -2227,14 +2227,39 @@ func (f *CategoryDefaultFeatureFilter) WhereFeatureID(p entql.Uint32P) {
 	f.Where(p.Field(categorydefaultfeature.FieldFeatureID))
 }
 
-// WhereOverrideSpec applies the entql json.RawMessage predicate on the override_spec field.
-func (f *CategoryDefaultFeatureFilter) WhereOverrideSpec(p entql.BytesP) {
-	f.Where(p.Field(categorydefaultfeature.FieldOverrideSpec))
+// WhereSpec applies the entql json.RawMessage predicate on the spec field.
+func (f *CategoryDefaultFeatureFilter) WhereSpec(p entql.BytesP) {
+	f.Where(p.Field(categorydefaultfeature.FieldSpec))
 }
 
 // WhereDisplayName applies the entql string predicate on the display_name field.
 func (f *CategoryDefaultFeatureFilter) WhereDisplayName(p entql.StringP) {
 	f.Where(p.Field(categorydefaultfeature.FieldDisplayName))
+}
+
+// WhereDataType applies the entql string predicate on the data_type field.
+func (f *CategoryDefaultFeatureFilter) WhereDataType(p entql.StringP) {
+	f.Where(p.Field(categorydefaultfeature.FieldDataType))
+}
+
+// WhereAccessMode applies the entql string predicate on the access_mode field.
+func (f *CategoryDefaultFeatureFilter) WhereAccessMode(p entql.StringP) {
+	f.Where(p.Field(categorydefaultfeature.FieldAccessMode))
+}
+
+// WhereEventLevel applies the entql string predicate on the event_level field.
+func (f *CategoryDefaultFeatureFilter) WhereEventLevel(p entql.StringP) {
+	f.Where(p.Field(categorydefaultfeature.FieldEventLevel))
+}
+
+// WhereCallMode applies the entql string predicate on the call_mode field.
+func (f *CategoryDefaultFeatureFilter) WhereCallMode(p entql.StringP) {
+	f.Where(p.Field(categorydefaultfeature.FieldCallMode))
+}
+
+// WhereRelationType applies the entql string predicate on the relation_type field.
+func (f *CategoryDefaultFeatureFilter) WhereRelationType(p entql.StringP) {
+	f.Where(p.Field(categorydefaultfeature.FieldRelationType))
 }
 
 // WhereHasCategory applies a predicate to check if query has an edge category.
@@ -2896,34 +2921,14 @@ func (f *FeatureFilter) WhereApplicableScope(p entql.StringP) {
 	f.Where(p.Field(feature.FieldApplicableScope))
 }
 
-// WhereDataType applies the entql string predicate on the data_type field.
-func (f *FeatureFilter) WhereDataType(p entql.StringP) {
-	f.Where(p.Field(feature.FieldDataType))
+// WhereRecommendedUnitCategoryID applies the entql uint32 predicate on the recommended_unit_category_id field.
+func (f *FeatureFilter) WhereRecommendedUnitCategoryID(p entql.Uint32P) {
+	f.Where(p.Field(feature.FieldRecommendedUnitCategoryID))
 }
 
-// WhereAccessMode applies the entql string predicate on the access_mode field.
-func (f *FeatureFilter) WhereAccessMode(p entql.StringP) {
-	f.Where(p.Field(feature.FieldAccessMode))
-}
-
-// WhereEventLevel applies the entql string predicate on the event_level field.
-func (f *FeatureFilter) WhereEventLevel(p entql.StringP) {
-	f.Where(p.Field(feature.FieldEventLevel))
-}
-
-// WhereCallMode applies the entql string predicate on the call_mode field.
-func (f *FeatureFilter) WhereCallMode(p entql.StringP) {
-	f.Where(p.Field(feature.FieldCallMode))
-}
-
-// WhereRelationType applies the entql string predicate on the relation_type field.
-func (f *FeatureFilter) WhereRelationType(p entql.StringP) {
-	f.Where(p.Field(feature.FieldRelationType))
-}
-
-// WhereSpec applies the entql json.RawMessage predicate on the spec field.
-func (f *FeatureFilter) WhereSpec(p entql.BytesP) {
-	f.Where(p.Field(feature.FieldSpec))
+// WhereSemanticTag applies the entql string predicate on the semantic_tag field.
+func (f *FeatureFilter) WhereSemanticTag(p entql.StringP) {
+	f.Where(p.Field(feature.FieldSemanticTag))
 }
 
 // WhereHasCategoryDefaultEntries applies a predicate to check if query has an edge category_default_entries.
@@ -5897,14 +5902,9 @@ func (f *ProductFeatureFilter) WhereDescription(p entql.StringP) {
 	f.Where(p.Field(productfeature.FieldDescription))
 }
 
-// WhereFeatureSnapshot applies the entql json.RawMessage predicate on the feature_snapshot field.
-func (f *ProductFeatureFilter) WhereFeatureSnapshot(p entql.BytesP) {
-	f.Where(p.Field(productfeature.FieldFeatureSnapshot))
-}
-
-// WhereOverrideSpec applies the entql json.RawMessage predicate on the override_spec field.
-func (f *ProductFeatureFilter) WhereOverrideSpec(p entql.BytesP) {
-	f.Where(p.Field(productfeature.FieldOverrideSpec))
+// WhereSpec applies the entql json.RawMessage predicate on the spec field.
+func (f *ProductFeatureFilter) WhereSpec(p entql.BytesP) {
+	f.Where(p.Field(productfeature.FieldSpec))
 }
 
 // WhereDataType applies the entql string predicate on the data_type field.

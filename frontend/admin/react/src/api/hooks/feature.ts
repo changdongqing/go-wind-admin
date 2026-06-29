@@ -2,7 +2,8 @@
  * 物模型-特征管理 hooks（属性 / 事件 / 服务 / 关系 统一）
  * Thing-model feature management hooks (property/event/service/relation unified).
  *
- * 镜像 `unit.ts` 的 React Query 整合，新增按类型查询与 spec 校验 mutation。
+ * CR-001（2026-06-29）：thing_features 仅承载骨架，spec 已下沉到 CDF/PF。
+ * 故 useValidateFeatureSpec 已删除（spec 校验改由 CDF/PF 的 Create/Update 内联返回错误）。
  */
 import {
   useMutation,
@@ -17,9 +18,6 @@ import {
   type thingmodelservicev1_CreateFeatureRequest,
   type thingmodelservicev1_DeleteFeatureRequest,
   type thingmodelservicev1_ListFeatureByTypeRequest,
-  type thingmodelservicev1_ValidateFeatureSpecRequest,
-  type thingmodelservicev1_ValidateFeatureSpecResponse,
-  type thingmodelservicev1_ImportFeaturesRequest,
   type thingmodelservicev1_ImportFeaturesResponse,
   type thingmodelservicev1_ImportFeatureRow,
 } from '@/api/generated/admin/service/v1';
@@ -114,23 +112,6 @@ export function useDeleteFeature(
 ) {
   return useMutation({
     mutationFn: (data) => apiClient.featureService.Delete(data),
-    ...options,
-  });
-}
-
-// ==============================
-// spec 校验（前端表单实时校验，不落库）
-// ==============================
-
-export function useValidateFeatureSpec(
-  options?: UseMutationOptions<
-    thingmodelservicev1_ValidateFeatureSpecResponse,
-    Error,
-    thingmodelservicev1_ValidateFeatureSpecRequest
-  >,
-) {
-  return useMutation({
-    mutationFn: (data) => apiClient.featureService.ValidateSpec(data),
     ...options,
   });
 }

@@ -115,6 +115,11 @@ func DisplayName(v string) predicate.CategoryDefaultFeature {
 	return predicate.CategoryDefaultFeature(sql.FieldEQ(FieldDisplayName, v))
 }
 
+// RelationType applies equality check predicate on the "relation_type" field. It's identical to RelationTypeEQ.
+func RelationType(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldEQ(FieldRelationType, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.CategoryDefaultFeature {
 	return predicate.CategoryDefaultFeature(sql.FieldEQ(FieldCreatedAt, v))
@@ -575,14 +580,14 @@ func FeatureIDNotIn(vs ...uint32) predicate.CategoryDefaultFeature {
 	return predicate.CategoryDefaultFeature(sql.FieldNotIn(FieldFeatureID, vs...))
 }
 
-// OverrideSpecIsNil applies the IsNil predicate on the "override_spec" field.
-func OverrideSpecIsNil() predicate.CategoryDefaultFeature {
-	return predicate.CategoryDefaultFeature(sql.FieldIsNull(FieldOverrideSpec))
+// SpecIsNil applies the IsNil predicate on the "spec" field.
+func SpecIsNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIsNull(FieldSpec))
 }
 
-// OverrideSpecNotNil applies the NotNil predicate on the "override_spec" field.
-func OverrideSpecNotNil() predicate.CategoryDefaultFeature {
-	return predicate.CategoryDefaultFeature(sql.FieldNotNull(FieldOverrideSpec))
+// SpecNotNil applies the NotNil predicate on the "spec" field.
+func SpecNotNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotNull(FieldSpec))
 }
 
 // DisplayNameEQ applies the EQ predicate on the "display_name" field.
@@ -658,6 +663,201 @@ func DisplayNameEqualFold(v string) predicate.CategoryDefaultFeature {
 // DisplayNameContainsFold applies the ContainsFold predicate on the "display_name" field.
 func DisplayNameContainsFold(v string) predicate.CategoryDefaultFeature {
 	return predicate.CategoryDefaultFeature(sql.FieldContainsFold(FieldDisplayName, v))
+}
+
+// DataTypeEQ applies the EQ predicate on the "data_type" field.
+func DataTypeEQ(v DataType) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldEQ(FieldDataType, v))
+}
+
+// DataTypeNEQ applies the NEQ predicate on the "data_type" field.
+func DataTypeNEQ(v DataType) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNEQ(FieldDataType, v))
+}
+
+// DataTypeIn applies the In predicate on the "data_type" field.
+func DataTypeIn(vs ...DataType) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIn(FieldDataType, vs...))
+}
+
+// DataTypeNotIn applies the NotIn predicate on the "data_type" field.
+func DataTypeNotIn(vs ...DataType) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotIn(FieldDataType, vs...))
+}
+
+// DataTypeIsNil applies the IsNil predicate on the "data_type" field.
+func DataTypeIsNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIsNull(FieldDataType))
+}
+
+// DataTypeNotNil applies the NotNil predicate on the "data_type" field.
+func DataTypeNotNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotNull(FieldDataType))
+}
+
+// AccessModeEQ applies the EQ predicate on the "access_mode" field.
+func AccessModeEQ(v AccessMode) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldEQ(FieldAccessMode, v))
+}
+
+// AccessModeNEQ applies the NEQ predicate on the "access_mode" field.
+func AccessModeNEQ(v AccessMode) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNEQ(FieldAccessMode, v))
+}
+
+// AccessModeIn applies the In predicate on the "access_mode" field.
+func AccessModeIn(vs ...AccessMode) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIn(FieldAccessMode, vs...))
+}
+
+// AccessModeNotIn applies the NotIn predicate on the "access_mode" field.
+func AccessModeNotIn(vs ...AccessMode) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotIn(FieldAccessMode, vs...))
+}
+
+// AccessModeIsNil applies the IsNil predicate on the "access_mode" field.
+func AccessModeIsNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIsNull(FieldAccessMode))
+}
+
+// AccessModeNotNil applies the NotNil predicate on the "access_mode" field.
+func AccessModeNotNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotNull(FieldAccessMode))
+}
+
+// EventLevelEQ applies the EQ predicate on the "event_level" field.
+func EventLevelEQ(v EventLevel) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldEQ(FieldEventLevel, v))
+}
+
+// EventLevelNEQ applies the NEQ predicate on the "event_level" field.
+func EventLevelNEQ(v EventLevel) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNEQ(FieldEventLevel, v))
+}
+
+// EventLevelIn applies the In predicate on the "event_level" field.
+func EventLevelIn(vs ...EventLevel) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIn(FieldEventLevel, vs...))
+}
+
+// EventLevelNotIn applies the NotIn predicate on the "event_level" field.
+func EventLevelNotIn(vs ...EventLevel) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotIn(FieldEventLevel, vs...))
+}
+
+// EventLevelIsNil applies the IsNil predicate on the "event_level" field.
+func EventLevelIsNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIsNull(FieldEventLevel))
+}
+
+// EventLevelNotNil applies the NotNil predicate on the "event_level" field.
+func EventLevelNotNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotNull(FieldEventLevel))
+}
+
+// CallModeEQ applies the EQ predicate on the "call_mode" field.
+func CallModeEQ(v CallMode) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldEQ(FieldCallMode, v))
+}
+
+// CallModeNEQ applies the NEQ predicate on the "call_mode" field.
+func CallModeNEQ(v CallMode) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNEQ(FieldCallMode, v))
+}
+
+// CallModeIn applies the In predicate on the "call_mode" field.
+func CallModeIn(vs ...CallMode) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIn(FieldCallMode, vs...))
+}
+
+// CallModeNotIn applies the NotIn predicate on the "call_mode" field.
+func CallModeNotIn(vs ...CallMode) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotIn(FieldCallMode, vs...))
+}
+
+// CallModeIsNil applies the IsNil predicate on the "call_mode" field.
+func CallModeIsNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIsNull(FieldCallMode))
+}
+
+// CallModeNotNil applies the NotNil predicate on the "call_mode" field.
+func CallModeNotNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotNull(FieldCallMode))
+}
+
+// RelationTypeEQ applies the EQ predicate on the "relation_type" field.
+func RelationTypeEQ(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldEQ(FieldRelationType, v))
+}
+
+// RelationTypeNEQ applies the NEQ predicate on the "relation_type" field.
+func RelationTypeNEQ(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNEQ(FieldRelationType, v))
+}
+
+// RelationTypeIn applies the In predicate on the "relation_type" field.
+func RelationTypeIn(vs ...string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIn(FieldRelationType, vs...))
+}
+
+// RelationTypeNotIn applies the NotIn predicate on the "relation_type" field.
+func RelationTypeNotIn(vs ...string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotIn(FieldRelationType, vs...))
+}
+
+// RelationTypeGT applies the GT predicate on the "relation_type" field.
+func RelationTypeGT(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldGT(FieldRelationType, v))
+}
+
+// RelationTypeGTE applies the GTE predicate on the "relation_type" field.
+func RelationTypeGTE(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldGTE(FieldRelationType, v))
+}
+
+// RelationTypeLT applies the LT predicate on the "relation_type" field.
+func RelationTypeLT(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldLT(FieldRelationType, v))
+}
+
+// RelationTypeLTE applies the LTE predicate on the "relation_type" field.
+func RelationTypeLTE(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldLTE(FieldRelationType, v))
+}
+
+// RelationTypeContains applies the Contains predicate on the "relation_type" field.
+func RelationTypeContains(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldContains(FieldRelationType, v))
+}
+
+// RelationTypeHasPrefix applies the HasPrefix predicate on the "relation_type" field.
+func RelationTypeHasPrefix(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldHasPrefix(FieldRelationType, v))
+}
+
+// RelationTypeHasSuffix applies the HasSuffix predicate on the "relation_type" field.
+func RelationTypeHasSuffix(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldHasSuffix(FieldRelationType, v))
+}
+
+// RelationTypeIsNil applies the IsNil predicate on the "relation_type" field.
+func RelationTypeIsNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldIsNull(FieldRelationType))
+}
+
+// RelationTypeNotNil applies the NotNil predicate on the "relation_type" field.
+func RelationTypeNotNil() predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldNotNull(FieldRelationType))
+}
+
+// RelationTypeEqualFold applies the EqualFold predicate on the "relation_type" field.
+func RelationTypeEqualFold(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldEqualFold(FieldRelationType, v))
+}
+
+// RelationTypeContainsFold applies the ContainsFold predicate on the "relation_type" field.
+func RelationTypeContainsFold(v string) predicate.CategoryDefaultFeature {
+	return predicate.CategoryDefaultFeature(sql.FieldContainsFold(FieldRelationType, v))
 }
 
 // HasCategory applies the HasEdge predicate on the "category" edge.

@@ -20,7 +20,7 @@ service ProductFeatureService {
     };
   }
 
-  // 详情（返回 effective_spec）/ Get
+  // 详情（CR-001 后：返回单一 spec）/ Get
   rpc Get (thingmodel.service.v1.GetProductFeatureRequest) returns (thingmodel.service.v1.ProductFeature) {
     option (google.api.http) = {
       get: "/admin/v1/thingmodel/product-features/{id}"

@@ -130,9 +130,14 @@ func ApplicableScope(v string) predicate.Feature {
 	return predicate.Feature(sql.FieldEQ(FieldApplicableScope, v))
 }
 
-// RelationType applies equality check predicate on the "relation_type" field. It's identical to RelationTypeEQ.
-func RelationType(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldEQ(FieldRelationType, v))
+// RecommendedUnitCategoryID applies equality check predicate on the "recommended_unit_category_id" field. It's identical to RecommendedUnitCategoryIDEQ.
+func RecommendedUnitCategoryID(v uint32) predicate.Feature {
+	return predicate.Feature(sql.FieldEQ(FieldRecommendedUnitCategoryID, v))
+}
+
+// SemanticTag applies equality check predicate on the "semantic_tag" field. It's identical to SemanticTagEQ.
+func SemanticTag(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldEQ(FieldSemanticTag, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -1035,209 +1040,129 @@ func ApplicableScopeContainsFold(v string) predicate.Feature {
 	return predicate.Feature(sql.FieldContainsFold(FieldApplicableScope, v))
 }
 
-// DataTypeEQ applies the EQ predicate on the "data_type" field.
-func DataTypeEQ(v DataType) predicate.Feature {
-	return predicate.Feature(sql.FieldEQ(FieldDataType, v))
+// RecommendedUnitCategoryIDEQ applies the EQ predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDEQ(v uint32) predicate.Feature {
+	return predicate.Feature(sql.FieldEQ(FieldRecommendedUnitCategoryID, v))
 }
 
-// DataTypeNEQ applies the NEQ predicate on the "data_type" field.
-func DataTypeNEQ(v DataType) predicate.Feature {
-	return predicate.Feature(sql.FieldNEQ(FieldDataType, v))
+// RecommendedUnitCategoryIDNEQ applies the NEQ predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDNEQ(v uint32) predicate.Feature {
+	return predicate.Feature(sql.FieldNEQ(FieldRecommendedUnitCategoryID, v))
 }
 
-// DataTypeIn applies the In predicate on the "data_type" field.
-func DataTypeIn(vs ...DataType) predicate.Feature {
-	return predicate.Feature(sql.FieldIn(FieldDataType, vs...))
+// RecommendedUnitCategoryIDIn applies the In predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDIn(vs ...uint32) predicate.Feature {
+	return predicate.Feature(sql.FieldIn(FieldRecommendedUnitCategoryID, vs...))
 }
 
-// DataTypeNotIn applies the NotIn predicate on the "data_type" field.
-func DataTypeNotIn(vs ...DataType) predicate.Feature {
-	return predicate.Feature(sql.FieldNotIn(FieldDataType, vs...))
+// RecommendedUnitCategoryIDNotIn applies the NotIn predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDNotIn(vs ...uint32) predicate.Feature {
+	return predicate.Feature(sql.FieldNotIn(FieldRecommendedUnitCategoryID, vs...))
 }
 
-// DataTypeIsNil applies the IsNil predicate on the "data_type" field.
-func DataTypeIsNil() predicate.Feature {
-	return predicate.Feature(sql.FieldIsNull(FieldDataType))
+// RecommendedUnitCategoryIDGT applies the GT predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDGT(v uint32) predicate.Feature {
+	return predicate.Feature(sql.FieldGT(FieldRecommendedUnitCategoryID, v))
 }
 
-// DataTypeNotNil applies the NotNil predicate on the "data_type" field.
-func DataTypeNotNil() predicate.Feature {
-	return predicate.Feature(sql.FieldNotNull(FieldDataType))
+// RecommendedUnitCategoryIDGTE applies the GTE predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDGTE(v uint32) predicate.Feature {
+	return predicate.Feature(sql.FieldGTE(FieldRecommendedUnitCategoryID, v))
 }
 
-// AccessModeEQ applies the EQ predicate on the "access_mode" field.
-func AccessModeEQ(v AccessMode) predicate.Feature {
-	return predicate.Feature(sql.FieldEQ(FieldAccessMode, v))
+// RecommendedUnitCategoryIDLT applies the LT predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDLT(v uint32) predicate.Feature {
+	return predicate.Feature(sql.FieldLT(FieldRecommendedUnitCategoryID, v))
 }
 
-// AccessModeNEQ applies the NEQ predicate on the "access_mode" field.
-func AccessModeNEQ(v AccessMode) predicate.Feature {
-	return predicate.Feature(sql.FieldNEQ(FieldAccessMode, v))
+// RecommendedUnitCategoryIDLTE applies the LTE predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDLTE(v uint32) predicate.Feature {
+	return predicate.Feature(sql.FieldLTE(FieldRecommendedUnitCategoryID, v))
 }
 
-// AccessModeIn applies the In predicate on the "access_mode" field.
-func AccessModeIn(vs ...AccessMode) predicate.Feature {
-	return predicate.Feature(sql.FieldIn(FieldAccessMode, vs...))
+// RecommendedUnitCategoryIDIsNil applies the IsNil predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDIsNil() predicate.Feature {
+	return predicate.Feature(sql.FieldIsNull(FieldRecommendedUnitCategoryID))
 }
 
-// AccessModeNotIn applies the NotIn predicate on the "access_mode" field.
-func AccessModeNotIn(vs ...AccessMode) predicate.Feature {
-	return predicate.Feature(sql.FieldNotIn(FieldAccessMode, vs...))
+// RecommendedUnitCategoryIDNotNil applies the NotNil predicate on the "recommended_unit_category_id" field.
+func RecommendedUnitCategoryIDNotNil() predicate.Feature {
+	return predicate.Feature(sql.FieldNotNull(FieldRecommendedUnitCategoryID))
 }
 
-// AccessModeIsNil applies the IsNil predicate on the "access_mode" field.
-func AccessModeIsNil() predicate.Feature {
-	return predicate.Feature(sql.FieldIsNull(FieldAccessMode))
+// SemanticTagEQ applies the EQ predicate on the "semantic_tag" field.
+func SemanticTagEQ(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldEQ(FieldSemanticTag, v))
 }
 
-// AccessModeNotNil applies the NotNil predicate on the "access_mode" field.
-func AccessModeNotNil() predicate.Feature {
-	return predicate.Feature(sql.FieldNotNull(FieldAccessMode))
+// SemanticTagNEQ applies the NEQ predicate on the "semantic_tag" field.
+func SemanticTagNEQ(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldNEQ(FieldSemanticTag, v))
 }
 
-// EventLevelEQ applies the EQ predicate on the "event_level" field.
-func EventLevelEQ(v EventLevel) predicate.Feature {
-	return predicate.Feature(sql.FieldEQ(FieldEventLevel, v))
+// SemanticTagIn applies the In predicate on the "semantic_tag" field.
+func SemanticTagIn(vs ...string) predicate.Feature {
+	return predicate.Feature(sql.FieldIn(FieldSemanticTag, vs...))
 }
 
-// EventLevelNEQ applies the NEQ predicate on the "event_level" field.
-func EventLevelNEQ(v EventLevel) predicate.Feature {
-	return predicate.Feature(sql.FieldNEQ(FieldEventLevel, v))
+// SemanticTagNotIn applies the NotIn predicate on the "semantic_tag" field.
+func SemanticTagNotIn(vs ...string) predicate.Feature {
+	return predicate.Feature(sql.FieldNotIn(FieldSemanticTag, vs...))
 }
 
-// EventLevelIn applies the In predicate on the "event_level" field.
-func EventLevelIn(vs ...EventLevel) predicate.Feature {
-	return predicate.Feature(sql.FieldIn(FieldEventLevel, vs...))
+// SemanticTagGT applies the GT predicate on the "semantic_tag" field.
+func SemanticTagGT(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldGT(FieldSemanticTag, v))
 }
 
-// EventLevelNotIn applies the NotIn predicate on the "event_level" field.
-func EventLevelNotIn(vs ...EventLevel) predicate.Feature {
-	return predicate.Feature(sql.FieldNotIn(FieldEventLevel, vs...))
+// SemanticTagGTE applies the GTE predicate on the "semantic_tag" field.
+func SemanticTagGTE(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldGTE(FieldSemanticTag, v))
 }
 
-// EventLevelIsNil applies the IsNil predicate on the "event_level" field.
-func EventLevelIsNil() predicate.Feature {
-	return predicate.Feature(sql.FieldIsNull(FieldEventLevel))
+// SemanticTagLT applies the LT predicate on the "semantic_tag" field.
+func SemanticTagLT(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldLT(FieldSemanticTag, v))
 }
 
-// EventLevelNotNil applies the NotNil predicate on the "event_level" field.
-func EventLevelNotNil() predicate.Feature {
-	return predicate.Feature(sql.FieldNotNull(FieldEventLevel))
+// SemanticTagLTE applies the LTE predicate on the "semantic_tag" field.
+func SemanticTagLTE(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldLTE(FieldSemanticTag, v))
 }
 
-// CallModeEQ applies the EQ predicate on the "call_mode" field.
-func CallModeEQ(v CallMode) predicate.Feature {
-	return predicate.Feature(sql.FieldEQ(FieldCallMode, v))
+// SemanticTagContains applies the Contains predicate on the "semantic_tag" field.
+func SemanticTagContains(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldContains(FieldSemanticTag, v))
 }
 
-// CallModeNEQ applies the NEQ predicate on the "call_mode" field.
-func CallModeNEQ(v CallMode) predicate.Feature {
-	return predicate.Feature(sql.FieldNEQ(FieldCallMode, v))
+// SemanticTagHasPrefix applies the HasPrefix predicate on the "semantic_tag" field.
+func SemanticTagHasPrefix(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldHasPrefix(FieldSemanticTag, v))
 }
 
-// CallModeIn applies the In predicate on the "call_mode" field.
-func CallModeIn(vs ...CallMode) predicate.Feature {
-	return predicate.Feature(sql.FieldIn(FieldCallMode, vs...))
+// SemanticTagHasSuffix applies the HasSuffix predicate on the "semantic_tag" field.
+func SemanticTagHasSuffix(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldHasSuffix(FieldSemanticTag, v))
 }
 
-// CallModeNotIn applies the NotIn predicate on the "call_mode" field.
-func CallModeNotIn(vs ...CallMode) predicate.Feature {
-	return predicate.Feature(sql.FieldNotIn(FieldCallMode, vs...))
+// SemanticTagIsNil applies the IsNil predicate on the "semantic_tag" field.
+func SemanticTagIsNil() predicate.Feature {
+	return predicate.Feature(sql.FieldIsNull(FieldSemanticTag))
 }
 
-// CallModeIsNil applies the IsNil predicate on the "call_mode" field.
-func CallModeIsNil() predicate.Feature {
-	return predicate.Feature(sql.FieldIsNull(FieldCallMode))
+// SemanticTagNotNil applies the NotNil predicate on the "semantic_tag" field.
+func SemanticTagNotNil() predicate.Feature {
+	return predicate.Feature(sql.FieldNotNull(FieldSemanticTag))
 }
 
-// CallModeNotNil applies the NotNil predicate on the "call_mode" field.
-func CallModeNotNil() predicate.Feature {
-	return predicate.Feature(sql.FieldNotNull(FieldCallMode))
+// SemanticTagEqualFold applies the EqualFold predicate on the "semantic_tag" field.
+func SemanticTagEqualFold(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldEqualFold(FieldSemanticTag, v))
 }
 
-// RelationTypeEQ applies the EQ predicate on the "relation_type" field.
-func RelationTypeEQ(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldEQ(FieldRelationType, v))
-}
-
-// RelationTypeNEQ applies the NEQ predicate on the "relation_type" field.
-func RelationTypeNEQ(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldNEQ(FieldRelationType, v))
-}
-
-// RelationTypeIn applies the In predicate on the "relation_type" field.
-func RelationTypeIn(vs ...string) predicate.Feature {
-	return predicate.Feature(sql.FieldIn(FieldRelationType, vs...))
-}
-
-// RelationTypeNotIn applies the NotIn predicate on the "relation_type" field.
-func RelationTypeNotIn(vs ...string) predicate.Feature {
-	return predicate.Feature(sql.FieldNotIn(FieldRelationType, vs...))
-}
-
-// RelationTypeGT applies the GT predicate on the "relation_type" field.
-func RelationTypeGT(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldGT(FieldRelationType, v))
-}
-
-// RelationTypeGTE applies the GTE predicate on the "relation_type" field.
-func RelationTypeGTE(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldGTE(FieldRelationType, v))
-}
-
-// RelationTypeLT applies the LT predicate on the "relation_type" field.
-func RelationTypeLT(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldLT(FieldRelationType, v))
-}
-
-// RelationTypeLTE applies the LTE predicate on the "relation_type" field.
-func RelationTypeLTE(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldLTE(FieldRelationType, v))
-}
-
-// RelationTypeContains applies the Contains predicate on the "relation_type" field.
-func RelationTypeContains(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldContains(FieldRelationType, v))
-}
-
-// RelationTypeHasPrefix applies the HasPrefix predicate on the "relation_type" field.
-func RelationTypeHasPrefix(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldHasPrefix(FieldRelationType, v))
-}
-
-// RelationTypeHasSuffix applies the HasSuffix predicate on the "relation_type" field.
-func RelationTypeHasSuffix(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldHasSuffix(FieldRelationType, v))
-}
-
-// RelationTypeIsNil applies the IsNil predicate on the "relation_type" field.
-func RelationTypeIsNil() predicate.Feature {
-	return predicate.Feature(sql.FieldIsNull(FieldRelationType))
-}
-
-// RelationTypeNotNil applies the NotNil predicate on the "relation_type" field.
-func RelationTypeNotNil() predicate.Feature {
-	return predicate.Feature(sql.FieldNotNull(FieldRelationType))
-}
-
-// RelationTypeEqualFold applies the EqualFold predicate on the "relation_type" field.
-func RelationTypeEqualFold(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldEqualFold(FieldRelationType, v))
-}
-
-// RelationTypeContainsFold applies the ContainsFold predicate on the "relation_type" field.
-func RelationTypeContainsFold(v string) predicate.Feature {
-	return predicate.Feature(sql.FieldContainsFold(FieldRelationType, v))
-}
-
-// SpecIsNil applies the IsNil predicate on the "spec" field.
-func SpecIsNil() predicate.Feature {
-	return predicate.Feature(sql.FieldIsNull(FieldSpec))
-}
-
-// SpecNotNil applies the NotNil predicate on the "spec" field.
-func SpecNotNil() predicate.Feature {
-	return predicate.Feature(sql.FieldNotNull(FieldSpec))
+// SemanticTagContainsFold applies the ContainsFold predicate on the "semantic_tag" field.
+func SemanticTagContainsFold(v string) predicate.Feature {
+	return predicate.Feature(sql.FieldContainsFold(FieldSemanticTag, v))
 }
 
 // HasCategoryDefaultEntries applies the HasEdge predicate on the "category_default_entries" edge.

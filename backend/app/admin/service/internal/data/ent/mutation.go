@@ -6060,8 +6060,13 @@ type CategoryDefaultFeatureMutation struct {
 	addsort_order   *int32
 	tenant_id       *uint32
 	addtenant_id    *int32
-	override_spec   **schema.FeatureOverrideSpecField
+	spec            **schema.FeatureSpecField
 	display_name    *string
+	data_type       *categorydefaultfeature.DataType
+	access_mode     *categorydefaultfeature.AccessMode
+	event_level     *categorydefaultfeature.EventLevel
+	call_mode       *categorydefaultfeature.CallMode
+	relation_type   *string
 	clearedFields   map[string]struct{}
 	category        *uint32
 	clearedcategory bool
@@ -6794,53 +6799,53 @@ func (m *CategoryDefaultFeatureMutation) ResetFeatureID() {
 	m.feature = nil
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (m *CategoryDefaultFeatureMutation) SetOverrideSpec(sosf *schema.FeatureOverrideSpecField) {
-	m.override_spec = &sosf
+// SetSpec sets the "spec" field.
+func (m *CategoryDefaultFeatureMutation) SetSpec(ssf *schema.FeatureSpecField) {
+	m.spec = &ssf
 }
 
-// OverrideSpec returns the value of the "override_spec" field in the mutation.
-func (m *CategoryDefaultFeatureMutation) OverrideSpec() (r *schema.FeatureOverrideSpecField, exists bool) {
-	v := m.override_spec
+// Spec returns the value of the "spec" field in the mutation.
+func (m *CategoryDefaultFeatureMutation) Spec() (r *schema.FeatureSpecField, exists bool) {
+	v := m.spec
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldOverrideSpec returns the old "override_spec" field's value of the CategoryDefaultFeature entity.
+// OldSpec returns the old "spec" field's value of the CategoryDefaultFeature entity.
 // If the CategoryDefaultFeature object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CategoryDefaultFeatureMutation) OldOverrideSpec(ctx context.Context) (v *schema.FeatureOverrideSpecField, err error) {
+func (m *CategoryDefaultFeatureMutation) OldSpec(ctx context.Context) (v *schema.FeatureSpecField, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOverrideSpec is only allowed on UpdateOne operations")
+		return v, errors.New("OldSpec is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOverrideSpec requires an ID field in the mutation")
+		return v, errors.New("OldSpec requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOverrideSpec: %w", err)
+		return v, fmt.Errorf("querying old value for OldSpec: %w", err)
 	}
-	return oldValue.OverrideSpec, nil
+	return oldValue.Spec, nil
 }
 
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (m *CategoryDefaultFeatureMutation) ClearOverrideSpec() {
-	m.override_spec = nil
-	m.clearedFields[categorydefaultfeature.FieldOverrideSpec] = struct{}{}
+// ClearSpec clears the value of the "spec" field.
+func (m *CategoryDefaultFeatureMutation) ClearSpec() {
+	m.spec = nil
+	m.clearedFields[categorydefaultfeature.FieldSpec] = struct{}{}
 }
 
-// OverrideSpecCleared returns if the "override_spec" field was cleared in this mutation.
-func (m *CategoryDefaultFeatureMutation) OverrideSpecCleared() bool {
-	_, ok := m.clearedFields[categorydefaultfeature.FieldOverrideSpec]
+// SpecCleared returns if the "spec" field was cleared in this mutation.
+func (m *CategoryDefaultFeatureMutation) SpecCleared() bool {
+	_, ok := m.clearedFields[categorydefaultfeature.FieldSpec]
 	return ok
 }
 
-// ResetOverrideSpec resets all changes to the "override_spec" field.
-func (m *CategoryDefaultFeatureMutation) ResetOverrideSpec() {
-	m.override_spec = nil
-	delete(m.clearedFields, categorydefaultfeature.FieldOverrideSpec)
+// ResetSpec resets all changes to the "spec" field.
+func (m *CategoryDefaultFeatureMutation) ResetSpec() {
+	m.spec = nil
+	delete(m.clearedFields, categorydefaultfeature.FieldSpec)
 }
 
 // SetDisplayName sets the "display_name" field.
@@ -6890,6 +6895,251 @@ func (m *CategoryDefaultFeatureMutation) DisplayNameCleared() bool {
 func (m *CategoryDefaultFeatureMutation) ResetDisplayName() {
 	m.display_name = nil
 	delete(m.clearedFields, categorydefaultfeature.FieldDisplayName)
+}
+
+// SetDataType sets the "data_type" field.
+func (m *CategoryDefaultFeatureMutation) SetDataType(ct categorydefaultfeature.DataType) {
+	m.data_type = &ct
+}
+
+// DataType returns the value of the "data_type" field in the mutation.
+func (m *CategoryDefaultFeatureMutation) DataType() (r categorydefaultfeature.DataType, exists bool) {
+	v := m.data_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDataType returns the old "data_type" field's value of the CategoryDefaultFeature entity.
+// If the CategoryDefaultFeature object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryDefaultFeatureMutation) OldDataType(ctx context.Context) (v *categorydefaultfeature.DataType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDataType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDataType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDataType: %w", err)
+	}
+	return oldValue.DataType, nil
+}
+
+// ClearDataType clears the value of the "data_type" field.
+func (m *CategoryDefaultFeatureMutation) ClearDataType() {
+	m.data_type = nil
+	m.clearedFields[categorydefaultfeature.FieldDataType] = struct{}{}
+}
+
+// DataTypeCleared returns if the "data_type" field was cleared in this mutation.
+func (m *CategoryDefaultFeatureMutation) DataTypeCleared() bool {
+	_, ok := m.clearedFields[categorydefaultfeature.FieldDataType]
+	return ok
+}
+
+// ResetDataType resets all changes to the "data_type" field.
+func (m *CategoryDefaultFeatureMutation) ResetDataType() {
+	m.data_type = nil
+	delete(m.clearedFields, categorydefaultfeature.FieldDataType)
+}
+
+// SetAccessMode sets the "access_mode" field.
+func (m *CategoryDefaultFeatureMutation) SetAccessMode(cm categorydefaultfeature.AccessMode) {
+	m.access_mode = &cm
+}
+
+// AccessMode returns the value of the "access_mode" field in the mutation.
+func (m *CategoryDefaultFeatureMutation) AccessMode() (r categorydefaultfeature.AccessMode, exists bool) {
+	v := m.access_mode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccessMode returns the old "access_mode" field's value of the CategoryDefaultFeature entity.
+// If the CategoryDefaultFeature object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryDefaultFeatureMutation) OldAccessMode(ctx context.Context) (v *categorydefaultfeature.AccessMode, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccessMode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccessMode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccessMode: %w", err)
+	}
+	return oldValue.AccessMode, nil
+}
+
+// ClearAccessMode clears the value of the "access_mode" field.
+func (m *CategoryDefaultFeatureMutation) ClearAccessMode() {
+	m.access_mode = nil
+	m.clearedFields[categorydefaultfeature.FieldAccessMode] = struct{}{}
+}
+
+// AccessModeCleared returns if the "access_mode" field was cleared in this mutation.
+func (m *CategoryDefaultFeatureMutation) AccessModeCleared() bool {
+	_, ok := m.clearedFields[categorydefaultfeature.FieldAccessMode]
+	return ok
+}
+
+// ResetAccessMode resets all changes to the "access_mode" field.
+func (m *CategoryDefaultFeatureMutation) ResetAccessMode() {
+	m.access_mode = nil
+	delete(m.clearedFields, categorydefaultfeature.FieldAccessMode)
+}
+
+// SetEventLevel sets the "event_level" field.
+func (m *CategoryDefaultFeatureMutation) SetEventLevel(cl categorydefaultfeature.EventLevel) {
+	m.event_level = &cl
+}
+
+// EventLevel returns the value of the "event_level" field in the mutation.
+func (m *CategoryDefaultFeatureMutation) EventLevel() (r categorydefaultfeature.EventLevel, exists bool) {
+	v := m.event_level
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEventLevel returns the old "event_level" field's value of the CategoryDefaultFeature entity.
+// If the CategoryDefaultFeature object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryDefaultFeatureMutation) OldEventLevel(ctx context.Context) (v *categorydefaultfeature.EventLevel, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEventLevel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEventLevel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEventLevel: %w", err)
+	}
+	return oldValue.EventLevel, nil
+}
+
+// ClearEventLevel clears the value of the "event_level" field.
+func (m *CategoryDefaultFeatureMutation) ClearEventLevel() {
+	m.event_level = nil
+	m.clearedFields[categorydefaultfeature.FieldEventLevel] = struct{}{}
+}
+
+// EventLevelCleared returns if the "event_level" field was cleared in this mutation.
+func (m *CategoryDefaultFeatureMutation) EventLevelCleared() bool {
+	_, ok := m.clearedFields[categorydefaultfeature.FieldEventLevel]
+	return ok
+}
+
+// ResetEventLevel resets all changes to the "event_level" field.
+func (m *CategoryDefaultFeatureMutation) ResetEventLevel() {
+	m.event_level = nil
+	delete(m.clearedFields, categorydefaultfeature.FieldEventLevel)
+}
+
+// SetCallMode sets the "call_mode" field.
+func (m *CategoryDefaultFeatureMutation) SetCallMode(cm categorydefaultfeature.CallMode) {
+	m.call_mode = &cm
+}
+
+// CallMode returns the value of the "call_mode" field in the mutation.
+func (m *CategoryDefaultFeatureMutation) CallMode() (r categorydefaultfeature.CallMode, exists bool) {
+	v := m.call_mode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCallMode returns the old "call_mode" field's value of the CategoryDefaultFeature entity.
+// If the CategoryDefaultFeature object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryDefaultFeatureMutation) OldCallMode(ctx context.Context) (v *categorydefaultfeature.CallMode, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCallMode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCallMode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCallMode: %w", err)
+	}
+	return oldValue.CallMode, nil
+}
+
+// ClearCallMode clears the value of the "call_mode" field.
+func (m *CategoryDefaultFeatureMutation) ClearCallMode() {
+	m.call_mode = nil
+	m.clearedFields[categorydefaultfeature.FieldCallMode] = struct{}{}
+}
+
+// CallModeCleared returns if the "call_mode" field was cleared in this mutation.
+func (m *CategoryDefaultFeatureMutation) CallModeCleared() bool {
+	_, ok := m.clearedFields[categorydefaultfeature.FieldCallMode]
+	return ok
+}
+
+// ResetCallMode resets all changes to the "call_mode" field.
+func (m *CategoryDefaultFeatureMutation) ResetCallMode() {
+	m.call_mode = nil
+	delete(m.clearedFields, categorydefaultfeature.FieldCallMode)
+}
+
+// SetRelationType sets the "relation_type" field.
+func (m *CategoryDefaultFeatureMutation) SetRelationType(s string) {
+	m.relation_type = &s
+}
+
+// RelationType returns the value of the "relation_type" field in the mutation.
+func (m *CategoryDefaultFeatureMutation) RelationType() (r string, exists bool) {
+	v := m.relation_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRelationType returns the old "relation_type" field's value of the CategoryDefaultFeature entity.
+// If the CategoryDefaultFeature object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryDefaultFeatureMutation) OldRelationType(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRelationType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRelationType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRelationType: %w", err)
+	}
+	return oldValue.RelationType, nil
+}
+
+// ClearRelationType clears the value of the "relation_type" field.
+func (m *CategoryDefaultFeatureMutation) ClearRelationType() {
+	m.relation_type = nil
+	m.clearedFields[categorydefaultfeature.FieldRelationType] = struct{}{}
+}
+
+// RelationTypeCleared returns if the "relation_type" field was cleared in this mutation.
+func (m *CategoryDefaultFeatureMutation) RelationTypeCleared() bool {
+	_, ok := m.clearedFields[categorydefaultfeature.FieldRelationType]
+	return ok
+}
+
+// ResetRelationType resets all changes to the "relation_type" field.
+func (m *CategoryDefaultFeatureMutation) ResetRelationType() {
+	m.relation_type = nil
+	delete(m.clearedFields, categorydefaultfeature.FieldRelationType)
 }
 
 // ClearCategory clears the "category" edge to the Category entity.
@@ -6980,7 +7230,7 @@ func (m *CategoryDefaultFeatureMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CategoryDefaultFeatureMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 18)
 	if m.created_at != nil {
 		fields = append(fields, categorydefaultfeature.FieldCreatedAt)
 	}
@@ -7014,11 +7264,26 @@ func (m *CategoryDefaultFeatureMutation) Fields() []string {
 	if m.feature != nil {
 		fields = append(fields, categorydefaultfeature.FieldFeatureID)
 	}
-	if m.override_spec != nil {
-		fields = append(fields, categorydefaultfeature.FieldOverrideSpec)
+	if m.spec != nil {
+		fields = append(fields, categorydefaultfeature.FieldSpec)
 	}
 	if m.display_name != nil {
 		fields = append(fields, categorydefaultfeature.FieldDisplayName)
+	}
+	if m.data_type != nil {
+		fields = append(fields, categorydefaultfeature.FieldDataType)
+	}
+	if m.access_mode != nil {
+		fields = append(fields, categorydefaultfeature.FieldAccessMode)
+	}
+	if m.event_level != nil {
+		fields = append(fields, categorydefaultfeature.FieldEventLevel)
+	}
+	if m.call_mode != nil {
+		fields = append(fields, categorydefaultfeature.FieldCallMode)
+	}
+	if m.relation_type != nil {
+		fields = append(fields, categorydefaultfeature.FieldRelationType)
 	}
 	return fields
 }
@@ -7050,10 +7315,20 @@ func (m *CategoryDefaultFeatureMutation) Field(name string) (ent.Value, bool) {
 		return m.CategoryID()
 	case categorydefaultfeature.FieldFeatureID:
 		return m.FeatureID()
-	case categorydefaultfeature.FieldOverrideSpec:
-		return m.OverrideSpec()
+	case categorydefaultfeature.FieldSpec:
+		return m.Spec()
 	case categorydefaultfeature.FieldDisplayName:
 		return m.DisplayName()
+	case categorydefaultfeature.FieldDataType:
+		return m.DataType()
+	case categorydefaultfeature.FieldAccessMode:
+		return m.AccessMode()
+	case categorydefaultfeature.FieldEventLevel:
+		return m.EventLevel()
+	case categorydefaultfeature.FieldCallMode:
+		return m.CallMode()
+	case categorydefaultfeature.FieldRelationType:
+		return m.RelationType()
 	}
 	return nil, false
 }
@@ -7085,10 +7360,20 @@ func (m *CategoryDefaultFeatureMutation) OldField(ctx context.Context, name stri
 		return m.OldCategoryID(ctx)
 	case categorydefaultfeature.FieldFeatureID:
 		return m.OldFeatureID(ctx)
-	case categorydefaultfeature.FieldOverrideSpec:
-		return m.OldOverrideSpec(ctx)
+	case categorydefaultfeature.FieldSpec:
+		return m.OldSpec(ctx)
 	case categorydefaultfeature.FieldDisplayName:
 		return m.OldDisplayName(ctx)
+	case categorydefaultfeature.FieldDataType:
+		return m.OldDataType(ctx)
+	case categorydefaultfeature.FieldAccessMode:
+		return m.OldAccessMode(ctx)
+	case categorydefaultfeature.FieldEventLevel:
+		return m.OldEventLevel(ctx)
+	case categorydefaultfeature.FieldCallMode:
+		return m.OldCallMode(ctx)
+	case categorydefaultfeature.FieldRelationType:
+		return m.OldRelationType(ctx)
 	}
 	return nil, fmt.Errorf("unknown CategoryDefaultFeature field %s", name)
 }
@@ -7175,12 +7460,12 @@ func (m *CategoryDefaultFeatureMutation) SetField(name string, value ent.Value) 
 		}
 		m.SetFeatureID(v)
 		return nil
-	case categorydefaultfeature.FieldOverrideSpec:
-		v, ok := value.(*schema.FeatureOverrideSpecField)
+	case categorydefaultfeature.FieldSpec:
+		v, ok := value.(*schema.FeatureSpecField)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetOverrideSpec(v)
+		m.SetSpec(v)
 		return nil
 	case categorydefaultfeature.FieldDisplayName:
 		v, ok := value.(string)
@@ -7188,6 +7473,41 @@ func (m *CategoryDefaultFeatureMutation) SetField(name string, value ent.Value) 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDisplayName(v)
+		return nil
+	case categorydefaultfeature.FieldDataType:
+		v, ok := value.(categorydefaultfeature.DataType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDataType(v)
+		return nil
+	case categorydefaultfeature.FieldAccessMode:
+		v, ok := value.(categorydefaultfeature.AccessMode)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccessMode(v)
+		return nil
+	case categorydefaultfeature.FieldEventLevel:
+		v, ok := value.(categorydefaultfeature.EventLevel)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEventLevel(v)
+		return nil
+	case categorydefaultfeature.FieldCallMode:
+		v, ok := value.(categorydefaultfeature.CallMode)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCallMode(v)
+		return nil
+	case categorydefaultfeature.FieldRelationType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRelationType(v)
 		return nil
 	}
 	return fmt.Errorf("unknown CategoryDefaultFeature field %s", name)
@@ -7309,11 +7629,26 @@ func (m *CategoryDefaultFeatureMutation) ClearedFields() []string {
 	if m.FieldCleared(categorydefaultfeature.FieldTenantID) {
 		fields = append(fields, categorydefaultfeature.FieldTenantID)
 	}
-	if m.FieldCleared(categorydefaultfeature.FieldOverrideSpec) {
-		fields = append(fields, categorydefaultfeature.FieldOverrideSpec)
+	if m.FieldCleared(categorydefaultfeature.FieldSpec) {
+		fields = append(fields, categorydefaultfeature.FieldSpec)
 	}
 	if m.FieldCleared(categorydefaultfeature.FieldDisplayName) {
 		fields = append(fields, categorydefaultfeature.FieldDisplayName)
+	}
+	if m.FieldCleared(categorydefaultfeature.FieldDataType) {
+		fields = append(fields, categorydefaultfeature.FieldDataType)
+	}
+	if m.FieldCleared(categorydefaultfeature.FieldAccessMode) {
+		fields = append(fields, categorydefaultfeature.FieldAccessMode)
+	}
+	if m.FieldCleared(categorydefaultfeature.FieldEventLevel) {
+		fields = append(fields, categorydefaultfeature.FieldEventLevel)
+	}
+	if m.FieldCleared(categorydefaultfeature.FieldCallMode) {
+		fields = append(fields, categorydefaultfeature.FieldCallMode)
+	}
+	if m.FieldCleared(categorydefaultfeature.FieldRelationType) {
+		fields = append(fields, categorydefaultfeature.FieldRelationType)
 	}
 	return fields
 }
@@ -7356,11 +7691,26 @@ func (m *CategoryDefaultFeatureMutation) ClearField(name string) error {
 	case categorydefaultfeature.FieldTenantID:
 		m.ClearTenantID()
 		return nil
-	case categorydefaultfeature.FieldOverrideSpec:
-		m.ClearOverrideSpec()
+	case categorydefaultfeature.FieldSpec:
+		m.ClearSpec()
 		return nil
 	case categorydefaultfeature.FieldDisplayName:
 		m.ClearDisplayName()
+		return nil
+	case categorydefaultfeature.FieldDataType:
+		m.ClearDataType()
+		return nil
+	case categorydefaultfeature.FieldAccessMode:
+		m.ClearAccessMode()
+		return nil
+	case categorydefaultfeature.FieldEventLevel:
+		m.ClearEventLevel()
+		return nil
+	case categorydefaultfeature.FieldCallMode:
+		m.ClearCallMode()
+		return nil
+	case categorydefaultfeature.FieldRelationType:
+		m.ClearRelationType()
 		return nil
 	}
 	return fmt.Errorf("unknown CategoryDefaultFeature nullable field %s", name)
@@ -7403,11 +7753,26 @@ func (m *CategoryDefaultFeatureMutation) ResetField(name string) error {
 	case categorydefaultfeature.FieldFeatureID:
 		m.ResetFeatureID()
 		return nil
-	case categorydefaultfeature.FieldOverrideSpec:
-		m.ResetOverrideSpec()
+	case categorydefaultfeature.FieldSpec:
+		m.ResetSpec()
 		return nil
 	case categorydefaultfeature.FieldDisplayName:
 		m.ResetDisplayName()
+		return nil
+	case categorydefaultfeature.FieldDataType:
+		m.ResetDataType()
+		return nil
+	case categorydefaultfeature.FieldAccessMode:
+		m.ResetAccessMode()
+		return nil
+	case categorydefaultfeature.FieldEventLevel:
+		m.ResetEventLevel()
+		return nil
+	case categorydefaultfeature.FieldCallMode:
+		m.ResetCallMode()
+		return nil
+	case categorydefaultfeature.FieldRelationType:
+		m.ResetRelationType()
 		return nil
 	}
 	return fmt.Errorf("unknown CategoryDefaultFeature field %s", name)
@@ -13948,12 +14313,9 @@ type FeatureMutation struct {
 	name_en                         *string
 	description                     *string
 	applicable_scope                *string
-	data_type                       *feature.DataType
-	access_mode                     *feature.AccessMode
-	event_level                     *feature.EventLevel
-	call_mode                       *feature.CallMode
-	relation_type                   *string
-	spec                            **schema.FeatureSpecField
+	recommended_unit_category_id    *uint32
+	addrecommended_unit_category_id *int32
+	semantic_tag                    *string
 	clearedFields                   map[string]struct{}
 	category_default_entries        map[uint32]struct{}
 	removedcategory_default_entries map[uint32]struct{}
@@ -14956,298 +15318,123 @@ func (m *FeatureMutation) ResetApplicableScope() {
 	delete(m.clearedFields, feature.FieldApplicableScope)
 }
 
-// SetDataType sets the "data_type" field.
-func (m *FeatureMutation) SetDataType(ft feature.DataType) {
-	m.data_type = &ft
+// SetRecommendedUnitCategoryID sets the "recommended_unit_category_id" field.
+func (m *FeatureMutation) SetRecommendedUnitCategoryID(u uint32) {
+	m.recommended_unit_category_id = &u
+	m.addrecommended_unit_category_id = nil
 }
 
-// DataType returns the value of the "data_type" field in the mutation.
-func (m *FeatureMutation) DataType() (r feature.DataType, exists bool) {
-	v := m.data_type
+// RecommendedUnitCategoryID returns the value of the "recommended_unit_category_id" field in the mutation.
+func (m *FeatureMutation) RecommendedUnitCategoryID() (r uint32, exists bool) {
+	v := m.recommended_unit_category_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDataType returns the old "data_type" field's value of the Feature entity.
+// OldRecommendedUnitCategoryID returns the old "recommended_unit_category_id" field's value of the Feature entity.
 // If the Feature object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FeatureMutation) OldDataType(ctx context.Context) (v *feature.DataType, err error) {
+func (m *FeatureMutation) OldRecommendedUnitCategoryID(ctx context.Context) (v *uint32, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDataType is only allowed on UpdateOne operations")
+		return v, errors.New("OldRecommendedUnitCategoryID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDataType requires an ID field in the mutation")
+		return v, errors.New("OldRecommendedUnitCategoryID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDataType: %w", err)
+		return v, fmt.Errorf("querying old value for OldRecommendedUnitCategoryID: %w", err)
 	}
-	return oldValue.DataType, nil
+	return oldValue.RecommendedUnitCategoryID, nil
 }
 
-// ClearDataType clears the value of the "data_type" field.
-func (m *FeatureMutation) ClearDataType() {
-	m.data_type = nil
-	m.clearedFields[feature.FieldDataType] = struct{}{}
+// AddRecommendedUnitCategoryID adds u to the "recommended_unit_category_id" field.
+func (m *FeatureMutation) AddRecommendedUnitCategoryID(u int32) {
+	if m.addrecommended_unit_category_id != nil {
+		*m.addrecommended_unit_category_id += u
+	} else {
+		m.addrecommended_unit_category_id = &u
+	}
 }
 
-// DataTypeCleared returns if the "data_type" field was cleared in this mutation.
-func (m *FeatureMutation) DataTypeCleared() bool {
-	_, ok := m.clearedFields[feature.FieldDataType]
-	return ok
-}
-
-// ResetDataType resets all changes to the "data_type" field.
-func (m *FeatureMutation) ResetDataType() {
-	m.data_type = nil
-	delete(m.clearedFields, feature.FieldDataType)
-}
-
-// SetAccessMode sets the "access_mode" field.
-func (m *FeatureMutation) SetAccessMode(fm feature.AccessMode) {
-	m.access_mode = &fm
-}
-
-// AccessMode returns the value of the "access_mode" field in the mutation.
-func (m *FeatureMutation) AccessMode() (r feature.AccessMode, exists bool) {
-	v := m.access_mode
+// AddedRecommendedUnitCategoryID returns the value that was added to the "recommended_unit_category_id" field in this mutation.
+func (m *FeatureMutation) AddedRecommendedUnitCategoryID() (r int32, exists bool) {
+	v := m.addrecommended_unit_category_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldAccessMode returns the old "access_mode" field's value of the Feature entity.
-// If the Feature object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FeatureMutation) OldAccessMode(ctx context.Context) (v *feature.AccessMode, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAccessMode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAccessMode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAccessMode: %w", err)
-	}
-	return oldValue.AccessMode, nil
+// ClearRecommendedUnitCategoryID clears the value of the "recommended_unit_category_id" field.
+func (m *FeatureMutation) ClearRecommendedUnitCategoryID() {
+	m.recommended_unit_category_id = nil
+	m.addrecommended_unit_category_id = nil
+	m.clearedFields[feature.FieldRecommendedUnitCategoryID] = struct{}{}
 }
 
-// ClearAccessMode clears the value of the "access_mode" field.
-func (m *FeatureMutation) ClearAccessMode() {
-	m.access_mode = nil
-	m.clearedFields[feature.FieldAccessMode] = struct{}{}
-}
-
-// AccessModeCleared returns if the "access_mode" field was cleared in this mutation.
-func (m *FeatureMutation) AccessModeCleared() bool {
-	_, ok := m.clearedFields[feature.FieldAccessMode]
+// RecommendedUnitCategoryIDCleared returns if the "recommended_unit_category_id" field was cleared in this mutation.
+func (m *FeatureMutation) RecommendedUnitCategoryIDCleared() bool {
+	_, ok := m.clearedFields[feature.FieldRecommendedUnitCategoryID]
 	return ok
 }
 
-// ResetAccessMode resets all changes to the "access_mode" field.
-func (m *FeatureMutation) ResetAccessMode() {
-	m.access_mode = nil
-	delete(m.clearedFields, feature.FieldAccessMode)
+// ResetRecommendedUnitCategoryID resets all changes to the "recommended_unit_category_id" field.
+func (m *FeatureMutation) ResetRecommendedUnitCategoryID() {
+	m.recommended_unit_category_id = nil
+	m.addrecommended_unit_category_id = nil
+	delete(m.clearedFields, feature.FieldRecommendedUnitCategoryID)
 }
 
-// SetEventLevel sets the "event_level" field.
-func (m *FeatureMutation) SetEventLevel(fl feature.EventLevel) {
-	m.event_level = &fl
+// SetSemanticTag sets the "semantic_tag" field.
+func (m *FeatureMutation) SetSemanticTag(s string) {
+	m.semantic_tag = &s
 }
 
-// EventLevel returns the value of the "event_level" field in the mutation.
-func (m *FeatureMutation) EventLevel() (r feature.EventLevel, exists bool) {
-	v := m.event_level
+// SemanticTag returns the value of the "semantic_tag" field in the mutation.
+func (m *FeatureMutation) SemanticTag() (r string, exists bool) {
+	v := m.semantic_tag
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldEventLevel returns the old "event_level" field's value of the Feature entity.
+// OldSemanticTag returns the old "semantic_tag" field's value of the Feature entity.
 // If the Feature object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FeatureMutation) OldEventLevel(ctx context.Context) (v *feature.EventLevel, err error) {
+func (m *FeatureMutation) OldSemanticTag(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEventLevel is only allowed on UpdateOne operations")
+		return v, errors.New("OldSemanticTag is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEventLevel requires an ID field in the mutation")
+		return v, errors.New("OldSemanticTag requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEventLevel: %w", err)
+		return v, fmt.Errorf("querying old value for OldSemanticTag: %w", err)
 	}
-	return oldValue.EventLevel, nil
+	return oldValue.SemanticTag, nil
 }
 
-// ClearEventLevel clears the value of the "event_level" field.
-func (m *FeatureMutation) ClearEventLevel() {
-	m.event_level = nil
-	m.clearedFields[feature.FieldEventLevel] = struct{}{}
+// ClearSemanticTag clears the value of the "semantic_tag" field.
+func (m *FeatureMutation) ClearSemanticTag() {
+	m.semantic_tag = nil
+	m.clearedFields[feature.FieldSemanticTag] = struct{}{}
 }
 
-// EventLevelCleared returns if the "event_level" field was cleared in this mutation.
-func (m *FeatureMutation) EventLevelCleared() bool {
-	_, ok := m.clearedFields[feature.FieldEventLevel]
+// SemanticTagCleared returns if the "semantic_tag" field was cleared in this mutation.
+func (m *FeatureMutation) SemanticTagCleared() bool {
+	_, ok := m.clearedFields[feature.FieldSemanticTag]
 	return ok
 }
 
-// ResetEventLevel resets all changes to the "event_level" field.
-func (m *FeatureMutation) ResetEventLevel() {
-	m.event_level = nil
-	delete(m.clearedFields, feature.FieldEventLevel)
-}
-
-// SetCallMode sets the "call_mode" field.
-func (m *FeatureMutation) SetCallMode(fm feature.CallMode) {
-	m.call_mode = &fm
-}
-
-// CallMode returns the value of the "call_mode" field in the mutation.
-func (m *FeatureMutation) CallMode() (r feature.CallMode, exists bool) {
-	v := m.call_mode
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCallMode returns the old "call_mode" field's value of the Feature entity.
-// If the Feature object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FeatureMutation) OldCallMode(ctx context.Context) (v *feature.CallMode, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCallMode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCallMode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCallMode: %w", err)
-	}
-	return oldValue.CallMode, nil
-}
-
-// ClearCallMode clears the value of the "call_mode" field.
-func (m *FeatureMutation) ClearCallMode() {
-	m.call_mode = nil
-	m.clearedFields[feature.FieldCallMode] = struct{}{}
-}
-
-// CallModeCleared returns if the "call_mode" field was cleared in this mutation.
-func (m *FeatureMutation) CallModeCleared() bool {
-	_, ok := m.clearedFields[feature.FieldCallMode]
-	return ok
-}
-
-// ResetCallMode resets all changes to the "call_mode" field.
-func (m *FeatureMutation) ResetCallMode() {
-	m.call_mode = nil
-	delete(m.clearedFields, feature.FieldCallMode)
-}
-
-// SetRelationType sets the "relation_type" field.
-func (m *FeatureMutation) SetRelationType(s string) {
-	m.relation_type = &s
-}
-
-// RelationType returns the value of the "relation_type" field in the mutation.
-func (m *FeatureMutation) RelationType() (r string, exists bool) {
-	v := m.relation_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRelationType returns the old "relation_type" field's value of the Feature entity.
-// If the Feature object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FeatureMutation) OldRelationType(ctx context.Context) (v *string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRelationType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRelationType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRelationType: %w", err)
-	}
-	return oldValue.RelationType, nil
-}
-
-// ClearRelationType clears the value of the "relation_type" field.
-func (m *FeatureMutation) ClearRelationType() {
-	m.relation_type = nil
-	m.clearedFields[feature.FieldRelationType] = struct{}{}
-}
-
-// RelationTypeCleared returns if the "relation_type" field was cleared in this mutation.
-func (m *FeatureMutation) RelationTypeCleared() bool {
-	_, ok := m.clearedFields[feature.FieldRelationType]
-	return ok
-}
-
-// ResetRelationType resets all changes to the "relation_type" field.
-func (m *FeatureMutation) ResetRelationType() {
-	m.relation_type = nil
-	delete(m.clearedFields, feature.FieldRelationType)
-}
-
-// SetSpec sets the "spec" field.
-func (m *FeatureMutation) SetSpec(ssf *schema.FeatureSpecField) {
-	m.spec = &ssf
-}
-
-// Spec returns the value of the "spec" field in the mutation.
-func (m *FeatureMutation) Spec() (r *schema.FeatureSpecField, exists bool) {
-	v := m.spec
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSpec returns the old "spec" field's value of the Feature entity.
-// If the Feature object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FeatureMutation) OldSpec(ctx context.Context) (v *schema.FeatureSpecField, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSpec is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSpec requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSpec: %w", err)
-	}
-	return oldValue.Spec, nil
-}
-
-// ClearSpec clears the value of the "spec" field.
-func (m *FeatureMutation) ClearSpec() {
-	m.spec = nil
-	m.clearedFields[feature.FieldSpec] = struct{}{}
-}
-
-// SpecCleared returns if the "spec" field was cleared in this mutation.
-func (m *FeatureMutation) SpecCleared() bool {
-	_, ok := m.clearedFields[feature.FieldSpec]
-	return ok
-}
-
-// ResetSpec resets all changes to the "spec" field.
-func (m *FeatureMutation) ResetSpec() {
-	m.spec = nil
-	delete(m.clearedFields, feature.FieldSpec)
+// ResetSemanticTag resets all changes to the "semantic_tag" field.
+func (m *FeatureMutation) ResetSemanticTag() {
+	m.semantic_tag = nil
+	delete(m.clearedFields, feature.FieldSemanticTag)
 }
 
 // AddCategoryDefaultEntryIDs adds the "category_default_entries" edge to the CategoryDefaultFeature entity by ids.
@@ -15338,7 +15525,7 @@ func (m *FeatureMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *FeatureMutation) Fields() []string {
-	fields := make([]string, 0, 22)
+	fields := make([]string, 0, 18)
 	if m.created_at != nil {
 		fields = append(fields, feature.FieldCreatedAt)
 	}
@@ -15387,23 +15574,11 @@ func (m *FeatureMutation) Fields() []string {
 	if m.applicable_scope != nil {
 		fields = append(fields, feature.FieldApplicableScope)
 	}
-	if m.data_type != nil {
-		fields = append(fields, feature.FieldDataType)
+	if m.recommended_unit_category_id != nil {
+		fields = append(fields, feature.FieldRecommendedUnitCategoryID)
 	}
-	if m.access_mode != nil {
-		fields = append(fields, feature.FieldAccessMode)
-	}
-	if m.event_level != nil {
-		fields = append(fields, feature.FieldEventLevel)
-	}
-	if m.call_mode != nil {
-		fields = append(fields, feature.FieldCallMode)
-	}
-	if m.relation_type != nil {
-		fields = append(fields, feature.FieldRelationType)
-	}
-	if m.spec != nil {
-		fields = append(fields, feature.FieldSpec)
+	if m.semantic_tag != nil {
+		fields = append(fields, feature.FieldSemanticTag)
 	}
 	return fields
 }
@@ -15445,18 +15620,10 @@ func (m *FeatureMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case feature.FieldApplicableScope:
 		return m.ApplicableScope()
-	case feature.FieldDataType:
-		return m.DataType()
-	case feature.FieldAccessMode:
-		return m.AccessMode()
-	case feature.FieldEventLevel:
-		return m.EventLevel()
-	case feature.FieldCallMode:
-		return m.CallMode()
-	case feature.FieldRelationType:
-		return m.RelationType()
-	case feature.FieldSpec:
-		return m.Spec()
+	case feature.FieldRecommendedUnitCategoryID:
+		return m.RecommendedUnitCategoryID()
+	case feature.FieldSemanticTag:
+		return m.SemanticTag()
 	}
 	return nil, false
 }
@@ -15498,18 +15665,10 @@ func (m *FeatureMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDescription(ctx)
 	case feature.FieldApplicableScope:
 		return m.OldApplicableScope(ctx)
-	case feature.FieldDataType:
-		return m.OldDataType(ctx)
-	case feature.FieldAccessMode:
-		return m.OldAccessMode(ctx)
-	case feature.FieldEventLevel:
-		return m.OldEventLevel(ctx)
-	case feature.FieldCallMode:
-		return m.OldCallMode(ctx)
-	case feature.FieldRelationType:
-		return m.OldRelationType(ctx)
-	case feature.FieldSpec:
-		return m.OldSpec(ctx)
+	case feature.FieldRecommendedUnitCategoryID:
+		return m.OldRecommendedUnitCategoryID(ctx)
+	case feature.FieldSemanticTag:
+		return m.OldSemanticTag(ctx)
 	}
 	return nil, fmt.Errorf("unknown Feature field %s", name)
 }
@@ -15631,47 +15790,19 @@ func (m *FeatureMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetApplicableScope(v)
 		return nil
-	case feature.FieldDataType:
-		v, ok := value.(feature.DataType)
+	case feature.FieldRecommendedUnitCategoryID:
+		v, ok := value.(uint32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDataType(v)
+		m.SetRecommendedUnitCategoryID(v)
 		return nil
-	case feature.FieldAccessMode:
-		v, ok := value.(feature.AccessMode)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAccessMode(v)
-		return nil
-	case feature.FieldEventLevel:
-		v, ok := value.(feature.EventLevel)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetEventLevel(v)
-		return nil
-	case feature.FieldCallMode:
-		v, ok := value.(feature.CallMode)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCallMode(v)
-		return nil
-	case feature.FieldRelationType:
+	case feature.FieldSemanticTag:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRelationType(v)
-		return nil
-	case feature.FieldSpec:
-		v, ok := value.(*schema.FeatureSpecField)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSpec(v)
+		m.SetSemanticTag(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Feature field %s", name)
@@ -15696,6 +15827,9 @@ func (m *FeatureMutation) AddedFields() []string {
 	if m.addtenant_id != nil {
 		fields = append(fields, feature.FieldTenantID)
 	}
+	if m.addrecommended_unit_category_id != nil {
+		fields = append(fields, feature.FieldRecommendedUnitCategoryID)
+	}
 	return fields
 }
 
@@ -15714,6 +15848,8 @@ func (m *FeatureMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedSortOrder()
 	case feature.FieldTenantID:
 		return m.AddedTenantID()
+	case feature.FieldRecommendedUnitCategoryID:
+		return m.AddedRecommendedUnitCategoryID()
 	}
 	return nil, false
 }
@@ -15757,6 +15893,13 @@ func (m *FeatureMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddTenantID(v)
+		return nil
+	case feature.FieldRecommendedUnitCategoryID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRecommendedUnitCategoryID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Feature numeric field %s", name)
@@ -15814,23 +15957,11 @@ func (m *FeatureMutation) ClearedFields() []string {
 	if m.FieldCleared(feature.FieldApplicableScope) {
 		fields = append(fields, feature.FieldApplicableScope)
 	}
-	if m.FieldCleared(feature.FieldDataType) {
-		fields = append(fields, feature.FieldDataType)
+	if m.FieldCleared(feature.FieldRecommendedUnitCategoryID) {
+		fields = append(fields, feature.FieldRecommendedUnitCategoryID)
 	}
-	if m.FieldCleared(feature.FieldAccessMode) {
-		fields = append(fields, feature.FieldAccessMode)
-	}
-	if m.FieldCleared(feature.FieldEventLevel) {
-		fields = append(fields, feature.FieldEventLevel)
-	}
-	if m.FieldCleared(feature.FieldCallMode) {
-		fields = append(fields, feature.FieldCallMode)
-	}
-	if m.FieldCleared(feature.FieldRelationType) {
-		fields = append(fields, feature.FieldRelationType)
-	}
-	if m.FieldCleared(feature.FieldSpec) {
-		fields = append(fields, feature.FieldSpec)
+	if m.FieldCleared(feature.FieldSemanticTag) {
+		fields = append(fields, feature.FieldSemanticTag)
 	}
 	return fields
 }
@@ -15894,23 +16025,11 @@ func (m *FeatureMutation) ClearField(name string) error {
 	case feature.FieldApplicableScope:
 		m.ClearApplicableScope()
 		return nil
-	case feature.FieldDataType:
-		m.ClearDataType()
+	case feature.FieldRecommendedUnitCategoryID:
+		m.ClearRecommendedUnitCategoryID()
 		return nil
-	case feature.FieldAccessMode:
-		m.ClearAccessMode()
-		return nil
-	case feature.FieldEventLevel:
-		m.ClearEventLevel()
-		return nil
-	case feature.FieldCallMode:
-		m.ClearCallMode()
-		return nil
-	case feature.FieldRelationType:
-		m.ClearRelationType()
-		return nil
-	case feature.FieldSpec:
-		m.ClearSpec()
+	case feature.FieldSemanticTag:
+		m.ClearSemanticTag()
 		return nil
 	}
 	return fmt.Errorf("unknown Feature nullable field %s", name)
@@ -15968,23 +16087,11 @@ func (m *FeatureMutation) ResetField(name string) error {
 	case feature.FieldApplicableScope:
 		m.ResetApplicableScope()
 		return nil
-	case feature.FieldDataType:
-		m.ResetDataType()
+	case feature.FieldRecommendedUnitCategoryID:
+		m.ResetRecommendedUnitCategoryID()
 		return nil
-	case feature.FieldAccessMode:
-		m.ResetAccessMode()
-		return nil
-	case feature.FieldEventLevel:
-		m.ResetEventLevel()
-		return nil
-	case feature.FieldCallMode:
-		m.ResetCallMode()
-		return nil
-	case feature.FieldRelationType:
-		m.ResetRelationType()
-		return nil
-	case feature.FieldSpec:
-		m.ResetSpec()
+	case feature.FieldSemanticTag:
+		m.ResetSemanticTag()
 		return nil
 	}
 	return fmt.Errorf("unknown Feature field %s", name)
@@ -52746,8 +52853,7 @@ type ProductFeatureMutation struct {
 	name              *string
 	name_en           *string
 	description       *string
-	feature_snapshot  **schema.FeatureSpecField
-	override_spec     **schema.FeatureOverrideSpecField
+	spec              **schema.FeatureSpecField
 	data_type         *productfeature.DataType
 	access_mode       *productfeature.AccessMode
 	event_level       *productfeature.EventLevel
@@ -53834,89 +53940,53 @@ func (m *ProductFeatureMutation) ResetDescription() {
 	delete(m.clearedFields, productfeature.FieldDescription)
 }
 
-// SetFeatureSnapshot sets the "feature_snapshot" field.
-func (m *ProductFeatureMutation) SetFeatureSnapshot(ssf *schema.FeatureSpecField) {
-	m.feature_snapshot = &ssf
+// SetSpec sets the "spec" field.
+func (m *ProductFeatureMutation) SetSpec(ssf *schema.FeatureSpecField) {
+	m.spec = &ssf
 }
 
-// FeatureSnapshot returns the value of the "feature_snapshot" field in the mutation.
-func (m *ProductFeatureMutation) FeatureSnapshot() (r *schema.FeatureSpecField, exists bool) {
-	v := m.feature_snapshot
+// Spec returns the value of the "spec" field in the mutation.
+func (m *ProductFeatureMutation) Spec() (r *schema.FeatureSpecField, exists bool) {
+	v := m.spec
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldFeatureSnapshot returns the old "feature_snapshot" field's value of the ProductFeature entity.
+// OldSpec returns the old "spec" field's value of the ProductFeature entity.
 // If the ProductFeature object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductFeatureMutation) OldFeatureSnapshot(ctx context.Context) (v *schema.FeatureSpecField, err error) {
+func (m *ProductFeatureMutation) OldSpec(ctx context.Context) (v *schema.FeatureSpecField, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldFeatureSnapshot is only allowed on UpdateOne operations")
+		return v, errors.New("OldSpec is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldFeatureSnapshot requires an ID field in the mutation")
+		return v, errors.New("OldSpec requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldFeatureSnapshot: %w", err)
+		return v, fmt.Errorf("querying old value for OldSpec: %w", err)
 	}
-	return oldValue.FeatureSnapshot, nil
+	return oldValue.Spec, nil
 }
 
-// ResetFeatureSnapshot resets all changes to the "feature_snapshot" field.
-func (m *ProductFeatureMutation) ResetFeatureSnapshot() {
-	m.feature_snapshot = nil
+// ClearSpec clears the value of the "spec" field.
+func (m *ProductFeatureMutation) ClearSpec() {
+	m.spec = nil
+	m.clearedFields[productfeature.FieldSpec] = struct{}{}
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (m *ProductFeatureMutation) SetOverrideSpec(sosf *schema.FeatureOverrideSpecField) {
-	m.override_spec = &sosf
-}
-
-// OverrideSpec returns the value of the "override_spec" field in the mutation.
-func (m *ProductFeatureMutation) OverrideSpec() (r *schema.FeatureOverrideSpecField, exists bool) {
-	v := m.override_spec
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOverrideSpec returns the old "override_spec" field's value of the ProductFeature entity.
-// If the ProductFeature object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductFeatureMutation) OldOverrideSpec(ctx context.Context) (v *schema.FeatureOverrideSpecField, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOverrideSpec is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOverrideSpec requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOverrideSpec: %w", err)
-	}
-	return oldValue.OverrideSpec, nil
-}
-
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (m *ProductFeatureMutation) ClearOverrideSpec() {
-	m.override_spec = nil
-	m.clearedFields[productfeature.FieldOverrideSpec] = struct{}{}
-}
-
-// OverrideSpecCleared returns if the "override_spec" field was cleared in this mutation.
-func (m *ProductFeatureMutation) OverrideSpecCleared() bool {
-	_, ok := m.clearedFields[productfeature.FieldOverrideSpec]
+// SpecCleared returns if the "spec" field was cleared in this mutation.
+func (m *ProductFeatureMutation) SpecCleared() bool {
+	_, ok := m.clearedFields[productfeature.FieldSpec]
 	return ok
 }
 
-// ResetOverrideSpec resets all changes to the "override_spec" field.
-func (m *ProductFeatureMutation) ResetOverrideSpec() {
-	m.override_spec = nil
-	delete(m.clearedFields, productfeature.FieldOverrideSpec)
+// ResetSpec resets all changes to the "spec" field.
+func (m *ProductFeatureMutation) ResetSpec() {
+	m.spec = nil
+	delete(m.clearedFields, productfeature.FieldSpec)
 }
 
 // SetDataType sets the "data_type" field.
@@ -54225,7 +54295,7 @@ func (m *ProductFeatureMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProductFeatureMutation) Fields() []string {
-	fields := make([]string, 0, 25)
+	fields := make([]string, 0, 24)
 	if m.created_at != nil {
 		fields = append(fields, productfeature.FieldCreatedAt)
 	}
@@ -54280,11 +54350,8 @@ func (m *ProductFeatureMutation) Fields() []string {
 	if m.description != nil {
 		fields = append(fields, productfeature.FieldDescription)
 	}
-	if m.feature_snapshot != nil {
-		fields = append(fields, productfeature.FieldFeatureSnapshot)
-	}
-	if m.override_spec != nil {
-		fields = append(fields, productfeature.FieldOverrideSpec)
+	if m.spec != nil {
+		fields = append(fields, productfeature.FieldSpec)
 	}
 	if m.data_type != nil {
 		fields = append(fields, productfeature.FieldDataType)
@@ -54345,10 +54412,8 @@ func (m *ProductFeatureMutation) Field(name string) (ent.Value, bool) {
 		return m.NameEn()
 	case productfeature.FieldDescription:
 		return m.Description()
-	case productfeature.FieldFeatureSnapshot:
-		return m.FeatureSnapshot()
-	case productfeature.FieldOverrideSpec:
-		return m.OverrideSpec()
+	case productfeature.FieldSpec:
+		return m.Spec()
 	case productfeature.FieldDataType:
 		return m.DataType()
 	case productfeature.FieldAccessMode:
@@ -54404,10 +54469,8 @@ func (m *ProductFeatureMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldNameEn(ctx)
 	case productfeature.FieldDescription:
 		return m.OldDescription(ctx)
-	case productfeature.FieldFeatureSnapshot:
-		return m.OldFeatureSnapshot(ctx)
-	case productfeature.FieldOverrideSpec:
-		return m.OldOverrideSpec(ctx)
+	case productfeature.FieldSpec:
+		return m.OldSpec(ctx)
 	case productfeature.FieldDataType:
 		return m.OldDataType(ctx)
 	case productfeature.FieldAccessMode:
@@ -54553,19 +54616,12 @@ func (m *ProductFeatureMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDescription(v)
 		return nil
-	case productfeature.FieldFeatureSnapshot:
+	case productfeature.FieldSpec:
 		v, ok := value.(*schema.FeatureSpecField)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetFeatureSnapshot(v)
-		return nil
-	case productfeature.FieldOverrideSpec:
-		v, ok := value.(*schema.FeatureOverrideSpecField)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOverrideSpec(v)
+		m.SetSpec(v)
 		return nil
 	case productfeature.FieldDataType:
 		v, ok := value.(productfeature.DataType)
@@ -54752,8 +54808,8 @@ func (m *ProductFeatureMutation) ClearedFields() []string {
 	if m.FieldCleared(productfeature.FieldDescription) {
 		fields = append(fields, productfeature.FieldDescription)
 	}
-	if m.FieldCleared(productfeature.FieldOverrideSpec) {
-		fields = append(fields, productfeature.FieldOverrideSpec)
+	if m.FieldCleared(productfeature.FieldSpec) {
+		fields = append(fields, productfeature.FieldSpec)
 	}
 	if m.FieldCleared(productfeature.FieldDataType) {
 		fields = append(fields, productfeature.FieldDataType)
@@ -54829,8 +54885,8 @@ func (m *ProductFeatureMutation) ClearField(name string) error {
 	case productfeature.FieldDescription:
 		m.ClearDescription()
 		return nil
-	case productfeature.FieldOverrideSpec:
-		m.ClearOverrideSpec()
+	case productfeature.FieldSpec:
+		m.ClearSpec()
 		return nil
 	case productfeature.FieldDataType:
 		m.ClearDataType()
@@ -54909,11 +54965,8 @@ func (m *ProductFeatureMutation) ResetField(name string) error {
 	case productfeature.FieldDescription:
 		m.ResetDescription()
 		return nil
-	case productfeature.FieldFeatureSnapshot:
-		m.ResetFeatureSnapshot()
-		return nil
-	case productfeature.FieldOverrideSpec:
-		m.ResetOverrideSpec()
+	case productfeature.FieldSpec:
+		m.ResetSpec()
 		return nil
 	case productfeature.FieldDataType:
 		m.ResetDataType()

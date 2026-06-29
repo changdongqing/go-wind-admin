@@ -2,12 +2,18 @@
  * 配置默认模型 Drawer（入口①）— 仅 level=4 细类调用。
  * Category default features drawer (entry ①).
  *
- * 内含 Tab(全部/属性/事件/服务/关系) + ProTable + 行内编辑 Override + + 新增特征（FeaturePicker 多选）。
+ * 内含 Tab(全部/属性/事件/服务/关系) + ProTable + 编辑 Spec(完整)Modal + 新增特征(FeaturePicker 多选)。
  *
- * 设计依据 / Design ref: docs/thingmodel/sheji/模型管理/05-前端实现设计.md §1.1
+ * 设计依据 / Design ref:
+ *   - docs/thingmodel/sheji/模型管理/05-前端实现设计.md §1.1
+ *   - docs/thingmodel/sheji/修改记录/CR-001-结构化约束下沉到模型层.md
+ *
+ * CR-001（2026-06-29）：
+ *   - "编辑覆写"按钮改为"编辑约束 spec"，弹出 Modal 内挂载完整 FeatureSpecForm；
+ *   - "overridden(yes|no)" 列改为冗余特化列 dataType/eventLevel/callMode/relationType 展示。
  */
 import { useEffect, useRef, useState } from 'react';
-import { Drawer, Button, Space, Tabs, Popconfirm, App, Modal, Tag } from 'antd';
+import { Drawer, Button, Form, Space, Tabs, Popconfirm, App, Modal, Tag } from 'antd';
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,10 +27,10 @@ import { PaginationQuery } from '@/core/transport/rest';
 import type {
   thingmodelservicev1_Category,
   thingmodelservicev1_CategoryDefaultFeature,
-  thingmodelservicev1_FeatureOverrideSpec,
+  thingmodelservicev1_FeatureSpec,
 } from '@/api/generated/admin/service/v1';
 import FeaturePicker from '../_shared/FeaturePicker';
-import OverrideSpecForm from '../_shared/OverrideSpecForm';
+import FeatureSpecForm from '../_shared/specs/FeatureSpecForm';
 
 interface Props {
   open: boolean;
@@ -51,11 +57,10 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
   const [tab, setTab] = useState<TabKey>('ALL');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [editing, setEditing] = useState<thingmodelservicev1_CategoryDefaultFeature | null>(null);
-  const [editOverride, setEditOverride] = useState<thingmodelservicev1_FeatureOverrideSpec | null>(
-    null,
-  );
+  const [specForm] = Form.useForm<{ spec: thingmodelservicev1_FeatureSpec | undefined }>();
 
-  // 切换 Tab 时强制刷新 ProTable（params 一变 ProTable 会自动 reload）
+  // 注：editing 变化时不在此处 setFieldsValue —— 改在 Modal afterOpenChange 中执行，
+  // 等子表单（destroyOnHidden 重新挂载）完成 register 后再回填，避免值丢失。
   useEffect(() => {
     if (open) {
       actionRef.current?.reload();
@@ -82,6 +87,22 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
       setEditing(null);
     },
   });
+
+  const renderTypeSummary = (row: thingmodelservicev1_CategoryDefaultFeature) => {
+    if (!row.featureType) return '-';
+    switch (row.featureType) {
+      case 'PROPERTY':
+        return [row.dataType, row.accessMode].filter(Boolean).join(' / ') || '-';
+      case 'EVENT':
+        return row.eventLevel || '-';
+      case 'SERVICE':
+        return row.callMode || '-';
+      case 'RELATION':
+        return row.relationType || '-';
+      default:
+        return '-';
+    }
+  };
 
   const columns: ProColumns<thingmodelservicev1_CategoryDefaultFeature>[] = [
     {
@@ -115,10 +136,10 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
         ),
     },
     {
-      title: t('overridden'),
-      dataIndex: 'overrideSpec',
-      width: 90,
-      render: (_, row) => (row.overrideSpec ? t('yes') : t('no')),
+      title: t('specSummary', { defaultValue: 'Spec 概要' }),
+      key: 'specSummary',
+      width: 140,
+      render: (_, row) => renderTypeSummary(row),
     },
     {
       title: t('actionTitle'),
@@ -126,15 +147,8 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
       width: 160,
       render: (_, row) => (
         <Space size="small">
-          <Button
-            size="small"
-            type="link"
-            onClick={() => {
-              setEditing(row);
-              setEditOverride(row.overrideSpec ?? null);
-            }}
-          >
-            {t('common:button.edit')}
+          <Button size="small" type="link" onClick={() => setEditing(row)}>
+            {t('editSpec', { defaultValue: '编辑 Spec' })}
           </Button>
           <Popconfirm
             title={t('deleteConfirm')}
@@ -174,7 +188,6 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
         rowKey="id"
         search={false}
         columns={columns}
-        // params 中携带 tab，作为 request 的依赖项，切换 Tab 时 ProTable 自动 reload
         params={{ tab }}
         toolBarRender={() => [
           <Button key="add" type="primary" onClick={() => setPickerOpen(true)}>
@@ -216,22 +229,34 @@ export const CategoryDefaultFeaturesDrawer = ({ open, category, onClose }: Props
 
       <Modal
         open={!!editing}
-        title={t('editOverride')}
+        title={t('editSpec', { defaultValue: '编辑约束 Spec' })}
+        width={760}
         onCancel={() => setEditing(null)}
         destroyOnHidden
-        onOk={() => {
+        afterOpenChange={(open) => {
+          // 在 Modal 完全打开（子组件已挂载）后再 setFieldsValue，
+          // 避免 destroyOnHidden + 异步挂载导致子 Form.Item 还没 register 时丢值。
+          if (open && editing) {
+            specForm.resetFields();
+            specForm.setFieldsValue({ spec: editing.spec });
+            // eslint-disable-next-line no-console
+            console.log('[CDF-DBG] open editing.id=', editing.id, ' editing.spec=', editing.spec);
+          }
+        }}
+        onOk={async () => {
           if (!editing) return;
+          const values = await specForm.validateFields();
+          // eslint-disable-next-line no-console
+          console.log('[CDF-DBG] submit values=', values);
           doUpdate({
             id: editing.id!,
-            values: { overrideSpec: editOverride ?? undefined },
+            values: { spec: values.spec },
           });
         }}
       >
-        <OverrideSpecForm
-          featureType={editing?.featureType}
-          value={editOverride}
-          onChange={setEditOverride}
-        />
+        <Form form={specForm} layout="vertical">
+          <FeatureSpecForm featureType={editing?.featureType} />
+        </Form>
       </Modal>
     </Drawer>
   );

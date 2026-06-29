@@ -12,6 +12,8 @@
   "no": "否",
   "deleteConfirm": "确认删除该条目？",
   "editOverride": "编辑覆写",
+  "editSpec": "编辑 Spec",
+  "specSummary": "Spec 概要",
   "tab": {
     "all": "全部",
     "property": "属性",

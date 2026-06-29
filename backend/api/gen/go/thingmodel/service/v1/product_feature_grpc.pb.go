@@ -38,22 +38,23 @@ const (
 //
 // 产品特征服务（源领域层，无 HTTP 注解）/ Product feature service (domain)
 //
-// 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.3
-// 含 PullFromDefault 批量从分类默认模型拉取的核心 RPC（详见 04-后端实现设计.md §4）。
+// CR-001（2026-06-29）：feature_snapshot + override_spec + effective_spec 三字段合并为单一 spec。
+// PullFromDefault 直接 `pf.spec = cdf.spec` 深拷贝，不再做 effective 合并。
+// 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.3 与 修改记录/CR-001-*。
 type ProductFeatureServiceClient interface {
 	// 分页查询（业务过滤通过 PagingRequest.query 传入：product_id/feature_type/source/is_enabled）
 	List(ctx context.Context, in *v1.PagingRequest, opts ...grpc.CallOption) (*ListProductFeatureResponse, error)
 	// 统计 / Count
 	Count(ctx context.Context, in *v1.PagingRequest, opts ...grpc.CallOption) (*CountProductFeatureResponse, error)
-	// 查询详情（返回 feature_snapshot + override_spec + 后端合并的 effective_spec）/ Get
+	// 查询详情 / Get
 	Get(ctx context.Context, in *GetProductFeatureRequest, opts ...grpc.CallOption) (*ProductFeature, error)
 	// 创建（source=GLOBAL/LOCAL；source=DEFAULT 必须走 PullFromDefault）/ Create
 	Create(ctx context.Context, in *CreateProductFeatureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 批量从分类默认模型拉取（产品创建后立即调用，或产品页面追加拉取）/ Pull from default
+	// 批量从分类默认模型拉取 / Pull from default
 	PullFromDefault(ctx context.Context, in *PullFromDefaultRequest, opts ...grpc.CallOption) (*PullFromDefaultResponse, error)
 	// 从另一产品克隆全部特征（含 LOCAL）/ Clone from another product
 	CloneFromProduct(ctx context.Context, in *CloneFromProductRequest, opts ...grpc.CallOption) (*CloneFromProductResponse, error)
-	// 更新（仅白名单字段；PUBLISHED 产品禁止改结构）/ Update via FieldMask
+	// 更新（DRAFT 全字段可改，PUBLISHED 仅 name/description/sort_order/is_enabled 可改）/ Update via FieldMask
 	Update(ctx context.Context, in *UpdateProductFeatureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除 / Delete
 	Delete(ctx context.Context, in *DeleteProductFeatureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -165,22 +166,23 @@ func (c *productFeatureServiceClient) Reorder(ctx context.Context, in *ReorderPr
 //
 // 产品特征服务（源领域层，无 HTTP 注解）/ Product feature service (domain)
 //
-// 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.3
-// 含 PullFromDefault 批量从分类默认模型拉取的核心 RPC（详见 04-后端实现设计.md §4）。
+// CR-001（2026-06-29）：feature_snapshot + override_spec + effective_spec 三字段合并为单一 spec。
+// PullFromDefault 直接 `pf.spec = cdf.spec` 深拷贝，不再做 effective 合并。
+// 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.3 与 修改记录/CR-001-*。
 type ProductFeatureServiceServer interface {
 	// 分页查询（业务过滤通过 PagingRequest.query 传入：product_id/feature_type/source/is_enabled）
 	List(context.Context, *v1.PagingRequest) (*ListProductFeatureResponse, error)
 	// 统计 / Count
 	Count(context.Context, *v1.PagingRequest) (*CountProductFeatureResponse, error)
-	// 查询详情（返回 feature_snapshot + override_spec + 后端合并的 effective_spec）/ Get
+	// 查询详情 / Get
 	Get(context.Context, *GetProductFeatureRequest) (*ProductFeature, error)
 	// 创建（source=GLOBAL/LOCAL；source=DEFAULT 必须走 PullFromDefault）/ Create
 	Create(context.Context, *CreateProductFeatureRequest) (*emptypb.Empty, error)
-	// 批量从分类默认模型拉取（产品创建后立即调用，或产品页面追加拉取）/ Pull from default
+	// 批量从分类默认模型拉取 / Pull from default
 	PullFromDefault(context.Context, *PullFromDefaultRequest) (*PullFromDefaultResponse, error)
 	// 从另一产品克隆全部特征（含 LOCAL）/ Clone from another product
 	CloneFromProduct(context.Context, *CloneFromProductRequest) (*CloneFromProductResponse, error)
-	// 更新（仅白名单字段；PUBLISHED 产品禁止改结构）/ Update via FieldMask
+	// 更新（DRAFT 全字段可改，PUBLISHED 仅 name/description/sort_order/is_enabled 可改）/ Update via FieldMask
 	Update(context.Context, *UpdateProductFeatureRequest) (*emptypb.Empty, error)
 	// 删除 / Delete
 	Delete(context.Context, *DeleteProductFeatureRequest) (*emptypb.Empty, error)

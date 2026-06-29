@@ -47,18 +47,10 @@ const (
 	FieldDescription = "description"
 	// FieldApplicableScope holds the string denoting the applicable_scope field in the database.
 	FieldApplicableScope = "applicable_scope"
-	// FieldDataType holds the string denoting the data_type field in the database.
-	FieldDataType = "data_type"
-	// FieldAccessMode holds the string denoting the access_mode field in the database.
-	FieldAccessMode = "access_mode"
-	// FieldEventLevel holds the string denoting the event_level field in the database.
-	FieldEventLevel = "event_level"
-	// FieldCallMode holds the string denoting the call_mode field in the database.
-	FieldCallMode = "call_mode"
-	// FieldRelationType holds the string denoting the relation_type field in the database.
-	FieldRelationType = "relation_type"
-	// FieldSpec holds the string denoting the spec field in the database.
-	FieldSpec = "spec"
+	// FieldRecommendedUnitCategoryID holds the string denoting the recommended_unit_category_id field in the database.
+	FieldRecommendedUnitCategoryID = "recommended_unit_category_id"
+	// FieldSemanticTag holds the string denoting the semantic_tag field in the database.
+	FieldSemanticTag = "semantic_tag"
 	// EdgeCategoryDefaultEntries holds the string denoting the category_default_entries edge name in mutations.
 	EdgeCategoryDefaultEntries = "category_default_entries"
 	// Table holds the table name of the feature in the database.
@@ -91,12 +83,8 @@ var Columns = []string{
 	FieldNameEn,
 	FieldDescription,
 	FieldApplicableScope,
-	FieldDataType,
-	FieldAccessMode,
-	FieldEventLevel,
-	FieldCallMode,
-	FieldRelationType,
-	FieldSpec,
+	FieldRecommendedUnitCategoryID,
+	FieldSemanticTag,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -155,106 +143,6 @@ func FeatureTypeValidator(ft FeatureType) error {
 		return nil
 	default:
 		return fmt.Errorf("feature: invalid enum value for feature_type field: %q", ft)
-	}
-}
-
-// DataType defines the type for the "data_type" enum field.
-type DataType string
-
-// DataType values.
-const (
-	DataTypeInt    DataType = "INT"
-	DataTypeFloat  DataType = "FLOAT"
-	DataTypeDouble DataType = "DOUBLE"
-	DataTypeBool   DataType = "BOOL"
-	DataTypeEnum   DataType = "ENUM"
-	DataTypeText   DataType = "TEXT"
-	DataTypeDate   DataType = "DATE"
-	DataTypeStruct DataType = "STRUCT"
-	DataTypeArray  DataType = "ARRAY"
-)
-
-func (dt DataType) String() string {
-	return string(dt)
-}
-
-// DataTypeValidator is a validator for the "data_type" field enum values. It is called by the builders before save.
-func DataTypeValidator(dt DataType) error {
-	switch dt {
-	case DataTypeInt, DataTypeFloat, DataTypeDouble, DataTypeBool, DataTypeEnum, DataTypeText, DataTypeDate, DataTypeStruct, DataTypeArray:
-		return nil
-	default:
-		return fmt.Errorf("feature: invalid enum value for data_type field: %q", dt)
-	}
-}
-
-// AccessMode defines the type for the "access_mode" enum field.
-type AccessMode string
-
-// AccessMode values.
-const (
-	AccessModeR  AccessMode = "R"
-	AccessModeRW AccessMode = "RW"
-)
-
-func (am AccessMode) String() string {
-	return string(am)
-}
-
-// AccessModeValidator is a validator for the "access_mode" field enum values. It is called by the builders before save.
-func AccessModeValidator(am AccessMode) error {
-	switch am {
-	case AccessModeR, AccessModeRW:
-		return nil
-	default:
-		return fmt.Errorf("feature: invalid enum value for access_mode field: %q", am)
-	}
-}
-
-// EventLevel defines the type for the "event_level" enum field.
-type EventLevel string
-
-// EventLevel values.
-const (
-	EventLevelInfo  EventLevel = "INFO"
-	EventLevelAlert EventLevel = "ALERT"
-	EventLevelError EventLevel = "ERROR"
-)
-
-func (el EventLevel) String() string {
-	return string(el)
-}
-
-// EventLevelValidator is a validator for the "event_level" field enum values. It is called by the builders before save.
-func EventLevelValidator(el EventLevel) error {
-	switch el {
-	case EventLevelInfo, EventLevelAlert, EventLevelError:
-		return nil
-	default:
-		return fmt.Errorf("feature: invalid enum value for event_level field: %q", el)
-	}
-}
-
-// CallMode defines the type for the "call_mode" enum field.
-type CallMode string
-
-// CallMode values.
-const (
-	CallModeAsync CallMode = "ASYNC"
-	CallModeSync  CallMode = "SYNC"
-)
-
-func (cm CallMode) String() string {
-	return string(cm)
-}
-
-// CallModeValidator is a validator for the "call_mode" field enum values. It is called by the builders before save.
-func CallModeValidator(cm CallMode) error {
-	switch cm {
-	case CallModeAsync, CallModeSync:
-		return nil
-	default:
-		return fmt.Errorf("feature: invalid enum value for call_mode field: %q", cm)
 	}
 }
 
@@ -346,29 +234,14 @@ func ByApplicableScope(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldApplicableScope, opts...).ToFunc()
 }
 
-// ByDataType orders the results by the data_type field.
-func ByDataType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDataType, opts...).ToFunc()
+// ByRecommendedUnitCategoryID orders the results by the recommended_unit_category_id field.
+func ByRecommendedUnitCategoryID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRecommendedUnitCategoryID, opts...).ToFunc()
 }
 
-// ByAccessMode orders the results by the access_mode field.
-func ByAccessMode(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAccessMode, opts...).ToFunc()
-}
-
-// ByEventLevel orders the results by the event_level field.
-func ByEventLevel(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEventLevel, opts...).ToFunc()
-}
-
-// ByCallMode orders the results by the call_mode field.
-func ByCallMode(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCallMode, opts...).ToFunc()
-}
-
-// ByRelationType orders the results by the relation_type field.
-func ByRelationType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRelationType, opts...).ToFunc()
+// BySemanticTag orders the results by the semantic_tag field.
+func BySemanticTag(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSemanticTag, opts...).ToFunc()
 }
 
 // ByCategoryDefaultEntriesCount orders the results by category_default_entries count.

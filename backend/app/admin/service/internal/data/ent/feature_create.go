@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"go-wind-admin/app/admin/service/internal/data/ent/categorydefaultfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/feature"
-	"go-wind-admin/app/admin/service/internal/data/ent/schema"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -248,79 +247,31 @@ func (_c *FeatureCreate) SetNillableApplicableScope(v *string) *FeatureCreate {
 	return _c
 }
 
-// SetDataType sets the "data_type" field.
-func (_c *FeatureCreate) SetDataType(v feature.DataType) *FeatureCreate {
-	_c.mutation.SetDataType(v)
+// SetRecommendedUnitCategoryID sets the "recommended_unit_category_id" field.
+func (_c *FeatureCreate) SetRecommendedUnitCategoryID(v uint32) *FeatureCreate {
+	_c.mutation.SetRecommendedUnitCategoryID(v)
 	return _c
 }
 
-// SetNillableDataType sets the "data_type" field if the given value is not nil.
-func (_c *FeatureCreate) SetNillableDataType(v *feature.DataType) *FeatureCreate {
+// SetNillableRecommendedUnitCategoryID sets the "recommended_unit_category_id" field if the given value is not nil.
+func (_c *FeatureCreate) SetNillableRecommendedUnitCategoryID(v *uint32) *FeatureCreate {
 	if v != nil {
-		_c.SetDataType(*v)
+		_c.SetRecommendedUnitCategoryID(*v)
 	}
 	return _c
 }
 
-// SetAccessMode sets the "access_mode" field.
-func (_c *FeatureCreate) SetAccessMode(v feature.AccessMode) *FeatureCreate {
-	_c.mutation.SetAccessMode(v)
+// SetSemanticTag sets the "semantic_tag" field.
+func (_c *FeatureCreate) SetSemanticTag(v string) *FeatureCreate {
+	_c.mutation.SetSemanticTag(v)
 	return _c
 }
 
-// SetNillableAccessMode sets the "access_mode" field if the given value is not nil.
-func (_c *FeatureCreate) SetNillableAccessMode(v *feature.AccessMode) *FeatureCreate {
+// SetNillableSemanticTag sets the "semantic_tag" field if the given value is not nil.
+func (_c *FeatureCreate) SetNillableSemanticTag(v *string) *FeatureCreate {
 	if v != nil {
-		_c.SetAccessMode(*v)
+		_c.SetSemanticTag(*v)
 	}
-	return _c
-}
-
-// SetEventLevel sets the "event_level" field.
-func (_c *FeatureCreate) SetEventLevel(v feature.EventLevel) *FeatureCreate {
-	_c.mutation.SetEventLevel(v)
-	return _c
-}
-
-// SetNillableEventLevel sets the "event_level" field if the given value is not nil.
-func (_c *FeatureCreate) SetNillableEventLevel(v *feature.EventLevel) *FeatureCreate {
-	if v != nil {
-		_c.SetEventLevel(*v)
-	}
-	return _c
-}
-
-// SetCallMode sets the "call_mode" field.
-func (_c *FeatureCreate) SetCallMode(v feature.CallMode) *FeatureCreate {
-	_c.mutation.SetCallMode(v)
-	return _c
-}
-
-// SetNillableCallMode sets the "call_mode" field if the given value is not nil.
-func (_c *FeatureCreate) SetNillableCallMode(v *feature.CallMode) *FeatureCreate {
-	if v != nil {
-		_c.SetCallMode(*v)
-	}
-	return _c
-}
-
-// SetRelationType sets the "relation_type" field.
-func (_c *FeatureCreate) SetRelationType(v string) *FeatureCreate {
-	_c.mutation.SetRelationType(v)
-	return _c
-}
-
-// SetNillableRelationType sets the "relation_type" field if the given value is not nil.
-func (_c *FeatureCreate) SetNillableRelationType(v *string) *FeatureCreate {
-	if v != nil {
-		_c.SetRelationType(*v)
-	}
-	return _c
-}
-
-// SetSpec sets the "spec" field.
-func (_c *FeatureCreate) SetSpec(v *schema.FeatureSpecField) *FeatureCreate {
-	_c.mutation.SetSpec(v)
 	return _c
 }
 
@@ -417,31 +368,6 @@ func (_c *FeatureCreate) check() error {
 	if v, ok := _c.mutation.Name(); ok {
 		if err := feature.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Feature.name": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.DataType(); ok {
-		if err := feature.DataTypeValidator(v); err != nil {
-			return &ValidationError{Name: "data_type", err: fmt.Errorf(`ent: validator failed for field "Feature.data_type": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.AccessMode(); ok {
-		if err := feature.AccessModeValidator(v); err != nil {
-			return &ValidationError{Name: "access_mode", err: fmt.Errorf(`ent: validator failed for field "Feature.access_mode": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.EventLevel(); ok {
-		if err := feature.EventLevelValidator(v); err != nil {
-			return &ValidationError{Name: "event_level", err: fmt.Errorf(`ent: validator failed for field "Feature.event_level": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.CallMode(); ok {
-		if err := feature.CallModeValidator(v); err != nil {
-			return &ValidationError{Name: "call_mode", err: fmt.Errorf(`ent: validator failed for field "Feature.call_mode": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.Spec(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "spec", err: fmt.Errorf(`ent: validator failed for field "Feature.spec": %w`, err)}
 		}
 	}
 	if v, ok := _c.mutation.ID(); ok {
@@ -546,29 +472,13 @@ func (_c *FeatureCreate) createSpec() (*Feature, *sqlgraph.CreateSpec) {
 		_spec.SetField(feature.FieldApplicableScope, field.TypeString, value)
 		_node.ApplicableScope = &value
 	}
-	if value, ok := _c.mutation.DataType(); ok {
-		_spec.SetField(feature.FieldDataType, field.TypeEnum, value)
-		_node.DataType = &value
+	if value, ok := _c.mutation.RecommendedUnitCategoryID(); ok {
+		_spec.SetField(feature.FieldRecommendedUnitCategoryID, field.TypeUint32, value)
+		_node.RecommendedUnitCategoryID = &value
 	}
-	if value, ok := _c.mutation.AccessMode(); ok {
-		_spec.SetField(feature.FieldAccessMode, field.TypeEnum, value)
-		_node.AccessMode = &value
-	}
-	if value, ok := _c.mutation.EventLevel(); ok {
-		_spec.SetField(feature.FieldEventLevel, field.TypeEnum, value)
-		_node.EventLevel = &value
-	}
-	if value, ok := _c.mutation.CallMode(); ok {
-		_spec.SetField(feature.FieldCallMode, field.TypeEnum, value)
-		_node.CallMode = &value
-	}
-	if value, ok := _c.mutation.RelationType(); ok {
-		_spec.SetField(feature.FieldRelationType, field.TypeString, value)
-		_node.RelationType = &value
-	}
-	if value, ok := _c.mutation.Spec(); ok {
-		_spec.SetField(feature.FieldSpec, field.TypeJSON, value)
-		_node.Spec = value
+	if value, ok := _c.mutation.SemanticTag(); ok {
+		_spec.SetField(feature.FieldSemanticTag, field.TypeString, value)
+		_node.SemanticTag = &value
 	}
 	if nodes := _c.mutation.CategoryDefaultEntriesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -896,111 +806,45 @@ func (u *FeatureUpsert) ClearApplicableScope() *FeatureUpsert {
 	return u
 }
 
-// SetDataType sets the "data_type" field.
-func (u *FeatureUpsert) SetDataType(v feature.DataType) *FeatureUpsert {
-	u.Set(feature.FieldDataType, v)
+// SetRecommendedUnitCategoryID sets the "recommended_unit_category_id" field.
+func (u *FeatureUpsert) SetRecommendedUnitCategoryID(v uint32) *FeatureUpsert {
+	u.Set(feature.FieldRecommendedUnitCategoryID, v)
 	return u
 }
 
-// UpdateDataType sets the "data_type" field to the value that was provided on create.
-func (u *FeatureUpsert) UpdateDataType() *FeatureUpsert {
-	u.SetExcluded(feature.FieldDataType)
+// UpdateRecommendedUnitCategoryID sets the "recommended_unit_category_id" field to the value that was provided on create.
+func (u *FeatureUpsert) UpdateRecommendedUnitCategoryID() *FeatureUpsert {
+	u.SetExcluded(feature.FieldRecommendedUnitCategoryID)
 	return u
 }
 
-// ClearDataType clears the value of the "data_type" field.
-func (u *FeatureUpsert) ClearDataType() *FeatureUpsert {
-	u.SetNull(feature.FieldDataType)
+// AddRecommendedUnitCategoryID adds v to the "recommended_unit_category_id" field.
+func (u *FeatureUpsert) AddRecommendedUnitCategoryID(v uint32) *FeatureUpsert {
+	u.Add(feature.FieldRecommendedUnitCategoryID, v)
 	return u
 }
 
-// SetAccessMode sets the "access_mode" field.
-func (u *FeatureUpsert) SetAccessMode(v feature.AccessMode) *FeatureUpsert {
-	u.Set(feature.FieldAccessMode, v)
+// ClearRecommendedUnitCategoryID clears the value of the "recommended_unit_category_id" field.
+func (u *FeatureUpsert) ClearRecommendedUnitCategoryID() *FeatureUpsert {
+	u.SetNull(feature.FieldRecommendedUnitCategoryID)
 	return u
 }
 
-// UpdateAccessMode sets the "access_mode" field to the value that was provided on create.
-func (u *FeatureUpsert) UpdateAccessMode() *FeatureUpsert {
-	u.SetExcluded(feature.FieldAccessMode)
+// SetSemanticTag sets the "semantic_tag" field.
+func (u *FeatureUpsert) SetSemanticTag(v string) *FeatureUpsert {
+	u.Set(feature.FieldSemanticTag, v)
 	return u
 }
 
-// ClearAccessMode clears the value of the "access_mode" field.
-func (u *FeatureUpsert) ClearAccessMode() *FeatureUpsert {
-	u.SetNull(feature.FieldAccessMode)
+// UpdateSemanticTag sets the "semantic_tag" field to the value that was provided on create.
+func (u *FeatureUpsert) UpdateSemanticTag() *FeatureUpsert {
+	u.SetExcluded(feature.FieldSemanticTag)
 	return u
 }
 
-// SetEventLevel sets the "event_level" field.
-func (u *FeatureUpsert) SetEventLevel(v feature.EventLevel) *FeatureUpsert {
-	u.Set(feature.FieldEventLevel, v)
-	return u
-}
-
-// UpdateEventLevel sets the "event_level" field to the value that was provided on create.
-func (u *FeatureUpsert) UpdateEventLevel() *FeatureUpsert {
-	u.SetExcluded(feature.FieldEventLevel)
-	return u
-}
-
-// ClearEventLevel clears the value of the "event_level" field.
-func (u *FeatureUpsert) ClearEventLevel() *FeatureUpsert {
-	u.SetNull(feature.FieldEventLevel)
-	return u
-}
-
-// SetCallMode sets the "call_mode" field.
-func (u *FeatureUpsert) SetCallMode(v feature.CallMode) *FeatureUpsert {
-	u.Set(feature.FieldCallMode, v)
-	return u
-}
-
-// UpdateCallMode sets the "call_mode" field to the value that was provided on create.
-func (u *FeatureUpsert) UpdateCallMode() *FeatureUpsert {
-	u.SetExcluded(feature.FieldCallMode)
-	return u
-}
-
-// ClearCallMode clears the value of the "call_mode" field.
-func (u *FeatureUpsert) ClearCallMode() *FeatureUpsert {
-	u.SetNull(feature.FieldCallMode)
-	return u
-}
-
-// SetRelationType sets the "relation_type" field.
-func (u *FeatureUpsert) SetRelationType(v string) *FeatureUpsert {
-	u.Set(feature.FieldRelationType, v)
-	return u
-}
-
-// UpdateRelationType sets the "relation_type" field to the value that was provided on create.
-func (u *FeatureUpsert) UpdateRelationType() *FeatureUpsert {
-	u.SetExcluded(feature.FieldRelationType)
-	return u
-}
-
-// ClearRelationType clears the value of the "relation_type" field.
-func (u *FeatureUpsert) ClearRelationType() *FeatureUpsert {
-	u.SetNull(feature.FieldRelationType)
-	return u
-}
-
-// SetSpec sets the "spec" field.
-func (u *FeatureUpsert) SetSpec(v *schema.FeatureSpecField) *FeatureUpsert {
-	u.Set(feature.FieldSpec, v)
-	return u
-}
-
-// UpdateSpec sets the "spec" field to the value that was provided on create.
-func (u *FeatureUpsert) UpdateSpec() *FeatureUpsert {
-	u.SetExcluded(feature.FieldSpec)
-	return u
-}
-
-// ClearSpec clears the value of the "spec" field.
-func (u *FeatureUpsert) ClearSpec() *FeatureUpsert {
-	u.SetNull(feature.FieldSpec)
+// ClearSemanticTag clears the value of the "semantic_tag" field.
+func (u *FeatureUpsert) ClearSemanticTag() *FeatureUpsert {
+	u.SetNull(feature.FieldSemanticTag)
 	return u
 }
 
@@ -1362,129 +1206,52 @@ func (u *FeatureUpsertOne) ClearApplicableScope() *FeatureUpsertOne {
 	})
 }
 
-// SetDataType sets the "data_type" field.
-func (u *FeatureUpsertOne) SetDataType(v feature.DataType) *FeatureUpsertOne {
+// SetRecommendedUnitCategoryID sets the "recommended_unit_category_id" field.
+func (u *FeatureUpsertOne) SetRecommendedUnitCategoryID(v uint32) *FeatureUpsertOne {
 	return u.Update(func(s *FeatureUpsert) {
-		s.SetDataType(v)
+		s.SetRecommendedUnitCategoryID(v)
 	})
 }
 
-// UpdateDataType sets the "data_type" field to the value that was provided on create.
-func (u *FeatureUpsertOne) UpdateDataType() *FeatureUpsertOne {
+// AddRecommendedUnitCategoryID adds v to the "recommended_unit_category_id" field.
+func (u *FeatureUpsertOne) AddRecommendedUnitCategoryID(v uint32) *FeatureUpsertOne {
 	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateDataType()
+		s.AddRecommendedUnitCategoryID(v)
 	})
 }
 
-// ClearDataType clears the value of the "data_type" field.
-func (u *FeatureUpsertOne) ClearDataType() *FeatureUpsertOne {
+// UpdateRecommendedUnitCategoryID sets the "recommended_unit_category_id" field to the value that was provided on create.
+func (u *FeatureUpsertOne) UpdateRecommendedUnitCategoryID() *FeatureUpsertOne {
 	return u.Update(func(s *FeatureUpsert) {
-		s.ClearDataType()
+		s.UpdateRecommendedUnitCategoryID()
 	})
 }
 
-// SetAccessMode sets the "access_mode" field.
-func (u *FeatureUpsertOne) SetAccessMode(v feature.AccessMode) *FeatureUpsertOne {
+// ClearRecommendedUnitCategoryID clears the value of the "recommended_unit_category_id" field.
+func (u *FeatureUpsertOne) ClearRecommendedUnitCategoryID() *FeatureUpsertOne {
 	return u.Update(func(s *FeatureUpsert) {
-		s.SetAccessMode(v)
+		s.ClearRecommendedUnitCategoryID()
 	})
 }
 
-// UpdateAccessMode sets the "access_mode" field to the value that was provided on create.
-func (u *FeatureUpsertOne) UpdateAccessMode() *FeatureUpsertOne {
+// SetSemanticTag sets the "semantic_tag" field.
+func (u *FeatureUpsertOne) SetSemanticTag(v string) *FeatureUpsertOne {
 	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateAccessMode()
+		s.SetSemanticTag(v)
 	})
 }
 
-// ClearAccessMode clears the value of the "access_mode" field.
-func (u *FeatureUpsertOne) ClearAccessMode() *FeatureUpsertOne {
+// UpdateSemanticTag sets the "semantic_tag" field to the value that was provided on create.
+func (u *FeatureUpsertOne) UpdateSemanticTag() *FeatureUpsertOne {
 	return u.Update(func(s *FeatureUpsert) {
-		s.ClearAccessMode()
+		s.UpdateSemanticTag()
 	})
 }
 
-// SetEventLevel sets the "event_level" field.
-func (u *FeatureUpsertOne) SetEventLevel(v feature.EventLevel) *FeatureUpsertOne {
+// ClearSemanticTag clears the value of the "semantic_tag" field.
+func (u *FeatureUpsertOne) ClearSemanticTag() *FeatureUpsertOne {
 	return u.Update(func(s *FeatureUpsert) {
-		s.SetEventLevel(v)
-	})
-}
-
-// UpdateEventLevel sets the "event_level" field to the value that was provided on create.
-func (u *FeatureUpsertOne) UpdateEventLevel() *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateEventLevel()
-	})
-}
-
-// ClearEventLevel clears the value of the "event_level" field.
-func (u *FeatureUpsertOne) ClearEventLevel() *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.ClearEventLevel()
-	})
-}
-
-// SetCallMode sets the "call_mode" field.
-func (u *FeatureUpsertOne) SetCallMode(v feature.CallMode) *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.SetCallMode(v)
-	})
-}
-
-// UpdateCallMode sets the "call_mode" field to the value that was provided on create.
-func (u *FeatureUpsertOne) UpdateCallMode() *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateCallMode()
-	})
-}
-
-// ClearCallMode clears the value of the "call_mode" field.
-func (u *FeatureUpsertOne) ClearCallMode() *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.ClearCallMode()
-	})
-}
-
-// SetRelationType sets the "relation_type" field.
-func (u *FeatureUpsertOne) SetRelationType(v string) *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.SetRelationType(v)
-	})
-}
-
-// UpdateRelationType sets the "relation_type" field to the value that was provided on create.
-func (u *FeatureUpsertOne) UpdateRelationType() *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateRelationType()
-	})
-}
-
-// ClearRelationType clears the value of the "relation_type" field.
-func (u *FeatureUpsertOne) ClearRelationType() *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.ClearRelationType()
-	})
-}
-
-// SetSpec sets the "spec" field.
-func (u *FeatureUpsertOne) SetSpec(v *schema.FeatureSpecField) *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.SetSpec(v)
-	})
-}
-
-// UpdateSpec sets the "spec" field to the value that was provided on create.
-func (u *FeatureUpsertOne) UpdateSpec() *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateSpec()
-	})
-}
-
-// ClearSpec clears the value of the "spec" field.
-func (u *FeatureUpsertOne) ClearSpec() *FeatureUpsertOne {
-	return u.Update(func(s *FeatureUpsert) {
-		s.ClearSpec()
+		s.ClearSemanticTag()
 	})
 }
 
@@ -2012,129 +1779,52 @@ func (u *FeatureUpsertBulk) ClearApplicableScope() *FeatureUpsertBulk {
 	})
 }
 
-// SetDataType sets the "data_type" field.
-func (u *FeatureUpsertBulk) SetDataType(v feature.DataType) *FeatureUpsertBulk {
+// SetRecommendedUnitCategoryID sets the "recommended_unit_category_id" field.
+func (u *FeatureUpsertBulk) SetRecommendedUnitCategoryID(v uint32) *FeatureUpsertBulk {
 	return u.Update(func(s *FeatureUpsert) {
-		s.SetDataType(v)
+		s.SetRecommendedUnitCategoryID(v)
 	})
 }
 
-// UpdateDataType sets the "data_type" field to the value that was provided on create.
-func (u *FeatureUpsertBulk) UpdateDataType() *FeatureUpsertBulk {
+// AddRecommendedUnitCategoryID adds v to the "recommended_unit_category_id" field.
+func (u *FeatureUpsertBulk) AddRecommendedUnitCategoryID(v uint32) *FeatureUpsertBulk {
 	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateDataType()
+		s.AddRecommendedUnitCategoryID(v)
 	})
 }
 
-// ClearDataType clears the value of the "data_type" field.
-func (u *FeatureUpsertBulk) ClearDataType() *FeatureUpsertBulk {
+// UpdateRecommendedUnitCategoryID sets the "recommended_unit_category_id" field to the value that was provided on create.
+func (u *FeatureUpsertBulk) UpdateRecommendedUnitCategoryID() *FeatureUpsertBulk {
 	return u.Update(func(s *FeatureUpsert) {
-		s.ClearDataType()
+		s.UpdateRecommendedUnitCategoryID()
 	})
 }
 
-// SetAccessMode sets the "access_mode" field.
-func (u *FeatureUpsertBulk) SetAccessMode(v feature.AccessMode) *FeatureUpsertBulk {
+// ClearRecommendedUnitCategoryID clears the value of the "recommended_unit_category_id" field.
+func (u *FeatureUpsertBulk) ClearRecommendedUnitCategoryID() *FeatureUpsertBulk {
 	return u.Update(func(s *FeatureUpsert) {
-		s.SetAccessMode(v)
+		s.ClearRecommendedUnitCategoryID()
 	})
 }
 
-// UpdateAccessMode sets the "access_mode" field to the value that was provided on create.
-func (u *FeatureUpsertBulk) UpdateAccessMode() *FeatureUpsertBulk {
+// SetSemanticTag sets the "semantic_tag" field.
+func (u *FeatureUpsertBulk) SetSemanticTag(v string) *FeatureUpsertBulk {
 	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateAccessMode()
+		s.SetSemanticTag(v)
 	})
 }
 
-// ClearAccessMode clears the value of the "access_mode" field.
-func (u *FeatureUpsertBulk) ClearAccessMode() *FeatureUpsertBulk {
+// UpdateSemanticTag sets the "semantic_tag" field to the value that was provided on create.
+func (u *FeatureUpsertBulk) UpdateSemanticTag() *FeatureUpsertBulk {
 	return u.Update(func(s *FeatureUpsert) {
-		s.ClearAccessMode()
+		s.UpdateSemanticTag()
 	})
 }
 
-// SetEventLevel sets the "event_level" field.
-func (u *FeatureUpsertBulk) SetEventLevel(v feature.EventLevel) *FeatureUpsertBulk {
+// ClearSemanticTag clears the value of the "semantic_tag" field.
+func (u *FeatureUpsertBulk) ClearSemanticTag() *FeatureUpsertBulk {
 	return u.Update(func(s *FeatureUpsert) {
-		s.SetEventLevel(v)
-	})
-}
-
-// UpdateEventLevel sets the "event_level" field to the value that was provided on create.
-func (u *FeatureUpsertBulk) UpdateEventLevel() *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateEventLevel()
-	})
-}
-
-// ClearEventLevel clears the value of the "event_level" field.
-func (u *FeatureUpsertBulk) ClearEventLevel() *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.ClearEventLevel()
-	})
-}
-
-// SetCallMode sets the "call_mode" field.
-func (u *FeatureUpsertBulk) SetCallMode(v feature.CallMode) *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.SetCallMode(v)
-	})
-}
-
-// UpdateCallMode sets the "call_mode" field to the value that was provided on create.
-func (u *FeatureUpsertBulk) UpdateCallMode() *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateCallMode()
-	})
-}
-
-// ClearCallMode clears the value of the "call_mode" field.
-func (u *FeatureUpsertBulk) ClearCallMode() *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.ClearCallMode()
-	})
-}
-
-// SetRelationType sets the "relation_type" field.
-func (u *FeatureUpsertBulk) SetRelationType(v string) *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.SetRelationType(v)
-	})
-}
-
-// UpdateRelationType sets the "relation_type" field to the value that was provided on create.
-func (u *FeatureUpsertBulk) UpdateRelationType() *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateRelationType()
-	})
-}
-
-// ClearRelationType clears the value of the "relation_type" field.
-func (u *FeatureUpsertBulk) ClearRelationType() *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.ClearRelationType()
-	})
-}
-
-// SetSpec sets the "spec" field.
-func (u *FeatureUpsertBulk) SetSpec(v *schema.FeatureSpecField) *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.SetSpec(v)
-	})
-}
-
-// UpdateSpec sets the "spec" field to the value that was provided on create.
-func (u *FeatureUpsertBulk) UpdateSpec() *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.UpdateSpec()
-	})
-}
-
-// ClearSpec clears the value of the "spec" field.
-func (u *FeatureUpsertBulk) ClearSpec() *FeatureUpsertBulk {
-	return u.Update(func(s *FeatureUpsert) {
-		s.ClearSpec()
+		s.ClearSemanticTag()
 	})
 }
 

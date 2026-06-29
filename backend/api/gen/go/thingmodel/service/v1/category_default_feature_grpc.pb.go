@@ -37,7 +37,10 @@ const (
 //
 // 分类默认模型服务（源领域层，无 HTTP 注解）/ Category default feature service (domain)
 //
-// 每条 CategoryDefaultFeature = "分类 X 的默认模型中应当包含特征 Y"。
+// CR-001（2026-06-29）：结构化约束 spec 整体承载于本表 `spec` 字段（完整 FeatureSpec），
+// 不再使用稀疏覆写（FeatureOverrideSpec 已废弃）。
+//
+// 每条 CategoryDefaultFeature = "分类 X 的默认模型中应当包含特征 Y，且其约束 spec 为 Z"。
 // 仅 level=4 细类可挂默认模型条目（Service 校验，DB 不约束）。
 // 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.1
 type CategoryDefaultFeatureServiceClient interface {
@@ -51,7 +54,7 @@ type CategoryDefaultFeatureServiceClient interface {
 	Create(ctx context.Context, in *CreateCategoryDefaultFeatureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 批量加多条（分类 Drawer 内一次性勾选 N 个特征）/ Batch add
 	BatchAdd(ctx context.Context, in *BatchAddCategoryDefaultFeaturesRequest, opts ...grpc.CallOption) (*BatchAddCategoryDefaultFeaturesResponse, error)
-	// 更新（override_spec/display_name/sort/enabled）/ Update via FieldMask
+	// 更新（spec/display_name/sort/enabled）/ Update via FieldMask
 	Update(ctx context.Context, in *UpdateCategoryDefaultFeatureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除单条或批量 / Delete
 	Delete(ctx context.Context, in *DeleteCategoryDefaultFeatureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -153,7 +156,10 @@ func (c *categoryDefaultFeatureServiceClient) Reorder(ctx context.Context, in *R
 //
 // 分类默认模型服务（源领域层，无 HTTP 注解）/ Category default feature service (domain)
 //
-// 每条 CategoryDefaultFeature = "分类 X 的默认模型中应当包含特征 Y"。
+// CR-001（2026-06-29）：结构化约束 spec 整体承载于本表 `spec` 字段（完整 FeatureSpec），
+// 不再使用稀疏覆写（FeatureOverrideSpec 已废弃）。
+//
+// 每条 CategoryDefaultFeature = "分类 X 的默认模型中应当包含特征 Y，且其约束 spec 为 Z"。
 // 仅 level=4 细类可挂默认模型条目（Service 校验，DB 不约束）。
 // 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.1
 type CategoryDefaultFeatureServiceServer interface {
@@ -167,7 +173,7 @@ type CategoryDefaultFeatureServiceServer interface {
 	Create(context.Context, *CreateCategoryDefaultFeatureRequest) (*emptypb.Empty, error)
 	// 批量加多条（分类 Drawer 内一次性勾选 N 个特征）/ Batch add
 	BatchAdd(context.Context, *BatchAddCategoryDefaultFeaturesRequest) (*BatchAddCategoryDefaultFeaturesResponse, error)
-	// 更新（override_spec/display_name/sort/enabled）/ Update via FieldMask
+	// 更新（spec/display_name/sort/enabled）/ Update via FieldMask
 	Update(context.Context, *UpdateCategoryDefaultFeatureRequest) (*emptypb.Empty, error)
 	// 删除单条或批量 / Delete
 	Delete(context.Context, *DeleteCategoryDefaultFeatureRequest) (*emptypb.Empty, error)

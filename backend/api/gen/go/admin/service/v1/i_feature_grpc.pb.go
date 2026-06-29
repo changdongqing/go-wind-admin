@@ -28,7 +28,6 @@ const (
 	FeatureService_Update_FullMethodName         = "/admin.service.v1.FeatureService/Update"
 	FeatureService_Delete_FullMethodName         = "/admin.service.v1.FeatureService/Delete"
 	FeatureService_ListByType_FullMethodName     = "/admin.service.v1.FeatureService/ListByType"
-	FeatureService_ValidateSpec_FullMethodName   = "/admin.service.v1.FeatureService/ValidateSpec"
 	FeatureService_ImportFeatures_FullMethodName = "/admin.service.v1.FeatureService/ImportFeatures"
 )
 
@@ -50,9 +49,7 @@ type FeatureServiceClient interface {
 	Delete(ctx context.Context, in *v11.DeleteFeatureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 按特征类型查询（左侧树选类型联动右侧列表）/ List features by type
 	ListByType(ctx context.Context, in *v11.ListFeatureByTypeRequest, opts ...grpc.CallOption) (*v11.ListFeatureResponse, error)
-	// 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
-	ValidateSpec(ctx context.Context, in *v11.ValidateFeatureSpecRequest, opts ...grpc.CallOption) (*v11.ValidateFeatureSpecResponse, error)
-	// 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	// 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
 	ImportFeatures(ctx context.Context, in *v11.ImportFeaturesRequest, opts ...grpc.CallOption) (*v11.ImportFeaturesResponse, error)
 }
 
@@ -124,16 +121,6 @@ func (c *featureServiceClient) ListByType(ctx context.Context, in *v11.ListFeatu
 	return out, nil
 }
 
-func (c *featureServiceClient) ValidateSpec(ctx context.Context, in *v11.ValidateFeatureSpecRequest, opts ...grpc.CallOption) (*v11.ValidateFeatureSpecResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v11.ValidateFeatureSpecResponse)
-	err := c.cc.Invoke(ctx, FeatureService_ValidateSpec_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *featureServiceClient) ImportFeatures(ctx context.Context, in *v11.ImportFeaturesRequest, opts ...grpc.CallOption) (*v11.ImportFeaturesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v11.ImportFeaturesResponse)
@@ -162,9 +149,7 @@ type FeatureServiceServer interface {
 	Delete(context.Context, *v11.DeleteFeatureRequest) (*emptypb.Empty, error)
 	// 按特征类型查询（左侧树选类型联动右侧列表）/ List features by type
 	ListByType(context.Context, *v11.ListFeatureByTypeRequest) (*v11.ListFeatureResponse, error)
-	// 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
-	ValidateSpec(context.Context, *v11.ValidateFeatureSpecRequest) (*v11.ValidateFeatureSpecResponse, error)
-	// 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	// 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
 	ImportFeatures(context.Context, *v11.ImportFeaturesRequest) (*v11.ImportFeaturesResponse, error)
 	mustEmbedUnimplementedFeatureServiceServer()
 }
@@ -193,9 +178,6 @@ func (UnimplementedFeatureServiceServer) Delete(context.Context, *v11.DeleteFeat
 }
 func (UnimplementedFeatureServiceServer) ListByType(context.Context, *v11.ListFeatureByTypeRequest) (*v11.ListFeatureResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListByType not implemented")
-}
-func (UnimplementedFeatureServiceServer) ValidateSpec(context.Context, *v11.ValidateFeatureSpecRequest) (*v11.ValidateFeatureSpecResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ValidateSpec not implemented")
 }
 func (UnimplementedFeatureServiceServer) ImportFeatures(context.Context, *v11.ImportFeaturesRequest) (*v11.ImportFeaturesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ImportFeatures not implemented")
@@ -329,24 +311,6 @@ func _FeatureService_ListByType_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _FeatureService_ValidateSpec_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v11.ValidateFeatureSpecRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FeatureServiceServer).ValidateSpec(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: FeatureService_ValidateSpec_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FeatureServiceServer).ValidateSpec(ctx, req.(*v11.ValidateFeatureSpecRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _FeatureService_ImportFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(v11.ImportFeaturesRequest)
 	if err := dec(in); err != nil {
@@ -395,10 +359,6 @@ var FeatureService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListByType",
 			Handler:    _FeatureService_ListByType_Handler,
-		},
-		{
-			MethodName: "ValidateSpec",
-			Handler:    _FeatureService_ValidateSpec_Handler,
 		},
 		{
 			MethodName: "ImportFeatures",

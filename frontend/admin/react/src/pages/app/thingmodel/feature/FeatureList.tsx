@@ -11,11 +11,7 @@ import { TABLE } from '@/config/constants';
 import { useProTableScrollY } from '@/hooks/useProTableScrollY';
 import { fetchListFeatures, useDeleteFeature } from '@/api/hooks/feature';
 import {
-  accessModeColor,
-  callModeColor,
-  dataTypeOptions,
   enableBoolOptions,
-  eventLevelColor,
   featureTypeColor,
   getEnableColor,
   getEnableLabel,
@@ -31,8 +27,10 @@ interface FeatureListProps {
 /**
  * 特征列表（右侧）/ Feature list (right panel).
  *
- * 列随 `featureType` 动态变化（property 显示数据类型/访问模式；event 显示级别；service 显示调用模式；relation 显示关系类型/source/target）。
- * Columns vary by feature_type.
+ * CR-001（2026-06-29）：thing_features 不再含 spec / 5 个特化列，本列表瘦身：
+ *   - 删除按 featureType 切换的 dataType / accessMode / eventLevel / callMode / relationType / source/target 列；
+ *   - 新增 semanticTag 列，便于按语义检索；
+ *   - applicableScope 与启用状态列保留。
  */
 const FeatureList: React.FC<FeatureListProps> = ({ featureType }) => {
   const { t } = useTranslation('feature');
@@ -74,98 +72,12 @@ const FeatureList: React.FC<FeatureListProps> = ({ featureType }) => {
     { title: t('code'), dataIndex: 'code', width: 140, fixed: 'left' },
     { title: t('name'), dataIndex: 'name', width: 140 },
     { title: t('identifier'), dataIndex: 'identifier', width: 160 },
+    {
+      title: t('semanticTag', { defaultValue: '语义标签' }),
+      dataIndex: 'semanticTag',
+      width: 130,
+    },
   ];
-
-  // 按 featureType 动态列 / Type-specific columns
-  const typeColumns: ProColumns<any>[] = (() => {
-    switch (featureType) {
-      case 'PROPERTY':
-        return [
-          {
-            title: t('dataType'),
-            dataIndex: 'dataType',
-            width: 100,
-            valueType: 'select',
-            fieldProps: { options: dataTypeOptions(t) },
-            render: (_, r) => (r.dataType ? <Tag>{t(`dataTypeMap.${r.dataType}`)}</Tag> : null),
-          },
-          {
-            title: t('accessMode'),
-            dataIndex: 'accessMode',
-            width: 100,
-            hideInSearch: true,
-            render: (_, r) =>
-              r.accessMode ? (
-                <Tag color={accessModeColor[r.accessMode as 'R' | 'RW'] ?? 'default'}>
-                  {t(`accessModeMap.${r.accessMode}`)}
-                </Tag>
-              ) : null,
-          },
-        ];
-      case 'EVENT':
-        return [
-          {
-            title: t('eventLevel'),
-            dataIndex: 'eventLevel',
-            width: 100,
-            hideInSearch: true,
-            render: (_, r) =>
-              r.eventLevel ? (
-                <Tag color={eventLevelColor[r.eventLevel as keyof typeof eventLevelColor] ?? 'default'}>
-                  {t(`eventLevelMap.${r.eventLevel}`)}
-                </Tag>
-              ) : null,
-          },
-        ];
-      case 'SERVICE':
-        return [
-          {
-            title: t('callMode'),
-            dataIndex: 'callMode',
-            width: 100,
-            hideInSearch: true,
-            render: (_, r) =>
-              r.callMode ? (
-                <Tag color={callModeColor[r.callMode as keyof typeof callModeColor] ?? 'default'}>
-                  {t(`callModeMap.${r.callMode}`)}
-                </Tag>
-              ) : null,
-          },
-        ];
-      case 'RELATION':
-        return [
-          {
-            title: t('relationType'),
-            dataIndex: 'relationType',
-            width: 130,
-            hideInSearch: true,
-            render: (_, r) =>
-              r.relationType ? (
-                <Tag>{t(`relationTypeMap.${r.relationType}`, { defaultValue: r.relationType })}</Tag>
-              ) : null,
-          },
-          {
-            title: `${t('source')} → ${t('target')}`,
-            width: 220,
-            hideInSearch: true,
-            render: (_, r) => {
-              const src = r.spec?.relation?.source;
-              const tgt = r.spec?.relation?.target;
-              const srcLabel = src?.identifier || src?.code || src?.id;
-              const tgtLabel = tgt?.identifier || tgt?.code || tgt?.id;
-              if (!srcLabel && !tgtLabel) return null;
-              return (
-                <span style={{ fontSize: 12, color: '#666' }}>
-                  {srcLabel ?? '-'} → {tgtLabel ?? '-'}
-                </span>
-              );
-            },
-          },
-        ];
-      default:
-        return [];
-    }
-  })();
 
   const tailColumns: ProColumns<any>[] = [
     { title: t('applicableScope'), dataIndex: 'applicableScope', width: 140 },
@@ -211,7 +123,7 @@ const FeatureList: React.FC<FeatureListProps> = ({ featureType }) => {
     },
   ];
 
-  const columns = [...baseColumns, ...typeColumns, ...tailColumns];
+  const columns = [...baseColumns, ...tailColumns];
 
   return (
     <>

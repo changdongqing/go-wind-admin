@@ -32,6 +32,16 @@
   "applicableScope": "Applicable Scope",
   "applicableScopePlaceholder": "e.g. Chiller/Boiler or General",
 
+  "skeletonOnlyNotice": "As of CR-001, features carry only the identity skeleton. Structured constraints (data type / range / enum items, etc.) are configured per scenario inside Category Default Model and Product Model.",
+  "commonSection": "Basic Info",
+  "recommendationSection": "Recommendation Metadata (search/hint only)",
+  "governanceSection": "Governance",
+  "semanticTag": "Semantic Tag",
+  "semanticTagPlaceholder": "e.g. pressure / temperature / runMode (soft search field)",
+  "recommendedUnitCategoryId": "Recommended Unit Category ID",
+  "recommendedUnitCategoryIdPlaceholder": "Points to thingmodel_unit_categories.id; pre-filters unit selection in model-layer spec editor",
+  "isRatedLockedByCategory": "When category=rated, isRated must be true (backend V9 rule auto-applied)",
+
   "dataType": "Data Type",
   "dataTypePlaceholder": "Select data type",
   "dataTypeMap": {

@@ -9,8 +9,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/field_mask.proto";
 
 import "pagination/v1/pagination.proto";
-import "thingmodel/service/v1/feature.proto";              // FeatureType / FeatureSpec / DataType / AccessMode / EventLevel / CallMode
-import "thingmodel/service/v1/feature_override_spec.proto"; // FeatureOverrideSpec
+import "thingmodel/service/v1/feature.proto";  // FeatureType / FeatureSpec / DataType / AccessMode / EventLevel / CallMode
 
 // 产品特征来源 / Product feature source
 enum ProductFeatureSource {
@@ -24,13 +23,14 @@ enum ProductFeatureSource {
 enum ConflictPolicy {
   CONFLICT_POLICY_UNSPECIFIED = 0;
   SKIP    = 1;  // 跳过已存在项（默认）/ Skip existing
-  REPLACE = 2;  // 删除已存在项后重建（丢失原 override）/ Delete then recreate
+  REPLACE = 2;  // 删除已存在项后重建 / Delete then recreate
 }
 
 // 产品特征服务（源领域层，无 HTTP 注解）/ Product feature service (domain)
 //
-// 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.3
-// 含 PullFromDefault 批量从分类默认模型拉取的核心 RPC（详见 04-后端实现设计.md §4）。
+// CR-001（2026-06-29）：feature_snapshot + override_spec + effective_spec 三字段合并为单一 spec。
+// PullFromDefault 直接 `pf.spec = cdf.spec` 深拷贝，不再做 effective 合并。
+// 详见 docs/thingmodel/sheji/模型管理/02-数据模型设计.md §2.3 与 修改记录/CR-001-*。
 service ProductFeatureService {
   // 分页查询（业务过滤通过 PagingRequest.query 传入：product_id/feature_type/source/is_enabled）
   rpc List (pagination.PagingRequest) returns (ListProductFeatureResponse) {}
@@ -38,19 +38,19 @@ service ProductFeatureService {
   // 统计 / Count
   rpc Count (pagination.PagingRequest) returns (CountProductFeatureResponse) {}
 
-  // 查询详情（返回 feature_snapshot + override_spec + 后端合并的 effective_spec）/ Get
+  // 查询详情 / Get
   rpc Get (GetProductFeatureRequest) returns (ProductFeature) {}
 
   // 创建（source=GLOBAL/LOCAL；source=DEFAULT 必须走 PullFromDefault）/ Create
   rpc Create (CreateProductFeatureRequest) returns (google.protobuf.Empty) {}
 
-  // 批量从分类默认模型拉取（产品创建后立即调用，或产品页面追加拉取）/ Pull from default
+  // 批量从分类默认模型拉取 / Pull from default
   rpc PullFromDefault (PullFromDefaultRequest) returns (PullFromDefaultResponse) {}
 
   // 从另一产品克隆全部特征（含 LOCAL）/ Clone from another product
   rpc CloneFromProduct (CloneFromProductRequest) returns (CloneFromProductResponse) {}
 
-  // 更新（仅白名单字段；PUBLISHED 产品禁止改结构）/ Update via FieldMask
+  // 更新（DRAFT 全字段可改，PUBLISHED 仅 name/description/sort_order/is_enabled 可改）/ Update via FieldMask
   rpc Update (UpdateProductFeatureRequest) returns (google.protobuf.Empty) {}
 
   // 删除 / Delete
@@ -62,6 +62,10 @@ service ProductFeatureService {
 
 // 产品下特征条目 / Product feature entry
 message ProductFeature {
+  // 保留旧 tag（CR-001 前：20=feature_snapshot, 21=override_spec, 22=effective_spec）
+  reserved 21, 22;
+  reserved "override_spec", "effective_spec", "feature_snapshot";
+
   optional uint32 id = 1 [
     json_name = "id",
     (gnostic.openapi.v3.property) = {description: "条目ID / Entry ID"}
@@ -112,25 +116,13 @@ message ProductFeature {
     (gnostic.openapi.v3.property) = {description: "描述 / Description"}
   ];
 
-  // 完整 FeatureSpec 快照（产品自洽核心）/ Full spec snapshot
-  optional FeatureSpec feature_snapshot = 20 [
-    json_name = "featureSnapshot",
-    (gnostic.openapi.v3.property) = {description: "完整 spec 快照 / Full feature spec snapshot"}
+  // CR-001：单一 FeatureSpec（产品最终物模型）/ Single FeatureSpec (product final TSL)
+  optional FeatureSpec spec = 20 [
+    json_name = "spec",
+    (gnostic.openapi.v3.property) = {description: "完整 FeatureSpec（CR-001 后合并 snapshot+override+effective）/ Full feature spec"}
   ];
 
-  // 稀疏覆写 / Sparse override
-  optional FeatureOverrideSpec override_spec = 21 [
-    json_name = "overrideSpec",
-    (gnostic.openapi.v3.property) = {description: "稀疏覆写（白名单字段）/ Sparse override"}
-  ];
-
-  // 运行时有效 spec = snapshot deepmerged with override；后端在 Get 时填充，写入时忽略
-  optional FeatureSpec effective_spec = 22 [
-    json_name = "effectiveSpec",
-    (gnostic.openapi.v3.property) = {description: "有效 spec（后端合并，只读）/ Effective spec (read-only)"}
-  ];
-
-  // ===== 冗余特化列（与 thing_features 的对应列同义，便于筛选）=====
+  // ===== 冗余特化列（从 spec 派生，便于筛选）=====
   optional DataType   data_type     = 30 [json_name = "dataType",     (gnostic.openapi.v3.property) = {description: "property 数据类型 / Data type"}];
   optional AccessMode access_mode   = 31 [json_name = "accessMode",   (gnostic.openapi.v3.property) = {description: "property 访问模式 / Access mode"}];
   optional EventLevel event_level   = 32 [json_name = "eventLevel",   (gnostic.openapi.v3.property) = {description: "event 级别 / Event level"}];
@@ -255,8 +247,8 @@ message UpdateProductFeatureRequest {
   google.protobuf.FieldMask update_mask = 3 [
     json_name = "updateMask",
     (gnostic.openapi.v3.property) = {
-      description: "要更新的字段列表 / Fields to update",
-      example: {yaml: "overrideSpec,description,isEnabled,sortOrder"}
+      description: "要更新的字段列表（DRAFT 全字段可改；PUBLISHED 仅 name/description/sortOrder/isEnabled 可改）/ Fields to update",
+      example: {yaml: "spec,description,isEnabled,sortOrder"}
     }
   ];
 

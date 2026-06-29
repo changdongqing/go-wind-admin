@@ -20,18 +20,18 @@ window.__APP_CONFIG__ = {
    * 显示位置：浏览器页签标题、后台界面左上角标题。
    * 示例：'GoWind Admin'、'风行管理平台'、'XX集团后台' 等。
    */
-  appName: "有名智能",
+  appName: "万物有名",
   /**
    * 登录页左侧品牌大标题与描述（可选）。
    * 留空或不配置时，使用代码内置的默认文案。
    */
-  systemTitle: "有名智能管理平台",
+  systemTitle: "万物有名管理平台",
   systemDescription: "企业级中后台管理系统",
   /**
    * 版权信息（显示在登录页底部及后台页脚，可选）。
    * 不需要的项留空字符串 "" 即可。
    */
-  copyrightCompanyName: "有名智能科技有限公司",
+  copyrightCompanyName: "万物有名科技有限公司",
   copyrightYear: "2026",
   copyrightSiteLink: "https://example.com",
   copyrightIcp: "",

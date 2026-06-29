@@ -1,5 +1,9 @@
-// 物模型特征种子程序：upsert + 单位引用解析 + 关系 id 回填。
-// Feature seed runner: upsert + unit ref resolve + relation id back-fill.
+// 物模型特征骨架种子程序：upsert 仅写骨架字段（CR-001 后 thing_features 不再含 spec / 特化列）。
+// Feature seed runner: upsert SKELETON-only since CR-001.
+//
+// CR-001（2026-06-29）：feature 表瘦身后，本 seed 仅负责写入骨架（code/identifier/name/
+// feature_type/applicable_scope）。结构化约束 spec 由 SeedModelManagement 拷贝到
+// thingmodel_category_default_features.spec。BuildFeatureSpecFromMap 仍然导出，供模型管理种子使用。
 
 package seed
 
@@ -13,7 +17,6 @@ import (
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/feature"
-	"go-wind-admin/app/admin/service/internal/data/ent/schema"
 	"go-wind-admin/app/admin/service/internal/data/ent/unit"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 
@@ -22,18 +25,17 @@ import (
 
 const sysTenantFeature uint32 = 0
 
-// SeedThingmodelFeatures 将 AllFeatureSeeds() 写入数据库（幂等 upsert）。
-// SeedThingmodelFeatures writes all feature seeds idempotently.
+// SeedThingmodelFeatures 将 AllFeatureSeeds() 写入数据库（幂等 upsert，仅骨架字段）。
+// SeedThingmodelFeatures writes feature skeletons idempotently.
 //
-// 执行策略 / Strategy:
-//  1. 第一遍：upsert 全部非 RELATION 特征（property/event/service），构建 identifier → id 索引；
-//  2. 第二遍：upsert RELATION，按 source/target.identifier 解析对应 feature.id 并写入 spec；
-//  3. property spec.unit.unitCode 在 upsert 前解析为 unitId（依赖单位种子已先执行）；
+// CR-001 之后的执行策略 / Strategy:
+//  1. 单遍 upsert 所有特征骨架（不再区分 property/event/service/relation 的处理逻辑）；
+//  2. unit 引用解析、relation source/target 回填等仍由 BuildFeatureSpecFromMap 在
+//     模型管理种子（SeedModelManagement）写入 CDF.spec 时执行；
+//  3. spec 字段不再写入 thing_features 表。
 //
 // 错误处理：
 //   - 单条 upsert 失败不中止整个 seed；汇总收集后在末尾报告。
-//   - 这避免"一个特征 bug 导致 240+ 条全部不入库"的级联失败。
-//   - 调用方（ent_client.go）若收到 error，应记 Errorf 让用户能立即看到。
 func SeedThingmodelFeatures(ctx context.Context, client *ent.Client, logger *log.Helper) error {
 	if client == nil {
 		return fmt.Errorf("seed: ent client is nil")
@@ -47,14 +49,7 @@ func SeedThingmodelFeatures(ctx context.Context, client *ent.Client, logger *log
 
 	now := time.Now()
 	all := AllFeatureSeeds()
-	logger.Infof("[feature-seed] starting: %d total seeds", len(all))
-
-	// 单位 code → id 索引（property spec.unit.unitCode 解析用）
-	unitMap, err := buildUnitCodeIndex(ctx, client)
-	if err != nil {
-		return fmt.Errorf("build unit index: %w", err)
-	}
-	logger.Infof("[feature-seed] unit code index loaded: %d entries", len(unitMap))
+	logger.Infof("[feature-seed] starting: %d total seeds (skeleton-only after CR-001)", len(all))
 
 	// 累计错误（单条失败不中止）/ Accumulated errors (continue on individual failures)
 	type failure struct {
@@ -63,17 +58,9 @@ func SeedThingmodelFeatures(ctx context.Context, client *ent.Client, logger *log
 	}
 	var failures []failure
 
-	// 第一遍：非 RELATION
-	totalP, totalE, totalS := 0, 0, 0
+	totalP, totalE, totalS, totalR := 0, 0, 0, 0
 	for _, f := range all {
-		if f.FeatureType == ftRelation {
-			continue
-		}
-		// 对 property 解析 unit.unitCode → unitId（写入 spec）
-		if f.FeatureType == ftProperty {
-			resolveUnitID(f.Spec, unitMap)
-		}
-		if err := upsertFeature(ctx, client, f, now); err != nil {
+		if err := upsertFeatureSkeleton(ctx, client, f, now); err != nil {
 			logger.Errorf("[feature-seed] upsert %s (%s) FAILED: %v", f.Code, f.Identifier, err)
 			failures = append(failures, failure{code: f.Code, err: err})
 			continue
@@ -85,33 +72,15 @@ func SeedThingmodelFeatures(ctx context.Context, client *ent.Client, logger *log
 			totalE++
 		case ftService:
 			totalS++
+		case ftRelation:
+			totalR++
 		}
-	}
-
-	// 第二遍：RELATION，先解析 identifier → id 再 upsert
-	idIndex, err := buildFeatureIdentifierIndex(ctx, client)
-	if err != nil {
-		return fmt.Errorf("build feature identifier index: %w", err)
-	}
-	totalR := 0
-	for _, f := range all {
-		if f.FeatureType != ftRelation {
-			continue
-		}
-		resolveRelationRefs(f.Spec, idIndex)
-		if err := upsertFeature(ctx, client, f, now); err != nil {
-			logger.Errorf("[feature-seed] upsert relation %s FAILED: %v", f.Code, err)
-			failures = append(failures, failure{code: f.Code, err: err})
-			continue
-		}
-		totalR++
 	}
 
 	logger.Infof("[feature-seed] upserted: property=%d, event=%d, service=%d, relation=%d (total=%d, failures=%d)",
 		totalP, totalE, totalS, totalR, totalP+totalE+totalS+totalR, len(failures))
 
 	if len(failures) > 0 {
-		// 截断到前 5 条避免日志爆炸
 		preview := failures
 		if len(preview) > 5 {
 			preview = preview[:5]
@@ -127,14 +96,12 @@ func SeedThingmodelFeatures(ctx context.Context, client *ent.Client, logger *log
 }
 
 // ===========================================================================
-// upsert 实现 / Upsert implementation
+// upsert 实现（骨架）/ Upsert implementation (skeleton)
 // ===========================================================================
 
-// upsertFeature 按 (tenant_id=0, code) upsert 单条特征。
-// reference_count 字段不属于 feature；spec/特化列每次覆盖。
-func upsertFeature(ctx context.Context, client *ent.Client, f SeedFeature, now time.Time) error {
-	specProto := buildFeatureSpecProto(f)
-
+// upsertFeatureSkeleton 按 (tenant_id=0, code) upsert 单条特征骨架。
+// CR-001 后不再写 spec / data_type / access_mode / event_level / call_mode / relation_type。
+func upsertFeatureSkeleton(ctx context.Context, client *ent.Client, f SeedFeature, now time.Time) error {
 	builder := client.Feature.Create().
 		SetTenantID(sysTenantFeature).
 		SetFeatureType(feature.FeatureType(f.FeatureType.String())).
@@ -148,13 +115,6 @@ func upsertFeature(ctx context.Context, client *ent.Client, f SeedFeature, now t
 		SetIsEnabled(true).
 		SetCreatedAt(now)
 
-	// 特化列同步（与 service.syncSpecializedColumns 行为一致）
-	syncSpecCols(builder, f)
-
-	if specProto != nil {
-		builder.SetSpec(schema.WrapFeatureSpec(specProto))
-	}
-
 	return builder.
 		OnConflictColumns(feature.FieldTenantID, feature.FieldCode).
 		Update(func(up *ent.FeatureUpsert) {
@@ -167,71 +127,16 @@ func upsertFeature(ctx context.Context, client *ent.Client, f SeedFeature, now t
 				UpdateSortOrder().
 				UpdateIsEnabled().
 				SetUpdatedAt(now)
-			// 特化列与 spec 强制覆盖（保持种子数据为权威源）
-			upsertSpecCols(up, f)
-			if specProto != nil {
-				up.SetSpec(schema.WrapFeatureSpec(specProto))
-			}
 		}).
 		Exec(ctx)
-}
-
-// syncSpecCols 同步特化列 / Sync specialized columns onto create builder
-func syncSpecCols(b *ent.FeatureCreate, f SeedFeature) {
-	switch f.FeatureType {
-	case ftProperty:
-		if dt, ok := f.Spec["dataType"].(string); ok {
-			b.SetDataType(feature.DataType(dt))
-		}
-		if am, ok := f.Spec["accessMode"].(string); ok {
-			b.SetAccessMode(feature.AccessMode(am))
-		}
-	case ftEvent:
-		if lv, ok := f.Spec["level"].(string); ok {
-			b.SetEventLevel(feature.EventLevel(lv))
-		}
-	case ftService:
-		if cm, ok := f.Spec["callMode"].(string); ok {
-			b.SetCallMode(feature.CallMode(cm))
-		}
-	case ftRelation:
-		if rt, ok := f.Spec["relationType"].(string); ok {
-			b.SetRelationType(rt)
-		}
-	}
-}
-
-// upsertSpecCols 在 upsert update 分支中同步特化列
-func upsertSpecCols(up *ent.FeatureUpsert, f SeedFeature) {
-	switch f.FeatureType {
-	case ftProperty:
-		if dt, ok := f.Spec["dataType"].(string); ok {
-			up.SetDataType(feature.DataType(dt))
-		}
-		if am, ok := f.Spec["accessMode"].(string); ok {
-			up.SetAccessMode(feature.AccessMode(am))
-		}
-	case ftEvent:
-		if lv, ok := f.Spec["level"].(string); ok {
-			up.SetEventLevel(feature.EventLevel(lv))
-		}
-	case ftService:
-		if cm, ok := f.Spec["callMode"].(string); ok {
-			up.SetCallMode(feature.CallMode(cm))
-		}
-	case ftRelation:
-		if rt, ok := f.Spec["relationType"].(string); ok {
-			up.SetRelationType(rt)
-		}
-	}
 }
 
 // ===========================================================================
 // 单位引用解析 / Unit reference resolution
 // ===========================================================================
 
-// buildUnitCodeIndex 构建 unit.code → unit.id 索引
-func buildUnitCodeIndex(ctx context.Context, client *ent.Client) (map[string]uint32, error) {
+// BuildUnitCodeIndex 构建 unit.code → unit.id 索引（导出，供模型管理种子使用）。
+func BuildUnitCodeIndex(ctx context.Context, client *ent.Client) (map[string]uint32, error) {
 	entities, err := client.Unit.Query().
 		Where(unit.TenantIDEQ(sysTenantFeature)).
 		Select(unit.FieldID, unit.FieldCode).
@@ -248,13 +153,12 @@ func buildUnitCodeIndex(ctx context.Context, client *ent.Client) (map[string]uin
 	return m, nil
 }
 
-// resolveUnitID 在 property spec 的 unit/structFields/arraySpec.element/参数 unit 内
-// 把 unitCode 解析为 unitId（递归）。
-func resolveUnitID(spec map[string]any, idx map[string]uint32) {
+// ResolveUnitID 在 property spec 的 unit/structFields/arraySpec.element/参数 unit 内
+// 把 unitCode 解析为 unitId（递归）。导出供模型管理种子使用。
+func ResolveUnitID(spec map[string]any, idx map[string]uint32) {
 	if spec == nil {
 		return
 	}
-	// 顶层 unit
 	if u, ok := spec["unit"].(map[string]any); ok {
 		if code, ok2 := u["unitCode"].(string); ok2 && code != "" {
 			if id, found := idx[code]; found {
@@ -262,23 +166,20 @@ func resolveUnitID(spec map[string]any, idx map[string]uint32) {
 			}
 		}
 	}
-	// structFields 递归
 	if fields, ok := spec["structFields"].([]map[string]any); ok {
 		for _, f := range fields {
-			resolveUnitID(f, idx)
+			ResolveUnitID(f, idx)
 		}
 	}
-	// arraySpec.element 递归
 	if as, ok := spec["arraySpec"].(map[string]any); ok {
 		if el, ok2 := as["element"].(map[string]any); ok2 {
-			resolveUnitID(el, idx)
+			ResolveUnitID(el, idx)
 		}
 	}
-	// 事件/服务输出输入参数（仅 ParamSpec 内部 unit，事件/服务种子主要走顶层）
 	for _, k := range []string{"outputParams", "inputParams"} {
 		if pl, ok := spec[k].([]map[string]any); ok {
 			for _, p := range pl {
-				resolveUnitID(p, idx)
+				ResolveUnitID(p, idx)
 			}
 		}
 	}
@@ -288,8 +189,8 @@ func resolveUnitID(spec map[string]any, idx map[string]uint32) {
 // 关系 source/target 识别符 → id 回填
 // ===========================================================================
 
-// buildFeatureIdentifierIndex 构建 feature.identifier → id 索引
-func buildFeatureIdentifierIndex(ctx context.Context, client *ent.Client) (map[string]uint32, error) {
+// BuildFeatureIdentifierIndex 构建 feature.identifier → id 索引（导出）。
+func BuildFeatureIdentifierIndex(ctx context.Context, client *ent.Client) (map[string]uint32, error) {
 	entities, err := client.Feature.Query().
 		Where(feature.TenantIDEQ(sysTenantFeature)).
 		Select(feature.FieldID, feature.FieldIdentifier, feature.FieldCode).
@@ -309,9 +210,8 @@ func buildFeatureIdentifierIndex(ctx context.Context, client *ent.Client) (map[s
 	return m, nil
 }
 
-// resolveRelationRefs 在 relation spec 的 source/target 中按 identifier 回填 id。
-// 同时也补 code（若空）以便调试展示。
-func resolveRelationRefs(spec map[string]any, idx map[string]uint32) {
+// ResolveRelationRefs 在 relation spec 的 source/target 中按 identifier 回填 id。
+func ResolveRelationRefs(spec map[string]any, idx map[string]uint32) {
 	if spec == nil {
 		return
 	}
@@ -339,16 +239,12 @@ func resolveRelationRefs(spec map[string]any, idx map[string]uint32) {
 }
 
 // ===========================================================================
-// 把 map spec → proto FeatureSpec（oneof）
+// 把 map spec → proto FeatureSpec（oneof）—— 保留给模型管理种子复用
 // ===========================================================================
 
 // BuildFeatureSpecFromMap 把「featureType 字符串 + spec map」构造为 proto FeatureSpec oneof。
-// BuildFeatureSpecFromMap builds a proto FeatureSpec from a feature-type string + spec map.
-//
-// 这是种子构造逻辑的公开入口，供导入功能（service.ImportFeatures）复用，避免重复实现
-// map→proto oneof 的映射。featureType 取 "PROPERTY"/"EVENT"/"SERVICE"/"RELATION"；
-// spec map 的键约定见 feature_seed_data.go（dataType/accessMode/category/unit/constraints/...）。
-// 未知 featureType 返回 nil。
+// CR-001 后：本函数被 SeedModelManagement 用来从 feature_seed_data 中的 spec map
+// 构造分类默认模型的完整 spec；不再用于 feature 表写入。
 func BuildFeatureSpecFromMap(featureType string, spec map[string]any) *thingmodelV1.FeatureSpec {
 	return buildFeatureSpecProto(SeedFeature{FeatureType: parseFeatureType(featureType), Spec: spec})
 }
@@ -362,7 +258,6 @@ func parseFeatureType(s string) thingmodelV1.FeatureType {
 }
 
 // buildFeatureSpecProto 把 SeedFeature.Spec (map) 构造为 proto FeatureSpec oneof。
-// 注：DB 字段是强类型 *thingmodelV1.FeatureSpec；JSON 编码由 Ent 自动处理。
 func buildFeatureSpecProto(f SeedFeature) *thingmodelV1.FeatureSpec {
 	if f.Spec == nil {
 		return nil

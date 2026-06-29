@@ -12,6 +12,8 @@
   "no": "No",
   "deleteConfirm": "Delete this entry?",
   "editOverride": "Edit Override",
+  "editSpec": "Edit Spec",
+  "specSummary": "Spec Summary",
   "tab": {
     "all": "All",
     "property": "Property",

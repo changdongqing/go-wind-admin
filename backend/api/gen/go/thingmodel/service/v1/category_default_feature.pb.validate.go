@@ -85,14 +85,14 @@ func (m *CategoryDefaultFeature) validate(all bool) error {
 		// no validation rules for FeatureType
 	}
 
-	if m.FeatureSnapshotPreview != nil {
+	if m.Spec != nil {
 
 		if all {
-			switch v := interface{}(m.GetFeatureSnapshotPreview()).(type) {
+			switch v := interface{}(m.GetSpec()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, CategoryDefaultFeatureValidationError{
-						field:  "FeatureSnapshotPreview",
+						field:  "Spec",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -100,49 +100,16 @@ func (m *CategoryDefaultFeature) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, CategoryDefaultFeatureValidationError{
-						field:  "FeatureSnapshotPreview",
+						field:  "Spec",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetFeatureSnapshotPreview()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetSpec()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return CategoryDefaultFeatureValidationError{
-					field:  "FeatureSnapshotPreview",
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
-	if m.OverrideSpec != nil {
-
-		if all {
-			switch v := interface{}(m.GetOverrideSpec()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, CategoryDefaultFeatureValidationError{
-						field:  "OverrideSpec",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, CategoryDefaultFeatureValidationError{
-						field:  "OverrideSpec",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetOverrideSpec()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return CategoryDefaultFeatureValidationError{
-					field:  "OverrideSpec",
+					field:  "Spec",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -161,6 +128,26 @@ func (m *CategoryDefaultFeature) validate(all bool) error {
 
 	if m.SortOrder != nil {
 		// no validation rules for SortOrder
+	}
+
+	if m.DataType != nil {
+		// no validation rules for DataType
+	}
+
+	if m.AccessMode != nil {
+		// no validation rules for AccessMode
+	}
+
+	if m.EventLevel != nil {
+		// no validation rules for EventLevel
+	}
+
+	if m.CallMode != nil {
+		// no validation rules for CallMode
+	}
+
+	if m.RelationType != nil {
+		// no validation rules for RelationType
 	}
 
 	if m.TenantId != nil {
@@ -1603,14 +1590,14 @@ func (m *BatchAddCategoryDefaultFeaturesRequest_Item) validate(all bool) error {
 
 	// no validation rules for FeatureId
 
-	if m.OverrideSpec != nil {
+	if m.Spec != nil {
 
 		if all {
-			switch v := interface{}(m.GetOverrideSpec()).(type) {
+			switch v := interface{}(m.GetSpec()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, BatchAddCategoryDefaultFeaturesRequest_ItemValidationError{
-						field:  "OverrideSpec",
+						field:  "Spec",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1618,16 +1605,16 @@ func (m *BatchAddCategoryDefaultFeaturesRequest_Item) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, BatchAddCategoryDefaultFeaturesRequest_ItemValidationError{
-						field:  "OverrideSpec",
+						field:  "Spec",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetOverrideSpec()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetSpec()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return BatchAddCategoryDefaultFeaturesRequest_ItemValidationError{
-					field:  "OverrideSpec",
+					field:  "Spec",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

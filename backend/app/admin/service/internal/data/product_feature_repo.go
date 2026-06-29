@@ -126,9 +126,8 @@ func (r *ProductFeatureRepo) init() {
 		productfeature.FeatureType, thingmodelV1.FeatureType,
 	](thingmodelV1.FeatureType_value))
 
-	// 2 个 JSON wrapper converter
+	// 1 个 JSON wrapper converter（CR-001：仅一个 spec 字段，snapshot/override 已合并）
 	r.mapper.AppendConverters(productFeatureSnapshotConverterPair())
-	r.mapper.AppendConverters(featureOverrideSpecConverterPair())
 }
 
 // nonPointerEnumConverter 注册 `非指针 ENTITY → *DTO` 单向 copier 转换器。
@@ -403,12 +402,9 @@ func (r *ProductFeatureRepo) createTx(ctx context.Context, tx *ent.Tx, data *thi
 		builder.SetRelationType(data.GetRelationType())
 	}
 
-	// JSON 字段（feature_snapshot 必填；override_spec 可选）
-	if data.FeatureSnapshot != nil {
-		builder.SetFeatureSnapshot(schema.WrapFeatureSpec(data.FeatureSnapshot))
-	}
-	if data.OverrideSpec != nil {
-		builder.SetOverrideSpec(schema.WrapFeatureOverrideSpec(data.OverrideSpec))
+	// CR-001：单一完整 FeatureSpec
+	if data.Spec != nil {
+		builder.SetSpec(schema.WrapFeatureSpec(data.Spec))
 	}
 
 	row, err := builder.Save(ctx)
@@ -510,14 +506,9 @@ func (r *ProductFeatureRepo) Update(ctx context.Context, req *thingmodelV1.Updat
 				b.SetIdentifier(req.Data.GetIdentifier())
 			}
 
-			// override_spec：传入即覆盖（白名单收口）
-			if req.Data.OverrideSpec != nil {
-				b.SetOverrideSpec(schema.WrapFeatureOverrideSpec(req.Data.OverrideSpec))
-			}
-
-			// LOCAL 来源允许改 feature_snapshot（service 校验把控）；DEFAULT/GLOBAL 禁改
-			if req.Data.FeatureSnapshot != nil {
-				b.SetFeatureSnapshot(schema.WrapFeatureSpec(req.Data.FeatureSnapshot))
+			// CR-001：单一 spec（DRAFT 全字段可改；PUBLISHED 由 service 校验器在 update_mask 上拦截）
+			if req.Data.Spec != nil {
+				b.SetSpec(schema.WrapFeatureSpec(req.Data.Spec))
 			}
 		},
 		func(s *sql.Selector) {

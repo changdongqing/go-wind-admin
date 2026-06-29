@@ -60,15 +60,7 @@ service FeatureService {
     };
   }
 
-  // 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
-  rpc ValidateSpec (thingmodel.service.v1.ValidateFeatureSpecRequest) returns (thingmodel.service.v1.ValidateFeatureSpecResponse) {
-    option (google.api.http) = {
-      post: "/admin/v1/thingmodel/features:validateSpec"
-      body: "*"
-    };
-  }
-
-  // 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+  // 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
   rpc ImportFeatures (thingmodel.service.v1.ImportFeaturesRequest) returns (thingmodel.service.v1.ImportFeaturesResponse) {
     option (google.api.http) = {
       post: "/admin/v1/thingmodel/features:import"

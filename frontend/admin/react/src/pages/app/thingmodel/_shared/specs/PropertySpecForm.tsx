@@ -7,8 +7,8 @@ import {
   dataTypeOptions,
   propertyCategoryOptions,
   type DataType,
-} from '../constants';
-import UnitSelect from '../components/UnitSelect';
+} from '../../feature/constants';
+import UnitSelect from '../../feature/components/UnitSelect';
 
 /** 仅这些数据类型在物模型语义上需要带物理单位 */
 const UNIT_BEARING_TYPES: ReadonlySet<DataType> = new Set(['INT', 'FLOAT', 'DOUBLE']);
@@ -57,11 +57,44 @@ const PropertySpecForm: React.FC<PropertySpecFormProps> = ({ namePath }) => {
           options={propertyCategoryOptions(t)}
           placeholder={t('propertyCategoryPlaceholder')}
           allowClear
+          onChange={(val) => {
+            // V9 联动：选 rated 时强制 isRated=true；选其它/清空时自动取消
+            // 后端校验：category=rated → isRated 必须 true
+            form.setFieldValue([...namePath, 'isRated'], val === 'rated');
+          }}
         />
       </Form.Item>
 
-      <Form.Item label={t('isRated')} name={[...namePath, 'isRated']} valuePropName="checked">
-        <Switch />
+      <Form.Item
+        noStyle
+        shouldUpdate={(prev, cur) => {
+          const path = [...namePath, 'category'];
+          return (
+            path.reduce((acc: any, k) => acc?.[k], prev) !==
+            path.reduce((acc: any, k) => acc?.[k], cur)
+          );
+        }}
+      >
+        {({ getFieldValue }) => {
+          const cat = getFieldValue([...namePath, 'category']);
+          const isRated = cat === 'rated';
+          return (
+            <Form.Item
+              label={t('isRated')}
+              name={[...namePath, 'isRated']}
+              valuePropName="checked"
+              extra={
+                isRated
+                  ? t('isRatedLockedByCategory', {
+                      defaultValue: 'category=rated 时 isRated 必须为 true（后端 V9 约束）',
+                    })
+                  : undefined
+              }
+            >
+              <Switch disabled={isRated} />
+            </Form.Item>
+          );
+        }}
       </Form.Item>
 
       {/* unit：单位引用（unitCode 由下拉选择，unitSymbol 自动回填；unitId 由后端按 code 解析） */}

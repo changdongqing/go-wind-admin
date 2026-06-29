@@ -85,7 +85,7 @@ type ConflictPolicy int32
 const (
 	ConflictPolicy_CONFLICT_POLICY_UNSPECIFIED ConflictPolicy = 0
 	ConflictPolicy_SKIP                        ConflictPolicy = 1 // 跳过已存在项（默认）/ Skip existing
-	ConflictPolicy_REPLACE                     ConflictPolicy = 2 // 删除已存在项后重建（丢失原 override）/ Delete then recreate
+	ConflictPolicy_REPLACE                     ConflictPolicy = 2 // 删除已存在项后重建 / Delete then recreate
 )
 
 // Enum value maps for ConflictPolicy.
@@ -142,13 +142,9 @@ type ProductFeature struct {
 	Name         *string                `protobuf:"bytes,13,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	NameEn       *string                `protobuf:"bytes,14,opt,name=name_en,json=nameEn,proto3,oneof" json:"name_en,omitempty"`
 	Description  *string                `protobuf:"bytes,15,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	// 完整 FeatureSpec 快照（产品自洽核心）/ Full spec snapshot
-	FeatureSnapshot *FeatureSpec `protobuf:"bytes,20,opt,name=feature_snapshot,json=featureSnapshot,proto3,oneof" json:"feature_snapshot,omitempty"`
-	// 稀疏覆写 / Sparse override
-	OverrideSpec *FeatureOverrideSpec `protobuf:"bytes,21,opt,name=override_spec,json=overrideSpec,proto3,oneof" json:"override_spec,omitempty"`
-	// 运行时有效 spec = snapshot deepmerged with override；后端在 Get 时填充，写入时忽略
-	EffectiveSpec *FeatureSpec `protobuf:"bytes,22,opt,name=effective_spec,json=effectiveSpec,proto3,oneof" json:"effective_spec,omitempty"`
-	// ===== 冗余特化列（与 thing_features 的对应列同义，便于筛选）=====
+	// CR-001：单一 FeatureSpec（产品最终物模型）/ Single FeatureSpec (product final TSL)
+	Spec *FeatureSpec `protobuf:"bytes,20,opt,name=spec,proto3,oneof" json:"spec,omitempty"`
+	// ===== 冗余特化列（从 spec 派生，便于筛选）=====
 	DataType      *DataType              `protobuf:"varint,30,opt,name=data_type,json=dataType,proto3,enum=thingmodel.service.v1.DataType,oneof" json:"data_type,omitempty"`
 	AccessMode    *AccessMode            `protobuf:"varint,31,opt,name=access_mode,json=accessMode,proto3,enum=thingmodel.service.v1.AccessMode,oneof" json:"access_mode,omitempty"`
 	EventLevel    *EventLevel            `protobuf:"varint,32,opt,name=event_level,json=eventLevel,proto3,enum=thingmodel.service.v1.EventLevel,oneof" json:"event_level,omitempty"`
@@ -267,23 +263,9 @@ func (x *ProductFeature) GetDescription() string {
 	return ""
 }
 
-func (x *ProductFeature) GetFeatureSnapshot() *FeatureSpec {
+func (x *ProductFeature) GetSpec() *FeatureSpec {
 	if x != nil {
-		return x.FeatureSnapshot
-	}
-	return nil
-}
-
-func (x *ProductFeature) GetOverrideSpec() *FeatureOverrideSpec {
-	if x != nil {
-		return x.OverrideSpec
-	}
-	return nil
-}
-
-func (x *ProductFeature) GetEffectiveSpec() *FeatureSpec {
-	if x != nil {
-		return x.EffectiveSpec
+		return x.Spec
 	}
 	return nil
 }
@@ -1078,7 +1060,7 @@ var File_thingmodel_service_v1_product_feature_proto protoreflect.FileDescriptor
 
 const file_thingmodel_service_v1_product_feature_proto_rawDesc = "" +
 	"\n" +
-	"+thingmodel/service/v1/product_feature.proto\x12\x15thingmodel.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1epagination/v1/pagination.proto\x1a#thingmodel/service/v1/feature.proto\x1a1thingmodel/service/v1/feature_override_spec.proto\"\xca\x16\n" +
+	"+thingmodel/service/v1/product_feature.proto\x12\x15thingmodel.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1epagination/v1/pagination.proto\x1a#thingmodel/service/v1/feature.proto\"\xbb\x14\n" +
 	"\x0eProductFeature\x12.\n" +
 	"\x02id\x18\x01 \x01(\rB\x19\xbaG\x16\x92\x02\x13条目ID / Entry IDH\x00R\x02id\x88\x01\x01\x12B\n" +
 	"\n" +
@@ -1093,35 +1075,33 @@ const file_thingmodel_service_v1_product_feature_proto_rawDesc = "" +
 	"identifier\x88\x01\x01\x124\n" +
 	"\x04name\x18\r \x01(\tB\x1b\xbaG\x18\x92\x02\x15中文名 / Name (zh)H\aR\x04name\x88\x01\x01\x129\n" +
 	"\aname_en\x18\x0e \x01(\tB\x1b\xbaG\x18\x92\x02\x15英文名 / Name (en)H\bR\x06nameEn\x88\x01\x01\x12A\n" +
-	"\vdescription\x18\x0f \x01(\tB\x1a\xbaG\x17\x92\x02\x14描述 / DescriptionH\tR\vdescription\x88\x01\x01\x12\x89\x01\n" +
-	"\x10feature_snapshot\x18\x14 \x01(\v2\".thingmodel.service.v1.FeatureSpecB5\xbaG2\x92\x02/完整 spec 快照 / Full feature spec snapshotH\n" +
-	"R\x0ffeatureSnapshot\x88\x01\x01\x12\x8e\x01\n" +
-	"\roverride_spec\x18\x15 \x01(\v2*.thingmodel.service.v1.FeatureOverrideSpecB8\xbaG5\x92\x022稀疏覆写（白名单字段）/ Sparse overrideH\vR\foverrideSpec\x88\x01\x01\x12\x98\x01\n" +
-	"\x0eeffective_spec\x18\x16 \x01(\v2\".thingmodel.service.v1.FeatureSpecBH\xbaGE\x92\x02B有效 spec（后端合并，只读）/ Effective spec (read-only)H\fR\reffectiveSpec\x88\x01\x01\x12j\n" +
-	"\tdata_type\x18\x1e \x01(\x0e2\x1f.thingmodel.service.v1.DataTypeB'\xbaG$\x92\x02!property 数据类型 / Data typeH\rR\bdataType\x88\x01\x01\x12r\n" +
-	"\vaccess_mode\x18\x1f \x01(\x0e2!.thingmodel.service.v1.AccessModeB)\xbaG&\x92\x02#property 访问模式 / Access modeH\x0eR\n" +
+	"\vdescription\x18\x0f \x01(\tB\x1a\xbaG\x17\x92\x02\x14描述 / DescriptionH\tR\vdescription\x88\x01\x01\x12\x9a\x01\n" +
+	"\x04spec\x18\x14 \x01(\v2\".thingmodel.service.v1.FeatureSpecB]\xbaGZ\x92\x02W完整 FeatureSpec（CR-001 后合并 snapshot+override+effective）/ Full feature specH\n" +
+	"R\x04spec\x88\x01\x01\x12j\n" +
+	"\tdata_type\x18\x1e \x01(\x0e2\x1f.thingmodel.service.v1.DataTypeB'\xbaG$\x92\x02!property 数据类型 / Data typeH\vR\bdataType\x88\x01\x01\x12r\n" +
+	"\vaccess_mode\x18\x1f \x01(\x0e2!.thingmodel.service.v1.AccessModeB)\xbaG&\x92\x02#property 访问模式 / Access modeH\fR\n" +
 	"accessMode\x88\x01\x01\x12i\n" +
-	"\vevent_level\x18  \x01(\x0e2!.thingmodel.service.v1.EventLevelB \xbaG\x1d\x92\x02\x1aevent 级别 / Event levelH\x0fR\n" +
+	"\vevent_level\x18  \x01(\x0e2!.thingmodel.service.v1.EventLevelB \xbaG\x1d\x92\x02\x1aevent 级别 / Event levelH\rR\n" +
 	"eventLevel\x88\x01\x01\x12i\n" +
-	"\tcall_mode\x18! \x01(\x0e2\x1f.thingmodel.service.v1.CallModeB&\xbaG#\x92\x02 service 调用模式 / Call modeH\x10R\bcallMode\x88\x01\x01\x12U\n" +
-	"\rrelation_type\x18\" \x01(\tB+\xbaG(\x92\x02%relation 关系类型 / Relation typeH\x11R\frelationType\x88\x01\x01\x12C\n" +
+	"\tcall_mode\x18! \x01(\x0e2\x1f.thingmodel.service.v1.CallModeB&\xbaG#\x92\x02 service 调用模式 / Call modeH\x0eR\bcallMode\x88\x01\x01\x12U\n" +
+	"\rrelation_type\x18\" \x01(\tB+\xbaG(\x92\x02%relation 关系类型 / Relation typeH\x0fR\frelationType\x88\x01\x01\x12C\n" +
 	"\n" +
-	"is_enabled\x18( \x01(\bB\x1f\xbaG\x1c\x92\x02\x19是否启用 / Is enabledH\x12R\tisEnabled\x88\x01\x01\x12@\n" +
+	"is_enabled\x18( \x01(\bB\x1f\xbaG\x1c\x92\x02\x19是否启用 / Is enabledH\x10R\tisEnabled\x88\x01\x01\x12@\n" +
 	"\n" +
-	"sort_order\x18) \x01(\rB\x1c\xbaG\x19\x92\x02\x16排序号 / Sort orderH\x13R\tsortOrder\x88\x01\x01\x12<\n" +
-	"\ttenant_id\x18d \x01(\rB\x1a\xbaG\x17\x92\x02\x14租户ID / Tenant IDH\x14R\btenantId\x88\x01\x01\x12A\n" +
+	"sort_order\x18) \x01(\rB\x1c\xbaG\x19\x92\x02\x16排序号 / Sort orderH\x11R\tsortOrder\x88\x01\x01\x12<\n" +
+	"\ttenant_id\x18d \x01(\rB\x1a\xbaG\x17\x92\x02\x14租户ID / Tenant IDH\x12R\btenantId\x88\x01\x01\x12A\n" +
 	"\n" +
-	"created_by\x18\xc8\x01 \x01(\rB\x1c\xbaG\x19\x92\x02\x16创建者 / Created byH\x15R\tcreatedBy\x88\x01\x01\x12A\n" +
+	"created_by\x18\xc8\x01 \x01(\rB\x1c\xbaG\x19\x92\x02\x16创建者 / Created byH\x13R\tcreatedBy\x88\x01\x01\x12A\n" +
 	"\n" +
-	"updated_by\x18\xc9\x01 \x01(\rB\x1c\xbaG\x19\x92\x02\x16更新者 / Updated byH\x16R\tupdatedBy\x88\x01\x01\x12A\n" +
+	"updated_by\x18\xc9\x01 \x01(\rB\x1c\xbaG\x19\x92\x02\x16更新者 / Updated byH\x14R\tupdatedBy\x88\x01\x01\x12A\n" +
 	"\n" +
-	"deleted_by\x18\xca\x01 \x01(\rB\x1c\xbaG\x19\x92\x02\x16删除者 / Deleted byH\x17R\tdeletedBy\x88\x01\x01\x12`\n" +
+	"deleted_by\x18\xca\x01 \x01(\rB\x1c\xbaG\x19\x92\x02\x16删除者 / Deleted byH\x15R\tdeletedBy\x88\x01\x01\x12`\n" +
 	"\n" +
-	"created_at\x18\xac\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x1f\xbaG\x1c\x92\x02\x19创建时间 / Created atH\x18R\tcreatedAt\x88\x01\x01\x12`\n" +
+	"created_at\x18\xac\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x1f\xbaG\x1c\x92\x02\x19创建时间 / Created atH\x16R\tcreatedAt\x88\x01\x01\x12`\n" +
 	"\n" +
-	"updated_at\x18\xad\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x1f\xbaG\x1c\x92\x02\x19更新时间 / Updated atH\x19R\tupdatedAt\x88\x01\x01\x12`\n" +
+	"updated_at\x18\xad\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x1f\xbaG\x1c\x92\x02\x19更新时间 / Updated atH\x17R\tupdatedAt\x88\x01\x01\x12`\n" +
 	"\n" +
-	"deleted_at\x18\xae\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x1f\xbaG\x1c\x92\x02\x19删除时间 / Deleted atH\x1aR\tdeletedAt\x88\x01\x01B\x05\n" +
+	"deleted_at\x18\xae\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x1f\xbaG\x1c\x92\x02\x19删除时间 / Deleted atH\x18R\tdeletedAt\x88\x01\x01B\x05\n" +
 	"\x03_idB\r\n" +
 	"\v_product_idB\t\n" +
 	"\a_sourceB\x11\n" +
@@ -1132,10 +1112,8 @@ const file_thingmodel_service_v1_product_feature_proto_rawDesc = "" +
 	"\x05_nameB\n" +
 	"\n" +
 	"\b_name_enB\x0e\n" +
-	"\f_descriptionB\x13\n" +
-	"\x11_feature_snapshotB\x10\n" +
-	"\x0e_override_specB\x11\n" +
-	"\x0f_effective_specB\f\n" +
+	"\f_descriptionB\a\n" +
+	"\x05_specB\f\n" +
 	"\n" +
 	"_data_typeB\x0e\n" +
 	"\f_access_modeB\x0e\n" +
@@ -1152,7 +1130,7 @@ const file_thingmodel_service_v1_product_feature_proto_rawDesc = "" +
 	"\v_deleted_byB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
-	"\v_deleted_at\"o\n" +
+	"\v_deleted_atJ\x04\b\x15\x10\x16J\x04\b\x16\x10\x17R\roverride_specR\x0eeffective_specR\x10feature_snapshot\"o\n" +
 	"\x1aListProductFeatureResponse\x12;\n" +
 	"\x05items\x18\x01 \x03(\v2%.thingmodel.service.v1.ProductFeatureR\x05items\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x04R\x05total\"3\n" +
@@ -1187,11 +1165,11 @@ const file_thingmodel_service_v1_product_feature_proto_rawDesc = "" +
 	"\f_on_conflict\"\x80\x01\n" +
 	"\x18CloneFromProductResponse\x12?\n" +
 	"\acreated\x18\x01 \x03(\v2%.thingmodel.service.v1.ProductFeatureR\acreated\x12#\n" +
-	"\rskipped_count\x18\x02 \x01(\rR\fskippedCount\"\x89\x03\n" +
+	"\rskipped_count\x18\x02 \x01(\rR\fskippedCount\"\xda\x03\n" +
 	"\x1bUpdateProductFeatureRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x129\n" +
-	"\x04data\x18\x02 \x01(\v2%.thingmodel.service.v1.ProductFeatureR\x04data\x12\x9e\x01\n" +
-	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskBa\xbaG^:.\x12,overrideSpec,description,isEnabled,sortOrder\x92\x02+要更新的字段列表 / Fields to updateR\n" +
+	"\x04data\x18\x02 \x01(\v2%.thingmodel.service.v1.ProductFeatureR\x04data\x12\xef\x01\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskB\xb1\x01\xbaG\xad\x01:&\x12$spec,description,isEnabled,sortOrder\x92\x02\x81\x01要更新的字段列表（DRAFT 全字段可改；PUBLISHED 仅 name/description/sortOrder/isEnabled 可改）/ Fields to updateR\n" +
 	"updateMask\x12l\n" +
 	"\rallow_missing\x18\x04 \x01(\bBB\xbaG?\x92\x02<若为 true，资源不存在则新增 / Insert when missingH\x00R\fallowMissing\x88\x01\x01B\x10\n" +
 	"\x0e_allow_missing\"/\n" +
@@ -1260,63 +1238,60 @@ var file_thingmodel_service_v1_product_feature_proto_goTypes = []any{
 	(*ReorderProductFeaturesRequest_Item)(nil),  // 15: thingmodel.service.v1.ReorderProductFeaturesRequest.Item
 	(FeatureType)(0),                            // 16: thingmodel.service.v1.FeatureType
 	(*FeatureSpec)(nil),                         // 17: thingmodel.service.v1.FeatureSpec
-	(*FeatureOverrideSpec)(nil),                 // 18: thingmodel.service.v1.FeatureOverrideSpec
-	(DataType)(0),                               // 19: thingmodel.service.v1.DataType
-	(AccessMode)(0),                             // 20: thingmodel.service.v1.AccessMode
-	(EventLevel)(0),                             // 21: thingmodel.service.v1.EventLevel
-	(CallMode)(0),                               // 22: thingmodel.service.v1.CallMode
-	(*timestamppb.Timestamp)(nil),               // 23: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),               // 24: google.protobuf.FieldMask
-	(*v1.PagingRequest)(nil),                    // 25: pagination.PagingRequest
-	(*emptypb.Empty)(nil),                       // 26: google.protobuf.Empty
+	(DataType)(0),                               // 18: thingmodel.service.v1.DataType
+	(AccessMode)(0),                             // 19: thingmodel.service.v1.AccessMode
+	(EventLevel)(0),                             // 20: thingmodel.service.v1.EventLevel
+	(CallMode)(0),                               // 21: thingmodel.service.v1.CallMode
+	(*timestamppb.Timestamp)(nil),               // 22: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),               // 23: google.protobuf.FieldMask
+	(*v1.PagingRequest)(nil),                    // 24: pagination.PagingRequest
+	(*emptypb.Empty)(nil),                       // 25: google.protobuf.Empty
 }
 var file_thingmodel_service_v1_product_feature_proto_depIdxs = []int32{
 	0,  // 0: thingmodel.service.v1.ProductFeature.source:type_name -> thingmodel.service.v1.ProductFeatureSource
 	16, // 1: thingmodel.service.v1.ProductFeature.feature_type:type_name -> thingmodel.service.v1.FeatureType
-	17, // 2: thingmodel.service.v1.ProductFeature.feature_snapshot:type_name -> thingmodel.service.v1.FeatureSpec
-	18, // 3: thingmodel.service.v1.ProductFeature.override_spec:type_name -> thingmodel.service.v1.FeatureOverrideSpec
-	17, // 4: thingmodel.service.v1.ProductFeature.effective_spec:type_name -> thingmodel.service.v1.FeatureSpec
-	19, // 5: thingmodel.service.v1.ProductFeature.data_type:type_name -> thingmodel.service.v1.DataType
-	20, // 6: thingmodel.service.v1.ProductFeature.access_mode:type_name -> thingmodel.service.v1.AccessMode
-	21, // 7: thingmodel.service.v1.ProductFeature.event_level:type_name -> thingmodel.service.v1.EventLevel
-	22, // 8: thingmodel.service.v1.ProductFeature.call_mode:type_name -> thingmodel.service.v1.CallMode
-	23, // 9: thingmodel.service.v1.ProductFeature.created_at:type_name -> google.protobuf.Timestamp
-	23, // 10: thingmodel.service.v1.ProductFeature.updated_at:type_name -> google.protobuf.Timestamp
-	23, // 11: thingmodel.service.v1.ProductFeature.deleted_at:type_name -> google.protobuf.Timestamp
-	2,  // 12: thingmodel.service.v1.ListProductFeatureResponse.items:type_name -> thingmodel.service.v1.ProductFeature
-	24, // 13: thingmodel.service.v1.GetProductFeatureRequest.view_mask:type_name -> google.protobuf.FieldMask
-	2,  // 14: thingmodel.service.v1.CreateProductFeatureRequest.data:type_name -> thingmodel.service.v1.ProductFeature
-	1,  // 15: thingmodel.service.v1.PullFromDefaultRequest.on_conflict:type_name -> thingmodel.service.v1.ConflictPolicy
-	2,  // 16: thingmodel.service.v1.PullFromDefaultResponse.created:type_name -> thingmodel.service.v1.ProductFeature
-	14, // 17: thingmodel.service.v1.PullFromDefaultResponse.skipped:type_name -> thingmodel.service.v1.PullFromDefaultResponse.PullSkipped
-	1,  // 18: thingmodel.service.v1.CloneFromProductRequest.on_conflict:type_name -> thingmodel.service.v1.ConflictPolicy
-	2,  // 19: thingmodel.service.v1.CloneFromProductResponse.created:type_name -> thingmodel.service.v1.ProductFeature
-	2,  // 20: thingmodel.service.v1.UpdateProductFeatureRequest.data:type_name -> thingmodel.service.v1.ProductFeature
-	24, // 21: thingmodel.service.v1.UpdateProductFeatureRequest.update_mask:type_name -> google.protobuf.FieldMask
-	15, // 22: thingmodel.service.v1.ReorderProductFeaturesRequest.items:type_name -> thingmodel.service.v1.ReorderProductFeaturesRequest.Item
-	25, // 23: thingmodel.service.v1.ProductFeatureService.List:input_type -> pagination.PagingRequest
-	25, // 24: thingmodel.service.v1.ProductFeatureService.Count:input_type -> pagination.PagingRequest
-	5,  // 25: thingmodel.service.v1.ProductFeatureService.Get:input_type -> thingmodel.service.v1.GetProductFeatureRequest
-	6,  // 26: thingmodel.service.v1.ProductFeatureService.Create:input_type -> thingmodel.service.v1.CreateProductFeatureRequest
-	7,  // 27: thingmodel.service.v1.ProductFeatureService.PullFromDefault:input_type -> thingmodel.service.v1.PullFromDefaultRequest
-	9,  // 28: thingmodel.service.v1.ProductFeatureService.CloneFromProduct:input_type -> thingmodel.service.v1.CloneFromProductRequest
-	11, // 29: thingmodel.service.v1.ProductFeatureService.Update:input_type -> thingmodel.service.v1.UpdateProductFeatureRequest
-	12, // 30: thingmodel.service.v1.ProductFeatureService.Delete:input_type -> thingmodel.service.v1.DeleteProductFeatureRequest
-	13, // 31: thingmodel.service.v1.ProductFeatureService.Reorder:input_type -> thingmodel.service.v1.ReorderProductFeaturesRequest
-	3,  // 32: thingmodel.service.v1.ProductFeatureService.List:output_type -> thingmodel.service.v1.ListProductFeatureResponse
-	4,  // 33: thingmodel.service.v1.ProductFeatureService.Count:output_type -> thingmodel.service.v1.CountProductFeatureResponse
-	2,  // 34: thingmodel.service.v1.ProductFeatureService.Get:output_type -> thingmodel.service.v1.ProductFeature
-	26, // 35: thingmodel.service.v1.ProductFeatureService.Create:output_type -> google.protobuf.Empty
-	8,  // 36: thingmodel.service.v1.ProductFeatureService.PullFromDefault:output_type -> thingmodel.service.v1.PullFromDefaultResponse
-	10, // 37: thingmodel.service.v1.ProductFeatureService.CloneFromProduct:output_type -> thingmodel.service.v1.CloneFromProductResponse
-	26, // 38: thingmodel.service.v1.ProductFeatureService.Update:output_type -> google.protobuf.Empty
-	26, // 39: thingmodel.service.v1.ProductFeatureService.Delete:output_type -> google.protobuf.Empty
-	26, // 40: thingmodel.service.v1.ProductFeatureService.Reorder:output_type -> google.protobuf.Empty
-	32, // [32:41] is the sub-list for method output_type
-	23, // [23:32] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	17, // 2: thingmodel.service.v1.ProductFeature.spec:type_name -> thingmodel.service.v1.FeatureSpec
+	18, // 3: thingmodel.service.v1.ProductFeature.data_type:type_name -> thingmodel.service.v1.DataType
+	19, // 4: thingmodel.service.v1.ProductFeature.access_mode:type_name -> thingmodel.service.v1.AccessMode
+	20, // 5: thingmodel.service.v1.ProductFeature.event_level:type_name -> thingmodel.service.v1.EventLevel
+	21, // 6: thingmodel.service.v1.ProductFeature.call_mode:type_name -> thingmodel.service.v1.CallMode
+	22, // 7: thingmodel.service.v1.ProductFeature.created_at:type_name -> google.protobuf.Timestamp
+	22, // 8: thingmodel.service.v1.ProductFeature.updated_at:type_name -> google.protobuf.Timestamp
+	22, // 9: thingmodel.service.v1.ProductFeature.deleted_at:type_name -> google.protobuf.Timestamp
+	2,  // 10: thingmodel.service.v1.ListProductFeatureResponse.items:type_name -> thingmodel.service.v1.ProductFeature
+	23, // 11: thingmodel.service.v1.GetProductFeatureRequest.view_mask:type_name -> google.protobuf.FieldMask
+	2,  // 12: thingmodel.service.v1.CreateProductFeatureRequest.data:type_name -> thingmodel.service.v1.ProductFeature
+	1,  // 13: thingmodel.service.v1.PullFromDefaultRequest.on_conflict:type_name -> thingmodel.service.v1.ConflictPolicy
+	2,  // 14: thingmodel.service.v1.PullFromDefaultResponse.created:type_name -> thingmodel.service.v1.ProductFeature
+	14, // 15: thingmodel.service.v1.PullFromDefaultResponse.skipped:type_name -> thingmodel.service.v1.PullFromDefaultResponse.PullSkipped
+	1,  // 16: thingmodel.service.v1.CloneFromProductRequest.on_conflict:type_name -> thingmodel.service.v1.ConflictPolicy
+	2,  // 17: thingmodel.service.v1.CloneFromProductResponse.created:type_name -> thingmodel.service.v1.ProductFeature
+	2,  // 18: thingmodel.service.v1.UpdateProductFeatureRequest.data:type_name -> thingmodel.service.v1.ProductFeature
+	23, // 19: thingmodel.service.v1.UpdateProductFeatureRequest.update_mask:type_name -> google.protobuf.FieldMask
+	15, // 20: thingmodel.service.v1.ReorderProductFeaturesRequest.items:type_name -> thingmodel.service.v1.ReorderProductFeaturesRequest.Item
+	24, // 21: thingmodel.service.v1.ProductFeatureService.List:input_type -> pagination.PagingRequest
+	24, // 22: thingmodel.service.v1.ProductFeatureService.Count:input_type -> pagination.PagingRequest
+	5,  // 23: thingmodel.service.v1.ProductFeatureService.Get:input_type -> thingmodel.service.v1.GetProductFeatureRequest
+	6,  // 24: thingmodel.service.v1.ProductFeatureService.Create:input_type -> thingmodel.service.v1.CreateProductFeatureRequest
+	7,  // 25: thingmodel.service.v1.ProductFeatureService.PullFromDefault:input_type -> thingmodel.service.v1.PullFromDefaultRequest
+	9,  // 26: thingmodel.service.v1.ProductFeatureService.CloneFromProduct:input_type -> thingmodel.service.v1.CloneFromProductRequest
+	11, // 27: thingmodel.service.v1.ProductFeatureService.Update:input_type -> thingmodel.service.v1.UpdateProductFeatureRequest
+	12, // 28: thingmodel.service.v1.ProductFeatureService.Delete:input_type -> thingmodel.service.v1.DeleteProductFeatureRequest
+	13, // 29: thingmodel.service.v1.ProductFeatureService.Reorder:input_type -> thingmodel.service.v1.ReorderProductFeaturesRequest
+	3,  // 30: thingmodel.service.v1.ProductFeatureService.List:output_type -> thingmodel.service.v1.ListProductFeatureResponse
+	4,  // 31: thingmodel.service.v1.ProductFeatureService.Count:output_type -> thingmodel.service.v1.CountProductFeatureResponse
+	2,  // 32: thingmodel.service.v1.ProductFeatureService.Get:output_type -> thingmodel.service.v1.ProductFeature
+	25, // 33: thingmodel.service.v1.ProductFeatureService.Create:output_type -> google.protobuf.Empty
+	8,  // 34: thingmodel.service.v1.ProductFeatureService.PullFromDefault:output_type -> thingmodel.service.v1.PullFromDefaultResponse
+	10, // 35: thingmodel.service.v1.ProductFeatureService.CloneFromProduct:output_type -> thingmodel.service.v1.CloneFromProductResponse
+	25, // 36: thingmodel.service.v1.ProductFeatureService.Update:output_type -> google.protobuf.Empty
+	25, // 37: thingmodel.service.v1.ProductFeatureService.Delete:output_type -> google.protobuf.Empty
+	25, // 38: thingmodel.service.v1.ProductFeatureService.Reorder:output_type -> google.protobuf.Empty
+	30, // [30:39] is the sub-list for method output_type
+	21, // [21:30] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_thingmodel_service_v1_product_feature_proto_init() }
@@ -1325,7 +1300,6 @@ func file_thingmodel_service_v1_product_feature_proto_init() {
 		return
 	}
 	file_thingmodel_service_v1_feature_proto_init()
-	file_thingmodel_service_v1_feature_override_spec_proto_init()
 	file_thingmodel_service_v1_product_feature_proto_msgTypes[0].OneofWrappers = []any{}
 	file_thingmodel_service_v1_product_feature_proto_msgTypes[3].OneofWrappers = []any{}
 	file_thingmodel_service_v1_product_feature_proto_msgTypes[5].OneofWrappers = []any{}

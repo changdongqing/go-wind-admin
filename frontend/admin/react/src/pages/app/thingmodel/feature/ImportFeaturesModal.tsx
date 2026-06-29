@@ -22,7 +22,8 @@ const IMPORT_COLUMNS = [
   'description',
   'applicableScope',
   'sortOrder',
-  'specJson',
+  'semanticTag',
+  'recommendedUnitCategoryId',
 ] as const;
 
 // 公共模板/种子文件路径（构建期从 docs 拷贝到 public/templates）。
@@ -36,13 +37,16 @@ interface ImportFeaturesModalProps {
 }
 
 /**
- * 导入特征弹窗（保底方案）/ Import features modal (fallback).
+ * 导入特征弹窗（CR-001 后：仅骨架字段）/ Import features modal (skeleton-only after CR-001).
  *
  * 流程：选 .xlsx → exceljs 客户端解析 → 调 ImportFeatures（按 code 幂等 upsert）
  *   → 展示 succeeded/failed 与失败明细。
  *
  * Excel 列：featureType | code | identifier | name | nameEn | description |
- *           applicableScope | sortOrder | specJson(spec 的 JSON 字符串)
+ *           applicableScope | sortOrder | semanticTag | recommendedUnitCategoryId
+ *
+ * spec_json 列已删除：CR-001 后结构化约束改在分类默认模型 / 产品模型中按场景配置，
+ * 不再随骨架批量导入。
  */
 const ImportFeaturesModal: React.FC<ImportFeaturesModalProps> = ({
   open,

@@ -64,6 +64,11 @@ enum DataType {
 // ============================================================================
 
 // 特征服务（源领域层，无 HTTP 注解）/ Feature service
+//
+// CR-001（2026-06-29）：结构化约束 spec 整体下沉到模型层（CategoryDefaultFeature / ProductFeature）。
+// 本服务现仅承载"特征骨架"——code/identifier/name/feature_type/applicable_scope/semantic_tag/...，
+// 不再含 spec / data_type / access_mode / event_level / call_mode / relation_type 字段。
+// ValidateSpec RPC 已移除，spec 校验由 CategoryDefaultFeatureService 与 ProductFeatureService 内联完成。
 service FeatureService {
   // 分页查询特征列表 / List features with paging
   rpc List (pagination.PagingRequest) returns (ListFeatureResponse) {}
@@ -86,10 +91,7 @@ service FeatureService {
   // 按特征类型查询（左侧树选类型 → 右侧列表）/ List features by type
   rpc ListByType (ListFeatureByTypeRequest) returns (ListFeatureResponse) {}
 
-  // 校验 spec（不落库，返回校验结果）/ Validate spec without persisting
-  rpc ValidateSpec (ValidateFeatureSpecRequest) returns (ValidateFeatureSpecResponse) {}
-
-  // 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+  // 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
   rpc ImportFeatures (ImportFeaturesRequest) returns (ImportFeaturesResponse) {}
 }
 
@@ -213,11 +215,18 @@ message ArraySpec {
 }
 
 // ============================================================================
-// Feature message / 特征主消息
+// Feature message / 特征主消息（CR-001 后仅承载骨架，不含 spec）
 // ============================================================================
 
-// 特征 / Feature (统一承载 property/event/service/relation)
+// 特征骨架 / Feature skeleton (统一承载 property/event/service/relation 的身份与语义骨架)
+//
+// CR-001：结构化约束 spec 已下沉到 CategoryDefaultFeature.spec / ProductFeature.spec。
+// 本 message 仅保留以下身份/检索字段。
 message Feature {
+  // 保留旧字段 tag 防止误用（10/11/12/13/14 为原冗余特化列；20 为原 spec）
+  reserved 10, 11, 12, 13, 14, 20;
+  reserved "data_type", "access_mode", "event_level", "call_mode", "relation_type", "spec";
+
   optional uint32 id = 1 [
     json_name = "id",
     (gnostic.openapi.v3.property) = {description: "特征ID / Feature ID"}
@@ -258,32 +267,14 @@ message Feature {
     (gnostic.openapi.v3.property) = {description: "适用设备范围，如 冷机/锅炉 / Applicable device scope"}
   ];
 
-  // ===== 特化抽取列（高频筛选）/ Specialized columns =====
-  optional DataType data_type = 10 [
-    json_name = "dataType",
-    (gnostic.openapi.v3.property) = {description: "property 数据类型 / Property data type"}
+  // ===== CR-001 新增：推荐元信息（仅用于 UI 提示与检索，不参与约束计算）=====
+  optional uint32 recommended_unit_category_id = 15 [
+    json_name = "recommendedUnitCategoryId",
+    (gnostic.openapi.v3.property) = {description: "推荐单位物理量分类 ID（不指定具体单位，仅 UI 预过滤）/ Recommended unit category"}
   ];
-  optional AccessMode access_mode = 11 [
-    json_name = "accessMode",
-    (gnostic.openapi.v3.property) = {description: "property 访问模式 R/RW / Property access mode"}
-  ];
-  optional EventLevel event_level = 12 [
-    json_name = "eventLevel",
-    (gnostic.openapi.v3.property) = {description: "event 级别 / Event level"}
-  ];
-  optional CallMode call_mode = 13 [
-    json_name = "callMode",
-    (gnostic.openapi.v3.property) = {description: "service 调用模式 / Service call mode"}
-  ];
-  optional string relation_type = 14 [
-    json_name = "relationType",
-    (gnostic.openapi.v3.property) = {description: "relation 关系类型，如 derivedFrom / Relation type"}
-  ];
-
-  // ===== 差异容器：spec（四类结构化约束，强类型 oneof）=====
-  optional FeatureSpec spec = 20 [
-    json_name = "spec",
-    (gnostic.openapi.v3.property) = {description: "特征结构化约束（FeatureSpec oneof，按 featureType 取分支）/ Structured spec"}
+  optional string semantic_tag = 16 [
+    json_name = "semanticTag",
+    (gnostic.openapi.v3.property) = {description: "语义标签，如 pressure/temperature/runMode，软性检索字段 / Semantic tag"}
   ];
 
   optional bool is_enabled = 30 [
@@ -379,25 +370,17 @@ message ListFeatureByTypeRequest {
   optional string applicable_scope = 3 [json_name = "applicableScope"];
 }
 
-// 校验 spec - 请求 / Validate spec request
-message ValidateFeatureSpecRequest {
-  FeatureType feature_type = 1 [json_name = "featureType"];
-  FeatureSpec spec = 2 [json_name = "spec"];
-}
-
-// 校验 spec - 回应 / Validate spec response
-message ValidateFeatureSpecResponse {
-  bool valid = 1 [json_name = "valid"];
-  repeated string errors = 2 [json_name = "errors"];
-}
-
 // ============================================================================
-// Import / 批量导入
+// Import / 批量导入（CR-001 后仅含骨架字段）
 // ============================================================================
 
-// 导入单行（对应 Excel 一行；spec_json 是 spec map 的 JSON 字符串，与种子同构）
-// One import row; spec_json is the JSON of a spec map (same shape as seed data).
+// 导入单行（对应 Excel 一行；CR-001 后仅含骨架字段，不再含 spec_json）
+// One import row (CR-001: skeleton-only, no spec_json).
 message ImportFeatureRow {
+  // 保留旧 tag 防止误用
+  reserved 9;
+  reserved "spec_json";
+
   string feature_type = 1 [   // PROPERTY / EVENT / SERVICE / RELATION
     json_name = "featureType",
     (gnostic.openapi.v3.property) = {description: "特征类型 PROPERTY/EVENT/SERVICE/RELATION / Feature type"}
@@ -427,9 +410,14 @@ message ImportFeatureRow {
     json_name = "sortOrder",
     (gnostic.openapi.v3.property) = {description: "排序号 / Sort order"}
   ];
-  string spec_json = 9 [
-    json_name = "specJson",
-    (gnostic.openapi.v3.property) = {description: "spec 的 JSON 字符串（与种子 map 同构，按 featureType 还原为 FeatureSpec oneof）/ Spec as JSON string"}
+  // CR-001 新增
+  uint32 recommended_unit_category_id = 10 [
+    json_name = "recommendedUnitCategoryId",
+    (gnostic.openapi.v3.property) = {description: "推荐单位物理量分类 ID / Recommended unit category ID"}
+  ];
+  string semantic_tag = 11 [
+    json_name = "semanticTag",
+    (gnostic.openapi.v3.property) = {description: "语义标签 / Semantic tag"}
   ];
 }
 

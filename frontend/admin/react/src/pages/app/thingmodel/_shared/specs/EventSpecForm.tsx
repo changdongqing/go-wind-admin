@@ -2,8 +2,8 @@ import { Form, Input, InputNumber, Select, Button, Space, Switch } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
-import { dataTypeOptions, eventLevelOptions } from '../constants';
-import UnitSelect from '../components/UnitSelect';
+import { dataTypeOptions, eventLevelOptions } from '../../feature/constants';
+import UnitSelect from '../../feature/components/UnitSelect';
 
 interface EventSpecFormProps {
   namePath: (string | number)[];

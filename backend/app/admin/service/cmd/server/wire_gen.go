@@ -89,7 +89,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	unitRepo := data.NewUnitRepo(context, entClient)
 	unitService := service.NewUnitService(context, unitRepo)
 	featureRepo := data.NewFeatureRepo(context, entClient)
-	featureService := service.NewFeatureService(context, featureRepo, unitRepo)
+	featureService := service.NewFeatureService(context, featureRepo)
 	categoryRepo := data.NewCategoryRepo(context, entClient)
 	categoryService := service.NewCategoryService(context, categoryRepo)
 	categoryDefaultFeatureRepo := data.NewCategoryDefaultFeatureRepo(context, entClient)

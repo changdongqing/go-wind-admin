@@ -38,7 +38,7 @@ type ProductFeatureServiceHTTPServer interface {
 	Create(context.Context, *v11.CreateProductFeatureRequest) (*emptypb.Empty, error)
 	// Delete 删除（批量）/ Delete
 	Delete(context.Context, *v11.DeleteProductFeatureRequest) (*emptypb.Empty, error)
-	// Get 详情（返回 effective_spec）/ Get
+	// Get 详情（CR-001 后：返回单一 spec）/ Get
 	Get(context.Context, *v11.GetProductFeatureRequest) (*v11.ProductFeature, error)
 	// List 分页查询 / List
 	List(context.Context, *v1.PagingRequest) (*v11.ListProductFeatureResponse, error)
@@ -242,7 +242,7 @@ type ProductFeatureServiceHTTPClient interface {
 	Create(ctx context.Context, req *v11.CreateProductFeatureRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// Delete 删除（批量）/ Delete
 	Delete(ctx context.Context, req *v11.DeleteProductFeatureRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// Get 详情（返回 effective_spec）/ Get
+	// Get 详情（CR-001 后：返回单一 spec）/ Get
 	Get(ctx context.Context, req *v11.GetProductFeatureRequest, opts ...http.CallOption) (rsp *v11.ProductFeature, err error)
 	// List 分页查询 / List
 	List(ctx context.Context, req *v1.PagingRequest, opts ...http.CallOption) (rsp *v11.ListProductFeatureResponse, err error)
@@ -304,7 +304,7 @@ func (c *ProductFeatureServiceHTTPClientImpl) Delete(ctx context.Context, in *v1
 	return &out, nil
 }
 
-// Get 详情（返回 effective_spec）/ Get
+// Get 详情（CR-001 后：返回单一 spec）/ Get
 func (c *ProductFeatureServiceHTTPClientImpl) Get(ctx context.Context, in *v11.GetProductFeatureRequest, opts ...http.CallOption) (*v11.ProductFeature, error) {
 	var out v11.ProductFeature
 	pattern := "/admin/v1/thingmodel/product-features/{id}"

@@ -43,7 +43,7 @@ const (
 type ProductFeatureServiceClient interface {
 	// 分页查询 / List
 	List(ctx context.Context, in *v1.PagingRequest, opts ...grpc.CallOption) (*v11.ListProductFeatureResponse, error)
-	// 详情（返回 effective_spec）/ Get
+	// 详情（CR-001 后：返回单一 spec）/ Get
 	Get(ctx context.Context, in *v11.GetProductFeatureRequest, opts ...grpc.CallOption) (*v11.ProductFeature, error)
 	// 创建（source=GLOBAL/LOCAL）/ Create
 	Create(ctx context.Context, in *v11.CreateProductFeatureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -158,7 +158,7 @@ func (c *productFeatureServiceClient) Reorder(ctx context.Context, in *v11.Reord
 type ProductFeatureServiceServer interface {
 	// 分页查询 / List
 	List(context.Context, *v1.PagingRequest) (*v11.ListProductFeatureResponse, error)
-	// 详情（返回 effective_spec）/ Get
+	// 详情（CR-001 后：返回单一 spec）/ Get
 	Get(context.Context, *v11.GetProductFeatureRequest) (*v11.ProductFeature, error)
 	// 创建（source=GLOBAL/LOCAL）/ Create
 	Create(context.Context, *v11.CreateProductFeatureRequest) (*emptypb.Empty, error)

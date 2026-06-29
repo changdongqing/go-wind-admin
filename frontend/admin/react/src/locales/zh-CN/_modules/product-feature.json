@@ -27,8 +27,10 @@
   "editFeature": "编辑产品特征",
   "createLocalFeature": "新建产品本地特征",
   "createGlobalFeature": "从全局特征库添加",
-  "overrideSection": "覆写约束（白名单）",
-  "publishedReadonlyWarning": "产品已发布：结构禁止变更，仅可调整覆写、排序、启停。",
+  "specSection": "结构化约束 Spec",
+  "specSummary": "Spec 概要",
+  "overrideSection": "覆写约束（已废弃，仅作历史保留）",
+  "publishedReadonlyWarning": "产品已发布：基础信息（name/description）可改，spec 已冻结。",
   "batchAddPartial": "批量添加部分成功：成功 {{done}} 条、失败 {{failed}} 条",
   "override": {
     "displayName": "展示别名",

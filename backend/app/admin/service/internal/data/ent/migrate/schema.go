@@ -247,27 +247,32 @@ var (
 		{Name: "is_enabled", Type: field.TypeBool, Nullable: true, Comment: "是否启用", Default: true},
 		{Name: "sort_order", Type: field.TypeUint32, Nullable: true, Comment: "排序值（越小越靠前）", Default: 0},
 		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
-		{Name: "override_spec", Type: field.TypeJSON, Nullable: true, Comment: "稀疏覆写（白名单字段，protojson 编码）/ Sparse override (protojson)"},
+		{Name: "spec", Type: field.TypeJSON, Nullable: true, Comment: "完整 FeatureSpec（按 feature_type 解读，protojson）/ Full feature spec (protojson)"},
 		{Name: "display_name", Type: field.TypeString, Nullable: true, Size: 128, Comment: "分类内展示别名 / Display alias within category"},
+		{Name: "data_type", Type: field.TypeEnum, Nullable: true, Comment: "property 数据类型（从 spec 派生）/ Property data type", Enums: []string{"INT", "FLOAT", "DOUBLE", "BOOL", "ENUM", "TEXT", "DATE", "STRUCT", "ARRAY"}},
+		{Name: "access_mode", Type: field.TypeEnum, Nullable: true, Comment: "property 访问模式 R/RW / Property access mode", Enums: []string{"R", "RW"}},
+		{Name: "event_level", Type: field.TypeEnum, Nullable: true, Comment: "event 级别 / Event level", Enums: []string{"INFO", "ALERT", "ERROR"}},
+		{Name: "call_mode", Type: field.TypeEnum, Nullable: true, Comment: "service 调用模式 / Service call mode", Enums: []string{"ASYNC", "SYNC"}},
+		{Name: "relation_type", Type: field.TypeString, Nullable: true, Comment: "relation 关系类型 / Relation type"},
 		{Name: "category_id", Type: field.TypeUint32, Comment: "分类 ID（必须 level=4）/ Category id, must be level=4"},
-		{Name: "feature_id", Type: field.TypeUint32, Comment: "全局特征 ID / Global feature id"},
+		{Name: "feature_id", Type: field.TypeUint32, Comment: "全局特征 ID（骨架来源）/ Global feature id (skeleton source)"},
 	}
 	// ThingmodelCategoryDefaultFeaturesTable holds the schema information for the "thingmodel_category_default_features" table.
 	ThingmodelCategoryDefaultFeaturesTable = &schema.Table{
 		Name:       "thingmodel_category_default_features",
-		Comment:    "分类默认模型条目 / Category default model entry",
+		Comment:    "分类默认模型条目（CR-001：承载完整 spec）/ Category default model entry (full spec)",
 		Columns:    ThingmodelCategoryDefaultFeaturesColumns,
 		PrimaryKey: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "thingmodel_category_default_features_thingmodel_categories_default_features",
-				Columns:    []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[12]},
+				Columns:    []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[17]},
 				RefColumns: []*schema.Column{ThingmodelCategoriesColumns[0]},
 				OnDelete:   schema.Restrict,
 			},
 			{
 				Symbol:     "thingmodel_category_default_features_thingmodel_features_category_default_entries",
-				Columns:    []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[13]},
+				Columns:    []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[18]},
 				RefColumns: []*schema.Column{ThingmodelFeaturesColumns[0]},
 				OnDelete:   schema.Restrict,
 			},
@@ -276,17 +281,32 @@ var (
 			{
 				Name:    "uix_tm_cat_default_features_tenant_cat_feat",
 				Unique:  true,
-				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[9], ThingmodelCategoryDefaultFeaturesColumns[12], ThingmodelCategoryDefaultFeaturesColumns[13]},
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[9], ThingmodelCategoryDefaultFeaturesColumns[17], ThingmodelCategoryDefaultFeaturesColumns[18]},
 			},
 			{
 				Name:    "idx_tm_cat_default_features_tenant_cat_sort",
 				Unique:  false,
-				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[9], ThingmodelCategoryDefaultFeaturesColumns[12], ThingmodelCategoryDefaultFeaturesColumns[8]},
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[9], ThingmodelCategoryDefaultFeaturesColumns[17], ThingmodelCategoryDefaultFeaturesColumns[8]},
 			},
 			{
 				Name:    "idx_tm_cat_default_features_feature",
 				Unique:  false,
-				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[13]},
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[18]},
+			},
+			{
+				Name:    "idx_tm_cat_default_features_data_type",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[12]},
+			},
+			{
+				Name:    "idx_tm_cat_default_features_event_level",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[14]},
+			},
+			{
+				Name:    "idx_tm_cat_default_features_call_mode",
+				Unique:  false,
+				Columns: []*schema.Column{ThingmodelCategoryDefaultFeaturesColumns[15]},
 			},
 			{
 				Name:    "idx_tm_cat_default_features_enabled",
@@ -578,17 +598,13 @@ var (
 		{Name: "name_en", Type: field.TypeString, Nullable: true, Comment: "英文名 / Name (en)"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "说明 / Description"},
 		{Name: "applicable_scope", Type: field.TypeString, Nullable: true, Comment: "适用设备范围，如 冷机/锅炉 / Applicable device scope"},
-		{Name: "data_type", Type: field.TypeEnum, Nullable: true, Comment: "property 数据类型 / Property data type", Enums: []string{"INT", "FLOAT", "DOUBLE", "BOOL", "ENUM", "TEXT", "DATE", "STRUCT", "ARRAY"}},
-		{Name: "access_mode", Type: field.TypeEnum, Nullable: true, Comment: "property 访问模式 R/RW / Property access mode", Enums: []string{"R", "RW"}},
-		{Name: "event_level", Type: field.TypeEnum, Nullable: true, Comment: "event 级别 INFO/ALERT/ERROR / Event level", Enums: []string{"INFO", "ALERT", "ERROR"}},
-		{Name: "call_mode", Type: field.TypeEnum, Nullable: true, Comment: "service 调用模式 ASYNC/SYNC / Service call mode", Enums: []string{"ASYNC", "SYNC"}},
-		{Name: "relation_type", Type: field.TypeString, Nullable: true, Comment: "relation 关系类型，如 derivedFrom/partOf / Relation type"},
-		{Name: "spec", Type: field.TypeJSON, Nullable: true, Comment: "特征结构化约束（按 feature_type 解读，protojson 编码）/ Structured spec by feature_type (protojson)"},
+		{Name: "recommended_unit_category_id", Type: field.TypeUint32, Nullable: true, Comment: "推荐单位物理量分类 ID（不指定具体单位，仅 UI 预过滤）/ Recommended unit category"},
+		{Name: "semantic_tag", Type: field.TypeString, Nullable: true, Comment: "语义标签，如 pressure/temperature/runMode / Semantic tag"},
 	}
 	// ThingmodelFeaturesTable holds the schema information for the "thingmodel_features" table.
 	ThingmodelFeaturesTable = &schema.Table{
 		Name:       "thingmodel_features",
-		Comment:    "物模型-特征表（属性/事件/服务/关系统一）/ Thing model feature",
+		Comment:    "物模型-特征骨架表（CR-001 后不再承载 spec）/ Thing model feature skeleton",
 		Columns:    ThingmodelFeaturesColumns,
 		PrimaryKey: []*schema.Column{ThingmodelFeaturesColumns[0]},
 		Indexes: []*schema.Index{
@@ -613,19 +629,9 @@ var (
 				Columns: []*schema.Column{ThingmodelFeaturesColumns[10]},
 			},
 			{
-				Name:    "idx_thingmodel_feature_type_datatype",
+				Name:    "idx_thingmodel_feature_semantic_tag",
 				Unique:  false,
-				Columns: []*schema.Column{ThingmodelFeaturesColumns[10], ThingmodelFeaturesColumns[17]},
-			},
-			{
-				Name:    "idx_thingmodel_feature_type_level",
-				Unique:  false,
-				Columns: []*schema.Column{ThingmodelFeaturesColumns[10], ThingmodelFeaturesColumns[19]},
-			},
-			{
-				Name:    "idx_thingmodel_feature_type_callmode",
-				Unique:  false,
-				Columns: []*schema.Column{ThingmodelFeaturesColumns[10], ThingmodelFeaturesColumns[20]},
+				Columns: []*schema.Column{ThingmodelFeaturesColumns[18]},
 			},
 			{
 				Name:    "idx_thingmodel_feature_scope",
@@ -2369,8 +2375,7 @@ var (
 		{Name: "name", Type: field.TypeString, Nullable: true, Size: 128, Comment: "名称 / Name (zh)"},
 		{Name: "name_en", Type: field.TypeString, Nullable: true, Size: 128, Comment: "英文名 / Name (en)"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "描述 / Description"},
-		{Name: "feature_snapshot", Type: field.TypeJSON, Comment: "完整 FeatureSpec 快照（protojson 编码 oneof）/ Full feature spec snapshot"},
-		{Name: "override_spec", Type: field.TypeJSON, Nullable: true, Comment: "稀疏覆写（白名单字段，protojson 编码）/ Sparse override"},
+		{Name: "spec", Type: field.TypeJSON, Nullable: true, Comment: "完整 FeatureSpec（CR-001 合并 snapshot+override+effective，protojson）/ Full feature spec"},
 		{Name: "data_type", Type: field.TypeEnum, Nullable: true, Comment: "property 数据类型（冗余）/ Property data type", Enums: []string{"INT", "FLOAT", "DOUBLE", "BOOL", "ENUM", "TEXT", "DATE", "STRUCT", "ARRAY"}},
 		{Name: "access_mode", Type: field.TypeEnum, Nullable: true, Comment: "property 访问模式 R/RW / Access mode", Enums: []string{"R", "RW"}},
 		{Name: "event_level", Type: field.TypeEnum, Nullable: true, Comment: "event 级别 INFO/ALERT/ERROR / Event level", Enums: []string{"INFO", "ALERT", "ERROR"}},
@@ -2387,7 +2392,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "thingmodel_product_features_thingmodel_products_features",
-				Columns:    []*schema.Column{ThingmodelProductFeaturesColumns[25]},
+				Columns:    []*schema.Column{ThingmodelProductFeaturesColumns[24]},
 				RefColumns: []*schema.Column{ThingmodelProductsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -2396,17 +2401,17 @@ var (
 			{
 				Name:    "uix_tm_pf_product_code",
 				Unique:  true,
-				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[25], ThingmodelProductFeaturesColumns[13]},
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[24], ThingmodelProductFeaturesColumns[13]},
 			},
 			{
 				Name:    "uix_tm_pf_product_identifier",
 				Unique:  true,
-				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[25], ThingmodelProductFeaturesColumns[14]},
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[24], ThingmodelProductFeaturesColumns[14]},
 			},
 			{
 				Name:    "idx_tm_pf_product_type_sort",
 				Unique:  false,
-				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[25], ThingmodelProductFeaturesColumns[12], ThingmodelProductFeaturesColumns[8]},
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[24], ThingmodelProductFeaturesColumns[12], ThingmodelProductFeaturesColumns[8]},
 			},
 			{
 				Name:    "idx_tm_pf_ref_feature",
@@ -2421,12 +2426,12 @@ var (
 			{
 				Name:    "idx_tm_pf_tenant_product",
 				Unique:  false,
-				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[9], ThingmodelProductFeaturesColumns[25]},
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[9], ThingmodelProductFeaturesColumns[24]},
 			},
 			{
 				Name:    "idx_tm_pf_type_datatype",
 				Unique:  false,
-				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[12], ThingmodelProductFeaturesColumns[20]},
+				Columns: []*schema.Column{ThingmodelProductFeaturesColumns[12], ThingmodelProductFeaturesColumns[19]},
 			},
 			{
 				Name:    "idx_tm_pf_enabled",

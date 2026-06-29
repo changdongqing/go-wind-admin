@@ -29,7 +29,6 @@ const OperationFeatureServiceImportFeatures = "/admin.service.v1.FeatureService/
 const OperationFeatureServiceList = "/admin.service.v1.FeatureService/List"
 const OperationFeatureServiceListByType = "/admin.service.v1.FeatureService/ListByType"
 const OperationFeatureServiceUpdate = "/admin.service.v1.FeatureService/Update"
-const OperationFeatureServiceValidateSpec = "/admin.service.v1.FeatureService/ValidateSpec"
 
 type FeatureServiceHTTPServer interface {
 	// Create 创建特征 / Create feature
@@ -38,7 +37,7 @@ type FeatureServiceHTTPServer interface {
 	Delete(context.Context, *v11.DeleteFeatureRequest) (*emptypb.Empty, error)
 	// Get 查询特征详情 / Get feature
 	Get(context.Context, *v11.GetFeatureRequest) (*v11.Feature, error)
-	// ImportFeatures 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	// ImportFeatures 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
 	ImportFeatures(context.Context, *v11.ImportFeaturesRequest) (*v11.ImportFeaturesResponse, error)
 	// List 分页查询特征列表 / List features
 	List(context.Context, *v1.PagingRequest) (*v11.ListFeatureResponse, error)
@@ -46,8 +45,6 @@ type FeatureServiceHTTPServer interface {
 	ListByType(context.Context, *v11.ListFeatureByTypeRequest) (*v11.ListFeatureResponse, error)
 	// Update 更新特征 / Update feature
 	Update(context.Context, *v11.UpdateFeatureRequest) (*emptypb.Empty, error)
-	// ValidateSpec 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
-	ValidateSpec(context.Context, *v11.ValidateFeatureSpecRequest) (*v11.ValidateFeatureSpecResponse, error)
 }
 
 func RegisterFeatureServiceHTTPServer(s *http.Server, srv FeatureServiceHTTPServer) {
@@ -60,7 +57,6 @@ func RegisterFeatureServiceHTTPServer(s *http.Server, srv FeatureServiceHTTPServ
 	r.PUT("/admin/v1/thingmodel/features/{id}", _FeatureService_Update5_HTTP_Handler(srv))
 	r.DELETE("/admin/v1/thingmodel/features", _FeatureService_Delete5_HTTP_Handler(srv))
 	r.GET("/admin/v1/thingmodel/features/types/{feature_type}", _FeatureService_ListByType0_HTTP_Handler(srv))
-	r.POST("/admin/v1/thingmodel/features:validateSpec", _FeatureService_ValidateSpec0_HTTP_Handler(srv))
 	r.POST("/admin/v1/thingmodel/features:import", _FeatureService_ImportFeatures0_HTTP_Handler(srv))
 }
 
@@ -237,28 +233,6 @@ func _FeatureService_ListByType0_HTTP_Handler(srv FeatureServiceHTTPServer) func
 	}
 }
 
-func _FeatureService_ValidateSpec0_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in v11.ValidateFeatureSpecRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationFeatureServiceValidateSpec)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ValidateSpec(ctx, req.(*v11.ValidateFeatureSpecRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*v11.ValidateFeatureSpecResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _FeatureService_ImportFeatures0_HTTP_Handler(srv FeatureServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v11.ImportFeaturesRequest
@@ -288,7 +262,7 @@ type FeatureServiceHTTPClient interface {
 	Delete(ctx context.Context, req *v11.DeleteFeatureRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// Get 查询特征详情 / Get feature
 	Get(ctx context.Context, req *v11.GetFeatureRequest, opts ...http.CallOption) (rsp *v11.Feature, err error)
-	// ImportFeatures 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	// ImportFeatures 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
 	ImportFeatures(ctx context.Context, req *v11.ImportFeaturesRequest, opts ...http.CallOption) (rsp *v11.ImportFeaturesResponse, err error)
 	// List 分页查询特征列表 / List features
 	List(ctx context.Context, req *v1.PagingRequest, opts ...http.CallOption) (rsp *v11.ListFeatureResponse, err error)
@@ -296,8 +270,6 @@ type FeatureServiceHTTPClient interface {
 	ListByType(ctx context.Context, req *v11.ListFeatureByTypeRequest, opts ...http.CallOption) (rsp *v11.ListFeatureResponse, err error)
 	// Update 更新特征 / Update feature
 	Update(ctx context.Context, req *v11.UpdateFeatureRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// ValidateSpec 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
-	ValidateSpec(ctx context.Context, req *v11.ValidateFeatureSpecRequest, opts ...http.CallOption) (rsp *v11.ValidateFeatureSpecResponse, err error)
 }
 
 type FeatureServiceHTTPClientImpl struct {
@@ -350,7 +322,7 @@ func (c *FeatureServiceHTTPClientImpl) Get(ctx context.Context, in *v11.GetFeatu
 	return &out, nil
 }
 
-// ImportFeatures 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+// ImportFeatures 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
 func (c *FeatureServiceHTTPClientImpl) ImportFeatures(ctx context.Context, in *v11.ImportFeaturesRequest, opts ...http.CallOption) (*v11.ImportFeaturesResponse, error) {
 	var out v11.ImportFeaturesResponse
 	pattern := "/admin/v1/thingmodel/features:import"
@@ -400,20 +372,6 @@ func (c *FeatureServiceHTTPClientImpl) Update(ctx context.Context, in *v11.Updat
 	opts = append(opts, http.Operation(OperationFeatureServiceUpdate))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// ValidateSpec 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
-func (c *FeatureServiceHTTPClientImpl) ValidateSpec(ctx context.Context, in *v11.ValidateFeatureSpecRequest, opts ...http.CallOption) (*v11.ValidateFeatureSpecResponse, error) {
-	var out v11.ValidateFeatureSpecResponse
-	pattern := "/admin/v1/thingmodel/features:validateSpec"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationFeatureServiceValidateSpec))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

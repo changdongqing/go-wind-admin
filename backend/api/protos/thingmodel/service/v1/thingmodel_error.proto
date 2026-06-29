@@ -8,6 +8,10 @@ import "errors/errors.proto";
 enum ThingModelErrorReason {
     option (errors.default_code) = 500;
 
+    // CR-001：废弃的错误码 / Deprecated reasons
+    reserved 42013, 42215;
+    reserved "CAT_DEFAULT_FEATURE_OVERRIDE_INVALID", "PF_OVERRIDE_INVALID";
+
     // 400
     BAD_REQUEST = 0 [(errors.code) = 400]; // 错误请求 / Bad request
 
@@ -186,10 +190,10 @@ enum ThingModelErrorReason {
     CATEGORY_IMMUTABLE_FIELD        = 41050 [(errors.code) = 400]; // 试图修改不可变字段（kind/code/parent_id/level）/ Attempt to modify immutable field
 
     // ===== 模型管理 - 分类默认模型 / Category default feature =====
+    // CR-001：CAT_DEFAULT_FEATURE_OVERRIDE_INVALID(42013) 已废弃，由 FEATURE_SPEC_INVALID 等通用 spec 校验错误码替代
     CAT_DEFAULT_FEATURE_NOT_FOUND          = 42010 [(errors.code) = 404]; // 分类默认模型条目不存在 / Not found
     CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF  = 42011 [(errors.code) = 400]; // 仅 level=4 细类可挂默认模型 / Category must be level=4
     CAT_DEFAULT_FEATURE_DUPLICATE          = 42012 [(errors.code) = 409]; // (category, feature) 已存在 / Duplicate (category, feature)
-    CAT_DEFAULT_FEATURE_OVERRIDE_INVALID   = 42013 [(errors.code) = 400]; // override_spec 非法 / Invalid override spec
     CAT_DEFAULT_FEATURE_FEATURE_DISABLED   = 42014 [(errors.code) = 400]; // 引用的全局特征已停用 / Referenced feature disabled
 
     // ===== 模型管理 - 产品 / Product =====
@@ -203,12 +207,12 @@ enum ThingModelErrorReason {
     PRODUCT_IMMUTABLE_FIELD          = 42140 [(errors.code) = 400]; // 试图修改不可变字段（code/category_id）/ Immutable field
 
     // ===== 模型管理 - 产品特征 / Product feature =====
+    // CR-001：PF_OVERRIDE_INVALID(42215) 已废弃，由 FEATURE_SPEC_INVALID 等通用 spec 校验错误码替代
     PRODUCT_FEATURE_NOT_FOUND        = 42210 [(errors.code) = 404]; // 产品特征条目不存在 / Not found
     PF_SOURCE_REF_MISMATCH           = 42211 [(errors.code) = 400]; // source 与 ref_feature_id 配合非法 / source/ref mismatch
     PF_DUPLICATE_CODE                = 42212 [(errors.code) = 409]; // (product, code) 冲突 / Code duplicated within product
     PF_DUPLICATE_IDENTIFIER          = 42213 [(errors.code) = 409]; // (product, identifier) 冲突 / Identifier duplicated
-    PF_SPEC_TYPE_MISMATCH            = 42214 [(errors.code) = 400]; // feature_snapshot 与 feature_type 不一致 / Spec/type mismatch
-    PF_OVERRIDE_INVALID              = 42215 [(errors.code) = 400]; // override_spec 非法 / Invalid override spec
+    PF_SPEC_TYPE_MISMATCH            = 42214 [(errors.code) = 400]; // spec 与 feature_type 不一致 / Spec/type mismatch
     PF_PRODUCT_PUBLISHED             = 42216 [(errors.code) = 400]; // 产品已发布，结构禁止变更 / Product published, structure frozen
     PF_FEATURE_DISABLED              = 42217 [(errors.code) = 400]; // 引用的全局特征已停用 / Referenced feature disabled
     PF_DEFAULT_VIA_PULL_ONLY         = 42218 [(errors.code) = 400]; // source=DEFAULT 必须通过 PullFromDefault 创建 / DEFAULT must use PullFromDefault

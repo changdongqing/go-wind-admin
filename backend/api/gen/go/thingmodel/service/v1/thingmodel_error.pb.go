@@ -155,10 +155,10 @@ const (
 	ThingModelErrorReason_CATEGORY_CODE_DUPLICATED       ThingModelErrorReason = 41040 // 同 (tenant, kind) 下编码重复 / Code duplicated in (tenant, kind)
 	ThingModelErrorReason_CATEGORY_IMMUTABLE_FIELD       ThingModelErrorReason = 41050 // 试图修改不可变字段（kind/code/parent_id/level）/ Attempt to modify immutable field
 	// ===== 模型管理 - 分类默认模型 / Category default feature =====
+	// CR-001：CAT_DEFAULT_FEATURE_OVERRIDE_INVALID(42013) 已废弃，由 FEATURE_SPEC_INVALID 等通用 spec 校验错误码替代
 	ThingModelErrorReason_CAT_DEFAULT_FEATURE_NOT_FOUND         ThingModelErrorReason = 42010 // 分类默认模型条目不存在 / Not found
 	ThingModelErrorReason_CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF ThingModelErrorReason = 42011 // 仅 level=4 细类可挂默认模型 / Category must be level=4
 	ThingModelErrorReason_CAT_DEFAULT_FEATURE_DUPLICATE         ThingModelErrorReason = 42012 // (category, feature) 已存在 / Duplicate (category, feature)
-	ThingModelErrorReason_CAT_DEFAULT_FEATURE_OVERRIDE_INVALID  ThingModelErrorReason = 42013 // override_spec 非法 / Invalid override spec
 	ThingModelErrorReason_CAT_DEFAULT_FEATURE_FEATURE_DISABLED  ThingModelErrorReason = 42014 // 引用的全局特征已停用 / Referenced feature disabled
 	// ===== 模型管理 - 产品 / Product =====
 	ThingModelErrorReason_PRODUCT_NOT_FOUND            ThingModelErrorReason = 42110 // 产品不存在 / Product not found
@@ -170,12 +170,12 @@ const (
 	ThingModelErrorReason_PRODUCT_STATUS_NOT_PUBLISHED ThingModelErrorReason = 42131 // 当前状态非 PUBLISHED / Status not PUBLISHED
 	ThingModelErrorReason_PRODUCT_IMMUTABLE_FIELD      ThingModelErrorReason = 42140 // 试图修改不可变字段（code/category_id）/ Immutable field
 	// ===== 模型管理 - 产品特征 / Product feature =====
+	// CR-001：PF_OVERRIDE_INVALID(42215) 已废弃，由 FEATURE_SPEC_INVALID 等通用 spec 校验错误码替代
 	ThingModelErrorReason_PRODUCT_FEATURE_NOT_FOUND ThingModelErrorReason = 42210 // 产品特征条目不存在 / Not found
 	ThingModelErrorReason_PF_SOURCE_REF_MISMATCH    ThingModelErrorReason = 42211 // source 与 ref_feature_id 配合非法 / source/ref mismatch
 	ThingModelErrorReason_PF_DUPLICATE_CODE         ThingModelErrorReason = 42212 // (product, code) 冲突 / Code duplicated within product
 	ThingModelErrorReason_PF_DUPLICATE_IDENTIFIER   ThingModelErrorReason = 42213 // (product, identifier) 冲突 / Identifier duplicated
-	ThingModelErrorReason_PF_SPEC_TYPE_MISMATCH     ThingModelErrorReason = 42214 // feature_snapshot 与 feature_type 不一致 / Spec/type mismatch
-	ThingModelErrorReason_PF_OVERRIDE_INVALID       ThingModelErrorReason = 42215 // override_spec 非法 / Invalid override spec
+	ThingModelErrorReason_PF_SPEC_TYPE_MISMATCH     ThingModelErrorReason = 42214 // spec 与 feature_type 不一致 / Spec/type mismatch
 	ThingModelErrorReason_PF_PRODUCT_PUBLISHED      ThingModelErrorReason = 42216 // 产品已发布，结构禁止变更 / Product published, structure frozen
 	ThingModelErrorReason_PF_FEATURE_DISABLED       ThingModelErrorReason = 42217 // 引用的全局特征已停用 / Referenced feature disabled
 	ThingModelErrorReason_PF_DEFAULT_VIA_PULL_ONLY  ThingModelErrorReason = 42218 // source=DEFAULT 必须通过 PullFromDefault 创建 / DEFAULT must use PullFromDefault
@@ -270,7 +270,6 @@ var (
 		42010: "CAT_DEFAULT_FEATURE_NOT_FOUND",
 		42011: "CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF",
 		42012: "CAT_DEFAULT_FEATURE_DUPLICATE",
-		42013: "CAT_DEFAULT_FEATURE_OVERRIDE_INVALID",
 		42014: "CAT_DEFAULT_FEATURE_FEATURE_DISABLED",
 		42110: "PRODUCT_NOT_FOUND",
 		42111: "PRODUCT_CATEGORY_NOT_LEAF",
@@ -285,7 +284,6 @@ var (
 		42212: "PF_DUPLICATE_CODE",
 		42213: "PF_DUPLICATE_IDENTIFIER",
 		42214: "PF_SPEC_TYPE_MISMATCH",
-		42215: "PF_OVERRIDE_INVALID",
 		42216: "PF_PRODUCT_PUBLISHED",
 		42217: "PF_FEATURE_DISABLED",
 		42218: "PF_DEFAULT_VIA_PULL_ONLY",
@@ -377,7 +375,6 @@ var (
 		"CAT_DEFAULT_FEATURE_NOT_FOUND":         42010,
 		"CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF": 42011,
 		"CAT_DEFAULT_FEATURE_DUPLICATE":         42012,
-		"CAT_DEFAULT_FEATURE_OVERRIDE_INVALID":  42013,
 		"CAT_DEFAULT_FEATURE_FEATURE_DISABLED":  42014,
 		"PRODUCT_NOT_FOUND":                     42110,
 		"PRODUCT_CATEGORY_NOT_LEAF":             42111,
@@ -392,7 +389,6 @@ var (
 		"PF_DUPLICATE_CODE":                     42212,
 		"PF_DUPLICATE_IDENTIFIER":               42213,
 		"PF_SPEC_TYPE_MISMATCH":                 42214,
-		"PF_OVERRIDE_INVALID":                   42215,
 		"PF_PRODUCT_PUBLISHED":                  42216,
 		"PF_FEATURE_DISABLED":                   42217,
 		"PF_DEFAULT_VIA_PULL_ONLY":              42218,
@@ -430,7 +426,7 @@ var File_thingmodel_service_v1_thingmodel_error_proto protoreflect.FileDescripto
 
 const file_thingmodel_service_v1_thingmodel_error_proto_rawDesc = "" +
 	"\n" +
-	",thingmodel/service/v1/thingmodel_error.proto\x12\x15thingmodel.service.v1\x1a\x13errors/errors.proto*\x81\x1d\n" +
+	",thingmodel/service/v1/thingmodel_error.proto\x12\x15thingmodel.service.v1\x1a\x13errors/errors.proto*\xfd\x1c\n" +
 	"\x15ThingModelErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x16\n" +
 	"\fUNAUTHORIZED\x10d\x1a\x04\xa8E\x91\x03\x12\x1b\n" +
@@ -518,7 +514,6 @@ const file_thingmodel_service_v1_thingmodel_error_proto_rawDesc = "" +
 	"\x1dCAT_DEFAULT_FEATURE_NOT_FOUND\x10\x9a\xc8\x02\x1a\x04\xa8E\x94\x03\x121\n" +
 	"%CAT_DEFAULT_FEATURE_CATEGORY_NOT_LEAF\x10\x9b\xc8\x02\x1a\x04\xa8E\x90\x03\x12)\n" +
 	"\x1dCAT_DEFAULT_FEATURE_DUPLICATE\x10\x9c\xc8\x02\x1a\x04\xa8E\x99\x03\x120\n" +
-	"$CAT_DEFAULT_FEATURE_OVERRIDE_INVALID\x10\x9d\xc8\x02\x1a\x04\xa8E\x90\x03\x120\n" +
 	"$CAT_DEFAULT_FEATURE_FEATURE_DISABLED\x10\x9e\xc8\x02\x1a\x04\xa8E\x90\x03\x12\x1d\n" +
 	"\x11PRODUCT_NOT_FOUND\x10\xfe\xc8\x02\x1a\x04\xa8E\x94\x03\x12%\n" +
 	"\x19PRODUCT_CATEGORY_NOT_LEAF\x10\xff\xc8\x02\x1a\x04\xa8E\x90\x03\x12#\n" +
@@ -532,11 +527,10 @@ const file_thingmodel_service_v1_thingmodel_error_proto_rawDesc = "" +
 	"\x16PF_SOURCE_REF_MISMATCH\x10\xe3\xc9\x02\x1a\x04\xa8E\x90\x03\x12\x1d\n" +
 	"\x11PF_DUPLICATE_CODE\x10\xe4\xc9\x02\x1a\x04\xa8E\x99\x03\x12#\n" +
 	"\x17PF_DUPLICATE_IDENTIFIER\x10\xe5\xc9\x02\x1a\x04\xa8E\x99\x03\x12!\n" +
-	"\x15PF_SPEC_TYPE_MISMATCH\x10\xe6\xc9\x02\x1a\x04\xa8E\x90\x03\x12\x1f\n" +
-	"\x13PF_OVERRIDE_INVALID\x10\xe7\xc9\x02\x1a\x04\xa8E\x90\x03\x12 \n" +
+	"\x15PF_SPEC_TYPE_MISMATCH\x10\xe6\xc9\x02\x1a\x04\xa8E\x90\x03\x12 \n" +
 	"\x14PF_PRODUCT_PUBLISHED\x10\xe8\xc9\x02\x1a\x04\xa8E\x90\x03\x12\x1f\n" +
 	"\x13PF_FEATURE_DISABLED\x10\xe9\xc9\x02\x1a\x04\xa8E\x90\x03\x12$\n" +
-	"\x18PF_DEFAULT_VIA_PULL_ONLY\x10\xea\xc9\x02\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x03B\xe4\x01\n" +
+	"\x18PF_DEFAULT_VIA_PULL_ONLY\x10\xea\xc9\x02\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x03\"\b\b\x9d\xc8\x02\x10\x9d\xc8\x02\"\b\b\xe7\xc9\x02\x10\xe7\xc9\x02*$CAT_DEFAULT_FEATURE_OVERRIDE_INVALID*\x13PF_OVERRIDE_INVALIDB\xe4\x01\n" +
 	"\x19com.thingmodel.service.v1B\x14ThingmodelErrorProtoP\x01Z;go-wind-admin/api/gen/go/thingmodel/service/v1;thingmodelpb\xa2\x02\x03TSX\xaa\x02\x15Thingmodel.Service.V1\xca\x02\x15Thingmodel\\Service\\V1\xe2\x02!Thingmodel\\Service\\V1\\GPBMetadata\xea\x02\x17Thingmodel::Service::V1b\x06proto3"
 
 var (

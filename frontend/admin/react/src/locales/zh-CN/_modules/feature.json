@@ -32,6 +32,16 @@
   "applicableScope": "适用设备范围",
   "applicableScopePlaceholder": "如 冷机/锅炉 或 通用",
 
+  "skeletonOnlyNotice": "CR-001 起，特征仅承载身份骨架；结构化约束（数据类型/范围/枚举项等）在分类默认模型与产品模型中按场景配置。",
+  "commonSection": "基本信息",
+  "recommendationSection": "推荐元信息（仅用于检索与提示）",
+  "governanceSection": "治理",
+  "semanticTag": "语义标签",
+  "semanticTagPlaceholder": "如 pressure / temperature / runMode（软性检索字段）",
+  "recommendedUnitCategoryId": "推荐单位分类 ID",
+  "recommendedUnitCategoryIdPlaceholder": "指向 thingmodel_unit_categories.id，模型层 spec 编辑时按此预过滤单位",
+  "isRatedLockedByCategory": "category=rated 时 isRated 必须为 true（后端 V9 约束自动联动）",
+
   "dataType": "数据类型",
   "dataTypePlaceholder": "请选择数据类型",
   "dataTypeMap": {

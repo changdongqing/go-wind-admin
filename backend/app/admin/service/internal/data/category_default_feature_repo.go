@@ -27,16 +27,25 @@ import (
 
 // CategoryDefaultFeatureRepo 分类默认模型条目仓库 / Category default feature repository
 //
-// 设计依据 / Design ref: docs/thingmodel/sheji/模型管理/04-后端实现设计.md §1
-// 镜像 feature_repo.go 实现风格，差异点：
-//   - override_spec 是 *thingmodelV1.FeatureOverrideSpec（轻量白名单覆写）作为 JSON 强类型目标
-//   - 提供 BatchCreate / ListByCategory / Reorder 三个领域辅助方法
-//   - reference_count 维护由 service 层负责（事务内 ±1 thing_features 与 thingmodel_units）
+// 设计依据 / Design ref:
+//   - docs/thingmodel/sheji/模型管理/04-后端实现设计.md §1
+//   - docs/thingmodel/sheji/修改记录/CR-001-结构化约束下沉到模型层.md
+//
+// CR-001（2026-06-29）后变更：
+//   - override_spec(FeatureOverrideSpec) → spec(FeatureSpec)：承载完整结构化约束；
+//   - 新增 5 个冗余特化列读写（data_type/access_mode/event_level/call_mode/relation_type）；
+//   - reference_count 维护仍由 service 层负责（事务内 ±1 thingmodel_units）。
 type CategoryDefaultFeatureRepo struct {
 	entClient *entCrud.EntClient[*ent.Client]
 	log       *log.Helper
 
 	mapper *mapper.CopierMapper[thingmodelV1.CategoryDefaultFeature, ent.CategoryDefaultFeature]
+
+	// 5 个冗余特化列的 enum 转换器
+	dataTypeConverter   *mapper.EnumTypeConverter[thingmodelV1.DataType, categorydefaultfeature.DataType]
+	accessModeConverter *mapper.EnumTypeConverter[thingmodelV1.AccessMode, categorydefaultfeature.AccessMode]
+	eventLevelConverter *mapper.EnumTypeConverter[thingmodelV1.EventLevel, categorydefaultfeature.EventLevel]
+	callModeConverter   *mapper.EnumTypeConverter[thingmodelV1.CallMode, categorydefaultfeature.CallMode]
 
 	repository *entCrud.Repository[
 		ent.CategoryDefaultFeatureQuery, ent.CategoryDefaultFeatureSelect,
@@ -57,6 +66,19 @@ func NewCategoryDefaultFeatureRepo(
 		log:       ctx.NewLoggerHelper("category-default-feature/repo/admin-service"),
 		entClient: entClient,
 		mapper:    mapper.NewCopierMapper[thingmodelV1.CategoryDefaultFeature, ent.CategoryDefaultFeature](),
+
+		dataTypeConverter: mapper.NewEnumTypeConverter[
+			thingmodelV1.DataType, categorydefaultfeature.DataType,
+		](thingmodelV1.DataType_name, thingmodelV1.DataType_value),
+		accessModeConverter: mapper.NewEnumTypeConverter[
+			thingmodelV1.AccessMode, categorydefaultfeature.AccessMode,
+		](thingmodelV1.AccessMode_name, thingmodelV1.AccessMode_value),
+		eventLevelConverter: mapper.NewEnumTypeConverter[
+			thingmodelV1.EventLevel, categorydefaultfeature.EventLevel,
+		](thingmodelV1.EventLevel_name, thingmodelV1.EventLevel_value),
+		callModeConverter: mapper.NewEnumTypeConverter[
+			thingmodelV1.CallMode, categorydefaultfeature.CallMode,
+		](thingmodelV1.CallMode_name, thingmodelV1.CallMode_value),
 	}
 	repo.init()
 	return repo
@@ -75,31 +97,36 @@ func (r *CategoryDefaultFeatureRepo) init() {
 	r.mapper.AppendConverters(copierutil.NewTimeStringConverterPair())
 	r.mapper.AppendConverters(copierutil.NewTimeTimestamppbConverterPair())
 
-	// override_spec 双向 protojson 转换器，确保 mapper 在 List/Get 时把
-	// *schema.FeatureOverrideSpecField 正确还原为 *thingmodelV1.FeatureOverrideSpec
-	// （否则两端类型不同会跳过该字段，DTO.OverrideSpec 永远为 nil）
-	r.mapper.AppendConverters(featureOverrideSpecConverterPair())
+	// CR-001：spec 字段 protojson 双向转换器
+	r.mapper.AppendConverters(cdfSpecConverterPair())
+
+	// 5 个冗余特化列的枚举转换器
+	r.mapper.AppendConverters(r.dataTypeConverter.NewConverterPair())
+	r.mapper.AppendConverters(r.accessModeConverter.NewConverterPair())
+	r.mapper.AppendConverters(r.eventLevelConverter.NewConverterPair())
+	r.mapper.AppendConverters(r.callModeConverter.NewConverterPair())
 }
 
-// featureOverrideSpecConverterPair 返回 override_spec 字段的双向类型转换对
-func featureOverrideSpecConverterPair() []copier.TypeConverter {
+// cdfSpecConverterPair 返回 CDF.spec 字段的双向类型转换对：
+// entity *schema.FeatureSpecField ↔ dto *thingmodelV1.FeatureSpec
+func cdfSpecConverterPair() []copier.TypeConverter {
 	return []copier.TypeConverter{
 		// entity → dto
 		{
-			SrcType: (*schema.FeatureOverrideSpecField)(nil),
-			DstType: (*thingmodelV1.FeatureOverrideSpec)(nil),
+			SrcType: (*schema.FeatureSpecField)(nil),
+			DstType: (*thingmodelV1.FeatureSpec)(nil),
 			Fn: func(src interface{}) (interface{}, error) {
-				f, _ := src.(*schema.FeatureOverrideSpecField)
-				return schema.UnwrapFeatureOverrideSpec(f), nil
+				f, _ := src.(*schema.FeatureSpecField)
+				return schema.UnwrapFeatureSpec(f), nil
 			},
 		},
 		// dto → entity
 		{
-			SrcType: (*thingmodelV1.FeatureOverrideSpec)(nil),
-			DstType: (*schema.FeatureOverrideSpecField)(nil),
+			SrcType: (*thingmodelV1.FeatureSpec)(nil),
+			DstType: (*schema.FeatureSpecField)(nil),
 			Fn: func(src interface{}) (interface{}, error) {
-				s, _ := src.(*thingmodelV1.FeatureOverrideSpec)
-				return schema.WrapFeatureOverrideSpec(s), nil
+				s, _ := src.(*thingmodelV1.FeatureSpec)
+				return schema.WrapFeatureSpec(s), nil
 			},
 		},
 	}
@@ -339,11 +366,34 @@ func (r *CategoryDefaultFeatureRepo) createTx(ctx context.Context, tx *ent.Tx, d
 		SetNillableDisplayName(data.DisplayName).
 		SetNillableSortOrder(data.SortOrder).
 		SetNillableIsEnabled(data.IsEnabled).
+		SetNillableRelationType(data.RelationType).
 		SetNillableCreatedBy(data.CreatedBy).
 		SetCreatedAt(now)
 
-	if data.OverrideSpec != nil {
-		builder.SetOverrideSpec(schema.WrapFeatureOverrideSpec(data.OverrideSpec))
+	// CR-001：完整 FeatureSpec
+	if data.Spec != nil {
+		builder.SetSpec(schema.WrapFeatureSpec(data.Spec))
+	}
+	// 冗余特化列（service 在写入前应已同步好，repo 不强制再次派生）
+	if data.DataType != nil {
+		if v, ok := protoToEntCDFDataType(data.GetDataType()); ok {
+			builder.SetDataType(v)
+		}
+	}
+	if data.AccessMode != nil {
+		if v, ok := protoToEntCDFAccessMode(data.GetAccessMode()); ok {
+			builder.SetAccessMode(v)
+		}
+	}
+	if data.EventLevel != nil {
+		if v, ok := protoToEntCDFEventLevel(data.GetEventLevel()); ok {
+			builder.SetEventLevel(v)
+		}
+	}
+	if data.CallMode != nil {
+		if v, ok := protoToEntCDFCallMode(data.GetCallMode()); ok {
+			builder.SetCallMode(v)
+		}
 	}
 
 	row, err := builder.Save(ctx)
@@ -409,29 +459,137 @@ func (r *CategoryDefaultFeatureRepo) Update(ctx context.Context, req *thingmodel
 	}()
 
 	builder := tx.CategoryDefaultFeature.UpdateOneID(req.GetId())
-	_, err = r.repository.UpdateOne(ctx, builder, req.Data, req.GetUpdateMask(),
-		func(dto *thingmodelV1.CategoryDefaultFeature) {
-			b := builder.
-				SetNillableDisplayName(req.Data.DisplayName).
-				SetNillableSortOrder(req.Data.SortOrder).
-				SetNillableIsEnabled(req.Data.IsEnabled).
-				SetNillableUpdatedBy(req.Data.UpdatedBy).
-				SetUpdatedAt(time.Now())
 
-			// override_spec：传入即覆盖；显式 nil 则清空
-			if req.Data.OverrideSpec != nil {
-				b.SetOverrideSpec(schema.WrapFeatureOverrideSpec(req.Data.OverrideSpec))
+	// CR-001 跟进：绕过 r.repository.UpdateOne 的 FilterByFieldMask 路径——
+	// 该工具会按 update_mask 清空 dto 上非 mask 字段，但对含 oneof 的 message 字段
+	// （FeatureSpec.spec oneof）处理存在反射边缘问题，可能把 dto.Spec 内部的 oneof
+	// 分支清零，导致写入失败。这里直接按 update_mask 显式 set 字段，更可控。
+	mask := req.GetUpdateMask().GetPaths()
+	maskSet := make(map[string]struct{}, len(mask))
+	for _, p := range mask {
+		// 接受 snake_case 与 lowerCamel 两种形态，规范化为 snake_case
+		maskSet[normalizeMaskPath(p)] = struct{}{}
+	}
+	in := func(name string) bool { _, ok := maskSet[name]; return ok }
+
+	if in("display_name") {
+		if req.Data.DisplayName != nil {
+			builder.SetDisplayName(req.Data.GetDisplayName())
+		} else {
+			builder.ClearDisplayName()
+		}
+	}
+	if in("sort_order") && req.Data.SortOrder != nil {
+		builder.SetSortOrder(req.Data.GetSortOrder())
+	}
+	if in("is_enabled") && req.Data.IsEnabled != nil {
+		builder.SetIsEnabled(req.Data.GetIsEnabled())
+	}
+	if in("relation_type") {
+		if req.Data.RelationType != nil {
+			builder.SetRelationType(req.Data.GetRelationType())
+		} else {
+			builder.ClearRelationType()
+		}
+	}
+	if in("updated_by") && req.Data.UpdatedBy != nil {
+		builder.SetUpdatedBy(req.Data.GetUpdatedBy())
+	}
+	if in("spec") {
+		if req.Data.Spec != nil {
+			r.log.Infof("[CDF.Update] id=%d SetSpec property=%v event=%v service=%v relation=%v",
+				req.GetId(),
+				req.Data.Spec.GetProperty() != nil,
+				req.Data.Spec.GetEvent() != nil,
+				req.Data.Spec.GetService() != nil,
+				req.Data.Spec.GetRelation() != nil)
+			builder.SetSpec(schema.WrapFeatureSpec(req.Data.Spec))
+		} else {
+			r.log.Warnf("[CDF.Update] id=%d mask contains spec but data.spec is nil → ClearSpec", req.GetId())
+			builder.ClearSpec()
+		}
+	} else {
+		r.log.Infof("[CDF.Update] id=%d mask does NOT contain 'spec' (mask=%v)", req.GetId(), mask)
+	}
+	// 冗余特化列（spec 改时一般 service 已同步 syncSpecializedColumnsCDF 写到 req.Data）
+	if in("data_type") {
+		if req.Data.DataType != nil {
+			if v, ok := protoToEntCDFDataType(req.Data.GetDataType()); ok {
+				builder.SetDataType(v)
+			} else {
+				builder.ClearDataType()
 			}
-		},
-		func(s *sql.Selector) {
-			s.Where(sql.EQ(categorydefaultfeature.FieldID, req.GetId()))
-		},
-	)
-	if err != nil {
+		} else {
+			builder.ClearDataType()
+		}
+	}
+	if in("access_mode") {
+		if req.Data.AccessMode != nil {
+			if v, ok := protoToEntCDFAccessMode(req.Data.GetAccessMode()); ok {
+				builder.SetAccessMode(v)
+			} else {
+				builder.ClearAccessMode()
+			}
+		} else {
+			builder.ClearAccessMode()
+		}
+	}
+	if in("event_level") {
+		if req.Data.EventLevel != nil {
+			if v, ok := protoToEntCDFEventLevel(req.Data.GetEventLevel()); ok {
+				builder.SetEventLevel(v)
+			} else {
+				builder.ClearEventLevel()
+			}
+		} else {
+			builder.ClearEventLevel()
+		}
+	}
+	if in("call_mode") {
+		if req.Data.CallMode != nil {
+			if v, ok := protoToEntCDFCallMode(req.Data.GetCallMode()); ok {
+				builder.SetCallMode(v)
+			} else {
+				builder.ClearCallMode()
+			}
+		} else {
+			builder.ClearCallMode()
+		}
+	}
+	// 当 spec 改了，强制同步派生的冗余列（service.Update 已在 req.Data 上同步过冗余列）
+	if in("spec") {
+		if req.Data.DataType != nil {
+			if v, ok := protoToEntCDFDataType(req.Data.GetDataType()); ok {
+				builder.SetDataType(v)
+			}
+		}
+		if req.Data.AccessMode != nil {
+			if v, ok := protoToEntCDFAccessMode(req.Data.GetAccessMode()); ok {
+				builder.SetAccessMode(v)
+			}
+		}
+		if req.Data.EventLevel != nil {
+			if v, ok := protoToEntCDFEventLevel(req.Data.GetEventLevel()); ok {
+				builder.SetEventLevel(v)
+			}
+		}
+		if req.Data.CallMode != nil {
+			if v, ok := protoToEntCDFCallMode(req.Data.GetCallMode()); ok {
+				builder.SetCallMode(v)
+			}
+		}
+		if req.Data.RelationType != nil {
+			builder.SetRelationType(req.Data.GetRelationType())
+		}
+	}
+
+	builder.SetUpdatedAt(time.Now())
+
+	if _, err = builder.Save(ctx); err != nil {
 		r.log.Errorf("update category_default_feature failed: %s", err.Error())
 		return thingmodelV1.ErrorInternalServerError("update category_default_feature failed")
 	}
-	return err
+	return nil
 }
 
 // Delete 删除单条（不维护 reference_count；由 service 在事务中维护）
@@ -544,4 +702,66 @@ func (r *CategoryDefaultFeatureRepo) ToDTO(e *ent.CategoryDefaultFeature) *thing
 		return nil
 	}
 	return r.mapper.ToDTO(e)
+}
+
+// ===== proto enum → ent enum 辅助（CR-001 后冗余列）/ Proto-to-ent enum helpers =====
+
+func protoToEntCDFDataType(t thingmodelV1.DataType) (categorydefaultfeature.DataType, bool) {
+	s := t.String()
+	if s == "DATA_TYPE_UNSPECIFIED" {
+		return "", false
+	}
+	return categorydefaultfeature.DataType(s), true
+}
+
+func protoToEntCDFAccessMode(t thingmodelV1.AccessMode) (categorydefaultfeature.AccessMode, bool) {
+	s := t.String()
+	if s == "ACCESS_MODE_UNSPECIFIED" {
+		return "", false
+	}
+	return categorydefaultfeature.AccessMode(s), true
+}
+
+func protoToEntCDFEventLevel(t thingmodelV1.EventLevel) (categorydefaultfeature.EventLevel, bool) {
+	s := t.String()
+	if s == "EVENT_LEVEL_UNSPECIFIED" {
+		return "", false
+	}
+	return categorydefaultfeature.EventLevel(s), true
+}
+
+func protoToEntCDFCallMode(t thingmodelV1.CallMode) (categorydefaultfeature.CallMode, bool) {
+	s := t.String()
+	if s == "CALL_MODE_UNSPECIFIED" {
+		return "", false
+	}
+	return categorydefaultfeature.CallMode(s), true
+}
+
+// normalizeMaskPath 把 FieldMask path 规范化为 snake_case（接受 lowerCamel 与 snake_case 两种形态）。
+func normalizeMaskPath(p string) string {
+	// 快速判断：含大写字母 → 走转换；否则视为 snake_case 直接返回。
+	hasUpper := false
+	for i := 0; i < len(p); i++ {
+		if p[i] >= 'A' && p[i] <= 'Z' {
+			hasUpper = true
+			break
+		}
+	}
+	if !hasUpper {
+		return p
+	}
+	out := make([]byte, 0, len(p)+4)
+	for i := 0; i < len(p); i++ {
+		c := p[i]
+		if c >= 'A' && c <= 'Z' {
+			if i > 0 {
+				out = append(out, '_')
+			}
+			out = append(out, c-'A'+'a')
+		} else {
+			out = append(out, c)
+		}
+	}
+	return string(out)
 }

@@ -57,10 +57,8 @@ type ProductFeature struct {
 	NameEn *string `json:"name_en,omitempty"`
 	// 描述 / Description
 	Description *string `json:"description,omitempty"`
-	// 完整 FeatureSpec 快照（protojson 编码 oneof）/ Full feature spec snapshot
-	FeatureSnapshot *schema.FeatureSpecField `json:"feature_snapshot,omitempty"`
-	// 稀疏覆写（白名单字段，protojson 编码）/ Sparse override
-	OverrideSpec *schema.FeatureOverrideSpecField `json:"override_spec,omitempty"`
+	// 完整 FeatureSpec（CR-001 合并 snapshot+override+effective，protojson）/ Full feature spec
+	Spec *schema.FeatureSpecField `json:"spec,omitempty"`
 	// property 数据类型（冗余）/ Property data type
 	DataType *productfeature.DataType `json:"data_type,omitempty"`
 	// property 访问模式 R/RW / Access mode
@@ -102,7 +100,7 @@ func (*ProductFeature) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case productfeature.FieldFeatureSnapshot, productfeature.FieldOverrideSpec:
+		case productfeature.FieldSpec:
 			values[i] = new([]byte)
 		case productfeature.FieldIsEnabled:
 			values[i] = new(sql.NullBool)
@@ -256,20 +254,12 @@ func (_m *ProductFeature) assignValues(columns []string, values []any) error {
 				_m.Description = new(string)
 				*_m.Description = value.String
 			}
-		case productfeature.FieldFeatureSnapshot:
+		case productfeature.FieldSpec:
 			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field feature_snapshot", values[i])
+				return fmt.Errorf("unexpected type %T for field spec", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.FeatureSnapshot); err != nil {
-					return fmt.Errorf("unmarshal field feature_snapshot: %w", err)
-				}
-			}
-		case productfeature.FieldOverrideSpec:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field override_spec", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.OverrideSpec); err != nil {
-					return fmt.Errorf("unmarshal field override_spec: %w", err)
+				if err := json.Unmarshal(*value, &_m.Spec); err != nil {
+					return fmt.Errorf("unmarshal field spec: %w", err)
 				}
 			}
 		case productfeature.FieldDataType:
@@ -432,11 +422,8 @@ func (_m *ProductFeature) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	builder.WriteString("feature_snapshot=")
-	builder.WriteString(fmt.Sprintf("%v", _m.FeatureSnapshot))
-	builder.WriteString(", ")
-	builder.WriteString("override_spec=")
-	builder.WriteString(fmt.Sprintf("%v", _m.OverrideSpec))
+	builder.WriteString("spec=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Spec))
 	builder.WriteString(", ")
 	if v := _m.DataType; v != nil {
 		builder.WriteString("data_type=")

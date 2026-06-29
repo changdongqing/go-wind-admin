@@ -1658,24 +1658,29 @@ export type thingmodelservicev1_ListCategoryDefaultFeatureResponse = {
 
 // 分类默认模型条目 / Category default feature entry
 export type thingmodelservicev1_CategoryDefaultFeature = {
+  accessMode?: thingmodelservicev1_AccessMode;
+  callMode?: thingmodelservicev1_CallMode;
   categoryId?: number;
   createdAt?: wellKnownTimestamp;
   createdBy?: number;
+  // ===== CR-001 新增：冗余特化抽取列（从 spec 派生，便于列表筛选）/ Specialized columns (derived from spec) =====
+  dataType?: thingmodelservicev1_DataType;
   deletedAt?: wellKnownTimestamp;
   deletedBy?: number;
   displayName?: string;
+  eventLevel?: thingmodelservicev1_EventLevel;
   // ===== 关联只读字段（List/Get 时由后端 join 填充）/ Joined read-only fields =====
   featureCode?: string;
   featureId?: number;
   featureIdentifier?: string;
   featureName?: string;
-  featureSnapshotPreview?: thingmodelservicev1_FeatureSpec;
   featureType?: thingmodelservicev1_FeatureType;
   id?: number;
   isEnabled?: boolean;
-  // ===== 自有字段 / Own fields =====
-  overrideSpec?: thingmodelservicev1_FeatureOverrideSpec;
+  relationType?: string;
   sortOrder?: number;
+  // ===== CR-001：完整 FeatureSpec（按 feature_type 解读）/ Full feature spec at category scope =====
+  spec?: thingmodelservicev1_FeatureSpec;
   tenantId?: number;
   updatedAt?: wellKnownTimestamp;
   updatedBy?: number;
@@ -1825,30 +1830,6 @@ export type thingmodelservicev1_EntityRef = {
   type?: string;
 };
 
-// 特征覆写规约（白名单字段）/ Feature override spec (whitelist fields only)
-// 用于：
-// thingmodel_category_default_features.override_spec —— 分类层覆写
-// thingmodel_product_features.override_spec        —— 产品层覆写
-// 设计目标：proto schema 即白名单——结构上只允许 6 个字段，
-// 杜绝试图通过 wire 传 dataType/accessMode/enumItems 等结构性字段进行覆写。
-// 详见 docs/thingmodel/sheji/模型管理/01-架构决策.md §4
-export type thingmodelservicev1_FeatureOverrideSpec = {
-  // 覆写数值约束（min/max/step），仅 property 有效
-  constraints?: thingmodelservicev1_ValueConstraints;
-  // 覆写默认值（字符串形式，由消费方按 dataType 解析）
-  defaultValue?: string;
-  // 覆写描述/备注
-  description?: string;
-  // 在分类/产品作用域内的展示别名（不修改原 feature.name）
-  displayName?: string;
-  // 覆写 required 标记（仅 service.inputParams 子项语义有效）
-  required?: wellKnownBoolValue;
-  // 覆写单位引用（含 unitId 时维护 reference_count），仅 property 有效
-  unit?: thingmodelservicev1_UnitRef;
-};
-
-type wellKnownBoolValue = null | boolean;
-
 // Get request
 export type thingmodelservicev1_GetCategoryDefaultFeatureRequest = {
   id: number | undefined;
@@ -1866,12 +1847,13 @@ export type thingmodelservicev1_BatchAddCategoryDefaultFeaturesRequest = {
   items: thingmodelservicev1_BatchAddCategoryDefaultFeaturesRequest_Item[] | undefined;
 };
 
-// 单项：要绑定的 feature + 可选 override + 可选 display_name + 可选 sort_order
+// 单项：要绑定的 feature + 可选 spec + 可选 display_name + 可选 sort_order
+// CR-001：原 override_spec 字段已升级为完整 spec（FeatureSpec），可为空，由用户后续编辑。
 export type thingmodelservicev1_BatchAddCategoryDefaultFeaturesRequest_Item = {
   displayName?: string;
   featureId: number | undefined;
-  overrideSpec?: thingmodelservicev1_FeatureOverrideSpec;
   sortOrder?: number;
+  spec?: thingmodelservicev1_FeatureSpec;
 };
 
 // BatchAdd response：返回创建成功的列表 + 因 (category,feature) 唯一冲突而跳过的特征编码
@@ -2679,11 +2661,7 @@ export interface FeatureService {
   ListByType(
     request: thingmodelservicev1_ListFeatureByTypeRequest,
   ): Promise<thingmodelservicev1_ListFeatureResponse>;
-  // 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
-  ValidateSpec(
-    request: thingmodelservicev1_ValidateFeatureSpecRequest,
-  ): Promise<thingmodelservicev1_ValidateFeatureSpecResponse>;
-  // 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+  // 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
   ImportFeatures(
     request: thingmodelservicev1_ImportFeaturesRequest,
   ): Promise<thingmodelservicev1_ImportFeaturesResponse>;
@@ -2904,14 +2882,6 @@ export function createFeatureServiceClient(
         method: 'ListByType',
       }) as Promise<thingmodelservicev1_ListFeatureResponse>;
     },
-    ValidateSpec(request) {
-      const path = `admin/v1/thingmodel/features:validateSpec`;
-      const body = JSON.stringify(request);
-      return transport.unary(path, 'POST', body, {
-        service: 'FeatureService',
-        method: 'ValidateSpec',
-      }) as Promise<thingmodelservicev1_ValidateFeatureSpecResponse>;
-    },
     ImportFeatures(request) {
       const path = `admin/v1/thingmodel/features:import`;
       const body = JSON.stringify(request);
@@ -2928,30 +2898,28 @@ export type thingmodelservicev1_ListFeatureResponse = {
   total: number | undefined;
 };
 
-// 特征 / Feature (统一承载 property/event/service/relation)
+// 特征骨架 / Feature skeleton (统一承载 property/event/service/relation 的身份与语义骨架)
+// 
+// CR-001：结构化约束 spec 已下沉到 CategoryDefaultFeature.spec / ProductFeature.spec。
+// 本 message 仅保留以下身份/检索字段。
 export type thingmodelservicev1_Feature = {
-  accessMode?: thingmodelservicev1_AccessMode;
   applicableScope?: string;
-  callMode?: thingmodelservicev1_CallMode;
   code?: string;
   createdAt?: wellKnownTimestamp;
   createdBy?: number;
-  // ===== 特化抽取列（高频筛选）/ Specialized columns =====
-  dataType?: thingmodelservicev1_DataType;
   deletedAt?: wellKnownTimestamp;
   deletedBy?: number;
   description?: string;
-  eventLevel?: thingmodelservicev1_EventLevel;
   featureType?: thingmodelservicev1_FeatureType;
   id?: number;
   identifier?: string;
   isEnabled?: boolean;
   name?: string;
   nameEn?: string;
-  relationType?: string;
+  // ===== CR-001 新增：推荐元信息（仅用于 UI 提示与检索，不参与约束计算）=====
+  recommendedUnitCategoryId?: number;
+  semanticTag?: string;
   sortOrder?: number;
-  // ===== 差异容器：spec（四类结构化约束，强类型 oneof）=====
-  spec?: thingmodelservicev1_FeatureSpec;
   tenantId?: number;
   tenantName?: string;
   updatedAt?: wellKnownTimestamp;
@@ -2991,26 +2959,14 @@ export type thingmodelservicev1_ListFeatureByTypeRequest = {
   onlyEnabled?: boolean;
 };
 
-// 校验 spec - 请求 / Validate spec request
-export type thingmodelservicev1_ValidateFeatureSpecRequest = {
-  featureType: thingmodelservicev1_FeatureType | undefined;
-  spec: thingmodelservicev1_FeatureSpec | undefined;
-};
-
-// 校验 spec - 回应 / Validate spec response
-export type thingmodelservicev1_ValidateFeatureSpecResponse = {
-  errors: string[] | undefined;
-  valid: boolean | undefined;
-};
-
 // 批量导入 - 请求 / Import request
 export type thingmodelservicev1_ImportFeaturesRequest = {
   rows: thingmodelservicev1_ImportFeatureRow[] | undefined;
   skipInvalid?: boolean;
 };
 
-// 导入单行（对应 Excel 一行；spec_json 是 spec map 的 JSON 字符串，与种子同构）
-// One import row; spec_json is the JSON of a spec map (same shape as seed data).
+// 导入单行（对应 Excel 一行；CR-001 后仅含骨架字段，不再含 spec_json）
+// One import row (CR-001: skeleton-only, no spec_json).
 export type thingmodelservicev1_ImportFeatureRow = {
   applicableScope: string | undefined;
   code: string | undefined;
@@ -3019,8 +2975,10 @@ export type thingmodelservicev1_ImportFeatureRow = {
   identifier: string | undefined;
   name: string | undefined;
   nameEn: string | undefined;
+  // CR-001 新增
+  recommendedUnitCategoryId: number | undefined;
+  semanticTag: string | undefined;
   sortOrder: number | undefined;
-  specJson: string | undefined;
 };
 
 // 批量导入 - 回应 / Import response
@@ -7241,6 +7199,7 @@ export type thingmodelservicev1_UnpublishProductRequest = {
 };
 
 // 产品特征服务（BFF 层 REST）/ Product feature admin service (BFF REST)
+// 
 // 入口②：产品详情页 Tab 化模型编辑器；含 PullFromDefault 核心批量操作
 // 详见 docs/thingmodel/sheji/模型管理/03-API与Proto设计.md §3.3
 export interface ProductFeatureService {
@@ -7248,7 +7207,7 @@ export interface ProductFeatureService {
   List(
     request: pagination_PagingRequest,
   ): Promise<thingmodelservicev1_ListProductFeatureResponse>;
-  // 详情（返回 effective_spec）/ Get
+  // 详情（CR-001 后：返回单一 spec）/ Get
   Get(
     request: thingmodelservicev1_GetProductFeatureRequest,
   ): Promise<thingmodelservicev1_ProductFeature>;
@@ -7495,29 +7454,25 @@ export type thingmodelservicev1_ProductFeature = {
   code?: string;
   createdAt?: wellKnownTimestamp;
   createdBy?: number;
-  // ===== 冗余特化列（与 thing_features 的对应列同义，便于筛选）=====
+  // ===== 冗余特化列（从 spec 派生，便于筛选）=====
   dataType?: thingmodelservicev1_DataType;
   deletedAt?: wellKnownTimestamp;
   deletedBy?: number;
   description?: string;
-  // 运行时有效 spec = snapshot deepmerged with override；后端在 Get 时填充，写入时忽略
-  effectiveSpec?: thingmodelservicev1_FeatureSpec;
   eventLevel?: thingmodelservicev1_EventLevel;
-  // 完整 FeatureSpec 快照（产品自洽核心）/ Full spec snapshot
-  featureSnapshot?: thingmodelservicev1_FeatureSpec;
   featureType?: thingmodelservicev1_FeatureType;
   id?: number;
   identifier?: string;
   isEnabled?: boolean;
   name?: string;
   nameEn?: string;
-  // 稀疏覆写 / Sparse override
-  overrideSpec?: thingmodelservicev1_FeatureOverrideSpec;
   productId?: number;
   refFeatureId?: number;
   relationType?: string;
   sortOrder?: number;
   source?: thingmodelservicev1_ProductFeatureSource;
+  // CR-001：单一 FeatureSpec（产品最终物模型）/ Single FeatureSpec (product final TSL)
+  spec?: thingmodelservicev1_FeatureSpec;
   tenantId?: number;
   updatedAt?: wellKnownTimestamp;
   updatedBy?: number;

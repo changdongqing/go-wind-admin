@@ -368,21 +368,15 @@ func (_u *ProductFeatureUpdate) ClearDescription() *ProductFeatureUpdate {
 	return _u
 }
 
-// SetFeatureSnapshot sets the "feature_snapshot" field.
-func (_u *ProductFeatureUpdate) SetFeatureSnapshot(v *schema.FeatureSpecField) *ProductFeatureUpdate {
-	_u.mutation.SetFeatureSnapshot(v)
+// SetSpec sets the "spec" field.
+func (_u *ProductFeatureUpdate) SetSpec(v *schema.FeatureSpecField) *ProductFeatureUpdate {
+	_u.mutation.SetSpec(v)
 	return _u
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (_u *ProductFeatureUpdate) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *ProductFeatureUpdate {
-	_u.mutation.SetOverrideSpec(v)
-	return _u
-}
-
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (_u *ProductFeatureUpdate) ClearOverrideSpec() *ProductFeatureUpdate {
-	_u.mutation.ClearOverrideSpec()
+// ClearSpec clears the value of the "spec" field.
+func (_u *ProductFeatureUpdate) ClearSpec() *ProductFeatureUpdate {
+	_u.mutation.ClearSpec()
 	return _u
 }
 
@@ -561,14 +555,9 @@ func (_u *ProductFeatureUpdate) check() error {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.name_en": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.FeatureSnapshot(); ok {
+	if v, ok := _u.mutation.Spec(); ok {
 		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "feature_snapshot", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.feature_snapshot": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.OverrideSpec(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "override_spec", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.override_spec": %w`, err)}
+			return &ValidationError{Name: "spec", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.spec": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.DataType(); ok {
@@ -720,14 +709,11 @@ func (_u *ProductFeatureUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(productfeature.FieldDescription, field.TypeString)
 	}
-	if value, ok := _u.mutation.FeatureSnapshot(); ok {
-		_spec.SetField(productfeature.FieldFeatureSnapshot, field.TypeJSON, value)
+	if value, ok := _u.mutation.Spec(); ok {
+		_spec.SetField(productfeature.FieldSpec, field.TypeJSON, value)
 	}
-	if value, ok := _u.mutation.OverrideSpec(); ok {
-		_spec.SetField(productfeature.FieldOverrideSpec, field.TypeJSON, value)
-	}
-	if _u.mutation.OverrideSpecCleared() {
-		_spec.ClearField(productfeature.FieldOverrideSpec, field.TypeJSON)
+	if _u.mutation.SpecCleared() {
+		_spec.ClearField(productfeature.FieldSpec, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.DataType(); ok {
 		_spec.SetField(productfeature.FieldDataType, field.TypeEnum, value)
@@ -1147,21 +1133,15 @@ func (_u *ProductFeatureUpdateOne) ClearDescription() *ProductFeatureUpdateOne {
 	return _u
 }
 
-// SetFeatureSnapshot sets the "feature_snapshot" field.
-func (_u *ProductFeatureUpdateOne) SetFeatureSnapshot(v *schema.FeatureSpecField) *ProductFeatureUpdateOne {
-	_u.mutation.SetFeatureSnapshot(v)
+// SetSpec sets the "spec" field.
+func (_u *ProductFeatureUpdateOne) SetSpec(v *schema.FeatureSpecField) *ProductFeatureUpdateOne {
+	_u.mutation.SetSpec(v)
 	return _u
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (_u *ProductFeatureUpdateOne) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *ProductFeatureUpdateOne {
-	_u.mutation.SetOverrideSpec(v)
-	return _u
-}
-
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (_u *ProductFeatureUpdateOne) ClearOverrideSpec() *ProductFeatureUpdateOne {
-	_u.mutation.ClearOverrideSpec()
+// ClearSpec clears the value of the "spec" field.
+func (_u *ProductFeatureUpdateOne) ClearSpec() *ProductFeatureUpdateOne {
+	_u.mutation.ClearSpec()
 	return _u
 }
 
@@ -1353,14 +1333,9 @@ func (_u *ProductFeatureUpdateOne) check() error {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.name_en": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.FeatureSnapshot(); ok {
+	if v, ok := _u.mutation.Spec(); ok {
 		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "feature_snapshot", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.feature_snapshot": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.OverrideSpec(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "override_spec", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.override_spec": %w`, err)}
+			return &ValidationError{Name: "spec", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.spec": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.DataType(); ok {
@@ -1529,14 +1504,11 @@ func (_u *ProductFeatureUpdateOne) sqlSave(ctx context.Context) (_node *ProductF
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(productfeature.FieldDescription, field.TypeString)
 	}
-	if value, ok := _u.mutation.FeatureSnapshot(); ok {
-		_spec.SetField(productfeature.FieldFeatureSnapshot, field.TypeJSON, value)
+	if value, ok := _u.mutation.Spec(); ok {
+		_spec.SetField(productfeature.FieldSpec, field.TypeJSON, value)
 	}
-	if value, ok := _u.mutation.OverrideSpec(); ok {
-		_spec.SetField(productfeature.FieldOverrideSpec, field.TypeJSON, value)
-	}
-	if _u.mutation.OverrideSpecCleared() {
-		_spec.ClearField(productfeature.FieldOverrideSpec, field.TypeJSON)
+	if _u.mutation.SpecCleared() {
+		_spec.ClearField(productfeature.FieldSpec, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.DataType(); ok {
 		_spec.SetField(productfeature.FieldDataType, field.TypeEnum, value)

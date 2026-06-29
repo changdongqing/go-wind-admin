@@ -9,7 +9,6 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/categorydefaultfeature"
 	"go-wind-admin/app/admin/service/internal/data/ent/feature"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
-	"go-wind-admin/app/admin/service/internal/data/ent/schema"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -319,115 +318,50 @@ func (_u *FeatureUpdate) ClearApplicableScope() *FeatureUpdate {
 	return _u
 }
 
-// SetDataType sets the "data_type" field.
-func (_u *FeatureUpdate) SetDataType(v feature.DataType) *FeatureUpdate {
-	_u.mutation.SetDataType(v)
+// SetRecommendedUnitCategoryID sets the "recommended_unit_category_id" field.
+func (_u *FeatureUpdate) SetRecommendedUnitCategoryID(v uint32) *FeatureUpdate {
+	_u.mutation.ResetRecommendedUnitCategoryID()
+	_u.mutation.SetRecommendedUnitCategoryID(v)
 	return _u
 }
 
-// SetNillableDataType sets the "data_type" field if the given value is not nil.
-func (_u *FeatureUpdate) SetNillableDataType(v *feature.DataType) *FeatureUpdate {
+// SetNillableRecommendedUnitCategoryID sets the "recommended_unit_category_id" field if the given value is not nil.
+func (_u *FeatureUpdate) SetNillableRecommendedUnitCategoryID(v *uint32) *FeatureUpdate {
 	if v != nil {
-		_u.SetDataType(*v)
+		_u.SetRecommendedUnitCategoryID(*v)
 	}
 	return _u
 }
 
-// ClearDataType clears the value of the "data_type" field.
-func (_u *FeatureUpdate) ClearDataType() *FeatureUpdate {
-	_u.mutation.ClearDataType()
+// AddRecommendedUnitCategoryID adds value to the "recommended_unit_category_id" field.
+func (_u *FeatureUpdate) AddRecommendedUnitCategoryID(v int32) *FeatureUpdate {
+	_u.mutation.AddRecommendedUnitCategoryID(v)
 	return _u
 }
 
-// SetAccessMode sets the "access_mode" field.
-func (_u *FeatureUpdate) SetAccessMode(v feature.AccessMode) *FeatureUpdate {
-	_u.mutation.SetAccessMode(v)
+// ClearRecommendedUnitCategoryID clears the value of the "recommended_unit_category_id" field.
+func (_u *FeatureUpdate) ClearRecommendedUnitCategoryID() *FeatureUpdate {
+	_u.mutation.ClearRecommendedUnitCategoryID()
 	return _u
 }
 
-// SetNillableAccessMode sets the "access_mode" field if the given value is not nil.
-func (_u *FeatureUpdate) SetNillableAccessMode(v *feature.AccessMode) *FeatureUpdate {
+// SetSemanticTag sets the "semantic_tag" field.
+func (_u *FeatureUpdate) SetSemanticTag(v string) *FeatureUpdate {
+	_u.mutation.SetSemanticTag(v)
+	return _u
+}
+
+// SetNillableSemanticTag sets the "semantic_tag" field if the given value is not nil.
+func (_u *FeatureUpdate) SetNillableSemanticTag(v *string) *FeatureUpdate {
 	if v != nil {
-		_u.SetAccessMode(*v)
+		_u.SetSemanticTag(*v)
 	}
 	return _u
 }
 
-// ClearAccessMode clears the value of the "access_mode" field.
-func (_u *FeatureUpdate) ClearAccessMode() *FeatureUpdate {
-	_u.mutation.ClearAccessMode()
-	return _u
-}
-
-// SetEventLevel sets the "event_level" field.
-func (_u *FeatureUpdate) SetEventLevel(v feature.EventLevel) *FeatureUpdate {
-	_u.mutation.SetEventLevel(v)
-	return _u
-}
-
-// SetNillableEventLevel sets the "event_level" field if the given value is not nil.
-func (_u *FeatureUpdate) SetNillableEventLevel(v *feature.EventLevel) *FeatureUpdate {
-	if v != nil {
-		_u.SetEventLevel(*v)
-	}
-	return _u
-}
-
-// ClearEventLevel clears the value of the "event_level" field.
-func (_u *FeatureUpdate) ClearEventLevel() *FeatureUpdate {
-	_u.mutation.ClearEventLevel()
-	return _u
-}
-
-// SetCallMode sets the "call_mode" field.
-func (_u *FeatureUpdate) SetCallMode(v feature.CallMode) *FeatureUpdate {
-	_u.mutation.SetCallMode(v)
-	return _u
-}
-
-// SetNillableCallMode sets the "call_mode" field if the given value is not nil.
-func (_u *FeatureUpdate) SetNillableCallMode(v *feature.CallMode) *FeatureUpdate {
-	if v != nil {
-		_u.SetCallMode(*v)
-	}
-	return _u
-}
-
-// ClearCallMode clears the value of the "call_mode" field.
-func (_u *FeatureUpdate) ClearCallMode() *FeatureUpdate {
-	_u.mutation.ClearCallMode()
-	return _u
-}
-
-// SetRelationType sets the "relation_type" field.
-func (_u *FeatureUpdate) SetRelationType(v string) *FeatureUpdate {
-	_u.mutation.SetRelationType(v)
-	return _u
-}
-
-// SetNillableRelationType sets the "relation_type" field if the given value is not nil.
-func (_u *FeatureUpdate) SetNillableRelationType(v *string) *FeatureUpdate {
-	if v != nil {
-		_u.SetRelationType(*v)
-	}
-	return _u
-}
-
-// ClearRelationType clears the value of the "relation_type" field.
-func (_u *FeatureUpdate) ClearRelationType() *FeatureUpdate {
-	_u.mutation.ClearRelationType()
-	return _u
-}
-
-// SetSpec sets the "spec" field.
-func (_u *FeatureUpdate) SetSpec(v *schema.FeatureSpecField) *FeatureUpdate {
-	_u.mutation.SetSpec(v)
-	return _u
-}
-
-// ClearSpec clears the value of the "spec" field.
-func (_u *FeatureUpdate) ClearSpec() *FeatureUpdate {
-	_u.mutation.ClearSpec()
+// ClearSemanticTag clears the value of the "semantic_tag" field.
+func (_u *FeatureUpdate) ClearSemanticTag() *FeatureUpdate {
+	_u.mutation.ClearSemanticTag()
 	return _u
 }
 
@@ -514,31 +448,6 @@ func (_u *FeatureUpdate) check() error {
 	if v, ok := _u.mutation.Name(); ok {
 		if err := feature.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Feature.name": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.DataType(); ok {
-		if err := feature.DataTypeValidator(v); err != nil {
-			return &ValidationError{Name: "data_type", err: fmt.Errorf(`ent: validator failed for field "Feature.data_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.AccessMode(); ok {
-		if err := feature.AccessModeValidator(v); err != nil {
-			return &ValidationError{Name: "access_mode", err: fmt.Errorf(`ent: validator failed for field "Feature.access_mode": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.EventLevel(); ok {
-		if err := feature.EventLevelValidator(v); err != nil {
-			return &ValidationError{Name: "event_level", err: fmt.Errorf(`ent: validator failed for field "Feature.event_level": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.CallMode(); ok {
-		if err := feature.CallModeValidator(v); err != nil {
-			return &ValidationError{Name: "call_mode", err: fmt.Errorf(`ent: validator failed for field "Feature.call_mode": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Spec(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "spec", err: fmt.Errorf(`ent: validator failed for field "Feature.spec": %w`, err)}
 		}
 	}
 	return nil
@@ -661,41 +570,20 @@ func (_u *FeatureUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.ApplicableScopeCleared() {
 		_spec.ClearField(feature.FieldApplicableScope, field.TypeString)
 	}
-	if value, ok := _u.mutation.DataType(); ok {
-		_spec.SetField(feature.FieldDataType, field.TypeEnum, value)
+	if value, ok := _u.mutation.RecommendedUnitCategoryID(); ok {
+		_spec.SetField(feature.FieldRecommendedUnitCategoryID, field.TypeUint32, value)
 	}
-	if _u.mutation.DataTypeCleared() {
-		_spec.ClearField(feature.FieldDataType, field.TypeEnum)
+	if value, ok := _u.mutation.AddedRecommendedUnitCategoryID(); ok {
+		_spec.AddField(feature.FieldRecommendedUnitCategoryID, field.TypeUint32, value)
 	}
-	if value, ok := _u.mutation.AccessMode(); ok {
-		_spec.SetField(feature.FieldAccessMode, field.TypeEnum, value)
+	if _u.mutation.RecommendedUnitCategoryIDCleared() {
+		_spec.ClearField(feature.FieldRecommendedUnitCategoryID, field.TypeUint32)
 	}
-	if _u.mutation.AccessModeCleared() {
-		_spec.ClearField(feature.FieldAccessMode, field.TypeEnum)
+	if value, ok := _u.mutation.SemanticTag(); ok {
+		_spec.SetField(feature.FieldSemanticTag, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.EventLevel(); ok {
-		_spec.SetField(feature.FieldEventLevel, field.TypeEnum, value)
-	}
-	if _u.mutation.EventLevelCleared() {
-		_spec.ClearField(feature.FieldEventLevel, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.CallMode(); ok {
-		_spec.SetField(feature.FieldCallMode, field.TypeEnum, value)
-	}
-	if _u.mutation.CallModeCleared() {
-		_spec.ClearField(feature.FieldCallMode, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.RelationType(); ok {
-		_spec.SetField(feature.FieldRelationType, field.TypeString, value)
-	}
-	if _u.mutation.RelationTypeCleared() {
-		_spec.ClearField(feature.FieldRelationType, field.TypeString)
-	}
-	if value, ok := _u.mutation.Spec(); ok {
-		_spec.SetField(feature.FieldSpec, field.TypeJSON, value)
-	}
-	if _u.mutation.SpecCleared() {
-		_spec.ClearField(feature.FieldSpec, field.TypeJSON)
+	if _u.mutation.SemanticTagCleared() {
+		_spec.ClearField(feature.FieldSemanticTag, field.TypeString)
 	}
 	if _u.mutation.CategoryDefaultEntriesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1052,115 +940,50 @@ func (_u *FeatureUpdateOne) ClearApplicableScope() *FeatureUpdateOne {
 	return _u
 }
 
-// SetDataType sets the "data_type" field.
-func (_u *FeatureUpdateOne) SetDataType(v feature.DataType) *FeatureUpdateOne {
-	_u.mutation.SetDataType(v)
+// SetRecommendedUnitCategoryID sets the "recommended_unit_category_id" field.
+func (_u *FeatureUpdateOne) SetRecommendedUnitCategoryID(v uint32) *FeatureUpdateOne {
+	_u.mutation.ResetRecommendedUnitCategoryID()
+	_u.mutation.SetRecommendedUnitCategoryID(v)
 	return _u
 }
 
-// SetNillableDataType sets the "data_type" field if the given value is not nil.
-func (_u *FeatureUpdateOne) SetNillableDataType(v *feature.DataType) *FeatureUpdateOne {
+// SetNillableRecommendedUnitCategoryID sets the "recommended_unit_category_id" field if the given value is not nil.
+func (_u *FeatureUpdateOne) SetNillableRecommendedUnitCategoryID(v *uint32) *FeatureUpdateOne {
 	if v != nil {
-		_u.SetDataType(*v)
+		_u.SetRecommendedUnitCategoryID(*v)
 	}
 	return _u
 }
 
-// ClearDataType clears the value of the "data_type" field.
-func (_u *FeatureUpdateOne) ClearDataType() *FeatureUpdateOne {
-	_u.mutation.ClearDataType()
+// AddRecommendedUnitCategoryID adds value to the "recommended_unit_category_id" field.
+func (_u *FeatureUpdateOne) AddRecommendedUnitCategoryID(v int32) *FeatureUpdateOne {
+	_u.mutation.AddRecommendedUnitCategoryID(v)
 	return _u
 }
 
-// SetAccessMode sets the "access_mode" field.
-func (_u *FeatureUpdateOne) SetAccessMode(v feature.AccessMode) *FeatureUpdateOne {
-	_u.mutation.SetAccessMode(v)
+// ClearRecommendedUnitCategoryID clears the value of the "recommended_unit_category_id" field.
+func (_u *FeatureUpdateOne) ClearRecommendedUnitCategoryID() *FeatureUpdateOne {
+	_u.mutation.ClearRecommendedUnitCategoryID()
 	return _u
 }
 
-// SetNillableAccessMode sets the "access_mode" field if the given value is not nil.
-func (_u *FeatureUpdateOne) SetNillableAccessMode(v *feature.AccessMode) *FeatureUpdateOne {
+// SetSemanticTag sets the "semantic_tag" field.
+func (_u *FeatureUpdateOne) SetSemanticTag(v string) *FeatureUpdateOne {
+	_u.mutation.SetSemanticTag(v)
+	return _u
+}
+
+// SetNillableSemanticTag sets the "semantic_tag" field if the given value is not nil.
+func (_u *FeatureUpdateOne) SetNillableSemanticTag(v *string) *FeatureUpdateOne {
 	if v != nil {
-		_u.SetAccessMode(*v)
+		_u.SetSemanticTag(*v)
 	}
 	return _u
 }
 
-// ClearAccessMode clears the value of the "access_mode" field.
-func (_u *FeatureUpdateOne) ClearAccessMode() *FeatureUpdateOne {
-	_u.mutation.ClearAccessMode()
-	return _u
-}
-
-// SetEventLevel sets the "event_level" field.
-func (_u *FeatureUpdateOne) SetEventLevel(v feature.EventLevel) *FeatureUpdateOne {
-	_u.mutation.SetEventLevel(v)
-	return _u
-}
-
-// SetNillableEventLevel sets the "event_level" field if the given value is not nil.
-func (_u *FeatureUpdateOne) SetNillableEventLevel(v *feature.EventLevel) *FeatureUpdateOne {
-	if v != nil {
-		_u.SetEventLevel(*v)
-	}
-	return _u
-}
-
-// ClearEventLevel clears the value of the "event_level" field.
-func (_u *FeatureUpdateOne) ClearEventLevel() *FeatureUpdateOne {
-	_u.mutation.ClearEventLevel()
-	return _u
-}
-
-// SetCallMode sets the "call_mode" field.
-func (_u *FeatureUpdateOne) SetCallMode(v feature.CallMode) *FeatureUpdateOne {
-	_u.mutation.SetCallMode(v)
-	return _u
-}
-
-// SetNillableCallMode sets the "call_mode" field if the given value is not nil.
-func (_u *FeatureUpdateOne) SetNillableCallMode(v *feature.CallMode) *FeatureUpdateOne {
-	if v != nil {
-		_u.SetCallMode(*v)
-	}
-	return _u
-}
-
-// ClearCallMode clears the value of the "call_mode" field.
-func (_u *FeatureUpdateOne) ClearCallMode() *FeatureUpdateOne {
-	_u.mutation.ClearCallMode()
-	return _u
-}
-
-// SetRelationType sets the "relation_type" field.
-func (_u *FeatureUpdateOne) SetRelationType(v string) *FeatureUpdateOne {
-	_u.mutation.SetRelationType(v)
-	return _u
-}
-
-// SetNillableRelationType sets the "relation_type" field if the given value is not nil.
-func (_u *FeatureUpdateOne) SetNillableRelationType(v *string) *FeatureUpdateOne {
-	if v != nil {
-		_u.SetRelationType(*v)
-	}
-	return _u
-}
-
-// ClearRelationType clears the value of the "relation_type" field.
-func (_u *FeatureUpdateOne) ClearRelationType() *FeatureUpdateOne {
-	_u.mutation.ClearRelationType()
-	return _u
-}
-
-// SetSpec sets the "spec" field.
-func (_u *FeatureUpdateOne) SetSpec(v *schema.FeatureSpecField) *FeatureUpdateOne {
-	_u.mutation.SetSpec(v)
-	return _u
-}
-
-// ClearSpec clears the value of the "spec" field.
-func (_u *FeatureUpdateOne) ClearSpec() *FeatureUpdateOne {
-	_u.mutation.ClearSpec()
+// ClearSemanticTag clears the value of the "semantic_tag" field.
+func (_u *FeatureUpdateOne) ClearSemanticTag() *FeatureUpdateOne {
+	_u.mutation.ClearSemanticTag()
 	return _u
 }
 
@@ -1260,31 +1083,6 @@ func (_u *FeatureUpdateOne) check() error {
 	if v, ok := _u.mutation.Name(); ok {
 		if err := feature.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Feature.name": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.DataType(); ok {
-		if err := feature.DataTypeValidator(v); err != nil {
-			return &ValidationError{Name: "data_type", err: fmt.Errorf(`ent: validator failed for field "Feature.data_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.AccessMode(); ok {
-		if err := feature.AccessModeValidator(v); err != nil {
-			return &ValidationError{Name: "access_mode", err: fmt.Errorf(`ent: validator failed for field "Feature.access_mode": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.EventLevel(); ok {
-		if err := feature.EventLevelValidator(v); err != nil {
-			return &ValidationError{Name: "event_level", err: fmt.Errorf(`ent: validator failed for field "Feature.event_level": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.CallMode(); ok {
-		if err := feature.CallModeValidator(v); err != nil {
-			return &ValidationError{Name: "call_mode", err: fmt.Errorf(`ent: validator failed for field "Feature.call_mode": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Spec(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "spec", err: fmt.Errorf(`ent: validator failed for field "Feature.spec": %w`, err)}
 		}
 	}
 	return nil
@@ -1424,41 +1222,20 @@ func (_u *FeatureUpdateOne) sqlSave(ctx context.Context) (_node *Feature, err er
 	if _u.mutation.ApplicableScopeCleared() {
 		_spec.ClearField(feature.FieldApplicableScope, field.TypeString)
 	}
-	if value, ok := _u.mutation.DataType(); ok {
-		_spec.SetField(feature.FieldDataType, field.TypeEnum, value)
+	if value, ok := _u.mutation.RecommendedUnitCategoryID(); ok {
+		_spec.SetField(feature.FieldRecommendedUnitCategoryID, field.TypeUint32, value)
 	}
-	if _u.mutation.DataTypeCleared() {
-		_spec.ClearField(feature.FieldDataType, field.TypeEnum)
+	if value, ok := _u.mutation.AddedRecommendedUnitCategoryID(); ok {
+		_spec.AddField(feature.FieldRecommendedUnitCategoryID, field.TypeUint32, value)
 	}
-	if value, ok := _u.mutation.AccessMode(); ok {
-		_spec.SetField(feature.FieldAccessMode, field.TypeEnum, value)
+	if _u.mutation.RecommendedUnitCategoryIDCleared() {
+		_spec.ClearField(feature.FieldRecommendedUnitCategoryID, field.TypeUint32)
 	}
-	if _u.mutation.AccessModeCleared() {
-		_spec.ClearField(feature.FieldAccessMode, field.TypeEnum)
+	if value, ok := _u.mutation.SemanticTag(); ok {
+		_spec.SetField(feature.FieldSemanticTag, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.EventLevel(); ok {
-		_spec.SetField(feature.FieldEventLevel, field.TypeEnum, value)
-	}
-	if _u.mutation.EventLevelCleared() {
-		_spec.ClearField(feature.FieldEventLevel, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.CallMode(); ok {
-		_spec.SetField(feature.FieldCallMode, field.TypeEnum, value)
-	}
-	if _u.mutation.CallModeCleared() {
-		_spec.ClearField(feature.FieldCallMode, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.RelationType(); ok {
-		_spec.SetField(feature.FieldRelationType, field.TypeString, value)
-	}
-	if _u.mutation.RelationTypeCleared() {
-		_spec.ClearField(feature.FieldRelationType, field.TypeString)
-	}
-	if value, ok := _u.mutation.Spec(); ok {
-		_spec.SetField(feature.FieldSpec, field.TypeJSON, value)
-	}
-	if _u.mutation.SpecCleared() {
-		_spec.ClearField(feature.FieldSpec, field.TypeJSON)
+	if _u.mutation.SemanticTagCleared() {
+		_spec.ClearField(feature.FieldSemanticTag, field.TypeString)
 	}
 	if _u.mutation.CategoryDefaultEntriesCleared() {
 		edge := &sqlgraph.EdgeSpec{

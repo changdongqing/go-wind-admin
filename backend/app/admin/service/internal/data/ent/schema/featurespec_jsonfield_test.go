@@ -143,11 +143,14 @@ func TestFeatureSpecField_RoundTrip(t *testing.T) {
 	})
 }
 
-// TestFeatureSpecField_DriverValuerScanner 验证 SQL 驱动直接序列化路径。
+// TestFeatureSpecField_DriverValuer 验证 SQL 驱动直接序列化路径。
 // 这是修复 ent Upsert 路径 "unsupported type schema.FeatureSpecField" bug
 // 的关键：在 Upsert.Set(col, wrapper) 中，ent 不走 sqlgraph 的 json.Marshal，
 // 而是直接把 wrapper 传给 SQL 驱动。
-func TestFeatureSpecField_DriverValuerScanner(t *testing.T) {
+//
+// CR-001：本类型不再实现 sql.Scanner——读路径由 ent 生成代码里的
+// `json.Unmarshal(*value, &_m.Spec)` 自动委派到 wrapper.UnmarshalJSON，走 protojson。
+func TestFeatureSpecField_DriverValuer(t *testing.T) {
 	t.Run("Value returns JSON bytes for property", func(t *testing.T) {
 		dt := thingmodelV1.DataType_BOOL
 		spec := &thingmodelV1.FeatureSpec{
@@ -180,7 +183,7 @@ func TestFeatureSpecField_DriverValuerScanner(t *testing.T) {
 		}
 	})
 
-	t.Run("Scan + Value round-trip", func(t *testing.T) {
+	t.Run("Value + UnmarshalJSON round-trip", func(t *testing.T) {
 		dt := thingmodelV1.DataType_DOUBLE
 		spec := &thingmodelV1.FeatureSpec{
 			Spec: &thingmodelV1.FeatureSpec_Property{
@@ -192,25 +195,16 @@ func TestFeatureSpecField_DriverValuerScanner(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Value: %v", err)
 		}
+		b, _ := v.([]byte)
 		w2 := &FeatureSpecField{}
-		if err := w2.Scan(v); err != nil {
-			t.Fatalf("Scan: %v", err)
+		if err := w2.UnmarshalJSON(b); err != nil {
+			t.Fatalf("UnmarshalJSON: %v", err)
 		}
 		if UnwrapFeatureSpec(w2).GetProperty().GetDataType() != thingmodelV1.DataType_DOUBLE {
 			t.Fatalf("round-trip lost dataType")
 		}
 	})
-
-	t.Run("Scan nil clears wrapper", func(t *testing.T) {
-		w := &FeatureSpecField{FeatureSpec: &thingmodelV1.FeatureSpec{}}
-		if err := w.Scan(nil); err != nil {
-			t.Fatalf("Scan(nil): %v", err)
-		}
-		if w.FeatureSpec != nil {
-			t.Fatalf("Scan(nil) should clear")
-		}
-	})
 }
 
-func ptrStr(s string) *string                        { return &s }
+func ptrStr(s string) *string                              { return &s }
 func ptrDT(d thingmodelV1.DataType) *thingmodelV1.DataType { return &d }

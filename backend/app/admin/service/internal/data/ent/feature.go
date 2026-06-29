@@ -3,10 +3,8 @@
 package ent
 
 import (
-	"encoding/json"
 	"fmt"
 	"go-wind-admin/app/admin/service/internal/data/ent/feature"
-	"go-wind-admin/app/admin/service/internal/data/ent/schema"
 	"strings"
 	"time"
 
@@ -14,7 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// 物模型-特征表（属性/事件/服务/关系统一）/ Thing model feature
+// 物模型-特征骨架表（CR-001 后不再承载 spec）/ Thing model feature skeleton
 type Feature struct {
 	config `json:"-"`
 	// ID of the ent.
@@ -52,18 +50,10 @@ type Feature struct {
 	Description *string `json:"description,omitempty"`
 	// 适用设备范围，如 冷机/锅炉 / Applicable device scope
 	ApplicableScope *string `json:"applicable_scope,omitempty"`
-	// property 数据类型 / Property data type
-	DataType *feature.DataType `json:"data_type,omitempty"`
-	// property 访问模式 R/RW / Property access mode
-	AccessMode *feature.AccessMode `json:"access_mode,omitempty"`
-	// event 级别 INFO/ALERT/ERROR / Event level
-	EventLevel *feature.EventLevel `json:"event_level,omitempty"`
-	// service 调用模式 ASYNC/SYNC / Service call mode
-	CallMode *feature.CallMode `json:"call_mode,omitempty"`
-	// relation 关系类型，如 derivedFrom/partOf / Relation type
-	RelationType *string `json:"relation_type,omitempty"`
-	// 特征结构化约束（按 feature_type 解读，protojson 编码）/ Structured spec by feature_type (protojson)
-	Spec *schema.FeatureSpecField `json:"spec,omitempty"`
+	// 推荐单位物理量分类 ID（不指定具体单位，仅 UI 预过滤）/ Recommended unit category
+	RecommendedUnitCategoryID *uint32 `json:"recommended_unit_category_id,omitempty"`
+	// 语义标签，如 pressure/temperature/runMode / Semantic tag
+	SemanticTag *string `json:"semantic_tag,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the FeatureQuery when eager-loading is set.
 	Edges        FeatureEdges `json:"edges"`
@@ -93,13 +83,11 @@ func (*Feature) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case feature.FieldSpec:
-			values[i] = new([]byte)
 		case feature.FieldIsEnabled:
 			values[i] = new(sql.NullBool)
-		case feature.FieldID, feature.FieldCreatedBy, feature.FieldUpdatedBy, feature.FieldDeletedBy, feature.FieldSortOrder, feature.FieldTenantID:
+		case feature.FieldID, feature.FieldCreatedBy, feature.FieldUpdatedBy, feature.FieldDeletedBy, feature.FieldSortOrder, feature.FieldTenantID, feature.FieldRecommendedUnitCategoryID:
 			values[i] = new(sql.NullInt64)
-		case feature.FieldFeatureType, feature.FieldCode, feature.FieldIdentifier, feature.FieldName, feature.FieldNameEn, feature.FieldDescription, feature.FieldApplicableScope, feature.FieldDataType, feature.FieldAccessMode, feature.FieldEventLevel, feature.FieldCallMode, feature.FieldRelationType:
+		case feature.FieldFeatureType, feature.FieldCode, feature.FieldIdentifier, feature.FieldName, feature.FieldNameEn, feature.FieldDescription, feature.FieldApplicableScope, feature.FieldSemanticTag:
 			values[i] = new(sql.NullString)
 		case feature.FieldCreatedAt, feature.FieldUpdatedAt, feature.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -236,48 +224,19 @@ func (_m *Feature) assignValues(columns []string, values []any) error {
 				_m.ApplicableScope = new(string)
 				*_m.ApplicableScope = value.String
 			}
-		case feature.FieldDataType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field data_type", values[i])
+		case feature.FieldRecommendedUnitCategoryID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field recommended_unit_category_id", values[i])
 			} else if value.Valid {
-				_m.DataType = new(feature.DataType)
-				*_m.DataType = feature.DataType(value.String)
+				_m.RecommendedUnitCategoryID = new(uint32)
+				*_m.RecommendedUnitCategoryID = uint32(value.Int64)
 			}
-		case feature.FieldAccessMode:
+		case feature.FieldSemanticTag:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field access_mode", values[i])
+				return fmt.Errorf("unexpected type %T for field semantic_tag", values[i])
 			} else if value.Valid {
-				_m.AccessMode = new(feature.AccessMode)
-				*_m.AccessMode = feature.AccessMode(value.String)
-			}
-		case feature.FieldEventLevel:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field event_level", values[i])
-			} else if value.Valid {
-				_m.EventLevel = new(feature.EventLevel)
-				*_m.EventLevel = feature.EventLevel(value.String)
-			}
-		case feature.FieldCallMode:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field call_mode", values[i])
-			} else if value.Valid {
-				_m.CallMode = new(feature.CallMode)
-				*_m.CallMode = feature.CallMode(value.String)
-			}
-		case feature.FieldRelationType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field relation_type", values[i])
-			} else if value.Valid {
-				_m.RelationType = new(string)
-				*_m.RelationType = value.String
-			}
-		case feature.FieldSpec:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field spec", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.Spec); err != nil {
-					return fmt.Errorf("unmarshal field spec: %w", err)
-				}
+				_m.SemanticTag = new(string)
+				*_m.SemanticTag = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -400,33 +359,15 @@ func (_m *Feature) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := _m.DataType; v != nil {
-		builder.WriteString("data_type=")
+	if v := _m.RecommendedUnitCategoryID; v != nil {
+		builder.WriteString("recommended_unit_category_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := _m.AccessMode; v != nil {
-		builder.WriteString("access_mode=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.EventLevel; v != nil {
-		builder.WriteString("event_level=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.CallMode; v != nil {
-		builder.WriteString("call_mode=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.RelationType; v != nil {
-		builder.WriteString("relation_type=")
+	if v := _m.SemanticTag; v != nil {
+		builder.WriteString("semantic_tag=")
 		builder.WriteString(*v)
 	}
-	builder.WriteString(", ")
-	builder.WriteString("spec=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Spec))
 	builder.WriteByte(')')
 	return builder.String()
 }

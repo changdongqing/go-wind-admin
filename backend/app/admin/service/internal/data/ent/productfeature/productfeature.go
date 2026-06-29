@@ -51,10 +51,8 @@ const (
 	FieldNameEn = "name_en"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldFeatureSnapshot holds the string denoting the feature_snapshot field in the database.
-	FieldFeatureSnapshot = "feature_snapshot"
-	// FieldOverrideSpec holds the string denoting the override_spec field in the database.
-	FieldOverrideSpec = "override_spec"
+	// FieldSpec holds the string denoting the spec field in the database.
+	FieldSpec = "spec"
 	// FieldDataType holds the string denoting the data_type field in the database.
 	FieldDataType = "data_type"
 	// FieldAccessMode holds the string denoting the access_mode field in the database.
@@ -99,8 +97,7 @@ var Columns = []string{
 	FieldName,
 	FieldNameEn,
 	FieldDescription,
-	FieldFeatureSnapshot,
-	FieldOverrideSpec,
+	FieldSpec,
 	FieldDataType,
 	FieldAccessMode,
 	FieldEventLevel,

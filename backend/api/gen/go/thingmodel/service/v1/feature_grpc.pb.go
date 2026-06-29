@@ -28,7 +28,6 @@ const (
 	FeatureService_Update_FullMethodName         = "/thingmodel.service.v1.FeatureService/Update"
 	FeatureService_Delete_FullMethodName         = "/thingmodel.service.v1.FeatureService/Delete"
 	FeatureService_ListByType_FullMethodName     = "/thingmodel.service.v1.FeatureService/ListByType"
-	FeatureService_ValidateSpec_FullMethodName   = "/thingmodel.service.v1.FeatureService/ValidateSpec"
 	FeatureService_ImportFeatures_FullMethodName = "/thingmodel.service.v1.FeatureService/ImportFeatures"
 )
 
@@ -37,6 +36,11 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // 特征服务（源领域层，无 HTTP 注解）/ Feature service
+//
+// CR-001（2026-06-29）：结构化约束 spec 整体下沉到模型层（CategoryDefaultFeature / ProductFeature）。
+// 本服务现仅承载"特征骨架"——code/identifier/name/feature_type/applicable_scope/semantic_tag/...，
+// 不再含 spec / data_type / access_mode / event_level / call_mode / relation_type 字段。
+// ValidateSpec RPC 已移除，spec 校验由 CategoryDefaultFeatureService 与 ProductFeatureService 内联完成。
 type FeatureServiceClient interface {
 	// 分页查询特征列表 / List features with paging
 	List(ctx context.Context, in *v1.PagingRequest, opts ...grpc.CallOption) (*ListFeatureResponse, error)
@@ -52,9 +56,7 @@ type FeatureServiceClient interface {
 	Delete(ctx context.Context, in *DeleteFeatureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 按特征类型查询（左侧树选类型 → 右侧列表）/ List features by type
 	ListByType(ctx context.Context, in *ListFeatureByTypeRequest, opts ...grpc.CallOption) (*ListFeatureResponse, error)
-	// 校验 spec（不落库，返回校验结果）/ Validate spec without persisting
-	ValidateSpec(ctx context.Context, in *ValidateFeatureSpecRequest, opts ...grpc.CallOption) (*ValidateFeatureSpecResponse, error)
-	// 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	// 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
 	ImportFeatures(ctx context.Context, in *ImportFeaturesRequest, opts ...grpc.CallOption) (*ImportFeaturesResponse, error)
 }
 
@@ -136,16 +138,6 @@ func (c *featureServiceClient) ListByType(ctx context.Context, in *ListFeatureBy
 	return out, nil
 }
 
-func (c *featureServiceClient) ValidateSpec(ctx context.Context, in *ValidateFeatureSpecRequest, opts ...grpc.CallOption) (*ValidateFeatureSpecResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ValidateFeatureSpecResponse)
-	err := c.cc.Invoke(ctx, FeatureService_ValidateSpec_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *featureServiceClient) ImportFeatures(ctx context.Context, in *ImportFeaturesRequest, opts ...grpc.CallOption) (*ImportFeaturesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ImportFeaturesResponse)
@@ -161,6 +153,11 @@ func (c *featureServiceClient) ImportFeatures(ctx context.Context, in *ImportFea
 // for forward compatibility.
 //
 // 特征服务（源领域层，无 HTTP 注解）/ Feature service
+//
+// CR-001（2026-06-29）：结构化约束 spec 整体下沉到模型层（CategoryDefaultFeature / ProductFeature）。
+// 本服务现仅承载"特征骨架"——code/identifier/name/feature_type/applicable_scope/semantic_tag/...，
+// 不再含 spec / data_type / access_mode / event_level / call_mode / relation_type 字段。
+// ValidateSpec RPC 已移除，spec 校验由 CategoryDefaultFeatureService 与 ProductFeatureService 内联完成。
 type FeatureServiceServer interface {
 	// 分页查询特征列表 / List features with paging
 	List(context.Context, *v1.PagingRequest) (*ListFeatureResponse, error)
@@ -176,9 +173,7 @@ type FeatureServiceServer interface {
 	Delete(context.Context, *DeleteFeatureRequest) (*emptypb.Empty, error)
 	// 按特征类型查询（左侧树选类型 → 右侧列表）/ List features by type
 	ListByType(context.Context, *ListFeatureByTypeRequest) (*ListFeatureResponse, error)
-	// 校验 spec（不落库，返回校验结果）/ Validate spec without persisting
-	ValidateSpec(context.Context, *ValidateFeatureSpecRequest) (*ValidateFeatureSpecResponse, error)
-	// 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+	// 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
 	ImportFeatures(context.Context, *ImportFeaturesRequest) (*ImportFeaturesResponse, error)
 	mustEmbedUnimplementedFeatureServiceServer()
 }
@@ -210,9 +205,6 @@ func (UnimplementedFeatureServiceServer) Delete(context.Context, *DeleteFeatureR
 }
 func (UnimplementedFeatureServiceServer) ListByType(context.Context, *ListFeatureByTypeRequest) (*ListFeatureResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListByType not implemented")
-}
-func (UnimplementedFeatureServiceServer) ValidateSpec(context.Context, *ValidateFeatureSpecRequest) (*ValidateFeatureSpecResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ValidateSpec not implemented")
 }
 func (UnimplementedFeatureServiceServer) ImportFeatures(context.Context, *ImportFeaturesRequest) (*ImportFeaturesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ImportFeatures not implemented")
@@ -364,24 +356,6 @@ func _FeatureService_ListByType_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _FeatureService_ValidateSpec_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateFeatureSpecRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FeatureServiceServer).ValidateSpec(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: FeatureService_ValidateSpec_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FeatureServiceServer).ValidateSpec(ctx, req.(*ValidateFeatureSpecRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _FeatureService_ImportFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ImportFeaturesRequest)
 	if err := dec(in); err != nil {
@@ -434,10 +408,6 @@ var FeatureService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListByType",
 			Handler:    _FeatureService_ListByType_Handler,
-		},
-		{
-			MethodName: "ValidateSpec",
-			Handler:    _FeatureService_ValidateSpec_Handler,
 		},
 		{
 			MethodName: "ImportFeatures",

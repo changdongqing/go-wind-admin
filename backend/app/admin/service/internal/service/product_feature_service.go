@@ -7,6 +7,7 @@ import (
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
@@ -20,16 +21,17 @@ import (
 
 // ProductFeatureService 产品下特征条目服务 / Product feature admin service
 //
-// 设计依据 / Design ref: docs/thingmodel/sheji/模型管理/04-后端实现设计.md §4 + §6
+// 设计依据 / Design ref:
+//   - docs/thingmodel/sheji/模型管理/04-后端实现设计.md §4 + §6
+//   - docs/thingmodel/sheji/修改记录/CR-001-结构化约束下沉到模型层.md
 //
-// 核心业务规则：
-//   - Create：仅 GLOBAL/LOCAL（DEFAULT 必须通过 PullFromDefault）
-//     GLOBAL 触发 thing_features 引用计数 +1（本期 Feature 无 ref_count 列，只维护 unit）
+// CR-001 后核心业务规则：
+//   - Create：仅 GLOBAL/LOCAL（DEFAULT 必须通过 PullFromDefault）；spec 必须由前端提供（或 GLOBAL 时由 CDF 拷贝）
 //     GLOBAL/LOCAL 若 spec.unit 含 unitId 触发 unit ref_count +1
-//   - PullFromDefault：批量从分类默认模型拷贝到产品（值复制 + override 合并）
+//   - PullFromDefault：直接 pf.spec = cdf.spec 深拷贝（不再做 snapshot/override 合并）
 //     SKIP/REPLACE 冲突策略；source=DEFAULT 不重复 +1 ref_count
-//   - Update：仅白名单字段；产品 PUBLISHED 后冻结结构
-//   - Delete：source=GLOBAL 时 -1 ref_count；DEFAULT/LOCAL 不动
+//   - Update：DRAFT 全字段可改；PUBLISHED 仅 name/description/sort_order/is_enabled 可改
+//   - Delete：source=GLOBAL/LOCAL 时 -1 ref_count；DEFAULT 不动
 type ProductFeatureService struct {
 	adminV1.ProductFeatureServiceHTTPServer
 
@@ -66,29 +68,21 @@ func (s *ProductFeatureService) List(ctx context.Context, req *paginationV1.Pagi
 	return s.repo.List(ctx, req)
 }
 
-// Get 详情（返回 feature_snapshot + override_spec + effective_spec）
+// Get 详情（CR-001 后：单一 spec，无 effective_spec 合并）
 func (s *ProductFeatureService) Get(ctx context.Context, req *thingmodelV1.GetProductFeatureRequest) (*thingmodelV1.ProductFeature, error) {
-	dto, err := s.repo.Get(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	if dto != nil {
-		// 后端合并 effective_spec
-		dto.EffectiveSpec = effectiveSpec(dto.GetFeatureSnapshot(), dto.GetOverrideSpec())
-	}
-	return dto, nil
+	return s.repo.Get(ctx, req)
 }
 
 // Create 创建（仅 GLOBAL/LOCAL；DEFAULT 必须走 PullFromDefault）
 //
-// 流程：
+// CR-001 后流程：
 //  1. 校验 product 存在且 status=DRAFT
 //  2. 校验 source/ref_feature_id 配对
-//  3. 校验 spec/feature_type 一致性
-//  4. GLOBAL：取全局特征 spec 做 snapshot；LOCAL：使用传入 snapshot
-//  5. 校验 override 白名单
+//  3. GLOBAL：从全局 feature 取骨架（code/identifier/feature_type）；LOCAL：使用前端传入骨架
+//  4. spec 必填（GLOBAL/LOCAL 都由前端构造完整 spec）；做 V1–V17 校验
+//  5. 同步冗余特化列
 //  6. 创建行
-//  7. GLOBAL/LOCAL：维护 unit.reference_count
+//  7. 维护 unit.reference_count
 func (s *ProductFeatureService) Create(ctx context.Context, req *thingmodelV1.CreateProductFeatureRequest) (*emptypb.Empty, error) {
 	if req == nil || req.Data == nil {
 		return nil, thingmodelV1.ErrorBadRequest("invalid parameter")
@@ -105,17 +99,16 @@ func (s *ProductFeatureService) Create(ctx context.Context, req *thingmodelV1.Cr
 	}
 
 	source := req.Data.GetSource()
-	// 禁止 source=DEFAULT 走 Create（必须走 PullFromDefault）
 	if source == thingmodelV1.ProductFeatureSource_DEFAULT {
 		return nil, thingmodelV1.ErrorPfDefaultViaPullOnly("source=DEFAULT must use PullFromDefault RPC")
 	}
 
 	// 2. source/ref_feature_id 配对
 	if msg := validateSourceRefMismatch(source, req.Data.GetRefFeatureId()); msg != "" {
-		return nil, thingmodelV1.ErrorPfSourceRefMismatch(msg)
+		return nil, thingmodelV1.ErrorPfSourceRefMismatch("%s", msg)
 	}
 
-	// 3. GLOBAL 时从 thing_features 读 snapshot；LOCAL 时使用传入
+	// 3. GLOBAL：从 thing_features 读骨架（feature 不再含 spec / 特化列）
 	if source == thingmodelV1.ProductFeatureSource_GLOBAL {
 		feat, err := s.featureRepo.Get(ctx, &thingmodelV1.GetFeatureRequest{
 			QueryBy: &thingmodelV1.GetFeatureRequest_Id{Id: req.Data.GetRefFeatureId()},
@@ -126,31 +119,34 @@ func (s *ProductFeatureService) Create(ctx context.Context, req *thingmodelV1.Cr
 		if feat.IsEnabled != nil && !feat.GetIsEnabled() {
 			return nil, thingmodelV1.ErrorPfFeatureDisabled("referenced feature is disabled")
 		}
-		// 用全局 spec 覆盖前端可能传的 snapshot（保证 GLOBAL 路径以全局为权威）
-		req.Data.FeatureSnapshot = feat.GetSpec()
+		// 用全局骨架覆盖前端可能传的骨架（保证 GLOBAL 路径以全局为权威）
 		req.Data.FeatureType = feat.FeatureType
 		req.Data.Code = feat.Code
 		req.Data.Identifier = feat.Identifier
 		if req.Data.Name == nil || req.Data.GetName() == "" {
 			req.Data.Name = feat.Name
 		}
-		// 冗余特化列同步
-		req.Data.DataType = feat.DataType
-		req.Data.AccessMode = feat.AccessMode
-		req.Data.EventLevel = feat.EventLevel
-		req.Data.CallMode = feat.CallMode
-		req.Data.RelationType = feat.RelationType
+		if req.Data.NameEn == nil || req.Data.GetNameEn() == "" {
+			req.Data.NameEn = feat.NameEn
+		}
+		if req.Data.Description == nil || req.Data.GetDescription() == "" {
+			req.Data.Description = feat.Description
+		}
 	}
 
-	// 4. spec/type 一致性
-	if msg := validateSpecTypeMismatch(req.Data.GetFeatureType(), req.Data.GetFeatureSnapshot()); msg != "" {
-		return nil, thingmodelV1.ErrorPfSpecTypeMismatch(msg)
+	// 4. spec/type 一致性 + V1–V17 校验（spec 必填）
+	if req.Data.Spec == nil {
+		return nil, thingmodelV1.ErrorFeatureSpecInvalid("spec is required for product feature")
+	}
+	if msg := validateSpecTypeMismatch(req.Data.GetFeatureType(), req.Data.GetSpec()); msg != "" {
+		return nil, thingmodelV1.ErrorPfSpecTypeMismatch("%s", msg)
+	}
+	if errs := validateFeatureSpecForType(req.Data.GetFeatureType(), req.Data.GetSpec()); len(errs) != 0 {
+		return nil, thingmodelV1.ErrorFeatureSpecInvalid("spec invalid: %v", errs)
 	}
 
-	// 5. override 白名单
-	if errs := validateOverrideSpec(req.Data.GetFeatureSnapshot(), req.Data.GetOverrideSpec()); len(errs) != 0 {
-		return nil, thingmodelV1.ErrorPfOverrideInvalid("override invalid: %v", errs)
-	}
+	// 5. 同步冗余特化列
+	syncSpecializedColumnsPF(req.Data)
 
 	// 6. 创建
 	if err := s.repo.Create(ctx, req); err != nil {
@@ -158,7 +154,7 @@ func (s *ProductFeatureService) Create(ctx context.Context, req *thingmodelV1.Cr
 	}
 
 	// 7. 维护 unit.ref_count（GLOBAL/LOCAL 都要）
-	if uid := extractUnitID(req.Data.GetFeatureSnapshot(), req.Data.GetOverrideSpec()); uid > 0 {
+	if uid := extractPropertyUnitIDFromSpec(req.Data.GetSpec()); uid > 0 {
 		_ = s.unitRepo.IncReferenceCount(ctx, uid, +1)
 	}
 	return &emptypb.Empty{}, nil
@@ -166,15 +162,15 @@ func (s *ProductFeatureService) Create(ctx context.Context, req *thingmodelV1.Cr
 
 // PullFromDefault 批量从分类默认模型拉取
 //
-// 流程：
+// CR-001 后流程：
 //  1. 取产品（必须 DRAFT）
 //  2. 取分类下的默认条目列表（可被 default_feature_ids 过滤；空=全部）
 //  3. 查现有产品下与拉取目标重叠的 (product, ref_feature) 集合
 //  4. 逐条处理：
 //     - duplicate + SKIP → skipped
 //     - duplicate + REPLACE → 删旧 + 重建
-//     - 否则 → 取全局 feature spec → merge default 层 override 得到 snapshot → 创建
-//  5. source=DEFAULT 不动 thing_features/unit.reference_count（计数由 default_features 那一侧维护）
+//     - 否则 → 直接 pf.spec = cdf.spec 深拷贝 → 创建
+//  5. source=DEFAULT 不动 unit.reference_count（计数由 CDF 那一侧维护）
 func (s *ProductFeatureService) PullFromDefault(ctx context.Context, req *thingmodelV1.PullFromDefaultRequest) (*thingmodelV1.PullFromDefaultResponse, error) {
 	if req == nil || req.GetProductId() == 0 {
 		return nil, thingmodelV1.ErrorBadRequest("invalid parameter")
@@ -206,17 +202,15 @@ func (s *ProductFeatureService) PullFromDefault(ctx context.Context, req *thingm
 	// 3. 查现有 product_features 中已存在的 (product, ref_feature)
 	featureIDs := make([]uint32, 0, len(cdfs))
 	cdfDTOByFeatID := make(map[uint32]*thingmodelV1.CategoryDefaultFeature, len(cdfs))
-	cdfIDByFeatID := make(map[uint32]uint32, len(cdfs))
 	for _, c := range cdfs {
 		featureIDs = append(featureIDs, c.FeatureID)
 		cdfDTOByFeatID[c.FeatureID] = s.catDefaultFeatRepo.ToDTO(c)
-		cdfIDByFeatID[c.FeatureID] = c.ID
 	}
 	existing, err := s.repo.ListByProductFeatureIds(ctx, productRow.ID, featureIDs)
 	if err != nil {
 		return nil, err
 	}
-	existingByFeatID := make(map[uint32]uint32, len(existing)) // ref_feature_id → product_feature.id
+	existingByFeatID := make(map[uint32]uint32, len(existing))
 	for _, pf := range existing {
 		if pf.RefFeatureID != nil {
 			existingByFeatID[*pf.RefFeatureID] = pf.ID
@@ -247,7 +241,7 @@ func (s *ProductFeatureService) PullFromDefault(ctx context.Context, req *thingm
 			}
 		}
 
-		// 取全局 feature
+		// 取全局 feature 骨架（用于 code/identifier/feature_type）
 		feat, err := s.featureRepo.Get(ctx, &thingmodelV1.GetFeatureRequest{
 			QueryBy: &thingmodelV1.GetFeatureRequest_Id{Id: c.FeatureID},
 		})
@@ -266,47 +260,49 @@ func (s *ProductFeatureService) PullFromDefault(ctx context.Context, req *thingm
 			continue
 		}
 
-		// 合并 default 层 override 到 snapshot
+		// CR-001：直接深拷贝 cdf.spec
 		cdfDTO := cdfDTOByFeatID[c.FeatureID]
-		snapshot := effectiveSpec(feat.GetSpec(), cdfDTO.GetOverrideSpec())
+		var pfSpec *thingmodelV1.FeatureSpec
+		if cdfDTO.GetSpec() != nil {
+			pfSpec = proto.Clone(cdfDTO.GetSpec()).(*thingmodelV1.FeatureSpec)
+		}
 
 		// 构造产品特征 DTO
 		sourceDefault := thingmodelV1.ProductFeatureSource_DEFAULT
 		featID := c.FeatureID
 		pfData := &thingmodelV1.ProductFeature{
-			ProductId:       trans.Ptr(productRow.ID),
-			Source:          &sourceDefault,
-			RefFeatureId:    &featID,
-			FeatureType:     feat.FeatureType,
-			Code:            feat.Code,
-			Identifier:      feat.Identifier,
-			Name:            feat.Name,
-			NameEn:          feat.NameEn,
-			Description:     feat.Description,
-			FeatureSnapshot: snapshot,
-			OverrideSpec:    nil, // 产品层暂未覆写
-			DataType:        feat.DataType,
-			AccessMode:      feat.AccessMode,
-			EventLevel:      feat.EventLevel,
-			CallMode:        feat.CallMode,
-			RelationType:    feat.RelationType,
-			SortOrder:       cdfDTO.SortOrder,
-			IsEnabled:       trans.Ptr(true),
-			TenantId:        &tenantID,
-			CreatedBy:       trans.Ptr(operator.UserId),
+			ProductId:    trans.Ptr(productRow.ID),
+			Source:       &sourceDefault,
+			RefFeatureId: &featID,
+			FeatureType:  feat.FeatureType,
+			Code:         feat.Code,
+			Identifier:   feat.Identifier,
+			Name:         feat.Name,
+			NameEn:       feat.NameEn,
+			Description:  feat.Description,
+			Spec:         pfSpec,
+			// 冗余特化列从 cdf 拷贝（已经派生过）
+			DataType:     cdfDTO.DataType,
+			AccessMode:   cdfDTO.AccessMode,
+			EventLevel:   cdfDTO.EventLevel,
+			CallMode:     cdfDTO.CallMode,
+			RelationType: cdfDTO.RelationType,
+			SortOrder:    cdfDTO.SortOrder,
+			IsEnabled:    trans.Ptr(true),
+			TenantId:     &tenantID,
+			CreatedBy:    trans.Ptr(operator.UserId),
 		}
 		createReq := &thingmodelV1.CreateProductFeatureRequest{Data: pfData}
 		if err := s.repo.Create(ctx, createReq); err != nil {
 			return nil, err
 		}
-		// source=DEFAULT 不动 thing_features/unit ref_count
-		// 返回时由 list 重新读取——为简洁此处省略，直接把 pfData 当响应（不带 id）
+		// source=DEFAULT 不动 unit.ref_count
 		resp.Created = append(resp.Created, pfData)
 	}
 	return resp, nil
 }
 
-// CloneFromProduct 从另一产品克隆全部特征（含 LOCAL）— 本期最小实现
+// CloneFromProduct 从另一产品克隆全部特征（含 LOCAL）— CR-001 后 spec 直接拷贝
 func (s *ProductFeatureService) CloneFromProduct(ctx context.Context, req *thingmodelV1.CloneFromProductRequest) (*thingmodelV1.CloneFromProductResponse, error) {
 	if req == nil || req.GetProductId() == 0 || req.GetSourceProductId() == 0 {
 		return nil, thingmodelV1.ErrorBadRequest("invalid parameter")
@@ -336,7 +332,7 @@ func (s *ProductFeatureService) CloneFromProduct(ctx context.Context, req *thing
 		onConflict = thingmodelV1.ConflictPolicy_SKIP
 	}
 
-	// 目标已存在的 code 集合（用于冲突判断）
+	// 目标已存在的 code 集合
 	dstRows, err := s.repo.ListByProduct(ctx, req.GetProductId())
 	if err != nil {
 		return nil, err
@@ -368,7 +364,7 @@ func (s *ProductFeatureService) CloneFromProduct(ctx context.Context, req *thing
 				continue
 			}
 		}
-		// 转 ent → DTO 再回写（snapshot/override 走 mapper 已正确处理）
+		// 转 ent → DTO 再回写（spec 走 mapper 已正确处理）
 		srcDTO := s.repo.ToDTO(src)
 		srcDTO.Id = nil
 		srcDTO.ProductId = trans.Ptr(req.GetProductId())
@@ -380,9 +376,10 @@ func (s *ProductFeatureService) CloneFromProduct(ctx context.Context, req *thing
 		if err := s.repo.Create(ctx, createReq); err != nil {
 			return nil, err
 		}
-		// GLOBAL 来源要维护 unit ref_count；DEFAULT/LOCAL 不动
-		if srcDTO.GetSource() == thingmodelV1.ProductFeatureSource_GLOBAL {
-			if uid := extractUnitID(srcDTO.GetFeatureSnapshot(), srcDTO.GetOverrideSpec()); uid > 0 {
+		// GLOBAL/LOCAL 来源要维护 unit ref_count；DEFAULT 不动
+		if srcDTO.GetSource() == thingmodelV1.ProductFeatureSource_GLOBAL ||
+			srcDTO.GetSource() == thingmodelV1.ProductFeatureSource_LOCAL {
+			if uid := extractPropertyUnitIDFromSpec(srcDTO.GetSpec()); uid > 0 {
 				_ = s.unitRepo.IncReferenceCount(ctx, uid, +1)
 			}
 		}
@@ -391,7 +388,11 @@ func (s *ProductFeatureService) CloneFromProduct(ctx context.Context, req *thing
 	return resp, nil
 }
 
-// Update 更新（FieldMask）；PUBLISHED 时禁止改结构（仅 override/sort/enabled/description 等）
+// Update 更新（FieldMask）
+//
+// CR-001 后规则：
+//   - DRAFT 全字段可改（含 spec）；若 spec 改动会重新校验 V1–V17 并同步冗余列
+//   - PUBLISHED 仅 name/description/sort_order/is_enabled 可改（spec 完全冻结）
 func (s *ProductFeatureService) Update(ctx context.Context, req *thingmodelV1.UpdateProductFeatureRequest) (*emptypb.Empty, error) {
 	if req == nil || req.Data == nil {
 		return nil, thingmodelV1.ErrorBadRequest("invalid parameter")
@@ -406,7 +407,7 @@ func (s *ProductFeatureService) Update(ctx context.Context, req *thingmodelV1.Up
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "updated_by")
 	}
 
-	// 取旧 DTO（用于 PUBLISHED 冻结判断 + override.unit 变化）
+	// 取旧 DTO（用于 PUBLISHED 冻结判断 + spec.unit 变化）
 	oldDTO, err := s.repo.Get(ctx, &thingmodelV1.GetProductFeatureRequest{Id: req.GetId()})
 	if err != nil {
 		return nil, err
@@ -421,11 +422,11 @@ func (s *ProductFeatureService) Update(ctx context.Context, req *thingmodelV1.Up
 		return nil, err
 	}
 	if prodRow.Status == product.StatusPublished {
-		// 仅允许 override_spec / description / display_name / sort_order / is_enabled 等
+		// CR-001：PUBLISHED 白名单收紧为 name/description/sort_order/is_enabled
 		for _, p := range req.GetUpdateMask().GetPaths() {
 			switch p {
-			case "override_spec", "overrideSpec",
-				"description", "name", "name_en", "nameEn",
+			case "description",
+				"name", "name_en", "nameEn",
 				"sort_order", "sortOrder", "is_enabled", "isEnabled",
 				"updated_by", "updatedBy":
 				// allowed
@@ -435,27 +436,29 @@ func (s *ProductFeatureService) Update(ctx context.Context, req *thingmodelV1.Up
 		}
 	}
 
-	// 校验新 override 白名单
-	if req.Data.OverrideSpec != nil {
-		if errs := validateOverrideSpec(oldDTO.GetFeatureSnapshot(), req.Data.GetOverrideSpec()); len(errs) != 0 {
-			return nil, thingmodelV1.ErrorPfOverrideInvalid("override invalid: %v", errs)
+	// 校验新 spec（若提供）
+	if req.Data.Spec != nil {
+		ft := req.Data.GetFeatureType()
+		if ft == thingmodelV1.FeatureType_FEATURE_TYPE_UNSPECIFIED {
+			ft = oldDTO.GetFeatureType()
 		}
+		if msg := validateSpecTypeMismatch(ft, req.Data.GetSpec()); msg != "" {
+			return nil, thingmodelV1.ErrorPfSpecTypeMismatch("%s", msg)
+		}
+		if errs := validateFeatureSpecForType(ft, req.Data.GetSpec()); len(errs) != 0 {
+			return nil, thingmodelV1.ErrorFeatureSpecInvalid("spec invalid: %v", errs)
+		}
+		syncSpecializedColumnsPF(req.Data)
 	}
 
 	if err := s.repo.Update(ctx, req); err != nil {
 		return nil, err
 	}
 
-	// 维护 unit.ref_count（override.unit 变化时）
-	if req.Data.OverrideSpec != nil {
-		oldUID := uint32(0)
-		if oldDTO.GetOverrideSpec() != nil && oldDTO.GetOverrideSpec().GetUnit() != nil {
-			oldUID = oldDTO.GetOverrideSpec().GetUnit().GetUnitId()
-		}
-		newUID := uint32(0)
-		if req.Data.GetOverrideSpec().GetUnit() != nil {
-			newUID = req.Data.GetOverrideSpec().GetUnit().GetUnitId()
-		}
+	// 维护 unit.ref_count（spec.unit 变化时）
+	if req.Data.Spec != nil {
+		oldUID := extractPropertyUnitIDFromSpec(oldDTO.GetSpec())
+		newUID := extractPropertyUnitIDFromSpec(req.Data.GetSpec())
 		if oldUID != newUID {
 			if oldUID > 0 {
 				_ = s.unitRepo.IncReferenceCount(ctx, oldUID, -1)
@@ -468,7 +471,7 @@ func (s *ProductFeatureService) Update(ctx context.Context, req *thingmodelV1.Up
 	return &emptypb.Empty{}, nil
 }
 
-// Delete 批量删除（source=GLOBAL 时 -1 unit.ref_count；DEFAULT/LOCAL 不动）
+// Delete 批量删除（source=GLOBAL/LOCAL 时 -1 unit.ref_count；DEFAULT 不动）
 func (s *ProductFeatureService) Delete(ctx context.Context, req *thingmodelV1.DeleteProductFeatureRequest) (*emptypb.Empty, error) {
 	if req == nil || len(req.GetIds()) == 0 {
 		return &emptypb.Empty{}, nil
@@ -488,10 +491,10 @@ func (s *ProductFeatureService) Delete(ctx context.Context, req *thingmodelV1.De
 			return nil, thingmodelV1.ErrorPfProductPublished("published product: cannot delete features")
 		}
 
-		// 维护 unit.ref_count（仅 GLOBAL 或 LOCAL 含 unit_id）
+		// 维护 unit.ref_count（仅 GLOBAL/LOCAL；DEFAULT 不动）
 		if dto.GetSource() == thingmodelV1.ProductFeatureSource_GLOBAL ||
 			dto.GetSource() == thingmodelV1.ProductFeatureSource_LOCAL {
-			if uid := extractUnitID(dto.GetFeatureSnapshot(), dto.GetOverrideSpec()); uid > 0 {
+			if uid := extractPropertyUnitIDFromSpec(dto.GetSpec()); uid > 0 {
 				_ = s.unitRepo.IncReferenceCount(ctx, uid, -1)
 			}
 		}

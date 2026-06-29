@@ -4576,7 +4576,7 @@ paths:
         post:
             tags:
                 - FeatureService
-            description: 批量导入特征（Excel 解析后调用，按 code 幂等 upsert）/ Import features (idempotent by code)
+            description: 批量导入特征骨架（CR-001 后仅含骨架字段，不再含 spec）/ Import feature skeletons (idempotent by code)
             operationId: FeatureService_ImportFeatures
             requestBody:
                 content:
@@ -4591,25 +4591,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ImportFeaturesResponse'
-    /admin/v1/thingmodel/features:validateSpec:
-        post:
-            tags:
-                - FeatureService
-            description: 校验 spec（前端表单实时校验用，不落库）/ Validate spec without persisting
-            operationId: FeatureService_ValidateSpec
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ValidateFeatureSpecRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ValidateFeatureSpecResponse'
     /admin/v1/thingmodel/product-features:
         get:
             tags:
@@ -4724,7 +4705,7 @@ paths:
         get:
             tags:
                 - ProductFeatureService
-            description: 详情（返回 effective_spec）/ Get
+            description: 详情（CR-001 后：返回单一 spec）/ Get
             operationId: ProductFeatureService_Get
             parameters:
                 - name: id
@@ -5932,14 +5913,16 @@ components:
                 featureId:
                     type: integer
                     format: uint32
-                overrideSpec:
-                    $ref: '#/components/schemas/FeatureOverrideSpec'
+                spec:
+                    $ref: '#/components/schemas/FeatureSpec'
                 displayName:
                     type: string
                 sortOrder:
                     type: integer
                     format: uint32
-            description: 单项：要绑定的 feature + 可选 override + 可选 display_name + 可选 sort_order
+            description: |-
+                单项：要绑定的 feature + 可选 spec + 可选 display_name + 可选 sort_order
+                 CR-001：原 override_spec 字段已升级为完整 spec（FeatureSpec），可为空，由用户后续编辑。
         BatchAddCategoryDefaultFeaturesResponse:
             type: object
             properties:
@@ -6092,7 +6075,7 @@ components:
                     format: uint32
                 featureId:
                     type: integer
-                    description: 全局特征ID / Global feature ID
+                    description: 全局特征ID（骨架来源）/ Global feature ID (skeleton source)
                     format: uint32
                 featureCode:
                     type: string
@@ -6113,12 +6096,10 @@ components:
                     type: string
                     description: 特征类型（冗余）/ Feature type (denormalized)
                     format: enum
-                featureSnapshotPreview:
-                    $ref: '#/components/schemas/FeatureSpec'
-                overrideSpec:
+                spec:
                     allOf:
-                        - $ref: '#/components/schemas/FeatureOverrideSpec'
-                    description: 稀疏覆写（白名单字段）/ Sparse override spec
+                        - $ref: '#/components/schemas/FeatureSpec'
+                    description: 完整 FeatureSpec（CR-001 后承载所有结构化约束）/ Full feature spec
                 displayName:
                     type: string
                     description: 分类内展示别名 / Display alias within category
@@ -6129,6 +6110,49 @@ components:
                     type: integer
                     description: 排序号，越小越靠前 / Sort order
                     format: uint32
+                dataType:
+                    enum:
+                        - DATA_TYPE_UNSPECIFIED
+                        - INT
+                        - FLOAT
+                        - DOUBLE
+                        - BOOL
+                        - ENUM
+                        - TEXT
+                        - DATE
+                        - STRUCT
+                        - ARRAY
+                    type: string
+                    description: property 数据类型 / Property data type
+                    format: enum
+                accessMode:
+                    enum:
+                        - ACCESS_MODE_UNSPECIFIED
+                        - R
+                        - RW
+                    type: string
+                    description: property 访问模式 / Access mode
+                    format: enum
+                eventLevel:
+                    enum:
+                        - EVENT_LEVEL_UNSPECIFIED
+                        - INFO
+                        - ALERT
+                        - ERROR
+                    type: string
+                    description: event 级别 / Event level
+                    format: enum
+                callMode:
+                    enum:
+                        - CALL_MODE_UNSPECIFIED
+                        - ASYNC
+                        - SYNC
+                    type: string
+                    description: service 调用模式 / Call mode
+                    format: enum
+                relationType:
+                    type: string
+                    description: relation 关系类型 / Relation type
                 tenantId:
                     type: integer
                     description: 租户ID，0=系统全局 / Tenant ID, 0=system global
@@ -6890,53 +6914,13 @@ components:
                 applicableScope:
                     type: string
                     description: 适用设备范围，如 冷机/锅炉 / Applicable device scope
-                dataType:
-                    enum:
-                        - DATA_TYPE_UNSPECIFIED
-                        - INT
-                        - FLOAT
-                        - DOUBLE
-                        - BOOL
-                        - ENUM
-                        - TEXT
-                        - DATE
-                        - STRUCT
-                        - ARRAY
+                recommendedUnitCategoryId:
+                    type: integer
+                    description: 推荐单位物理量分类 ID（不指定具体单位，仅 UI 预过滤）/ Recommended unit category
+                    format: uint32
+                semanticTag:
                     type: string
-                    description: property 数据类型 / Property data type
-                    format: enum
-                accessMode:
-                    enum:
-                        - ACCESS_MODE_UNSPECIFIED
-                        - R
-                        - RW
-                    type: string
-                    description: property 访问模式 R/RW / Property access mode
-                    format: enum
-                eventLevel:
-                    enum:
-                        - EVENT_LEVEL_UNSPECIFIED
-                        - INFO
-                        - ALERT
-                        - ERROR
-                    type: string
-                    description: event 级别 / Event level
-                    format: enum
-                callMode:
-                    enum:
-                        - CALL_MODE_UNSPECIFIED
-                        - ASYNC
-                        - SYNC
-                    type: string
-                    description: service 调用模式 / Service call mode
-                    format: enum
-                relationType:
-                    type: string
-                    description: relation 关系类型，如 derivedFrom / Relation type
-                spec:
-                    allOf:
-                        - $ref: '#/components/schemas/FeatureSpec'
-                    description: 特征结构化约束（FeatureSpec oneof，按 featureType 取分支）/ Structured spec
+                    description: 语义标签，如 pressure/temperature/runMode，软性检索字段 / Semantic tag
                 isEnabled:
                     type: boolean
                     description: 是否启用 / Is enabled
@@ -6975,40 +6959,11 @@ components:
                     type: string
                     description: 删除时间 / Deleted at
                     format: date-time
-            description: 特征 / Feature (统一承载 property/event/service/relation)
-        FeatureOverrideSpec:
-            type: object
-            properties:
-                constraints:
-                    allOf:
-                        - $ref: '#/components/schemas/ValueConstraints'
-                    description: 覆写数值约束（仅 property）/ Override numeric constraints (property only)
-                unit:
-                    allOf:
-                        - $ref: '#/components/schemas/UnitRef'
-                    description: 覆写单位引用（仅 property）/ Override unit ref (property only)
-                defaultValue:
-                    type: string
-                    description: 覆写默认值（按 dataType 解析）/ Override default value
-                displayName:
-                    type: string
-                    description: 作用域内展示别名 / Display alias within scope
-                description:
-                    type: string
-                    description: 覆写描述 / Override description
-                required:
-                    type: boolean
-                    description: 覆写 required（service 参数）/ Override required (service params)
             description: |-
-                特征覆写规约（白名单字段）/ Feature override spec (whitelist fields only)
+                特征骨架 / Feature skeleton (统一承载 property/event/service/relation 的身份与语义骨架)
 
-                 用于：
-                   thingmodel_category_default_features.override_spec —— 分类层覆写
-                   thingmodel_product_features.override_spec        —— 产品层覆写
-
-                 设计目标：proto schema 即白名单——结构上只允许 6 个字段，
-                 杜绝试图通过 wire 传 dataType/accessMode/enumItems 等结构性字段进行覆写。
-                 详见 docs/thingmodel/sheji/模型管理/01-架构决策.md §4
+                 CR-001：结构化约束 spec 已下沉到 CategoryDefaultFeature.spec / ProductFeature.spec。
+                 本 message 仅保留以下身份/检索字段。
         FeatureSpec:
             type: object
             properties:
@@ -7171,12 +7126,16 @@ components:
                     type: integer
                     description: 排序号 / Sort order
                     format: uint32
-                specJson:
+                recommendedUnitCategoryId:
+                    type: integer
+                    description: 推荐单位物理量分类 ID / Recommended unit category ID
+                    format: uint32
+                semanticTag:
                     type: string
-                    description: spec 的 JSON 字符串（与种子 map 同构，按 featureType 还原为 FeatureSpec oneof）/ Spec as JSON string
+                    description: 语义标签 / Semantic tag
             description: |-
-                导入单行（对应 Excel 一行；spec_json 是 spec map 的 JSON 字符串，与种子同构）
-                 One import row; spec_json is the JSON of a spec map (same shape as seed data).
+                导入单行（对应 Excel 一行；CR-001 后仅含骨架字段，不再含 spec_json）
+                 One import row (CR-001: skeleton-only, no spec_json).
         ImportFeaturesRequest:
             type: object
             properties:
@@ -9148,18 +9107,10 @@ components:
                 description:
                     type: string
                     description: 描述 / Description
-                featureSnapshot:
+                spec:
                     allOf:
                         - $ref: '#/components/schemas/FeatureSpec'
-                    description: 完整 spec 快照 / Full feature spec snapshot
-                overrideSpec:
-                    allOf:
-                        - $ref: '#/components/schemas/FeatureOverrideSpec'
-                    description: 稀疏覆写（白名单字段）/ Sparse override
-                effectiveSpec:
-                    allOf:
-                        - $ref: '#/components/schemas/FeatureSpec'
-                    description: 有效 spec（后端合并，只读）/ Effective spec (read-only)
+                    description: 完整 FeatureSpec（CR-001 后合并 snapshot+override+effective）/ Full feature spec
                 dataType:
                     enum:
                         - DATA_TYPE_UNSPECIFIED
@@ -10029,7 +9980,7 @@ components:
                 data:
                     $ref: '#/components/schemas/CategoryDefaultFeature'
                 updateMask:
-                    example: overrideSpec,displayName,isEnabled,sortOrder
+                    example: spec,displayName,isEnabled,sortOrder
                     type: string
                     description: 要更新的字段列表 / Fields to update
                     format: field-mask
@@ -10288,9 +10239,9 @@ components:
                 data:
                     $ref: '#/components/schemas/ProductFeature'
                 updateMask:
-                    example: overrideSpec,description,isEnabled,sortOrder
+                    example: spec,description,isEnabled,sortOrder
                     type: string
-                    description: 要更新的字段列表 / Fields to update
+                    description: 要更新的字段列表（DRAFT 全字段可改；PUBLISHED 仅 name/description/sortOrder/isEnabled 可改）/ Fields to update
                     format: field-mask
                 allowMissing:
                     type: boolean
@@ -10626,31 +10577,6 @@ components:
                 exist:
                     type: boolean
             description: 用户是否存在 - 答复
-        ValidateFeatureSpecRequest:
-            type: object
-            properties:
-                featureType:
-                    enum:
-                        - FEATURE_TYPE_UNSPECIFIED
-                        - PROPERTY
-                        - EVENT
-                        - SERVICE
-                        - RELATION
-                    type: string
-                    format: enum
-                spec:
-                    $ref: '#/components/schemas/FeatureSpec'
-            description: 校验 spec - 请求 / Validate spec request
-        ValidateFeatureSpecResponse:
-            type: object
-            properties:
-                valid:
-                    type: boolean
-                errors:
-                    type: array
-                    items:
-                        type: string
-            description: 校验 spec - 回应 / Validate spec response
         ValueConstraints:
             type: object
             properties:

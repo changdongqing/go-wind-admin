@@ -16,7 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// 分类默认模型条目 / Category default model entry
+// 分类默认模型条目（CR-001：承载完整 spec）/ Category default model entry (full spec)
 type CategoryDefaultFeature struct {
 	config `json:"-"`
 	// ID of the ent.
@@ -42,12 +42,22 @@ type CategoryDefaultFeature struct {
 	TenantID *uint32 `json:"tenant_id,omitempty"`
 	// 分类 ID（必须 level=4）/ Category id, must be level=4
 	CategoryID uint32 `json:"category_id,omitempty"`
-	// 全局特征 ID / Global feature id
+	// 全局特征 ID（骨架来源）/ Global feature id (skeleton source)
 	FeatureID uint32 `json:"feature_id,omitempty"`
-	// 稀疏覆写（白名单字段，protojson 编码）/ Sparse override (protojson)
-	OverrideSpec *schema.FeatureOverrideSpecField `json:"override_spec,omitempty"`
+	// 完整 FeatureSpec（按 feature_type 解读，protojson）/ Full feature spec (protojson)
+	Spec *schema.FeatureSpecField `json:"spec,omitempty"`
 	// 分类内展示别名 / Display alias within category
 	DisplayName *string `json:"display_name,omitempty"`
+	// property 数据类型（从 spec 派生）/ Property data type
+	DataType *categorydefaultfeature.DataType `json:"data_type,omitempty"`
+	// property 访问模式 R/RW / Property access mode
+	AccessMode *categorydefaultfeature.AccessMode `json:"access_mode,omitempty"`
+	// event 级别 / Event level
+	EventLevel *categorydefaultfeature.EventLevel `json:"event_level,omitempty"`
+	// service 调用模式 / Service call mode
+	CallMode *categorydefaultfeature.CallMode `json:"call_mode,omitempty"`
+	// relation 关系类型 / Relation type
+	RelationType *string `json:"relation_type,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CategoryDefaultFeatureQuery when eager-loading is set.
 	Edges        CategoryDefaultFeatureEdges `json:"edges"`
@@ -92,13 +102,13 @@ func (*CategoryDefaultFeature) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case categorydefaultfeature.FieldOverrideSpec:
+		case categorydefaultfeature.FieldSpec:
 			values[i] = new([]byte)
 		case categorydefaultfeature.FieldIsEnabled:
 			values[i] = new(sql.NullBool)
 		case categorydefaultfeature.FieldID, categorydefaultfeature.FieldCreatedBy, categorydefaultfeature.FieldUpdatedBy, categorydefaultfeature.FieldDeletedBy, categorydefaultfeature.FieldSortOrder, categorydefaultfeature.FieldTenantID, categorydefaultfeature.FieldCategoryID, categorydefaultfeature.FieldFeatureID:
 			values[i] = new(sql.NullInt64)
-		case categorydefaultfeature.FieldDisplayName:
+		case categorydefaultfeature.FieldDisplayName, categorydefaultfeature.FieldDataType, categorydefaultfeature.FieldAccessMode, categorydefaultfeature.FieldEventLevel, categorydefaultfeature.FieldCallMode, categorydefaultfeature.FieldRelationType:
 			values[i] = new(sql.NullString)
 		case categorydefaultfeature.FieldCreatedAt, categorydefaultfeature.FieldUpdatedAt, categorydefaultfeature.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -198,12 +208,12 @@ func (_m *CategoryDefaultFeature) assignValues(columns []string, values []any) e
 			} else if value.Valid {
 				_m.FeatureID = uint32(value.Int64)
 			}
-		case categorydefaultfeature.FieldOverrideSpec:
+		case categorydefaultfeature.FieldSpec:
 			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field override_spec", values[i])
+				return fmt.Errorf("unexpected type %T for field spec", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.OverrideSpec); err != nil {
-					return fmt.Errorf("unmarshal field override_spec: %w", err)
+				if err := json.Unmarshal(*value, &_m.Spec); err != nil {
+					return fmt.Errorf("unmarshal field spec: %w", err)
 				}
 			}
 		case categorydefaultfeature.FieldDisplayName:
@@ -212,6 +222,41 @@ func (_m *CategoryDefaultFeature) assignValues(columns []string, values []any) e
 			} else if value.Valid {
 				_m.DisplayName = new(string)
 				*_m.DisplayName = value.String
+			}
+		case categorydefaultfeature.FieldDataType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field data_type", values[i])
+			} else if value.Valid {
+				_m.DataType = new(categorydefaultfeature.DataType)
+				*_m.DataType = categorydefaultfeature.DataType(value.String)
+			}
+		case categorydefaultfeature.FieldAccessMode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field access_mode", values[i])
+			} else if value.Valid {
+				_m.AccessMode = new(categorydefaultfeature.AccessMode)
+				*_m.AccessMode = categorydefaultfeature.AccessMode(value.String)
+			}
+		case categorydefaultfeature.FieldEventLevel:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field event_level", values[i])
+			} else if value.Valid {
+				_m.EventLevel = new(categorydefaultfeature.EventLevel)
+				*_m.EventLevel = categorydefaultfeature.EventLevel(value.String)
+			}
+		case categorydefaultfeature.FieldCallMode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field call_mode", values[i])
+			} else if value.Valid {
+				_m.CallMode = new(categorydefaultfeature.CallMode)
+				*_m.CallMode = categorydefaultfeature.CallMode(value.String)
+			}
+		case categorydefaultfeature.FieldRelationType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field relation_type", values[i])
+			} else if value.Valid {
+				_m.RelationType = new(string)
+				*_m.RelationType = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -310,11 +355,36 @@ func (_m *CategoryDefaultFeature) String() string {
 	builder.WriteString("feature_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.FeatureID))
 	builder.WriteString(", ")
-	builder.WriteString("override_spec=")
-	builder.WriteString(fmt.Sprintf("%v", _m.OverrideSpec))
+	builder.WriteString("spec=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Spec))
 	builder.WriteString(", ")
 	if v := _m.DisplayName; v != nil {
 		builder.WriteString("display_name=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.DataType; v != nil {
+		builder.WriteString("data_type=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.AccessMode; v != nil {
+		builder.WriteString("access_mode=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.EventLevel; v != nil {
+		builder.WriteString("event_level=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.CallMode; v != nil {
+		builder.WriteString("call_mode=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.RelationType; v != nil {
+		builder.WriteString("relation_type=")
 		builder.WriteString(*v)
 	}
 	builder.WriteByte(')')

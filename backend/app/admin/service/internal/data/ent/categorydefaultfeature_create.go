@@ -163,9 +163,9 @@ func (_c *CategoryDefaultFeatureCreate) SetFeatureID(v uint32) *CategoryDefaultF
 	return _c
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (_c *CategoryDefaultFeatureCreate) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *CategoryDefaultFeatureCreate {
-	_c.mutation.SetOverrideSpec(v)
+// SetSpec sets the "spec" field.
+func (_c *CategoryDefaultFeatureCreate) SetSpec(v *schema.FeatureSpecField) *CategoryDefaultFeatureCreate {
+	_c.mutation.SetSpec(v)
 	return _c
 }
 
@@ -179,6 +179,76 @@ func (_c *CategoryDefaultFeatureCreate) SetDisplayName(v string) *CategoryDefaul
 func (_c *CategoryDefaultFeatureCreate) SetNillableDisplayName(v *string) *CategoryDefaultFeatureCreate {
 	if v != nil {
 		_c.SetDisplayName(*v)
+	}
+	return _c
+}
+
+// SetDataType sets the "data_type" field.
+func (_c *CategoryDefaultFeatureCreate) SetDataType(v categorydefaultfeature.DataType) *CategoryDefaultFeatureCreate {
+	_c.mutation.SetDataType(v)
+	return _c
+}
+
+// SetNillableDataType sets the "data_type" field if the given value is not nil.
+func (_c *CategoryDefaultFeatureCreate) SetNillableDataType(v *categorydefaultfeature.DataType) *CategoryDefaultFeatureCreate {
+	if v != nil {
+		_c.SetDataType(*v)
+	}
+	return _c
+}
+
+// SetAccessMode sets the "access_mode" field.
+func (_c *CategoryDefaultFeatureCreate) SetAccessMode(v categorydefaultfeature.AccessMode) *CategoryDefaultFeatureCreate {
+	_c.mutation.SetAccessMode(v)
+	return _c
+}
+
+// SetNillableAccessMode sets the "access_mode" field if the given value is not nil.
+func (_c *CategoryDefaultFeatureCreate) SetNillableAccessMode(v *categorydefaultfeature.AccessMode) *CategoryDefaultFeatureCreate {
+	if v != nil {
+		_c.SetAccessMode(*v)
+	}
+	return _c
+}
+
+// SetEventLevel sets the "event_level" field.
+func (_c *CategoryDefaultFeatureCreate) SetEventLevel(v categorydefaultfeature.EventLevel) *CategoryDefaultFeatureCreate {
+	_c.mutation.SetEventLevel(v)
+	return _c
+}
+
+// SetNillableEventLevel sets the "event_level" field if the given value is not nil.
+func (_c *CategoryDefaultFeatureCreate) SetNillableEventLevel(v *categorydefaultfeature.EventLevel) *CategoryDefaultFeatureCreate {
+	if v != nil {
+		_c.SetEventLevel(*v)
+	}
+	return _c
+}
+
+// SetCallMode sets the "call_mode" field.
+func (_c *CategoryDefaultFeatureCreate) SetCallMode(v categorydefaultfeature.CallMode) *CategoryDefaultFeatureCreate {
+	_c.mutation.SetCallMode(v)
+	return _c
+}
+
+// SetNillableCallMode sets the "call_mode" field if the given value is not nil.
+func (_c *CategoryDefaultFeatureCreate) SetNillableCallMode(v *categorydefaultfeature.CallMode) *CategoryDefaultFeatureCreate {
+	if v != nil {
+		_c.SetCallMode(*v)
+	}
+	return _c
+}
+
+// SetRelationType sets the "relation_type" field.
+func (_c *CategoryDefaultFeatureCreate) SetRelationType(v string) *CategoryDefaultFeatureCreate {
+	_c.mutation.SetRelationType(v)
+	return _c
+}
+
+// SetNillableRelationType sets the "relation_type" field if the given value is not nil.
+func (_c *CategoryDefaultFeatureCreate) SetNillableRelationType(v *string) *CategoryDefaultFeatureCreate {
+	if v != nil {
+		_c.SetRelationType(*v)
 	}
 	return _c
 }
@@ -259,14 +329,34 @@ func (_c *CategoryDefaultFeatureCreate) check() error {
 	if _, ok := _c.mutation.FeatureID(); !ok {
 		return &ValidationError{Name: "feature_id", err: errors.New(`ent: missing required field "CategoryDefaultFeature.feature_id"`)}
 	}
-	if v, ok := _c.mutation.OverrideSpec(); ok {
+	if v, ok := _c.mutation.Spec(); ok {
 		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "override_spec", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.override_spec": %w`, err)}
+			return &ValidationError{Name: "spec", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.spec": %w`, err)}
 		}
 	}
 	if v, ok := _c.mutation.DisplayName(); ok {
 		if err := categorydefaultfeature.DisplayNameValidator(v); err != nil {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.display_name": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.DataType(); ok {
+		if err := categorydefaultfeature.DataTypeValidator(v); err != nil {
+			return &ValidationError{Name: "data_type", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.data_type": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.AccessMode(); ok {
+		if err := categorydefaultfeature.AccessModeValidator(v); err != nil {
+			return &ValidationError{Name: "access_mode", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.access_mode": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.EventLevel(); ok {
+		if err := categorydefaultfeature.EventLevelValidator(v); err != nil {
+			return &ValidationError{Name: "event_level", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.event_level": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.CallMode(); ok {
+		if err := categorydefaultfeature.CallModeValidator(v); err != nil {
+			return &ValidationError{Name: "call_mode", err: fmt.Errorf(`ent: validator failed for field "CategoryDefaultFeature.call_mode": %w`, err)}
 		}
 	}
 	if v, ok := _c.mutation.ID(); ok {
@@ -349,13 +439,33 @@ func (_c *CategoryDefaultFeatureCreate) createSpec() (*CategoryDefaultFeature, *
 		_spec.SetField(categorydefaultfeature.FieldTenantID, field.TypeUint32, value)
 		_node.TenantID = &value
 	}
-	if value, ok := _c.mutation.OverrideSpec(); ok {
-		_spec.SetField(categorydefaultfeature.FieldOverrideSpec, field.TypeJSON, value)
-		_node.OverrideSpec = value
+	if value, ok := _c.mutation.Spec(); ok {
+		_spec.SetField(categorydefaultfeature.FieldSpec, field.TypeJSON, value)
+		_node.Spec = value
 	}
 	if value, ok := _c.mutation.DisplayName(); ok {
 		_spec.SetField(categorydefaultfeature.FieldDisplayName, field.TypeString, value)
 		_node.DisplayName = &value
+	}
+	if value, ok := _c.mutation.DataType(); ok {
+		_spec.SetField(categorydefaultfeature.FieldDataType, field.TypeEnum, value)
+		_node.DataType = &value
+	}
+	if value, ok := _c.mutation.AccessMode(); ok {
+		_spec.SetField(categorydefaultfeature.FieldAccessMode, field.TypeEnum, value)
+		_node.AccessMode = &value
+	}
+	if value, ok := _c.mutation.EventLevel(); ok {
+		_spec.SetField(categorydefaultfeature.FieldEventLevel, field.TypeEnum, value)
+		_node.EventLevel = &value
+	}
+	if value, ok := _c.mutation.CallMode(); ok {
+		_spec.SetField(categorydefaultfeature.FieldCallMode, field.TypeEnum, value)
+		_node.CallMode = &value
+	}
+	if value, ok := _c.mutation.RelationType(); ok {
+		_spec.SetField(categorydefaultfeature.FieldRelationType, field.TypeString, value)
+		_node.RelationType = &value
 	}
 	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -617,21 +727,21 @@ func (u *CategoryDefaultFeatureUpsert) UpdateFeatureID() *CategoryDefaultFeature
 	return u
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (u *CategoryDefaultFeatureUpsert) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *CategoryDefaultFeatureUpsert {
-	u.Set(categorydefaultfeature.FieldOverrideSpec, v)
+// SetSpec sets the "spec" field.
+func (u *CategoryDefaultFeatureUpsert) SetSpec(v *schema.FeatureSpecField) *CategoryDefaultFeatureUpsert {
+	u.Set(categorydefaultfeature.FieldSpec, v)
 	return u
 }
 
-// UpdateOverrideSpec sets the "override_spec" field to the value that was provided on create.
-func (u *CategoryDefaultFeatureUpsert) UpdateOverrideSpec() *CategoryDefaultFeatureUpsert {
-	u.SetExcluded(categorydefaultfeature.FieldOverrideSpec)
+// UpdateSpec sets the "spec" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsert) UpdateSpec() *CategoryDefaultFeatureUpsert {
+	u.SetExcluded(categorydefaultfeature.FieldSpec)
 	return u
 }
 
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (u *CategoryDefaultFeatureUpsert) ClearOverrideSpec() *CategoryDefaultFeatureUpsert {
-	u.SetNull(categorydefaultfeature.FieldOverrideSpec)
+// ClearSpec clears the value of the "spec" field.
+func (u *CategoryDefaultFeatureUpsert) ClearSpec() *CategoryDefaultFeatureUpsert {
+	u.SetNull(categorydefaultfeature.FieldSpec)
 	return u
 }
 
@@ -650,6 +760,96 @@ func (u *CategoryDefaultFeatureUpsert) UpdateDisplayName() *CategoryDefaultFeatu
 // ClearDisplayName clears the value of the "display_name" field.
 func (u *CategoryDefaultFeatureUpsert) ClearDisplayName() *CategoryDefaultFeatureUpsert {
 	u.SetNull(categorydefaultfeature.FieldDisplayName)
+	return u
+}
+
+// SetDataType sets the "data_type" field.
+func (u *CategoryDefaultFeatureUpsert) SetDataType(v categorydefaultfeature.DataType) *CategoryDefaultFeatureUpsert {
+	u.Set(categorydefaultfeature.FieldDataType, v)
+	return u
+}
+
+// UpdateDataType sets the "data_type" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsert) UpdateDataType() *CategoryDefaultFeatureUpsert {
+	u.SetExcluded(categorydefaultfeature.FieldDataType)
+	return u
+}
+
+// ClearDataType clears the value of the "data_type" field.
+func (u *CategoryDefaultFeatureUpsert) ClearDataType() *CategoryDefaultFeatureUpsert {
+	u.SetNull(categorydefaultfeature.FieldDataType)
+	return u
+}
+
+// SetAccessMode sets the "access_mode" field.
+func (u *CategoryDefaultFeatureUpsert) SetAccessMode(v categorydefaultfeature.AccessMode) *CategoryDefaultFeatureUpsert {
+	u.Set(categorydefaultfeature.FieldAccessMode, v)
+	return u
+}
+
+// UpdateAccessMode sets the "access_mode" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsert) UpdateAccessMode() *CategoryDefaultFeatureUpsert {
+	u.SetExcluded(categorydefaultfeature.FieldAccessMode)
+	return u
+}
+
+// ClearAccessMode clears the value of the "access_mode" field.
+func (u *CategoryDefaultFeatureUpsert) ClearAccessMode() *CategoryDefaultFeatureUpsert {
+	u.SetNull(categorydefaultfeature.FieldAccessMode)
+	return u
+}
+
+// SetEventLevel sets the "event_level" field.
+func (u *CategoryDefaultFeatureUpsert) SetEventLevel(v categorydefaultfeature.EventLevel) *CategoryDefaultFeatureUpsert {
+	u.Set(categorydefaultfeature.FieldEventLevel, v)
+	return u
+}
+
+// UpdateEventLevel sets the "event_level" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsert) UpdateEventLevel() *CategoryDefaultFeatureUpsert {
+	u.SetExcluded(categorydefaultfeature.FieldEventLevel)
+	return u
+}
+
+// ClearEventLevel clears the value of the "event_level" field.
+func (u *CategoryDefaultFeatureUpsert) ClearEventLevel() *CategoryDefaultFeatureUpsert {
+	u.SetNull(categorydefaultfeature.FieldEventLevel)
+	return u
+}
+
+// SetCallMode sets the "call_mode" field.
+func (u *CategoryDefaultFeatureUpsert) SetCallMode(v categorydefaultfeature.CallMode) *CategoryDefaultFeatureUpsert {
+	u.Set(categorydefaultfeature.FieldCallMode, v)
+	return u
+}
+
+// UpdateCallMode sets the "call_mode" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsert) UpdateCallMode() *CategoryDefaultFeatureUpsert {
+	u.SetExcluded(categorydefaultfeature.FieldCallMode)
+	return u
+}
+
+// ClearCallMode clears the value of the "call_mode" field.
+func (u *CategoryDefaultFeatureUpsert) ClearCallMode() *CategoryDefaultFeatureUpsert {
+	u.SetNull(categorydefaultfeature.FieldCallMode)
+	return u
+}
+
+// SetRelationType sets the "relation_type" field.
+func (u *CategoryDefaultFeatureUpsert) SetRelationType(v string) *CategoryDefaultFeatureUpsert {
+	u.Set(categorydefaultfeature.FieldRelationType, v)
+	return u
+}
+
+// UpdateRelationType sets the "relation_type" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsert) UpdateRelationType() *CategoryDefaultFeatureUpsert {
+	u.SetExcluded(categorydefaultfeature.FieldRelationType)
+	return u
+}
+
+// ClearRelationType clears the value of the "relation_type" field.
+func (u *CategoryDefaultFeatureUpsert) ClearRelationType() *CategoryDefaultFeatureUpsert {
+	u.SetNull(categorydefaultfeature.FieldRelationType)
 	return u
 }
 
@@ -910,24 +1110,24 @@ func (u *CategoryDefaultFeatureUpsertOne) UpdateFeatureID() *CategoryDefaultFeat
 	})
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (u *CategoryDefaultFeatureUpsertOne) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *CategoryDefaultFeatureUpsertOne {
+// SetSpec sets the "spec" field.
+func (u *CategoryDefaultFeatureUpsertOne) SetSpec(v *schema.FeatureSpecField) *CategoryDefaultFeatureUpsertOne {
 	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
-		s.SetOverrideSpec(v)
+		s.SetSpec(v)
 	})
 }
 
-// UpdateOverrideSpec sets the "override_spec" field to the value that was provided on create.
-func (u *CategoryDefaultFeatureUpsertOne) UpdateOverrideSpec() *CategoryDefaultFeatureUpsertOne {
+// UpdateSpec sets the "spec" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertOne) UpdateSpec() *CategoryDefaultFeatureUpsertOne {
 	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
-		s.UpdateOverrideSpec()
+		s.UpdateSpec()
 	})
 }
 
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (u *CategoryDefaultFeatureUpsertOne) ClearOverrideSpec() *CategoryDefaultFeatureUpsertOne {
+// ClearSpec clears the value of the "spec" field.
+func (u *CategoryDefaultFeatureUpsertOne) ClearSpec() *CategoryDefaultFeatureUpsertOne {
 	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
-		s.ClearOverrideSpec()
+		s.ClearSpec()
 	})
 }
 
@@ -949,6 +1149,111 @@ func (u *CategoryDefaultFeatureUpsertOne) UpdateDisplayName() *CategoryDefaultFe
 func (u *CategoryDefaultFeatureUpsertOne) ClearDisplayName() *CategoryDefaultFeatureUpsertOne {
 	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
 		s.ClearDisplayName()
+	})
+}
+
+// SetDataType sets the "data_type" field.
+func (u *CategoryDefaultFeatureUpsertOne) SetDataType(v categorydefaultfeature.DataType) *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetDataType(v)
+	})
+}
+
+// UpdateDataType sets the "data_type" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertOne) UpdateDataType() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateDataType()
+	})
+}
+
+// ClearDataType clears the value of the "data_type" field.
+func (u *CategoryDefaultFeatureUpsertOne) ClearDataType() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearDataType()
+	})
+}
+
+// SetAccessMode sets the "access_mode" field.
+func (u *CategoryDefaultFeatureUpsertOne) SetAccessMode(v categorydefaultfeature.AccessMode) *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetAccessMode(v)
+	})
+}
+
+// UpdateAccessMode sets the "access_mode" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertOne) UpdateAccessMode() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateAccessMode()
+	})
+}
+
+// ClearAccessMode clears the value of the "access_mode" field.
+func (u *CategoryDefaultFeatureUpsertOne) ClearAccessMode() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearAccessMode()
+	})
+}
+
+// SetEventLevel sets the "event_level" field.
+func (u *CategoryDefaultFeatureUpsertOne) SetEventLevel(v categorydefaultfeature.EventLevel) *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetEventLevel(v)
+	})
+}
+
+// UpdateEventLevel sets the "event_level" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertOne) UpdateEventLevel() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateEventLevel()
+	})
+}
+
+// ClearEventLevel clears the value of the "event_level" field.
+func (u *CategoryDefaultFeatureUpsertOne) ClearEventLevel() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearEventLevel()
+	})
+}
+
+// SetCallMode sets the "call_mode" field.
+func (u *CategoryDefaultFeatureUpsertOne) SetCallMode(v categorydefaultfeature.CallMode) *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetCallMode(v)
+	})
+}
+
+// UpdateCallMode sets the "call_mode" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertOne) UpdateCallMode() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateCallMode()
+	})
+}
+
+// ClearCallMode clears the value of the "call_mode" field.
+func (u *CategoryDefaultFeatureUpsertOne) ClearCallMode() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearCallMode()
+	})
+}
+
+// SetRelationType sets the "relation_type" field.
+func (u *CategoryDefaultFeatureUpsertOne) SetRelationType(v string) *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetRelationType(v)
+	})
+}
+
+// UpdateRelationType sets the "relation_type" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertOne) UpdateRelationType() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateRelationType()
+	})
+}
+
+// ClearRelationType clears the value of the "relation_type" field.
+func (u *CategoryDefaultFeatureUpsertOne) ClearRelationType() *CategoryDefaultFeatureUpsertOne {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearRelationType()
 	})
 }
 
@@ -1375,24 +1680,24 @@ func (u *CategoryDefaultFeatureUpsertBulk) UpdateFeatureID() *CategoryDefaultFea
 	})
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (u *CategoryDefaultFeatureUpsertBulk) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *CategoryDefaultFeatureUpsertBulk {
+// SetSpec sets the "spec" field.
+func (u *CategoryDefaultFeatureUpsertBulk) SetSpec(v *schema.FeatureSpecField) *CategoryDefaultFeatureUpsertBulk {
 	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
-		s.SetOverrideSpec(v)
+		s.SetSpec(v)
 	})
 }
 
-// UpdateOverrideSpec sets the "override_spec" field to the value that was provided on create.
-func (u *CategoryDefaultFeatureUpsertBulk) UpdateOverrideSpec() *CategoryDefaultFeatureUpsertBulk {
+// UpdateSpec sets the "spec" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertBulk) UpdateSpec() *CategoryDefaultFeatureUpsertBulk {
 	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
-		s.UpdateOverrideSpec()
+		s.UpdateSpec()
 	})
 }
 
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (u *CategoryDefaultFeatureUpsertBulk) ClearOverrideSpec() *CategoryDefaultFeatureUpsertBulk {
+// ClearSpec clears the value of the "spec" field.
+func (u *CategoryDefaultFeatureUpsertBulk) ClearSpec() *CategoryDefaultFeatureUpsertBulk {
 	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
-		s.ClearOverrideSpec()
+		s.ClearSpec()
 	})
 }
 
@@ -1414,6 +1719,111 @@ func (u *CategoryDefaultFeatureUpsertBulk) UpdateDisplayName() *CategoryDefaultF
 func (u *CategoryDefaultFeatureUpsertBulk) ClearDisplayName() *CategoryDefaultFeatureUpsertBulk {
 	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
 		s.ClearDisplayName()
+	})
+}
+
+// SetDataType sets the "data_type" field.
+func (u *CategoryDefaultFeatureUpsertBulk) SetDataType(v categorydefaultfeature.DataType) *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetDataType(v)
+	})
+}
+
+// UpdateDataType sets the "data_type" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertBulk) UpdateDataType() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateDataType()
+	})
+}
+
+// ClearDataType clears the value of the "data_type" field.
+func (u *CategoryDefaultFeatureUpsertBulk) ClearDataType() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearDataType()
+	})
+}
+
+// SetAccessMode sets the "access_mode" field.
+func (u *CategoryDefaultFeatureUpsertBulk) SetAccessMode(v categorydefaultfeature.AccessMode) *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetAccessMode(v)
+	})
+}
+
+// UpdateAccessMode sets the "access_mode" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertBulk) UpdateAccessMode() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateAccessMode()
+	})
+}
+
+// ClearAccessMode clears the value of the "access_mode" field.
+func (u *CategoryDefaultFeatureUpsertBulk) ClearAccessMode() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearAccessMode()
+	})
+}
+
+// SetEventLevel sets the "event_level" field.
+func (u *CategoryDefaultFeatureUpsertBulk) SetEventLevel(v categorydefaultfeature.EventLevel) *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetEventLevel(v)
+	})
+}
+
+// UpdateEventLevel sets the "event_level" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertBulk) UpdateEventLevel() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateEventLevel()
+	})
+}
+
+// ClearEventLevel clears the value of the "event_level" field.
+func (u *CategoryDefaultFeatureUpsertBulk) ClearEventLevel() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearEventLevel()
+	})
+}
+
+// SetCallMode sets the "call_mode" field.
+func (u *CategoryDefaultFeatureUpsertBulk) SetCallMode(v categorydefaultfeature.CallMode) *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetCallMode(v)
+	})
+}
+
+// UpdateCallMode sets the "call_mode" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertBulk) UpdateCallMode() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateCallMode()
+	})
+}
+
+// ClearCallMode clears the value of the "call_mode" field.
+func (u *CategoryDefaultFeatureUpsertBulk) ClearCallMode() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearCallMode()
+	})
+}
+
+// SetRelationType sets the "relation_type" field.
+func (u *CategoryDefaultFeatureUpsertBulk) SetRelationType(v string) *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.SetRelationType(v)
+	})
+}
+
+// UpdateRelationType sets the "relation_type" field to the value that was provided on create.
+func (u *CategoryDefaultFeatureUpsertBulk) UpdateRelationType() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.UpdateRelationType()
+	})
+}
+
+// ClearRelationType clears the value of the "relation_type" field.
+func (u *CategoryDefaultFeatureUpsertBulk) ClearRelationType() *CategoryDefaultFeatureUpsertBulk {
+	return u.Update(func(s *CategoryDefaultFeatureUpsert) {
+		s.ClearRelationType()
 	})
 }
 

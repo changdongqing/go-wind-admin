@@ -1,11 +1,19 @@
 package service
 
 import (
+	"strconv"
+
 	thingmodelV1 "go-wind-admin/api/gen/go/thingmodel/service/v1"
 )
 
-// feature_validator.go: 四类特征 spec 校验器（按 feature_type 分派）。
-// 设计依据 / Design ref: docs/thingmodel/sheji/10-特征参数与spec设计.md §6
+// spec_validator.go: 四类特征 spec 校验器（按 feature_type 分派）。
+//
+// 设计依据 / Design ref:
+//   - docs/thingmodel/sheji/10-特征参数与spec设计.md §6
+//   - docs/thingmodel/sheji/修改记录/CR-001-结构化约束下沉到模型层.md
+//
+// CR-001：本校验器从 feature_service 迁移至共享位置，由
+// CategoryDefaultFeatureService 与 ProductFeatureService 在 Create/Update 时调用。
 //
 // 校验规则总表 V1~V17（V8/V15 需 DB 访问，在 service 层补充；纯函数仅校验结构）：
 //   - V1..V9: PROPERTY
@@ -247,3 +255,86 @@ func validateParamSpec(p *thingmodelV1.ParamSpec) []string {
 	}
 	return errs
 }
+
+// itoa 简洁 uint32→string
+func itoa(n uint32) string { return strconv.FormatUint(uint64(n), 10) }
+
+// syncSpecializedColumnsCDF 将 CategoryDefaultFeature.spec 中的字段同步到 5 个冗余抽取列。
+// CR-001：CDF 与 PF 在写入前调用此 helper 保证 spec ↔ 冗余列一致性（V17）。
+func syncSpecializedColumnsCDF(d *thingmodelV1.CategoryDefaultFeature) {
+	if d == nil || d.Spec == nil {
+		return
+	}
+	switch sp := d.Spec.Spec.(type) {
+	case *thingmodelV1.FeatureSpec_Property:
+		if sp.Property != nil {
+			dt := sp.Property.GetDataType()
+			d.DataType = &dt
+			am := sp.Property.GetAccessMode()
+			d.AccessMode = &am
+		}
+	case *thingmodelV1.FeatureSpec_Event:
+		if sp.Event != nil {
+			lv := sp.Event.GetLevel()
+			d.EventLevel = &lv
+		}
+	case *thingmodelV1.FeatureSpec_Service:
+		if sp.Service != nil {
+			cm := sp.Service.GetCallMode()
+			d.CallMode = &cm
+		}
+	case *thingmodelV1.FeatureSpec_Relation:
+		if sp.Relation != nil {
+			d.RelationType = ptrString(sp.Relation.GetRelationType())
+		}
+	}
+}
+
+// syncSpecializedColumnsPF 与 syncSpecializedColumnsCDF 等价，目标为 ProductFeature。
+func syncSpecializedColumnsPF(d *thingmodelV1.ProductFeature) {
+	if d == nil || d.Spec == nil {
+		return
+	}
+	switch sp := d.Spec.Spec.(type) {
+	case *thingmodelV1.FeatureSpec_Property:
+		if sp.Property != nil {
+			dt := sp.Property.GetDataType()
+			d.DataType = &dt
+			am := sp.Property.GetAccessMode()
+			d.AccessMode = &am
+		}
+	case *thingmodelV1.FeatureSpec_Event:
+		if sp.Event != nil {
+			lv := sp.Event.GetLevel()
+			d.EventLevel = &lv
+		}
+	case *thingmodelV1.FeatureSpec_Service:
+		if sp.Service != nil {
+			cm := sp.Service.GetCallMode()
+			d.CallMode = &cm
+		}
+	case *thingmodelV1.FeatureSpec_Relation:
+		if sp.Relation != nil {
+			d.RelationType = ptrString(sp.Relation.GetRelationType())
+		}
+	}
+}
+
+// extractPropertyUnitIDFromSpec 提取 spec.property.unit.unitId（其它类型返回 0）。
+// 给 CDF/PF service 在维护 thingmodel_units.reference_count 时使用。
+func extractPropertyUnitIDFromSpec(spec *thingmodelV1.FeatureSpec) uint32 {
+	if spec == nil {
+		return 0
+	}
+	prop, ok := spec.Spec.(*thingmodelV1.FeatureSpec_Property)
+	if !ok || prop.Property == nil {
+		return 0
+	}
+	u := prop.Property.GetUnit()
+	if u == nil {
+		return 0
+	}
+	return u.GetUnitId()
+}
+
+func ptrString(s string) *string { return &s }

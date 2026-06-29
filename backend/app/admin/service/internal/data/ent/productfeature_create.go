@@ -252,15 +252,9 @@ func (_c *ProductFeatureCreate) SetNillableDescription(v *string) *ProductFeatur
 	return _c
 }
 
-// SetFeatureSnapshot sets the "feature_snapshot" field.
-func (_c *ProductFeatureCreate) SetFeatureSnapshot(v *schema.FeatureSpecField) *ProductFeatureCreate {
-	_c.mutation.SetFeatureSnapshot(v)
-	return _c
-}
-
-// SetOverrideSpec sets the "override_spec" field.
-func (_c *ProductFeatureCreate) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *ProductFeatureCreate {
-	_c.mutation.SetOverrideSpec(v)
+// SetSpec sets the "spec" field.
+func (_c *ProductFeatureCreate) SetSpec(v *schema.FeatureSpecField) *ProductFeatureCreate {
+	_c.mutation.SetSpec(v)
 	return _c
 }
 
@@ -438,17 +432,9 @@ func (_c *ProductFeatureCreate) check() error {
 			return &ValidationError{Name: "name_en", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.name_en": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.FeatureSnapshot(); !ok {
-		return &ValidationError{Name: "feature_snapshot", err: errors.New(`ent: missing required field "ProductFeature.feature_snapshot"`)}
-	}
-	if v, ok := _c.mutation.FeatureSnapshot(); ok {
+	if v, ok := _c.mutation.Spec(); ok {
 		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "feature_snapshot", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.feature_snapshot": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.OverrideSpec(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "override_spec", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.override_spec": %w`, err)}
+			return &ValidationError{Name: "spec", err: fmt.Errorf(`ent: validator failed for field "ProductFeature.spec": %w`, err)}
 		}
 	}
 	if v, ok := _c.mutation.DataType(); ok {
@@ -580,13 +566,9 @@ func (_c *ProductFeatureCreate) createSpec() (*ProductFeature, *sqlgraph.CreateS
 		_spec.SetField(productfeature.FieldDescription, field.TypeString, value)
 		_node.Description = &value
 	}
-	if value, ok := _c.mutation.FeatureSnapshot(); ok {
-		_spec.SetField(productfeature.FieldFeatureSnapshot, field.TypeJSON, value)
-		_node.FeatureSnapshot = value
-	}
-	if value, ok := _c.mutation.OverrideSpec(); ok {
-		_spec.SetField(productfeature.FieldOverrideSpec, field.TypeJSON, value)
-		_node.OverrideSpec = value
+	if value, ok := _c.mutation.Spec(); ok {
+		_spec.SetField(productfeature.FieldSpec, field.TypeJSON, value)
+		_node.Spec = value
 	}
 	if value, ok := _c.mutation.DataType(); ok {
 		_spec.SetField(productfeature.FieldDataType, field.TypeEnum, value)
@@ -977,33 +959,21 @@ func (u *ProductFeatureUpsert) ClearDescription() *ProductFeatureUpsert {
 	return u
 }
 
-// SetFeatureSnapshot sets the "feature_snapshot" field.
-func (u *ProductFeatureUpsert) SetFeatureSnapshot(v *schema.FeatureSpecField) *ProductFeatureUpsert {
-	u.Set(productfeature.FieldFeatureSnapshot, v)
+// SetSpec sets the "spec" field.
+func (u *ProductFeatureUpsert) SetSpec(v *schema.FeatureSpecField) *ProductFeatureUpsert {
+	u.Set(productfeature.FieldSpec, v)
 	return u
 }
 
-// UpdateFeatureSnapshot sets the "feature_snapshot" field to the value that was provided on create.
-func (u *ProductFeatureUpsert) UpdateFeatureSnapshot() *ProductFeatureUpsert {
-	u.SetExcluded(productfeature.FieldFeatureSnapshot)
+// UpdateSpec sets the "spec" field to the value that was provided on create.
+func (u *ProductFeatureUpsert) UpdateSpec() *ProductFeatureUpsert {
+	u.SetExcluded(productfeature.FieldSpec)
 	return u
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (u *ProductFeatureUpsert) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *ProductFeatureUpsert {
-	u.Set(productfeature.FieldOverrideSpec, v)
-	return u
-}
-
-// UpdateOverrideSpec sets the "override_spec" field to the value that was provided on create.
-func (u *ProductFeatureUpsert) UpdateOverrideSpec() *ProductFeatureUpsert {
-	u.SetExcluded(productfeature.FieldOverrideSpec)
-	return u
-}
-
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (u *ProductFeatureUpsert) ClearOverrideSpec() *ProductFeatureUpsert {
-	u.SetNull(productfeature.FieldOverrideSpec)
+// ClearSpec clears the value of the "spec" field.
+func (u *ProductFeatureUpsert) ClearSpec() *ProductFeatureUpsert {
+	u.SetNull(productfeature.FieldSpec)
 	return u
 }
 
@@ -1501,38 +1471,24 @@ func (u *ProductFeatureUpsertOne) ClearDescription() *ProductFeatureUpsertOne {
 	})
 }
 
-// SetFeatureSnapshot sets the "feature_snapshot" field.
-func (u *ProductFeatureUpsertOne) SetFeatureSnapshot(v *schema.FeatureSpecField) *ProductFeatureUpsertOne {
+// SetSpec sets the "spec" field.
+func (u *ProductFeatureUpsertOne) SetSpec(v *schema.FeatureSpecField) *ProductFeatureUpsertOne {
 	return u.Update(func(s *ProductFeatureUpsert) {
-		s.SetFeatureSnapshot(v)
+		s.SetSpec(v)
 	})
 }
 
-// UpdateFeatureSnapshot sets the "feature_snapshot" field to the value that was provided on create.
-func (u *ProductFeatureUpsertOne) UpdateFeatureSnapshot() *ProductFeatureUpsertOne {
+// UpdateSpec sets the "spec" field to the value that was provided on create.
+func (u *ProductFeatureUpsertOne) UpdateSpec() *ProductFeatureUpsertOne {
 	return u.Update(func(s *ProductFeatureUpsert) {
-		s.UpdateFeatureSnapshot()
+		s.UpdateSpec()
 	})
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (u *ProductFeatureUpsertOne) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *ProductFeatureUpsertOne {
+// ClearSpec clears the value of the "spec" field.
+func (u *ProductFeatureUpsertOne) ClearSpec() *ProductFeatureUpsertOne {
 	return u.Update(func(s *ProductFeatureUpsert) {
-		s.SetOverrideSpec(v)
-	})
-}
-
-// UpdateOverrideSpec sets the "override_spec" field to the value that was provided on create.
-func (u *ProductFeatureUpsertOne) UpdateOverrideSpec() *ProductFeatureUpsertOne {
-	return u.Update(func(s *ProductFeatureUpsert) {
-		s.UpdateOverrideSpec()
-	})
-}
-
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (u *ProductFeatureUpsertOne) ClearOverrideSpec() *ProductFeatureUpsertOne {
-	return u.Update(func(s *ProductFeatureUpsert) {
-		s.ClearOverrideSpec()
+		s.ClearSpec()
 	})
 }
 
@@ -2211,38 +2167,24 @@ func (u *ProductFeatureUpsertBulk) ClearDescription() *ProductFeatureUpsertBulk 
 	})
 }
 
-// SetFeatureSnapshot sets the "feature_snapshot" field.
-func (u *ProductFeatureUpsertBulk) SetFeatureSnapshot(v *schema.FeatureSpecField) *ProductFeatureUpsertBulk {
+// SetSpec sets the "spec" field.
+func (u *ProductFeatureUpsertBulk) SetSpec(v *schema.FeatureSpecField) *ProductFeatureUpsertBulk {
 	return u.Update(func(s *ProductFeatureUpsert) {
-		s.SetFeatureSnapshot(v)
+		s.SetSpec(v)
 	})
 }
 
-// UpdateFeatureSnapshot sets the "feature_snapshot" field to the value that was provided on create.
-func (u *ProductFeatureUpsertBulk) UpdateFeatureSnapshot() *ProductFeatureUpsertBulk {
+// UpdateSpec sets the "spec" field to the value that was provided on create.
+func (u *ProductFeatureUpsertBulk) UpdateSpec() *ProductFeatureUpsertBulk {
 	return u.Update(func(s *ProductFeatureUpsert) {
-		s.UpdateFeatureSnapshot()
+		s.UpdateSpec()
 	})
 }
 
-// SetOverrideSpec sets the "override_spec" field.
-func (u *ProductFeatureUpsertBulk) SetOverrideSpec(v *schema.FeatureOverrideSpecField) *ProductFeatureUpsertBulk {
+// ClearSpec clears the value of the "spec" field.
+func (u *ProductFeatureUpsertBulk) ClearSpec() *ProductFeatureUpsertBulk {
 	return u.Update(func(s *ProductFeatureUpsert) {
-		s.SetOverrideSpec(v)
-	})
-}
-
-// UpdateOverrideSpec sets the "override_spec" field to the value that was provided on create.
-func (u *ProductFeatureUpsertBulk) UpdateOverrideSpec() *ProductFeatureUpsertBulk {
-	return u.Update(func(s *ProductFeatureUpsert) {
-		s.UpdateOverrideSpec()
-	})
-}
-
-// ClearOverrideSpec clears the value of the "override_spec" field.
-func (u *ProductFeatureUpsertBulk) ClearOverrideSpec() *ProductFeatureUpsertBulk {
-	return u.Update(func(s *ProductFeatureUpsert) {
-		s.ClearOverrideSpec()
+		s.ClearSpec()
 	})
 }
 
